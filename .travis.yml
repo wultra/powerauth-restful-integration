@@ -1,0 +1,20 @@
+language: java
+jdk:
+  - oraclejdk8
+env:
+  global:
+  - secure: "T5N2JPg3RXeohHv11G4Yi5WR2wXI+d85VLkF9nt1293FvqblxVrN26CipeKPuRYi5Xo71wNbqsLdmy83cE8Mm0n6eTxTRbzsc/CjK7xoAMId+MAEznozEaiZPzRECF63LNP+tWobGLsMT7gJMFJL/94ib8p+I5E1kqFtMAQo/a0uh82vvcgS1r9jtXq/DXxsUKGQPJwGeQH8dIegUPVuXcXvIfwEFI9WNYYBLhwAlW5r+FYQqgTDOiP2jttVhRMDU37SiWbh0YaR2Bc0Iw1muy2Du30VROWgkV98HRDU8B8TBxdcBL9QkCvkzD3EmPiD/JeccG0DwtBXpEirtk8v2EwlKAVwuTDVxwdwAdYxREl2w4fx+8XCb0ps6GWEcWgbKEL/XRNP4uXziAMor5udUMpuS8r9kPqoy/sIhpVaM9df+Wd1KEnzv88Bd04IwZasOeuA8wdOPOLpickf/+s29Ez3oUKggZMo6kQvfhiBjXqkfQ10N7bog7ZjQXouSVBDj9t34ksJMNaIJ01mfBXddBh7pq7kp/Uct1MJU9/LfaOXQ8FILu6Qxqr50Gyr9CwSm0fAFJL60EDNdYhq8jF6yPGlaoild1SQKx+veFUzu6bbk49WrVvwxv4leiXH9jhf6kIVtpCZ8RoBDBH5EdMUmPPz7t09EKPs7U75BVkD420="
+
+before_install:
+  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+
+addons:
+  coverity_scan:
+    project:
+      name: lime-company/powerauth-server
+      description: Build submitted via Travis CI
+    notification_email: petr@lime-company.eu
+    build_command_prepend: mvn clean
+    build_command: mvn -DskipTests=true compile
+    branch_pattern: master
+  srcclr: true
