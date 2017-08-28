@@ -44,6 +44,8 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
+ * Example controller for a custom activation implementation.
+ *
  * @author Petr Dvorak, petr@lime-company.eu
  */
 @Controller
