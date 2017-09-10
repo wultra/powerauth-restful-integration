@@ -29,6 +29,7 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaul
 import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestHeader;
@@ -69,14 +70,12 @@ public class SecureVaultController {
 
             PowerAuthHttpHeaderValidator.validate(header);
 
+            SignatureTypeConverter converter = new SignatureTypeConverter();
+
             String activationId = header.getActivationId();
             String applicationId = header.getApplicationKey();
             String signature = header.getSignature();
-            String signatureTypeStr = header.getSignatureType();
-            if (signatureTypeStr != null) {
-                signatureTypeStr = signatureTypeStr.toUpperCase();
-            }
-            SignatureType signatureType = SignatureType.fromValue(signatureTypeStr);
+            SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);

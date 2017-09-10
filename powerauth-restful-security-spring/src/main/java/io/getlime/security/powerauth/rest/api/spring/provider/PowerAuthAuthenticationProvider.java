@@ -33,6 +33,7 @@ import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticat
 import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthAuthenticationImpl;
+import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -41,7 +42,6 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * Implementation of PowerAuth authentication provider.
@@ -73,8 +73,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         if (powerAuthAuthentication.getSignatureType() != null) {
 
-            final String signatureTypeSanitized = powerAuthAuthentication.getSignatureType().toUpperCase();
-            final SignatureType signatureType = SignatureType.fromValue(signatureTypeSanitized);
+            SignatureTypeConverter converter = new SignatureTypeConverter();
+            final SignatureType signatureType = converter.convertFrom(powerAuthAuthentication.getSignatureType());
 
             VerifySignatureRequest soapRequest = new VerifySignatureRequest();
             soapRequest.setActivationId(powerAuthAuthentication.getActivationId());

@@ -30,6 +30,7 @@ import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticat
 import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthAuthenticationImpl;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.ejb.Stateless;
@@ -56,8 +57,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         if (authentication.getSignatureType() != null) {
 
-            final String signatureTypeSanitized = authentication.getSignatureType().toUpperCase();
-            final PowerAuthPortServiceStub.SignatureType signatureType = PowerAuthPortServiceStub.SignatureType.Factory.fromValue(signatureTypeSanitized);
+            SignatureTypeConverter converter = new SignatureTypeConverter();
+            final PowerAuthPortServiceStub.SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
 
             PowerAuthPortServiceStub.VerifySignatureRequest soapRequest = new PowerAuthPortServiceStub.VerifySignatureRequest();
             soapRequest.setActivationId(authentication.getActivationId());

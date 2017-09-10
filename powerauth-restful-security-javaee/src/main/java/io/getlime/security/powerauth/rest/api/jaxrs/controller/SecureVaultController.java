@@ -28,6 +28,7 @@ import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
@@ -64,14 +65,12 @@ public class SecureVaultController {
 
             PowerAuthHttpHeaderValidator.validate(header);
 
+            SignatureTypeConverter converter = new SignatureTypeConverter();
+
             String activationId = header.getActivationId();
             String applicationId = header.getApplicationKey();
             String signature = header.getSignature();
-            String signatureTypeStr = header.getSignatureType();
-            if (signatureTypeStr != null) {
-                signatureTypeStr = signatureTypeStr.toUpperCase();
-            }
-            PowerAuthPortServiceStub.SignatureType signatureType = PowerAuthPortServiceStub.SignatureType.Factory.fromValue(signatureTypeStr);
+            PowerAuthPortServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
