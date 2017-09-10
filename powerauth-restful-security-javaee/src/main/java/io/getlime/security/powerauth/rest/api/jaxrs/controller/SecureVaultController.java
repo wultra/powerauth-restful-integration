@@ -25,9 +25,10 @@ import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
+import io.getlime.security.powerauth.http.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
-import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
@@ -63,7 +64,11 @@ public class SecureVaultController {
         try {
             PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(signatureHeader);
 
-            PowerAuthHttpHeaderValidator.validate(header);
+            try {
+                PowerAuthHttpHeaderValidator.validate(header);
+            } catch (InvalidPowerAuthHttpHeaderException e) {
+                throw new PowerAuthAuthenticationException(e.getMessage());
+            }
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
 
