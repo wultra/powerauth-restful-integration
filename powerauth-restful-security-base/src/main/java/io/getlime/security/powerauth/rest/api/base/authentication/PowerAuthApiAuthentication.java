@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.base.authentication;
 
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+
 /**
  * Inteface for PowerAuth API authentication object used between intermediate server
  * application (such as mobile banking API) and core systems (such as banking core).
@@ -51,5 +53,31 @@ public interface PowerAuthApiAuthentication {
      * @param activationId Activation ID
      */
     void setActivationId(String activationId);
+
+    /**
+     * Get related application ID.
+     * @return Application ID.
+     */
+    Long getApplicationId();
+
+    /**
+     * Set related application ID.
+     * @param id Application ID.
+     */
+    void setApplicationId(Long id);
+
+    /**
+     * Return authentication factors related to the signature that was used to produce
+     * this authentication object.
+     * @return Signature type (signature factors).
+     */
+    PowerAuthSignatureTypes getSignatureFactors();
+
+    /**
+     * Set authentication factors related to the signature that was used to produce
+     * this authentication object.
+     * @param factors Signature type (signature factors).
+     */
+    void setSignatureFactors(PowerAuthSignatureTypes factors);
 
 }

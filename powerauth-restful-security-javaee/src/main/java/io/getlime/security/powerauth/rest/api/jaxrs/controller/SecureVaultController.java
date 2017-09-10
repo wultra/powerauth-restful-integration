@@ -22,20 +22,18 @@ package io.getlime.security.powerauth.rest.api.jaxrs.controller;
 
 import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.io.UnsupportedEncodingException;
-import java.util.Map;
 
 /**
  * Controller implementing secure vault related end-points from the
@@ -55,7 +53,6 @@ public class SecureVaultController {
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link VaultUnlockResponse} payload.
      * @throws PowerAuthAuthenticationException In case authentication fails.
-     * @throws UnsupportedEncodingException In case UTF-8 is not supported.
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
@@ -63,12 +60,19 @@ public class SecureVaultController {
     @Path("unlock")
     public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthHttpHeader.HEADER_NAME) String signatureHeader) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
         try {
-            Map<String, String> map = PowerAuthHttpHeader.parsePowerAuthSignatureHTTPHeader(signatureHeader);
-            String activationId = map.get(PowerAuthHttpHeader.ACTIVATION_ID);
-            String applicationId = map.get(PowerAuthHttpHeader.APPLICATION_ID);
-            String signature = map.get(PowerAuthHttpHeader.SIGNATURE);
-            String signatureType = map.get(PowerAuthHttpHeader.SIGNATURE_TYPE);
-            String nonce = map.get(PowerAuthHttpHeader.NONCE);
+            PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(signatureHeader);
+
+            PowerAuthHttpHeaderValidator.validate(header);
+
+            String activationId = header.getActivationId();
+            String applicationId = header.getApplicationKey();
+            String signature = header.getSignature();
+            String signatureTypeStr = header.getSignatureType();
+            if (signatureTypeStr != null) {
+                signatureTypeStr = signatureTypeStr.toUpperCase();
+            }
+            PowerAuthPortServiceStub.SignatureType signatureType = PowerAuthPortServiceStub.SignatureType.Factory.fromValue(signatureTypeStr);
+            String nonce = header.getNonce();
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
 

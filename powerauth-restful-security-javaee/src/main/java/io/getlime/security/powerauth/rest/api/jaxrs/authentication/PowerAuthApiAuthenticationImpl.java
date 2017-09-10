@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.authentication;
 
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 
 import java.io.Serializable;
@@ -36,6 +37,8 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
 
     private String activationId;
     private String userId;
+    private Long applicationId;
+    private PowerAuthSignatureTypes factors;
 
     /**
      * Default constructor
@@ -47,16 +50,21 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
      * Constructor for a new PowerAuthApiAuthenticationImpl
      * @param activationId Activation ID
      * @param userId User ID
+     * @param applicationId Application ID
+     * @param factors Authentication factors
      */
-    public PowerAuthApiAuthenticationImpl(String activationId, String userId) {
+    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes factors) {
         this.activationId = activationId;
         this.userId = userId;
+        this.applicationId = applicationId;
+        this.factors = factors;
     }
 
     /**
      * Get user ID
      * @return User ID
      */
+    @Override
     public String getUserId() {
         return userId;
     }
@@ -65,6 +73,7 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
      * Set user ID
      * @param userId User ID
      */
+    @Override
     public void setUserId(String userId) {
         this.userId = userId;
     }
@@ -73,6 +82,7 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
      * Get activation ID
      * @return Activation ID
      */
+    @Override
     public String getActivationId() {
         return activationId;
     }
@@ -81,8 +91,45 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
      * Set activation ID
      * @param activationId Activation ID
      */
+    @Override
     public void setActivationId(String activationId) {
         this.activationId = activationId;
+    }
+
+    /**
+     * Get application ID.
+     * @return Application ID.
+     */
+    @Override
+    public Long getApplicationId() {
+        return applicationId;
+    }
+
+    /**
+     * Set application ID.
+     * @param id Application ID.
+     */
+    @Override
+    public void setApplicationId(Long id) {
+        this.applicationId = id;
+    }
+
+    /**
+     * Get authentication factors.
+     * @return Authentication factors.
+     */
+    @Override
+    public PowerAuthSignatureTypes getSignatureFactors() {
+        return factors;
+    }
+
+    /**
+     * Set authentication factors.
+     * @param factors Signature type (signature factors).
+     */
+    @Override
+    public void setSignatureFactors(PowerAuthSignatureTypes factors) {
+        this.factors = factors;
     }
 
 }

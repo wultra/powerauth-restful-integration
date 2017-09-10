@@ -21,11 +21,12 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.core.rest.model.base.response.Response;
+import io.getlime.powerauth.soap.SignatureType;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,8 +35,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.Map;
 
 /**
  * Controller implementing secure vault related end-points from the
@@ -66,12 +65,19 @@ public class SecureVaultController {
             throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
 
         try {
-            Map<String, String> map = PowerAuthHttpHeader.parsePowerAuthSignatureHTTPHeader(signatureHeader);
-            String activationId = map.get(PowerAuthHttpHeader.ACTIVATION_ID);
-            String applicationId = map.get(PowerAuthHttpHeader.APPLICATION_ID);
-            String signature = map.get(PowerAuthHttpHeader.SIGNATURE);
-            String signatureType = map.get(PowerAuthHttpHeader.SIGNATURE_TYPE);
-            String nonce = map.get(PowerAuthHttpHeader.NONCE);
+            PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(signatureHeader);
+
+            PowerAuthHttpHeaderValidator.validate(header);
+
+            String activationId = header.getActivationId();
+            String applicationId = header.getApplicationKey();
+            String signature = header.getSignature();
+            String signatureTypeStr = header.getSignatureType();
+            if (signatureTypeStr != null) {
+                signatureTypeStr = signatureTypeStr.toUpperCase();
+            }
+            SignatureType signatureType = SignatureType.fromValue(signatureTypeStr);
+            String nonce = header.getNonce();
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
 

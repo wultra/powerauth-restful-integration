@@ -54,7 +54,12 @@ public class AuthenticationController {
         // ##EXAMPLE: String userId = apiAuthentication.getUserId();
 
         if (auth != null && auth.getUserId() != null) {
-            return new ObjectResponse<>("Hooray! User: " + auth.getUserId());
+            return new ObjectResponse<>("Hooray! "
+                    + " User: " + auth.getUserId()
+                    + " (activation: " + auth.getActivationId() + ")"
+                    + " successfully verified via app with ID: " + auth.getApplicationId()
+                    + " using factor: " + auth.getSignatureFactors()
+            );
         } else {
             throw new PowerAuthAuthenticationException("Login failed");
         }

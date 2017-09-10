@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.authentication;
 
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
@@ -42,6 +43,8 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
 
     private String activationId;
     private String userId;
+    private Long applicationId;
+    private PowerAuthSignatureTypes factors;
 
     /**
      * Default constructor
@@ -54,11 +57,15 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Constructor for a new PowerAuthApiAuthenticationImpl
      * @param activationId Activation ID
      * @param userId User ID
+     * @param applicationId Application ID
+     * @param factors Authentication factors
      */
-    public PowerAuthApiAuthenticationImpl(String activationId, String userId) {
+    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes factors) {
         super(null);
         this.activationId = activationId;
         this.userId = userId;
+        this.applicationId = applicationId;
+        this.factors = factors;
     }
 
     @Override
@@ -87,6 +94,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Get user ID
      * @return User ID
      */
+    @Override
     public String getUserId() {
         return userId;
     }
@@ -95,6 +103,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Set user ID
      * @param userId User ID
      */
+    @Override
     public void setUserId(String userId) {
         this.userId = userId;
     }
@@ -103,6 +112,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Get activation ID
      * @return Activation ID
      */
+    @Override
     public String getActivationId() {
         return activationId;
     }
@@ -111,8 +121,45 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Set activation ID
      * @param activationId Activation ID
      */
+    @Override
     public void setActivationId(String activationId) {
         this.activationId = activationId;
+    }
+
+    /**
+     * Get application ID.
+     * @return Application ID.
+     */
+    @Override
+    public Long getApplicationId() {
+        return applicationId;
+    }
+
+    /**
+     * Set application ID.
+     * @param id Application ID.
+     */
+    @Override
+    public void setApplicationId(Long id) {
+        this.applicationId = id;
+    }
+
+    /**
+     * Get authentication factors.
+     * @return Authentication factors.
+     */
+    @Override
+    public PowerAuthSignatureTypes getSignatureFactors() {
+        return factors;
+    }
+
+    /**
+     * Set authentication factors.
+     * @param factors Signature type (signature factors).
+     */
+    @Override
+    public void setSignatureFactors(PowerAuthSignatureTypes factors) {
+        this.factors = factors;
     }
 
 }

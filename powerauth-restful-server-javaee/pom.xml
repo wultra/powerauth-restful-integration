@@ -28,12 +28,12 @@
     <artifactId>powerauth-restful-server-javaee</artifactId>
     <name>powerauth-restful-server-javaee</name>
     <packaging>war</packaging>
-    <version>0.16.1</version>
+    <version>0.16.2</version>
 
     <parent>
         <artifactId>powerauth-restful-integration-parent</artifactId>
         <groupId>io.getlime.security</groupId>
-        <version>0.16.1</version>
+        <version>0.16.2</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -47,12 +47,12 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-restful-security-javaee</artifactId>
-            <version>0.16.1</version>
+            <version>0.16.2</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.57</version>
+            <version>1.58</version>
         </dependency>
     </dependencies>
 

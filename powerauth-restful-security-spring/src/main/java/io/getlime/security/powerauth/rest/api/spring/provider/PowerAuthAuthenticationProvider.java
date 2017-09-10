@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import com.google.common.io.BaseEncoding;
+import io.getlime.powerauth.soap.SignatureType;
 import io.getlime.powerauth.soap.VerifySignatureRequest;
 import io.getlime.powerauth.soap.VerifySignatureResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
@@ -29,6 +30,7 @@ import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicat
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticationProviderBase;
+import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthAuthenticationImpl;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
@@ -69,26 +71,37 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         PowerAuthAuthenticationImpl powerAuthAuthentication = (PowerAuthAuthenticationImpl) authentication;
 
-        VerifySignatureRequest soapRequest = new VerifySignatureRequest();
-        soapRequest.setActivationId(powerAuthAuthentication.getActivationId());
-        soapRequest.setApplicationKey(powerAuthAuthentication.getApplicationKey());
-        soapRequest.setSignature(powerAuthAuthentication.getSignature());
-        soapRequest.setSignatureType(powerAuthAuthentication.getSignatureType());
-        soapRequest.setData(PowerAuthHttpBody.getSignatureBaseString(
-                powerAuthAuthentication.getHttpMethod(),
-                powerAuthAuthentication.getRequestUri(),
-                powerAuthAuthentication.getNonce(),
-                powerAuthAuthentication.getData()
-        ));
+        if (powerAuthAuthentication.getSignatureType() != null) {
 
-        VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
+            final String signatureTypeSanitized = powerAuthAuthentication.getSignatureType().toUpperCase();
+            final SignatureType signatureType = SignatureType.fromValue(signatureTypeSanitized);
 
-        if (soapResponse.isSignatureValid()) {
-            PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
-            apiAuthentication.setActivationId(soapResponse.getActivationId());
-            apiAuthentication.setUserId(soapResponse.getUserId());
-            apiAuthentication.setAuthenticated(true);
-            return apiAuthentication;
+            VerifySignatureRequest soapRequest = new VerifySignatureRequest();
+            soapRequest.setActivationId(powerAuthAuthentication.getActivationId());
+            soapRequest.setApplicationKey(powerAuthAuthentication.getApplicationKey());
+            soapRequest.setSignature(powerAuthAuthentication.getSignature());
+            soapRequest.setSignatureType(signatureType);
+            soapRequest.setData(PowerAuthHttpBody.getSignatureBaseString(
+                    powerAuthAuthentication.getHttpMethod(),
+                    powerAuthAuthentication.getRequestUri(),
+                    powerAuthAuthentication.getNonce(),
+                    powerAuthAuthentication.getData()
+            ));
+
+            VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
+
+            if (soapResponse.isSignatureValid()) {
+                PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
+                apiAuthentication.setActivationId(soapResponse.getActivationId());
+                apiAuthentication.setUserId(soapResponse.getUserId());
+                apiAuthentication.setApplicationId(soapResponse.getApplicationId());
+                apiAuthentication.setSignatureFactors(PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()));
+                apiAuthentication.setAuthenticated(true);
+                return apiAuthentication;
+            } else {
+                return null;
+            }
+
         } else {
             return null;
         }
@@ -124,56 +137,32 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Parse HTTP header
-        Map<String, String> httpHeaderInfo = PowerAuthHttpHeader.parsePowerAuthSignatureHTTPHeader(httpAuthorizationHeader);
+        PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(httpAuthorizationHeader);
 
-        // Check if the parsing was successful
-        if (httpHeaderInfo == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_EMPTY");
-        }
-
-        // Fetch HTTP header attributes
-        String activationId = httpHeaderInfo.get(PowerAuthHttpHeader.ACTIVATION_ID);
-        if (activationId == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_ACTIVATION_ID_EMPTY");
-        }
-        String nonce = httpHeaderInfo.get(PowerAuthHttpHeader.NONCE);
-        if (nonce == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_NONCE_EMPTY");
-        }
-        String signatureType = httpHeaderInfo.get(PowerAuthHttpHeader.SIGNATURE_TYPE);
-        if (signatureType == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_EMPTY");
-        }
-        String signature = httpHeaderInfo.get(PowerAuthHttpHeader.SIGNATURE);
-        if (signature == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_EMPTY");
-        }
-        String applicationId = httpHeaderInfo.get(PowerAuthHttpHeader.APPLICATION_ID);
-        if (applicationId == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_APPLICATION_EMPTY");
-        }
+        // Validate the header
+        PowerAuthHttpHeaderValidator.validate(header);
 
         // Check if the application is allowed, "true" is the default behavior
         if (applicationConfiguration != null) {
-            boolean isApplicationAllowed = applicationConfiguration.isAllowedApplicationKey(applicationId);
+            boolean isApplicationAllowed = applicationConfiguration.isAllowedApplicationKey(header.getApplicationKey());
             if (!isApplicationAllowed) {
                 throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_APPLICATION_ID");
             }
         }
 
         // Check if the signature type is allowed
-        PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(signatureType);
+        PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
         if (!allowedSignatureTypes.contains(expectedSignatureType)) {
             throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
         }
 
         // Configure PowerAuth authentication object
         PowerAuthAuthenticationImpl powerAuthAuthentication = new PowerAuthAuthenticationImpl();
-        powerAuthAuthentication.setActivationId(activationId);
-        powerAuthAuthentication.setApplicationKey(applicationId);
-        powerAuthAuthentication.setNonce(BaseEncoding.base64().decode(nonce));
-        powerAuthAuthentication.setSignatureType(signatureType);
-        powerAuthAuthentication.setSignature(signature);
+        powerAuthAuthentication.setActivationId(header.getActivationId());
+        powerAuthAuthentication.setApplicationKey(header.getApplicationKey());
+        powerAuthAuthentication.setNonce(BaseEncoding.base64().decode(header.getNonce()));
+        powerAuthAuthentication.setSignatureType(header.getSignatureType());
+        powerAuthAuthentication.setSignature(header.getSignature());
         powerAuthAuthentication.setHttpMethod(httpMethod);
         powerAuthAuthentication.setRequestUri(requestUriIdentifier);
         powerAuthAuthentication.setData(httpBody);
