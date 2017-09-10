@@ -26,11 +26,13 @@ import io.getlime.powerauth.soap.VerifySignatureResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
+import io.getlime.security.powerauth.http.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticationProviderBase;
-import io.getlime.security.powerauth.rest.api.base.validator.PowerAuthHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
@@ -140,7 +142,11 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(httpAuthorizationHeader);
 
         // Validate the header
-        PowerAuthHttpHeaderValidator.validate(header);
+        try {
+            PowerAuthHttpHeaderValidator.validate(header);
+        } catch (InvalidPowerAuthHttpHeaderException e) {
+            throw new PowerAuthAuthenticationException(e.getMessage());
+        }
 
         // Check if the application is allowed, "true" is the default behavior
         if (applicationConfiguration != null) {
