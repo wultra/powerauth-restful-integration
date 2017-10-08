@@ -68,7 +68,7 @@ public class ActivationController {
         this.authenticationProvider = authenticationProvider;
     }
 
-    @Autowired
+    @Autowired(required = false)
     public void setApplicationConfiguration(PowerAuthApplicationConfiguration applicationConfiguration) {
         this.applicationConfiguration = applicationConfiguration;
     }
