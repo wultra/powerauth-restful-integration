@@ -28,23 +28,15 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that enables simple integration with PowerAuth Signatures.
+ * Annotation that enables a simple integration with a token-based authentication.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
-public @interface PowerAuth {
+public @interface PowerAuthToken {
 
     String AUTHENTICATION_OBJECT = "X-PowerAuth-Authentication-Object";
-
-    /**
-     * Identifier of the resource URI, usually the "effective" part of the URL, for example
-     * "/banking/payment/commit".
-     *
-     * @return Resource identifier.
-     */
-    String resourceId();
 
     /**
      * Types of supported signatures. By default, any at least 2FA signature type must be specified.

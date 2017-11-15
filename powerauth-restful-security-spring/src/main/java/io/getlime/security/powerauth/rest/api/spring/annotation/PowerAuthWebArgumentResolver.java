@@ -29,6 +29,12 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletRequest;
 
+/**
+ * Argument resolver for {@link PowerAuthApiAuthentication} objects. It enables automatic
+ * parameter resolution for methods that are annotated via {@link PowerAuth} annotation.
+ *
+ * @author Petr Dvorak, petr@lime-company.eu
+ */
 public class PowerAuthWebArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override

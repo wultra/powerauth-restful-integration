@@ -20,9 +20,11 @@
 
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthExceptionHandler;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -33,6 +35,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 @Component
 public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
@@ -54,25 +58,48 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
         if (handler instanceof HandlerMethod) {
 
             HandlerMethod handlerMethod = (HandlerMethod) handler;
-            PowerAuth powerAuthAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);
 
-            if (powerAuthAnnotation != null) {
+            // Obtain annotations
+            PowerAuth powerAuthSignatureAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);
+            PowerAuthToken powerAuthTokenAnnotation = handlerMethod.getMethodAnnotation(PowerAuthToken.class);
+
+            // Check that only one annotation is active
+            if (powerAuthSignatureAnnotation != null && powerAuthTokenAnnotation != null) {
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
+                powerAuthSignatureAnnotation = null;
+                powerAuthTokenAnnotation = null;
+            }
+
+            // Resolve @PowerAuth annotation
+            if (powerAuthSignatureAnnotation != null) {
 
                 try {
                     PowerAuthApiAuthentication authentication = this.authenticationProvider.validateRequestSignature(
                             request,
-                            powerAuthAnnotation.resourceId(),
-                            request.getHeader(PowerAuthHttpHeader.HEADER_NAME),
-                            new ArrayList<>(Arrays.asList(powerAuthAnnotation.signatureType()))
+                            powerAuthSignatureAnnotation.resourceId(),
+                            request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME),
+                            new ArrayList<>(Arrays.asList(powerAuthSignatureAnnotation.signatureType()))
                     );
-                    if (authentication != null) {
-                        request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
-                    }
+                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
                     // silently ignore here and make sure authentication object is null
                     request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
                 }
 
+            }
+
+            // Resolve @PowerAuthToken annotation
+            if (powerAuthTokenAnnotation != null) {
+                try {
+                    PowerAuthApiAuthentication authentication = this.authenticationProvider.validateToken(
+                            request.getHeader(PowerAuthTokenHttpHeader.HEADER_NAME),
+                            new ArrayList<>(Arrays.asList(powerAuthTokenAnnotation.signatureType()))
+                    );
+                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
+                } catch (PowerAuthAuthenticationException ex) {
+                    // silently ignore here and make sure authentication object is null
+                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
+                }
             }
 
         }

@@ -28,7 +28,8 @@ import javax.ws.rs.ext.ExceptionMapper;
 import javax.ws.rs.ext.Provider;
 
 /**
- * Class responsible for PowerAuth 2.0 Standard RESTful API exception handling.
+ * Class responsible for PowerAuth 2.0 Standard RESTful API exception handling for
+ * exceptions raised during the authentication phase.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */

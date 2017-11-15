@@ -50,7 +50,7 @@ public class PowerAuthSecureVaultException extends Exception {
      * Get the default error code, used for example in REST response.
      * @return Default error code.
      */
-    public static String getDefaultCode() {
+    public String getDefaultCode() {
         return DEFAULT_CODE;
     }
 

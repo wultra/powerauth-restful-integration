@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Abstract class for PowerAuth 2.0 authentication provider.
+ * Abstract class for PowerAuth authentication provider.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  *
@@ -38,7 +38,7 @@ import java.util.List;
 public abstract class PowerAuthAuthenticationProviderBase {
 
     /**
-     * Validate the signature from the PowerAuth 2.0 HTTP header against the provided HTTP method, request body and URI identifier.
+     * Validate the signature from the PowerAuth HTTP header against the provided HTTP method, request body and URI identifier.
      * Make sure to accept only allowed signatures.
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Body of the HTTP request.
@@ -48,20 +48,23 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
-    public abstract PowerAuthApiAuthentication validateRequestSignature(
-            String httpMethod,
-            byte[] httpBody,
-            String requestUriIdentifier,
-            String httpAuthorizationHeader,
-            List<PowerAuthSignatureTypes> allowedSignatureTypes
-    ) throws PowerAuthAuthenticationException;
+    public abstract PowerAuthApiAuthentication validateRequestSignature(String httpMethod, byte[] httpBody, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException;
+
+    /**
+     * Validate the token digest from PowerAuth authentication header.
+     * @param httpAuthorizationHeader HTTP header with token digest.
+     * @param allowedSignatureTypes Allowed types of the signature.
+     * @return Instance of a PowerAuthApiAuthentication on successful authorization.
+     * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
+     */
+    public abstract PowerAuthApiAuthentication validateToken(String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException;
 
     /**
      * The same as {{@link #validateRequestSignature(String, byte[], String, String, List)} but uses default accepted signature type (2FA or 3FA).
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Request body
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
@@ -104,6 +107,20 @@ public abstract class PowerAuthAuthenticationProviderBase {
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_BIOMETRY);
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY);
         return this.validateRequestSignature(servletRequest, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedSignatureTypes);
+    }
+
+    /**
+     * Validate the token digest from PowerAuth authentication header.
+     * @param tokenHeader HTTP header with token digest.
+     * @return Instance of a PowerAuthApiAuthentication on successful authorization.
+     * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
+     */
+    public PowerAuthApiAuthentication validateToken(String tokenHeader) throws PowerAuthAuthenticationException {
+        List<PowerAuthSignatureTypes> defaultAllowedSignatureTypes = new ArrayList<>();
+        defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE);
+        defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_BIOMETRY);
+        defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY);
+        return this.validateToken(tokenHeader, defaultAllowedSignatureTypes);
     }
 
 }

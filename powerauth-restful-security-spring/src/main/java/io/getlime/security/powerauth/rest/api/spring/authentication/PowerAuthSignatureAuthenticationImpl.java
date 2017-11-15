@@ -17,16 +17,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.jaxrs.authentication;
+package io.getlime.security.powerauth.rest.api.spring.authentication;
+
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthSignatureAuthentication;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
  * application (such as mobile banking API).
  *
- * @author Petr Dvorak
+ * @author Petr Dvorak, petr@lime-company.eu
  *
  */
-public class PowerAuthAuthenticationImpl {
+public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthSignatureAuthentication {
+
+    private static final long serialVersionUID = 6495166873663643144L;
 
     private String activationId;
     private String applicationKey;
@@ -36,6 +41,27 @@ public class PowerAuthAuthenticationImpl {
     private String httpMethod;
     private byte[] nonce;
     private byte[] data;
+
+    /**
+     * Default constructor.
+     */
+    public PowerAuthSignatureAuthenticationImpl() {
+        super(null);
+    }
+
+    // Authentication Token Related methods
+
+    @Override
+    public Object getCredentials() {
+        return signature;
+    }
+
+    @Override
+    public Object getPrincipal() {
+        return activationId;
+    }
+
+    // Getters and setters for fields
 
     /**
      * Get activation ID.
