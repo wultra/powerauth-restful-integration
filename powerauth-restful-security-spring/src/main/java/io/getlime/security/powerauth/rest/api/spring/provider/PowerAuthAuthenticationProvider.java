@@ -163,7 +163,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return authentication == PowerAuthSignatureAuthenticationImpl.class;
+        return authentication == PowerAuthSignatureAuthenticationImpl.class
+                || authentication == PowerAuthTokenAuthenticationImpl.class;
     }
 
     /**
