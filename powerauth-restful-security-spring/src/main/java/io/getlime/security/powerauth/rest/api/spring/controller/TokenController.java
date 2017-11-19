@@ -30,6 +30,7 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthentica
 import io.getlime.security.powerauth.rest.api.model.request.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.TokenCreateResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,24 +48,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class TokenController {
 
     private PowerAuthServiceClient powerAuthClient;
-
-    // TODO: We should isolate this method to some one place in SOAP client, so that we do not need to rely on it here.
-    private SignatureType convertTo(PowerAuthSignatureTypes powerAuthSignatureTypes) {
-        switch (powerAuthSignatureTypes) {
-            case POSSESSION:
-                return SignatureType.POSSESSION;
-            case KNOWLEDGE:
-                return SignatureType.KNOWLEDGE;
-            case BIOMETRY:
-                return SignatureType.BIOMETRY;
-            case POSSESSION_KNOWLEDGE:
-                return SignatureType.POSSESSION_KNOWLEDGE;
-            case POSSESSION_BIOMETRY:
-                return SignatureType.POSSESSION_BIOMETRY;
-            default:
-                return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
-        }
-    }
 
     @Autowired
     public TokenController(PowerAuthServiceClient powerAuthClient) {
@@ -89,8 +72,11 @@ public class TokenController {
                 final TokenCreateRequest requestObject = request.getRequestObject();
                 final String ephemeralPublicKey = requestObject.getEphemeralPublicKey();
 
+                // Prepare a signature type converter
+                SignatureTypeConverter converter = new SignatureTypeConverter();
+
                 // Create a token
-                final CreateTokenResponse token = powerAuthClient.createToken(activationId, ephemeralPublicKey, convertTo(signatureFactors));
+                final CreateTokenResponse token = powerAuthClient.createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
 
                 // Prepare a response
                 final TokenCreateResponse responseObject = new TokenCreateResponse();

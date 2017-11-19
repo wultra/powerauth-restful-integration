@@ -21,6 +21,7 @@
 package io.getlime.security.powerauth.rest.api.spring.converter;
 
 import io.getlime.powerauth.soap.SignatureType;
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
 /**
  * Helper class to convert from and to
@@ -51,6 +52,28 @@ public class SignatureTypeConverter {
             return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
         }
 
+    }
+
+    /**
+     * Convert {@link SignatureType} from {@link PowerAuthSignatureTypes}.
+     * @param powerAuthSignatureTypes Signature type from crypto representation.
+     * @return Signature type.
+     */
+    public SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
+        switch (powerAuthSignatureTypes) {
+            case POSSESSION:
+                return SignatureType.POSSESSION;
+            case KNOWLEDGE:
+                return SignatureType.KNOWLEDGE;
+            case BIOMETRY:
+                return SignatureType.BIOMETRY;
+            case POSSESSION_KNOWLEDGE:
+                return SignatureType.POSSESSION_KNOWLEDGE;
+            case POSSESSION_BIOMETRY:
+                return SignatureType.POSSESSION_BIOMETRY;
+            default:
+                return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+        }
     }
 
 }

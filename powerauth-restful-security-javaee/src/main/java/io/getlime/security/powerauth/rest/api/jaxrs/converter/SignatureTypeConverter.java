@@ -21,6 +21,7 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.converter;
 
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
 /**
  * Helper class to convert from and to
@@ -51,6 +52,29 @@ public class SignatureTypeConverter {
             return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
         }
 
+    }
+
+    /**
+     * Convert {@link io.getlime.powerauth.soap.PowerAuthPortServiceStub.SignatureType} from
+     * {@link PowerAuthSignatureTypes}.
+     * @param powerAuthSignatureTypes Signature type from crypto representation.
+     * @return Signature type.
+     */
+    public PowerAuthPortServiceStub.SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
+        switch (powerAuthSignatureTypes) {
+            case POSSESSION:
+                return PowerAuthPortServiceStub.SignatureType.POSSESSION;
+            case KNOWLEDGE:
+                return PowerAuthPortServiceStub.SignatureType.KNOWLEDGE;
+            case BIOMETRY:
+                return PowerAuthPortServiceStub.SignatureType.BIOMETRY;
+            case POSSESSION_KNOWLEDGE:
+                return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE;
+            case POSSESSION_BIOMETRY:
+                return PowerAuthPortServiceStub.SignatureType.POSSESSION_BIOMETRY;
+            default:
+                return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+        }
     }
 
 }

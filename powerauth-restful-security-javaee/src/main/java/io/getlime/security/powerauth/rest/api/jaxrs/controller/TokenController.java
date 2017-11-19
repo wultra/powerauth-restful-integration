@@ -27,6 +27,7 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.model.request.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.TokenCreateResponse;
@@ -58,24 +59,6 @@ public class TokenController {
     @Context
     private HttpServletRequest httpServletRequest;
 
-    // TODO: We should isolate this method to some one place in SOAP client, so that we do not need to rely on it here.
-    private PowerAuthPortServiceStub.SignatureType convertTo(PowerAuthSignatureTypes powerAuthSignatureTypes) {
-        switch (powerAuthSignatureTypes) {
-            case POSSESSION:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION;
-            case KNOWLEDGE:
-                return PowerAuthPortServiceStub.SignatureType.KNOWLEDGE;
-            case BIOMETRY:
-                return PowerAuthPortServiceStub.SignatureType.BIOMETRY;
-            case POSSESSION_KNOWLEDGE:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE;
-            case POSSESSION_BIOMETRY:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION_BIOMETRY;
-            default:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
-        }
-    }
-
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
@@ -100,8 +83,11 @@ public class TokenController {
                 final TokenCreateRequest requestObject = request.getRequestObject();
                 final String ephemeralPublicKey = requestObject.getEphemeralPublicKey();
 
+                // Prepare a signature type converter
+                SignatureTypeConverter converter = new SignatureTypeConverter();
+
                 // Create a token
-                final PowerAuthPortServiceStub.CreateTokenResponse token = powerAuthClient.createToken(activationId, ephemeralPublicKey, convertTo(signatureFactors));
+                final PowerAuthPortServiceStub.CreateTokenResponse token = powerAuthClient.createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
 
                 // Prepare a response
                 final TokenCreateResponse responseObject = new TokenCreateResponse();
