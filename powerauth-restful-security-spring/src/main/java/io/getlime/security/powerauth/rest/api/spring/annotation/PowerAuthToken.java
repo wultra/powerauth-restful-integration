@@ -36,8 +36,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface PowerAuthToken {
 
-    String AUTHENTICATION_OBJECT = "X-PowerAuth-Authentication-Object";
-
     /**
      * Types of supported signatures. By default, any at least 2FA signature type must be specified.
      *
