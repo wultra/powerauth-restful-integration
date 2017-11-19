@@ -44,6 +44,8 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Implementation of PowerAuth authentication provider.
@@ -198,6 +200,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
             throw new PowerAuthAuthenticationException(e.getMessage());
         }
 
@@ -251,6 +254,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         try {
             PowerAuthTokenHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException e) {
+            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
             throw new PowerAuthAuthenticationException(e.getMessage());
         }
 
