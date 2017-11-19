@@ -21,11 +21,10 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.powerauth.soap.GetActivationStatusResponse;
 import io.getlime.powerauth.soap.PrepareActivationResponse;
 import io.getlime.powerauth.soap.RemoveActivationResponse;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
@@ -149,7 +148,7 @@ public class ActivationController {
      */
     @RequestMapping(value = "remove", method = RequestMethod.POST)
     public @ResponseBody ObjectResponse<ActivationRemoveResponse> removeActivation(
-            @RequestHeader(value = PowerAuthHttpHeader.HEADER_NAME) String signatureHeader
+            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader
     ) throws PowerAuthActivationException, PowerAuthAuthenticationException {
         try {
             PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);

@@ -23,14 +23,20 @@ import com.google.common.io.BaseEncoding;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
-import io.getlime.security.powerauth.http.validator.PowerAuthHttpHeaderValidator;
+import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
+import io.getlime.security.powerauth.http.validator.PowerAuthTokenHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthAuthentication;
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthSignatureAuthentication;
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthTokenAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticationProviderBase;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthApiAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthAuthenticationImpl;
+import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthSignatureAuthenticationImpl;
+import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthTokenAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
@@ -54,8 +60,26 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     public PowerAuthAuthenticationProvider() {
     }
 
-    public PowerAuthApiAuthentication authenticate(PowerAuthAuthenticationImpl authentication) throws RemoteException {
+    public PowerAuthApiAuthentication authenticate(PowerAuthAuthentication authentication) throws RemoteException {
+        // Handle signature based authentications
+        if (authentication instanceof PowerAuthSignatureAuthentication) {
+            return validateSignatureAuthentication((PowerAuthSignatureAuthentication) authentication);
+        }
+        // Handle basic token-based authentications
+        else if (authentication instanceof PowerAuthTokenAuthentication) {
+            return validateTokenAuthentication((PowerAuthTokenAuthentication) authentication);
+        }
+        // Return null in case unknown authentication type is provided
+        return null;
+    }
 
+    /**
+     * Validate signature based authentication.
+     *
+     * @param authentication Signature based authentication object.
+     * @return API authentication object in case of successful authentication, null otherwise.
+     */
+    private PowerAuthApiAuthentication validateSignatureAuthentication(PowerAuthSignatureAuthentication authentication) throws RemoteException {
         if (authentication.getSignatureType() != null) {
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -92,6 +116,47 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     }
 
     /**
+     * Validate basic token-based authentication.
+     *
+     * @param authentication Token based authentication object.
+     * @return API authentication object in case of successful authentication, null otherwise.
+     */
+    private PowerAuthApiAuthentication validateTokenAuthentication(PowerAuthTokenAuthentication authentication) throws RemoteException {
+
+        PowerAuthPortServiceStub.ValidateTokenRequest soapRequest = new PowerAuthPortServiceStub.ValidateTokenRequest();
+        soapRequest.setTokenId(authentication.getTokenId());
+        soapRequest.setTokenDigest(authentication.getTokenDigest());
+        soapRequest.setNonce(authentication.getNonce());
+        soapRequest.setTimestamp(Long.valueOf(authentication.getTimestamp()));
+
+        final PowerAuthPortServiceStub.ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
+
+        if (soapResponse.getTokenValid()) {
+            return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(), soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()));
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * Prepare API initialized authentication object with provided authentication attributes.
+     *
+     * @param activationId Activation ID.
+     * @param userId User ID.
+     * @param applicationId Application ID.
+     * @param signatureType Signature Type.
+     * @return Initialized instance of API authentication.
+     */
+    private PowerAuthApiAuthentication copyAuthenticationAttributes(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes signatureType) {
+        PowerAuthApiAuthentication apiAuthentication = new PowerAuthApiAuthenticationImpl();
+        apiAuthentication.setActivationId(activationId);
+        apiAuthentication.setUserId(userId);
+        apiAuthentication.setApplicationId(applicationId);
+        apiAuthentication.setSignatureFactors(signatureType);
+        return apiAuthentication;
+    }
+
+    /**
      * Validate the signature from the PowerAuth 2.0 HTTP header against the provided HTTP method, request body and URI identifier.
      * Make sure to accept only allowed signatures.
      * @param httpMethod HTTP method (GET, POST, ...)
@@ -116,11 +181,11 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Parse HTTP header
-        PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(httpAuthorizationHeader);
+        PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(httpAuthorizationHeader);
 
         // Validate the header
         try {
-            PowerAuthHttpHeaderValidator.validate(header);
+            PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException e) {
             throw new PowerAuthAuthenticationException(e.getMessage());
         }
@@ -132,7 +197,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Configure PowerAuth authentication object
-        PowerAuthAuthenticationImpl powerAuthAuthentication = new PowerAuthAuthenticationImpl();
+        PowerAuthSignatureAuthentication powerAuthAuthentication = new PowerAuthSignatureAuthenticationImpl();
         powerAuthAuthentication.setActivationId(header.getActivationId());
         powerAuthAuthentication.setApplicationKey(header.getApplicationKey());
         powerAuthAuthentication.setNonce(BaseEncoding.base64().decode(header.getNonce()));
@@ -153,6 +218,53 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         // In case authentication is null, throw PowerAuth exception
         if (auth == null) {
             throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_VALUE");
+        }
+
+        return auth;
+    }
+
+    @Override
+    public PowerAuthApiAuthentication validateToken(String tokenHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException {
+
+        // Check for HTTP PowerAuth signature header
+        if (tokenHeader == null || tokenHeader.equals("undefined")) {
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID_EMPTY");
+        }
+
+        // Parse HTTP header
+        PowerAuthTokenHttpHeader header = new PowerAuthTokenHttpHeader().fromValue(tokenHeader);
+
+        // Validate the header
+        try {
+            PowerAuthTokenHttpHeaderValidator.validate(header);
+        } catch (InvalidPowerAuthHttpHeaderException e) {
+            throw new PowerAuthAuthenticationException(e.getMessage());
+        }
+
+        // Prepare authentication object
+        PowerAuthTokenAuthentication powerAuthTokenAuthentication = new PowerAuthTokenAuthenticationImpl();
+        powerAuthTokenAuthentication.setTokenId(header.getTokenId());
+        powerAuthTokenAuthentication.setTokenDigest(header.getTokenDigest());
+        powerAuthTokenAuthentication.setNonce(header.getNonce());
+        powerAuthTokenAuthentication.setTimestamp(header.getTimestamp());
+
+        // Call the authentication based on token authentication object
+        final PowerAuthApiAuthentication auth;
+        try {
+            auth = this.authenticate(powerAuthTokenAuthentication);
+        } catch (RemoteException e) {
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SOAP_ERROR");
+        }
+
+        // In case authentication is null, throw PowerAuth exception
+        if (auth == null) {
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID_VALUE");
+        }
+
+        // Check if the signature type is allowed
+        PowerAuthSignatureTypes expectedSignatureType = auth.getSignatureFactors();
+        if (!allowedSignatureTypes.contains(expectedSignatureType)) {
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SIGNATURE_TYPE_INVALID");
         }
 
         return auth;

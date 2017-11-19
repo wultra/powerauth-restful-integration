@@ -24,9 +24,9 @@ import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
-import io.getlime.security.powerauth.http.validator.PowerAuthHttpHeaderValidator;
+import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
@@ -60,12 +60,12 @@ public class SecureVaultController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("unlock")
-    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthHttpHeader.HEADER_NAME) String signatureHeader) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
+    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
         try {
-            PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(signatureHeader);
+            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
 
             try {
-                PowerAuthHttpHeaderValidator.validate(header);
+                PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException e) {
                 throw new PowerAuthAuthenticationException(e.getMessage());
             }

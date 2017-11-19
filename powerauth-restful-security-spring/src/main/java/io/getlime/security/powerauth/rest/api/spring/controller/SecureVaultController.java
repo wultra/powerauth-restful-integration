@@ -23,9 +23,9 @@ import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.SignatureType;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
-import io.getlime.security.powerauth.http.validator.PowerAuthHttpHeaderValidator;
+import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
@@ -63,14 +63,16 @@ public class SecureVaultController {
      */
     @RequestMapping(value = "unlock", method = RequestMethod.POST)
     public @ResponseBody ObjectResponse<VaultUnlockResponse> unlockVault(
-            @RequestHeader(value = PowerAuthHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader)
+            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader)
             throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
 
         try {
-            PowerAuthHttpHeader header = PowerAuthHttpHeader.fromValue(signatureHeader);
+            // Parse the header
+            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
 
+            // Validate the header
             try {
-                PowerAuthHttpHeaderValidator.validate(header);
+                PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException e) {
                 throw new PowerAuthAuthenticationException(e.getMessage());
             }

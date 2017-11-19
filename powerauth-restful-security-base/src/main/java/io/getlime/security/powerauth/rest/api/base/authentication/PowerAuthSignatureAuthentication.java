@@ -17,10 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.authentication;
-
-import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthAuthentication;
-import org.springframework.security.authentication.AbstractAuthenticationToken;
+package io.getlime.security.powerauth.rest.api.base.authentication;
 
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
@@ -29,162 +26,102 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
  * @author Petr Dvorak, petr@lime-company.eu
  *
  */
-public class PowerAuthAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthAuthentication {
-
-    private static final long serialVersionUID = 6495166873663643144L;
-
-    private String activationId;
-    private String applicationKey;
-    private String signature;
-    private String signatureType;
-    private String requestUri;
-    private String httpMethod;
-    private byte[] nonce;
-    private byte[] data;
-
-    /**
-     * Default constructor.
-     */
-    public PowerAuthAuthenticationImpl() {
-        super(null);
-    }
-
-    @Override
-    public Object getCredentials() {
-        return signature;
-    }
-
-    @Override
-    public Object getPrincipal() {
-        return activationId;
-    }
+public interface PowerAuthSignatureAuthentication extends PowerAuthAuthentication {
 
     /**
      * Get activation ID.
      * @return Activation ID.
      */
-    public String getActivationId() {
-        return activationId;
-    }
+    String getActivationId();
 
     /**
      * Set activation ID.
      * @param activationId Activation ID.
      */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
+    void setActivationId(String activationId);
 
     /**
      * Get application key.
      * @return Application key.
      */
-    public String getApplicationKey() {
-        return applicationKey;
-    }
+    String getApplicationKey();
 
     /**
      * Set application key.
      * @param applicationKey Application key.
      */
-    public void setApplicationKey(String applicationKey) {
-        this.applicationKey = applicationKey;
-    }
+    void setApplicationKey(String applicationKey);
 
     /**
      * Get signature.
      * @return Signature.
      */
-    public String getSignature() {
-        return signature;
-    }
+    String getSignature();
 
     /**
      * Set signature.
      * @param signature Signature.
      */
-    public void setSignature(String signature) {
-        this.signature = signature;
-    }
+    void setSignature(String signature);
 
     /**
      * Get signature type.
      * @return Signature type.
      */
-    public String getSignatureType() {
-        return signatureType;
-    }
+    String getSignatureType();
 
     /**
      * Set signature type.
      * @param signatureType Signature type.
      */
-    public void setSignatureType(String signatureType) {
-        this.signatureType = signatureType;
-    }
+    void setSignatureType(String signatureType);
 
     /**
      * Get request URI identifier.
      * @return Request URI identifier.
      */
-    public String getRequestUri() {
-        return requestUri;
-    }
+    String getRequestUri();
 
     /**
      * Set request URI identifier.
      * @param requestUri Request URI identifier.
      */
-    public void setRequestUri(String requestUri) {
-        this.requestUri = requestUri;
-    }
+    void setRequestUri(String requestUri);
 
     /**
      * Get HTTP method.
      * @return HTTP method.
      */
-    public String getHttpMethod() {
-        return httpMethod;
-    }
+    String getHttpMethod();
 
     /**
      * Set HTTP method.
      * @param httpMethod HTTP method.
      */
-    public void setHttpMethod(String httpMethod) {
-        this.httpMethod = httpMethod;
-    }
+    void setHttpMethod(String httpMethod);
 
     /**
      * Get nonce.
      * @return Nonce.
      */
-    public byte[] getNonce() {
-        return nonce;
-    }
+    byte[] getNonce();
 
     /**
      * Set nonce.
      * @param nonce Nonce.
      */
-    public void setNonce(byte[] nonce) {
-        this.nonce = nonce;
-    }
+    void setNonce(byte[] nonce);
 
     /**
      * Get request data.
      * @return Request data.
      */
-    public byte[] getData() {
-        return data;
-    }
+    byte[] getData();
 
     /**
      * Set request data.
      * @param data Request data.
      */
-    public void setData(byte[] data) {
-        this.data = data;
-    }
+    void setData(byte[] data);
 
 }

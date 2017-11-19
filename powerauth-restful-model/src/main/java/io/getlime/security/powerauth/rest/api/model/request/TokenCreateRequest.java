@@ -18,30 +18,30 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.jaxrs.exception;
-
-import io.getlime.core.rest.model.base.entity.Error;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+package io.getlime.security.powerauth.rest.api.model.request;
 
 /**
- * Class responsible for PowerAuth 2.0 Standard RESTful API exception handling for
- * exceptions raised during the authentication phase.
+ * Request object for the /pa/token endpoint, that enables fetching token for simple authentication.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@Provider
-public class PowerAuthAuthenticationExceptionResolver implements ExceptionMapper<PowerAuthAuthenticationException> {
+public class TokenCreateRequest {
 
-        @Override
-        public Response toResponse(PowerAuthAuthenticationException ex) {
-            return Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .entity(new Error(ex.getDefaultCode(), ex.getMessage()))
-                    .build();
-        }
+    private String ephemeralPublicKey;
 
+    /**
+     * Get ephemeral public key (Base64 encoded data).
+     * @return Ephemeral public key.
+     */
+    public String getEphemeralPublicKey() {
+        return ephemeralPublicKey;
+    }
+
+    /**
+     * Set ephemeral public key (Base64 encoded data).
+     * @param ephemeralPublicKey Ephemeral public key.
+     */
+    public void setEphemeralPublicKey(String ephemeralPublicKey) {
+        this.ephemeralPublicKey = ephemeralPublicKey;
+    }
 }

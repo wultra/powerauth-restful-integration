@@ -27,6 +27,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
 /**
+ * Class responsible for PowerAuth 2.0 Standard RESTful API exception handling for
+ * exceptions that are raised during the activation phase.
+ *
  * @author Petr Dvorak, petr@lime-company.eu
  */
 public class PowerAuthActivationExceptionResolver implements ExceptionMapper<PowerAuthActivationException> {

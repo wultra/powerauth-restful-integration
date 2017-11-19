@@ -22,7 +22,7 @@ package io.getlime.security.powerauth.rest.api.base.authentication;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
 /**
- * Inteface for PowerAuth API authentication object used between intermediate server
+ * Interface for PowerAuth API authentication object used between intermediate server
  * application (such as mobile banking API) and core systems (such as banking core).
  *
  * @author Petr Dvorak, petr@lime-company.eu

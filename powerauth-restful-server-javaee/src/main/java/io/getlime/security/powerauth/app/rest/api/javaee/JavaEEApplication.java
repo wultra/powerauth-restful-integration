@@ -26,6 +26,7 @@ import io.getlime.security.powerauth.crypto.lib.config.PowerAuthConfiguration;
 import io.getlime.security.powerauth.provider.CryptoProviderUtilFactory;
 import io.getlime.security.powerauth.rest.api.jaxrs.controller.ActivationController;
 import io.getlime.security.powerauth.rest.api.jaxrs.controller.SecureVaultController;
+import io.getlime.security.powerauth.rest.api.jaxrs.controller.TokenController;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthActivationExceptionResolver;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthAuthenticationExceptionResolver;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthSecureVaultExceptionResolver;
@@ -63,6 +64,7 @@ public class JavaEEApplication extends Application {
         resources.add(AuthenticationController.class);
         resources.add(ActivationController.class);
         resources.add(SecureVaultController.class);
+        resources.add(TokenController.class);
 
         // PowerAuth 2.0 Exception Resolvers
         resources.add(PowerAuthActivationExceptionResolver.class);

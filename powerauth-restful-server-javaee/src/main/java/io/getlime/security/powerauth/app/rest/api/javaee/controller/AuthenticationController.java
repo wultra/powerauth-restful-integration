@@ -21,8 +21,7 @@
 package io.getlime.security.powerauth.app.rest.api.javaee.controller;
 
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.core.rest.model.base.response.Response;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
@@ -52,7 +51,7 @@ public class AuthenticationController {
     @Path("validate")
     @Consumes("*/*")
     @Produces(MediaType.APPLICATION_JSON)
-    public ObjectResponse<String> login(String body, @HeaderParam(value = PowerAuthHttpHeader.HEADER_NAME) String authHeader
+    public ObjectResponse<String> login(String body, @HeaderParam(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader
     ) throws PowerAuthAuthenticationException {
 
         // ##EXAMPLE: Here, we could store the authentication in the session like this:

@@ -18,30 +18,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.jaxrs.exception;
+package io.getlime.security.powerauth.rest.api.spring.annotation;
 
-import io.getlime.core.rest.model.base.entity.Error;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
-import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Class responsible for PowerAuth 2.0 Standard RESTful API exception handling for
- * exceptions raised during the authentication phase.
+ * Annotation that enables a simple integration with a token-based authentication.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@Provider
-public class PowerAuthAuthenticationExceptionResolver implements ExceptionMapper<PowerAuthAuthenticationException> {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface PowerAuthToken {
 
-        @Override
-        public Response toResponse(PowerAuthAuthenticationException ex) {
-            return Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .entity(new Error(ex.getDefaultCode(), ex.getMessage()))
-                    .build();
-        }
+    /**
+     * Types of supported signatures. By default, any at least 2FA signature type must be specified.
+     *
+     * @return Supported signature types.
+     */
+    PowerAuthSignatureTypes[] signatureType() default {
+            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+    };
 
 }

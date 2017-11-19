@@ -17,41 +17,48 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.base.exception;
+
+package io.getlime.security.powerauth.rest.api.model.response;
 
 /**
- * Exception related to processes during a new secure vault unlocking.
+ * Response object for the /pa/token endpoint, that enables fetching token for simple authentication.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-public class PowerAuthSecureVaultException extends Exception {
+public class TokenCreateResponse {
 
-    private static final long serialVersionUID = -6996857964853505534L;
-
-    private static final String DEFAULT_CODE = "ERR_SECURE_VAULT";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_SECURE_VAULT_INVALID";
+    private String mac;
+    private String encryptedData;
 
     /**
-     * Default constructor
+     * Get MAC signature of the request.
+     * @return MAC of the request.
      */
-    public PowerAuthSecureVaultException() {
-        super(DEFAULT_ERROR);
+    public String getMac() {
+        return mac;
     }
 
     /**
-     * Constructor with a custom error message
-     * @param message Error message
+     * Set MAC signature of the request.
+     * @param mac MAC of the request.
      */
-    public PowerAuthSecureVaultException(String message) {
-        super(message);
+    public void setMac(String mac) {
+        this.mac = mac;
     }
 
     /**
-     * Get the default error code, used for example in REST response.
-     * @return Default error code.
+     * Get encrypted data payload.
+     * @return Encrypted data.
      */
-    public String getDefaultCode() {
-        return DEFAULT_CODE;
+    public String getEncryptedData() {
+        return encryptedData;
     }
 
+    /**
+     * Set encrypted data payload.
+     * @param encryptedData Encrypted data.
+     */
+    public void setEncryptedData(String encryptedData) {
+        this.encryptedData = encryptedData;
+    }
 }
