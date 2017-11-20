@@ -30,7 +30,9 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthentica
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.model.request.TokenCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.TokenCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;
@@ -70,7 +72,8 @@ public class TokenController {
             PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(tokenHeader, Arrays.asList(
                     PowerAuthSignatureTypes.POSSESSION,
                     PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-                    PowerAuthSignatureTypes.POSSESSION_BIOMETRY
+                    PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
             ));
 
             if (authentication != null && authentication.getActivationId() != null) {
@@ -94,6 +97,49 @@ public class TokenController {
                 responseObject.setMac(token.getMac());
                 responseObject.setEncryptedData(token.getEncryptedData());
                 return new ObjectResponse<>(responseObject);
+            } else {
+                throw new PowerAuthAuthenticationException();
+            }
+        }  catch (PowerAuthAuthenticationException ex) {
+            throw ex;
+        } catch (Exception ex) {
+            throw new PowerAuthAuthenticationException(ex.getMessage());
+        }
+
+    }
+
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("remove")
+    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws RemoteException, PowerAuthAuthenticationException {
+
+        try {
+
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(tokenHeader, Arrays.asList(
+                    PowerAuthSignatureTypes.POSSESSION,
+                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+                    PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+            ));
+
+            if (authentication != null && authentication.getActivationId() != null) {
+
+                // Fetch activation ID
+                final String activationId = authentication.getActivationId();
+
+                // Fetch token ID from the request
+                final TokenRemoveRequest requestObject = request.getRequestObject();
+                final String tokenId = requestObject.getTokenId();
+
+                // Remove a token, ignore response, since the endpoint should quietly return
+                powerAuthClient.removeToken(tokenId, activationId);
+
+                // Prepare a response
+                final TokenRemoveResponse responseObject = new TokenRemoveResponse();
+                responseObject.setTokenId(requestObject.getTokenId());
+                return new ObjectResponse<>(responseObject);
+
             } else {
                 throw new PowerAuthAuthenticationException();
             }

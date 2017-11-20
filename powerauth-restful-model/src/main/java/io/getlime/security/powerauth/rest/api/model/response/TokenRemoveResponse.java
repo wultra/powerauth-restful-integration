@@ -18,17 +18,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.entity;
+package io.getlime.security.powerauth.rest.api.model.response;
 
 /**
- * Class representing original payload of the encrypted response for the /pa/token endpoint.
+ * Class representing response transport object for token removal.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-public class TokenResponsePayload {
+public class TokenRemoveResponse {
 
+    /**
+     * Token ID of the token to be removed.
+     */
     private String tokenId;
-    private String tokenSecret;
 
     /**
      * Get token ID.
@@ -44,22 +46,6 @@ public class TokenResponsePayload {
      */
     public void setTokenId(String tokenId) {
         this.tokenId = tokenId;
-    }
-
-    /**
-     * Get token secret.
-     * @return Token secret.
-     */
-    public String getTokenSecret() {
-        return tokenSecret;
-    }
-
-    /**
-     * Set token secret.
-     * @param tokenSecret Token secret.
-     */
-    public void setTokenSecret(String tokenSecret) {
-        this.tokenSecret = tokenSecret;
     }
 
 }
