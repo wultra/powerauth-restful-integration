@@ -24,14 +24,14 @@
 
 	<groupId>io.getlime.security</groupId>
 	<artifactId>powerauth-restful-model</artifactId>
-	<version>0.17.0</version>
+	<version>0.17.1</version>
 	<name>powerauth-restful-model</name>
 	<description>Model classes PowerAuth Standard RESTful API</description>
 
 	<parent>
 		<groupId>io.getlime.security</groupId>
 		<artifactId>powerauth-restful-integration-parent</artifactId>
-		<version>0.17.0</version>
+		<version>0.17.1</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -39,7 +39,7 @@
 		<dependency>
 			<groupId>io.getlime.core</groupId>
 			<artifactId>rest-model-base</artifactId>
-			<version>1.0.2</version>
+			<version>1.0.3</version>
 		</dependency>
 	</dependencies>
 
