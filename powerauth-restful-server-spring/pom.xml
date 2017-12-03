@@ -27,17 +27,19 @@
 	<description>PowerAuth 2.0 Standard RESTful API</description>
 	<groupId>io.getlime.security</groupId>
 	<artifactId>powerauth-restful-server-spring</artifactId>
-	<version>0.17.1</version>
+	<version>0.18.0</version>
 	<packaging>war</packaging>
 
 	<parent>
 		<groupId>io.getlime.security</groupId>
 		<artifactId>powerauth-restful-integration-parent</artifactId>
-		<version>0.17.1</version>
+		<version>0.18.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
 	<dependencies>
+
+		<!-- Spring Dependencies -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
@@ -58,10 +60,18 @@
 			<version>2.2.4.RELEASE</version> <!-- 2.3.0 seems a bit buggy, SWS-972 and SWS-972 -->
 		</dependency>
 
+		<!-- PowerAuth Dependencies -->
+		<dependency>
+			<groupId>io.getlime.security</groupId>
+			<artifactId>powerauth-restful-security-spring</artifactId>
+			<version>0.18.0</version>
+		</dependency>
+
+		<!-- Other Dependencies -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>23.0</version>
+			<version>23.5-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
@@ -69,11 +79,6 @@
 			<version>1.58</version>
 		</dependency>
 
-		<dependency>
-			<groupId>io.getlime.security</groupId>
-			<artifactId>powerauth-restful-security-spring</artifactId>
-			<version>0.17.1</version>
-		</dependency>
 	</dependencies>
 
 	<build>
