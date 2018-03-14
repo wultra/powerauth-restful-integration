@@ -80,7 +80,7 @@ public class SecureVaultController {
             PowerAuthPortServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
-            String vaultUnlockedReason = VaultUnlockRequest.VAULT_UNLOCKED_REASON_NOT_SPECIFIED;
+            String vaultUnlockedReason = null;
 
             if (request != null) {
                 VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();

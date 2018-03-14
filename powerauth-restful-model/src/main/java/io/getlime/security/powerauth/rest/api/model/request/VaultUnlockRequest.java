@@ -27,8 +27,6 @@ package io.getlime.security.powerauth.rest.api.model.request;
  */
 public class VaultUnlockRequest {
 
-    public static final String VAULT_UNLOCKED_REASON_NOT_SPECIFIED = "NOT_SPECIFIED";
-
     private String activationId;
     private String vaultUnlockedReason;
 
