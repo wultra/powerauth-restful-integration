@@ -27,24 +27,7 @@ package io.getlime.security.powerauth.rest.api.model.request;
  */
 public class VaultUnlockRequest {
 
-    private String activationId;
     private String vaultUnlockedReason;
-
-    /**
-     * Get activation ID.
-     * @return Activation ID.
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID.
-     * @param activationId Activation ID.
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
 
     /**
      * Get reason why vault is unlocked.
