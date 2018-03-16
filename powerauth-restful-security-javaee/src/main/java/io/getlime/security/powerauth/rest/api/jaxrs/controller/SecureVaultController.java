@@ -84,7 +84,7 @@ public class SecureVaultController {
 
             if (request != null) {
                 VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();
-                if (vaultUnlockRequest.getReason() != null) {
+                if (vaultUnlockRequest != null && vaultUnlockRequest.getReason() != null) {
                     reason = vaultUnlockRequest.getReason();
                 }
             }
