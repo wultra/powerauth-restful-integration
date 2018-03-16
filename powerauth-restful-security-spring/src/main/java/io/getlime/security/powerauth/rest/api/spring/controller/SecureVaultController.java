@@ -85,18 +85,18 @@ public class SecureVaultController {
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
-            String vaultUnlockedReason = null;
+            String reason = null;
 
             if (request != null) {
                 VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();
                 if (vaultUnlockRequest.getReason() != null) {
-                    vaultUnlockedReason = vaultUnlockRequest.getReason();
+                    reason = vaultUnlockRequest.getReason();
                 }
             }
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
 
-            io.getlime.powerauth.soap.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, vaultUnlockedReason);
+            io.getlime.powerauth.soap.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!soapResponse.isSignatureValid()) {
                 throw new PowerAuthAuthenticationException();
