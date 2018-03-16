@@ -80,17 +80,17 @@ public class SecureVaultController {
             PowerAuthPortServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
-            String vaultUnlockedReason = null;
+            String reason = null;
 
             if (request != null) {
                 VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();
-                if (vaultUnlockRequest.getVaultUnlockedReason() != null) {
-                    vaultUnlockedReason = vaultUnlockRequest.getVaultUnlockedReason();
+                if (vaultUnlockRequest.getReason() != null) {
+                    reason = vaultUnlockRequest.getReason();
                 }
             }
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
 
-            PowerAuthPortServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, vaultUnlockedReason);
+            PowerAuthPortServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!soapResponse.getSignatureValid()) {
                 throw new PowerAuthAuthenticationException();

@@ -27,21 +27,21 @@ package io.getlime.security.powerauth.rest.api.model.request;
  */
 public class VaultUnlockRequest {
 
-    private String vaultUnlockedReason;
+    private String reason;
 
     /**
-     * Get reason why vault is unlocked.
-     * @return Reason why vault is unlocked.
+     * Get reason why vault is being unlocked.
+     * @return Reason why vault is being unlocked.
      */
-    public String getVaultUnlockedReason() {
-        return vaultUnlockedReason;
+    public String getReason() {
+        return reason;
     }
 
     /**
-     * Set reason why vault is unlocked.
-     * @param vaultUnlockedReason Reason why vault is unlocked.
+     * Set reason why vault is being unlocked.
+     * @param reason Reason why vault is being unlocked.
      */
-    public void setVaultUnlockedReason(String vaultUnlockedReason) {
-        this.vaultUnlockedReason = vaultUnlockedReason;
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 }
