@@ -21,6 +21,7 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.controller;
 
 import com.google.common.io.BaseEncoding;
+import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
@@ -30,6 +31,7 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
@@ -60,7 +62,7 @@ public class SecureVaultController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("unlock")
-    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
+    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader, ObjectRequest<VaultUnlockRequest> request) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
         try {
             PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
 
@@ -78,9 +80,17 @@ public class SecureVaultController {
             PowerAuthPortServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
+            String reason = null;
+
+            if (request != null) {
+                VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();
+                if (vaultUnlockRequest.getReason() != null) {
+                    reason = vaultUnlockRequest.getReason();
+                }
+            }
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
 
-            PowerAuthPortServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType);
+            PowerAuthPortServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!soapResponse.getSignatureValid()) {
                 throw new PowerAuthAuthenticationException();
