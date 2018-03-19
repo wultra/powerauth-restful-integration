@@ -30,13 +30,16 @@ import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -49,8 +52,12 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class SecureVaultController {
 
-    @Inject
     private PowerAuthServiceClient powerAuthClient;
+
+    @Inject
+    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+        this.powerAuthClient = powerAuthClient;
+    }
 
     /**
      * Request the vault unlock key.
@@ -62,7 +69,9 @@ public class SecureVaultController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("unlock")
-    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader, ObjectRequest<VaultUnlockRequest> request) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
+    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
+                                                           ObjectRequest<VaultUnlockRequest> request,
+                                                           @Context HttpServletRequest httpServletRequest) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
         try {
             PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
 
@@ -88,7 +97,11 @@ public class SecureVaultController {
                     reason = vaultUnlockRequest.getReason();
                 }
             }
-            String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
+
+            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
+            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+
+            String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
             PowerAuthPortServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
