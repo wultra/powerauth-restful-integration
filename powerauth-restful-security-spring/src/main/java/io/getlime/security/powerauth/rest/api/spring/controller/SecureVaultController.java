@@ -52,8 +52,6 @@ public class SecureVaultController {
 
     private PowerAuthServiceClient powerAuthClient;
 
-    private HttpServletRequest httpServletRequest;
-
     @Autowired
     public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
