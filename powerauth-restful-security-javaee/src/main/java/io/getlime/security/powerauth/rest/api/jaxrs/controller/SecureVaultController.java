@@ -52,11 +52,19 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class SecureVaultController {
 
-    @Inject
     private PowerAuthServiceClient powerAuthClient;
 
-    @Context
     private HttpServletRequest httpServletRequest;
+
+    @Inject
+    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+        this.powerAuthClient = powerAuthClient;
+    }
+
+    @Context
+    public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
+        this.httpServletRequest = httpServletRequest;
+    }
 
     /**
      * Request the vault unlock key.
