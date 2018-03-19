@@ -61,11 +61,6 @@ public class SecureVaultController {
         this.powerAuthClient = powerAuthClient;
     }
 
-    @Context
-    public void setHttpServletRequest(HttpServletRequest httpServletRequest) {
-        this.httpServletRequest = httpServletRequest;
-    }
-
     /**
      * Request the vault unlock key.
      * @param signatureHeader PowerAuth signature HTTP header.
@@ -76,7 +71,9 @@ public class SecureVaultController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("unlock")
-    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader, ObjectRequest<VaultUnlockRequest> request) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
+    public ObjectResponse<VaultUnlockResponse> unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
+                                                           ObjectRequest<VaultUnlockRequest> request,
+                                                           @Context HttpServletRequest httpServletRequest) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
         try {
             PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
 
