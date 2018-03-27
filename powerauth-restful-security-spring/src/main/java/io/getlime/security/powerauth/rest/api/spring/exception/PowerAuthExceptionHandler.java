@@ -58,8 +58,7 @@ public class PowerAuthExceptionHandler {
     public @ResponseBody ErrorResponse handleUnauthorizedException(Exception ex) {
         PowerAuthAuthenticationException paex = (PowerAuthAuthenticationException)ex;
         Logger.getLogger(PowerAuthExceptionHandler.class.getName()).log(Level.SEVERE, paex.getMessage(), paex);
-        Error error = new Error(paex.getDefaultCode(), paex.getMessage());
-        return new ErrorResponse(error);
+        return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
     /**
@@ -72,8 +71,7 @@ public class PowerAuthExceptionHandler {
     public @ResponseBody ErrorResponse handleActivationException(Exception ex) {
         PowerAuthActivationException paex = (PowerAuthActivationException)ex;
         Logger.getLogger(PowerAuthExceptionHandler.class.getName()).log(Level.SEVERE, paex.getMessage(), paex);
-        Error error = new Error(paex.getDefaultCode(), paex.getMessage());
-        return new ErrorResponse(error);
+        return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
     /**
@@ -86,8 +84,7 @@ public class PowerAuthExceptionHandler {
     public @ResponseBody ErrorResponse handleSecureVaultException(Exception ex) {
         PowerAuthSecureVaultException paex = (PowerAuthSecureVaultException)ex;
         Logger.getLogger(PowerAuthExceptionHandler.class.getName()).log(Level.SEVERE, paex.getMessage(), paex);
-        Error error = new Error(paex.getDefaultCode(), paex.getMessage());
-        return new ErrorResponse(error);
+        return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
 }
