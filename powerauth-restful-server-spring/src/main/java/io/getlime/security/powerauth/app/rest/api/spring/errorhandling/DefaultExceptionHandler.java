@@ -50,8 +50,7 @@ public class DefaultExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleException(Exception exception) {
         Logger.getLogger(DefaultExceptionHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
-        Error error = new Error("ERR_GENERIC", exception.getMessage());
-        return new ErrorResponse(error);
+        return new ErrorResponse(Error.Code.ERROR_GENERIC, exception);
     }
 
 }
