@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import com.google.common.io.BaseEncoding;
+import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.SignatureType;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
@@ -28,15 +29,16 @@ import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestHeader;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Controller implementing secure vault related end-points from the
@@ -63,7 +65,9 @@ public class SecureVaultController {
      */
     @RequestMapping(value = "unlock", method = RequestMethod.POST)
     public @ResponseBody ObjectResponse<VaultUnlockResponse> unlockVault(
-            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader)
+            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader,
+            @RequestBody(required=false) ObjectRequest<VaultUnlockRequest> request,
+            HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
 
         try {
@@ -85,9 +89,21 @@ public class SecureVaultController {
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
-            String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), null);
+            String reason = null;
 
-            io.getlime.powerauth.soap.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType);
+            if (request != null) {
+                VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();
+                if (vaultUnlockRequest != null && vaultUnlockRequest.getReason() != null) {
+                    reason = vaultUnlockRequest.getReason();
+                }
+            }
+
+            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
+            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+
+            String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
+
+            io.getlime.powerauth.soap.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!soapResponse.isSignatureValid()) {
                 throw new PowerAuthAuthenticationException();

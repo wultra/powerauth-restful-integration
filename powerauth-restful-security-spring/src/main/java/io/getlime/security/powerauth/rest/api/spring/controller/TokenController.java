@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -57,7 +58,7 @@ public class TokenController {
         this.powerAuthClient = powerAuthClient;
     }
 
-    @RequestMapping("create")
+    @RequestMapping(value = "create", method = RequestMethod.POST)
     @PowerAuth(resourceId = "/pa/token/create", signatureType = {
             PowerAuthSignatureTypes.POSSESSION,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
@@ -96,8 +97,8 @@ public class TokenController {
             throw new PowerAuthAuthenticationException(ex.getMessage());
         }
     }
-
-    @RequestMapping("remove")
+    
+    @RequestMapping(value = "remove", method = RequestMethod.POST)
     @PowerAuth(resourceId = "/pa/token/remove", signatureType = {
             PowerAuthSignatureTypes.POSSESSION,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
