@@ -37,7 +37,6 @@ import javax.ws.rs.core.MediaType;
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@Path("pa/signature")
 @Produces(MediaType.APPLICATION_JSON)
 public class AuthenticationController {
 
@@ -48,7 +47,7 @@ public class AuthenticationController {
     private PowerAuthAuthenticationProvider authenticationProvider;
 
     @POST
-    @Path("validate")
+    @Path("login")
     @Consumes("*/*")
     @Produces(MediaType.APPLICATION_JSON)
     public ObjectResponse<String> login(String body, @HeaderParam(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader
@@ -61,7 +60,7 @@ public class AuthenticationController {
 
         PowerAuthApiAuthentication auth = authenticationProvider.validateRequestSignature(
                 request,
-                "/pa/signature/validate",
+                "/login",
                 authHeader
         );
 
