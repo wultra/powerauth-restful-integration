@@ -67,13 +67,13 @@ public class ActivationController {
      * Create a new activation.
      * @param request PowerAuth RESTful request with {@link ActivationCreateRequest} payload.
      * @return PowerAuth RESTful response with {@link ActivationCreateResponse} payload.
-     * @throws RemoteException In case SOAP communication fails
+     * @throws PowerAuthActivationException In case creating activation fails.
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public ObjectResponse<ActivationCreateResponse> createActivation(ObjectRequest<ActivationCreateRequest> request) throws RemoteException, PowerAuthActivationException {
+    public ObjectResponse<ActivationCreateResponse> createActivation(ObjectRequest<ActivationCreateRequest> request) throws PowerAuthActivationException {
 
         if (request.getRequestObject() == null) {
             throw new PowerAuthActivationException();
@@ -119,13 +119,13 @@ public class ActivationController {
      * Get activation status.
      * @param request PowerAuth RESTful request with {@link ActivationStatusRequest} payload.
      * @return PowerAuth RESTful response with {@link ActivationStatusResponse} payload.
-     * @throws RemoteException In case SOAP communication fails
+     * @throws PowerAuthActivationException In case request fails.
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("status")
-    public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws RemoteException, PowerAuthActivationException {
+    public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws PowerAuthActivationException {
 
         if (request.getRequestObject() == null) {
             throw new PowerAuthActivationException();
@@ -151,7 +151,7 @@ public class ActivationController {
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
-     * @throws RemoteException In case SOAP communication fails
+     * @throws PowerAuthActivationException In case remove request fails.
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
