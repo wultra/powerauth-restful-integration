@@ -27,7 +27,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import java.util.List;
 
@@ -40,7 +40,7 @@ import java.util.List;
  *
  */
 @Configuration
-public class WebApplicationConfig extends WebMvcConfigurerAdapter {
+public class WebApplicationConfig implements WebMvcConfigurer {
 
     /**
      * Register a new @PowerAuth annotation interceptor.
@@ -66,7 +66,7 @@ public class WebApplicationConfig extends WebMvcConfigurerAdapter {
      */
     @Bean
     public FilterRegistrationBean powerAuthFilterRegistration() {
-        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        FilterRegistrationBean<PowerAuthRequestFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new PowerAuthRequestFilter());
         registrationBean.setMatchAfter(true);
         return registrationBean;
@@ -79,7 +79,6 @@ public class WebApplicationConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(powerAuthWebArgumentResolver());
-        super.addArgumentResolvers(argumentResolvers);
     }
 
     /**
@@ -89,7 +88,6 @@ public class WebApplicationConfig extends WebMvcConfigurerAdapter {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(powerAuthInterceptor());
-        super.addInterceptors(registry);
     }
 
 }
