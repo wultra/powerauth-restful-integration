@@ -57,7 +57,7 @@ public class ServiceController {
         response.setApplicationDisplayName(powerAuthWebServiceConfiguration.getApplicationDisplayName());
         response.setApplicationEnvironment(powerAuthWebServiceConfiguration.getApplicationEnvironment());
         response.setVersion(buildProperties.getVersion());
-        response.setBuildTime(buildProperties.getTime());
+        response.setBuildTime(Date.from(buildProperties.getTime()));
         response.setTimestamp(new Date());
         return new ObjectResponse<>(response);
     }

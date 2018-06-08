@@ -25,15 +25,14 @@
 
 	<name>powerauth-restful-server-spring</name>
 	<description>PowerAuth 2.0 Standard RESTful API</description>
-	<groupId>io.getlime.security</groupId>
 	<artifactId>powerauth-restful-server-spring</artifactId>
-	<version>0.18.0</version>
+	<version>0.19.0</version>
 	<packaging>war</packaging>
 
 	<parent>
 		<groupId>io.getlime.security</groupId>
 		<artifactId>powerauth-restful-integration-parent</artifactId>
-		<version>0.18.0</version>
+		<version>0.19.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
@@ -64,14 +63,14 @@
 		<dependency>
 			<groupId>io.getlime.security</groupId>
 			<artifactId>powerauth-restful-security-spring</artifactId>
-			<version>0.18.0</version>
+			<version>0.19.0</version>
 		</dependency>
 
 		<!-- Other Dependencies -->
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
-			<version>24.1-jre</version>
+			<version>25.1-jre</version>
 		</dependency>
 		<dependency>
 			<groupId>org.bouncycastle</groupId>
