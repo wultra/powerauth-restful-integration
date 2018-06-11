@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import javax.servlet.FilterChain;
@@ -38,7 +39,7 @@ import java.io.IOException;
 public class PowerAuthRequestFilter extends OncePerRequestFilter {
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
+    protected void doFilterInternal(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain)
             throws ServletException, IOException {
         super.doFilter(PowerAuthRequestFilterBase.filterRequest(request), response, filterChain);
     }

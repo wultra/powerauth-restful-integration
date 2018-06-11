@@ -22,9 +22,7 @@ package io.getlime.security.powerauth.rest.api.jaxrs.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
@@ -41,7 +39,6 @@ import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.rmi.RemoteException;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth

@@ -22,6 +22,7 @@ package io.getlime.security.powerauth.rest.api.base.filter;
 
 import com.google.common.io.ByteStreams;
 
+import javax.annotation.Nonnull;
 import javax.servlet.ReadListener;
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -82,19 +83,19 @@ public class ResettableStreamHttpServletRequest extends HttpServletRequestWrappe
 
     private static class CustomServletInputStream extends ServletInputStream {
 
-        private ByteArrayInputStream buffer;
+        private final ByteArrayInputStream buffer;
 
         public CustomServletInputStream(byte[] contents) {
             this.buffer = new ByteArrayInputStream(contents);
         }
 
         @Override
-        public int read(byte[] b, int off, int len) throws IOException {
+        public int read(@Nonnull byte[] b, int off, int len) {
             return buffer.read(b, off, len);
         }
 
         @Override
-        public int readLine(byte[] b, int off, int len) throws IOException {
+        public int readLine(byte[] b, int off, int len) {
             // Copy-paste from ServletInputStream code, just replaced 'this' with 'buffer'.
             if(len <= 0) {
                 return 0;
@@ -113,12 +114,12 @@ public class ResettableStreamHttpServletRequest extends HttpServletRequestWrappe
         }
 
         @Override
-        public int read() throws IOException {
+        public int read() {
             return buffer.read();
         }
 
         @Override
-        public int read(byte[] b) throws IOException {
+        public int read(@Nonnull byte[] b) throws IOException {
             return buffer.read(b);
         }
 
