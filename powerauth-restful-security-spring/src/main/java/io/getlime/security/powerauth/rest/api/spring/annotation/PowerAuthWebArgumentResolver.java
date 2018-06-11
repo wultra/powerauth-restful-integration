@@ -22,6 +22,7 @@ package io.getlime.security.powerauth.rest.api.spring.annotation;
 
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import org.springframework.core.MethodParameter;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -38,12 +39,12 @@ import javax.servlet.http.HttpServletRequest;
 public class PowerAuthWebArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Override
-    public boolean supportsParameter(MethodParameter parameter) {
+    public boolean supportsParameter(@NonNull MethodParameter parameter) {
         return PowerAuthApiAuthentication.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override
-    public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
+    public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
         return request.getAttribute(PowerAuth.AUTHENTICATION_OBJECT);
     }
