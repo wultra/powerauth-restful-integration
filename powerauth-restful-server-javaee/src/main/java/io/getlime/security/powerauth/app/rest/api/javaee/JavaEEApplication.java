@@ -29,6 +29,7 @@ import io.getlime.security.powerauth.rest.api.jaxrs.controller.SecureVaultContro
 import io.getlime.security.powerauth.rest.api.jaxrs.controller.TokenController;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthActivationExceptionResolver;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthAuthenticationExceptionResolver;
+import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthEncryptionExceptionResolver;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthSecureVaultExceptionResolver;
 import io.getlime.security.powerauth.rest.api.jaxrs.filter.PowerAuthRequestFilter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -69,6 +70,7 @@ public class JavaEEApplication extends Application {
         // PowerAuth 2.0 Exception Resolvers
         resources.add(PowerAuthActivationExceptionResolver.class);
         resources.add(PowerAuthAuthenticationExceptionResolver.class);
+        resources.add(PowerAuthEncryptionExceptionResolver.class);
         resources.add(PowerAuthSecureVaultExceptionResolver.class);
 
         // PowerAuth 2.0 Filters
