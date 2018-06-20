@@ -22,6 +22,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
 import io.getlime.core.rest.model.base.response.ErrorResponse;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
@@ -80,6 +81,19 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleSecureVaultException(Exception ex) {
         PowerAuthSecureVaultException paex = (PowerAuthSecureVaultException)ex;
+        Logger.getLogger(PowerAuthExceptionHandler.class.getName()).log(Level.SEVERE, paex.getMessage(), paex);
+        return new ErrorResponse(paex.getDefaultCode(), paex);
+    }
+
+    /**
+     * Handle PowerAuthEncryptionException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthActivationException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthEncryptionException(Exception ex) {
+        PowerAuthEncryptionException paex = (PowerAuthEncryptionException)ex;
         Logger.getLogger(PowerAuthExceptionHandler.class.getName()).log(Level.SEVERE, paex.getMessage(), paex);
         return new ErrorResponse(paex.getDefaultCode(), paex);
     }
