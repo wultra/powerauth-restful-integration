@@ -90,7 +90,7 @@ public class PowerAuthExceptionHandler {
      * @param ex Exception instance.
      * @return Error response.
      */
-    @ExceptionHandler(value = PowerAuthActivationException.class)
+    @ExceptionHandler(value = PowerAuthEncryptionException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handlePowerAuthEncryptionException(Exception ex) {
         PowerAuthEncryptionException paex = (PowerAuthEncryptionException)ex;
