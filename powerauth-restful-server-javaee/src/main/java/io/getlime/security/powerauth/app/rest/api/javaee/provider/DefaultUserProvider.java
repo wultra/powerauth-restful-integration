@@ -20,8 +20,6 @@
 
 package io.getlime.security.powerauth.app.rest.api.javaee.provider;
 
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthUserProvider;
-
 import java.util.Map;
 
 /**
