@@ -20,7 +20,6 @@
 
 package io.getlime.security.powerauth.app.rest.api.spring.provider;
 
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthUserProvider;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
