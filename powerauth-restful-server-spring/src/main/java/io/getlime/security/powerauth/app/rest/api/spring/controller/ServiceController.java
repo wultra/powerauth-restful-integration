@@ -38,11 +38,15 @@ import java.util.Date;
 public class ServiceController {
 
     private final PowerAuthWebServiceConfiguration powerAuthWebServiceConfiguration;
-    private final BuildProperties buildProperties;
+    private BuildProperties buildProperties;
 
     @Autowired
-    public ServiceController(PowerAuthWebServiceConfiguration powerAuthWebServiceConfiguration, BuildProperties buildProperties) {
+    public ServiceController(PowerAuthWebServiceConfiguration powerAuthWebServiceConfiguration) {
         this.powerAuthWebServiceConfiguration = powerAuthWebServiceConfiguration;
+    }
+
+    @Autowired(required = false)
+    public void setBuildProperties(BuildProperties buildProperties) {
         this.buildProperties = buildProperties;
     }
 
@@ -56,8 +60,10 @@ public class ServiceController {
         response.setApplicationName(powerAuthWebServiceConfiguration.getApplicationName());
         response.setApplicationDisplayName(powerAuthWebServiceConfiguration.getApplicationDisplayName());
         response.setApplicationEnvironment(powerAuthWebServiceConfiguration.getApplicationEnvironment());
-        response.setVersion(buildProperties.getVersion());
-        response.setBuildTime(Date.from(buildProperties.getTime()));
+        if (buildProperties != null) {
+            response.setVersion(buildProperties.getVersion());
+            response.setBuildTime(Date.from(buildProperties.getTime()));
+        }
         response.setTimestamp(new Date());
         return new ObjectResponse<>(response);
     }
