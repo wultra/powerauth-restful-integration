@@ -60,8 +60,11 @@ public class SecureVaultController {
     /**
      * Request the vault unlock key.
      * @param signatureHeader PowerAuth signature HTTP header.
+     * @param request Vault unlock request data.
+     * @param httpServletRequest HTTP servlet request.
      * @return PowerAuth RESTful response with {@link VaultUnlockResponse} payload.
      * @throws PowerAuthAuthenticationException In case authentication fails.
+     * @throws PowerAuthSecureVaultException In case unlocking the vault fails.
      */
     @RequestMapping(value = "unlock", method = RequestMethod.POST)
     public @ResponseBody ObjectResponse<VaultUnlockResponse> unlockVault(

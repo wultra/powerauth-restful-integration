@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Lime - HighTech Solutions s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -21,27 +21,24 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.exception;
 
 import io.getlime.core.rest.model.base.response.ErrorResponse;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
-import javax.ws.rs.ext.Provider;
 
 /**
  * Class responsible for PowerAuth 2.0 Standard RESTful API exception handling for
- * exceptions raised during the authentication phase.
+ * exceptions that are raised during encryption or decryption.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Roman Strobl, roman.strobl@lime-company.eu
  */
-@Provider
-public class PowerAuthAuthenticationExceptionResolver implements ExceptionMapper<PowerAuthAuthenticationException> {
+public class PowerAuthEncryptionExceptionResolver implements ExceptionMapper<PowerAuthEncryptionException> {
 
-        @Override
-        public Response toResponse(PowerAuthAuthenticationException ex) {
-            return Response
-                    .status(Response.Status.UNAUTHORIZED)
-                    .entity(new ErrorResponse(ex.getDefaultCode(), ex.getMessage()))
-                    .build();
-        }
-
+    @Override
+    public Response toResponse(PowerAuthEncryptionException ex) {
+        return Response
+                .status(Response.Status.BAD_REQUEST)
+                .entity(new ErrorResponse(ex.getDefaultCode(), ex.getMessage()))
+                .build();
+    }
 }

@@ -23,10 +23,9 @@ package io.getlime.security.powerauth.app.rest.api.spring.controller;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.CreateActivationResponse;
+import io.getlime.security.powerauth.app.rest.api.spring.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateCustomRequest;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
@@ -76,7 +75,7 @@ public class CustomActivationController {
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public @ResponseBody ObjectResponse<NonPersonalizedEncryptedPayloadModel> createNewActivation(
             @RequestBody ObjectRequest<NonPersonalizedEncryptedPayloadModel> object
-    ) throws PowerAuthAuthenticationException, PowerAuthActivationException {
+    ) throws PowerAuthActivationException {
         try {
 
             // Check if there is any user provider to be autowired

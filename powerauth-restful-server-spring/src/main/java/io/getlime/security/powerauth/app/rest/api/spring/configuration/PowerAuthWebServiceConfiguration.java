@@ -48,6 +48,16 @@ public class PowerAuthWebServiceConfiguration {
     @Value("${powerauth.service.security.clientSecret}")
     private String clientSecret;
 
+    @Value("${powerauth.integration.service.applicationName}")
+    private String applicationName;
+
+    @Value("${powerauth.integration.service.applicationDisplayName}")
+    private String applicationDisplayName;
+
+    @Value("${powerauth.integration.service.applicationEnvironment}")
+    private String applicationEnvironment;
+
+
     /**
      * Return WS-Security interceptor instance using UsernameToken authentication.
      * @return Wss4jSecurityInterceptor instance.
@@ -94,6 +104,30 @@ public class PowerAuthWebServiceConfiguration {
             client.setInterceptors(interceptors);
         }
         return client;
+    }
+
+    public String getApplicationName() {
+        return applicationName;
+    }
+
+    public void setApplicationName(String applicationName) {
+        this.applicationName = applicationName;
+    }
+
+    public String getApplicationDisplayName() {
+        return applicationDisplayName;
+    }
+
+    public void setApplicationDisplayName(String applicationDisplayName) {
+        this.applicationDisplayName = applicationDisplayName;
+    }
+
+    public String getApplicationEnvironment() {
+        return applicationEnvironment;
+    }
+
+    public void setApplicationEnvironment(String applicationEnvironment) {
+        this.applicationEnvironment = applicationEnvironment;
     }
 
 }

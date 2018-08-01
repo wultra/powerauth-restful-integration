@@ -40,7 +40,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.rmi.RemoteException;
 import java.util.Arrays;
 
 /**
@@ -65,7 +64,7 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws RemoteException, PowerAuthAuthenticationException {
+    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
 
         try {
 
@@ -112,10 +111,9 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("remove")
-    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws RemoteException, PowerAuthAuthenticationException {
+    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
 
         try {
-
             PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(tokenHeader, Arrays.asList(
                     PowerAuthSignatureTypes.POSSESSION,
                     PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,

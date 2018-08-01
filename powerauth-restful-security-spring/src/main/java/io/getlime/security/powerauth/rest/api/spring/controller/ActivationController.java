@@ -76,6 +76,7 @@ public class ActivationController {
      * Create a new activation.
      * @param request PowerAuth RESTful request with {@link ActivationCreateRequest} payload.
      * @return PowerAuth RESTful response with {@link ActivationCreateResponse} payload.
+     * @throws PowerAuthActivationException In case creating activation fails.
      */
     @RequestMapping(value = "create", method = RequestMethod.POST)
     public @ResponseBody ObjectResponse<ActivationCreateResponse> createActivation(
@@ -119,6 +120,7 @@ public class ActivationController {
      * Get activation status.
      * @param request PowerAuth RESTful request with {@link ActivationStatusRequest} payload.
      * @return PowerAuth RESTful response with {@link ActivationStatusResponse} payload.
+     * @throws PowerAuthActivationException In case request fails.
      */
     @RequestMapping(value = "status", method = RequestMethod.POST)
     public @ResponseBody ObjectResponse<ActivationStatusResponse> getActivationStatus(

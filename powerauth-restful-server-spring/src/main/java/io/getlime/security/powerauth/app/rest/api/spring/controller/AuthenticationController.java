@@ -35,17 +35,16 @@ import org.springframework.web.bind.annotation.ResponseBody;
  *
  */
 @Controller
-@RequestMapping(value = "pa/signature")
 public class AuthenticationController {
 
     /**
      * Validate any data sent to this end-point.
-     * @param auth Automatically injected PowerAuth authetnication object.
+     * @param auth Automatically injected PowerAuth authentication object.
      * @return API response with success.
-     * @throws Exception In case any error occurs, including during signature validation.
+     * @throws PowerAuthAuthenticationException In case any error occurs, including during signature validation.
      */
-    @RequestMapping(value = "validate", method = RequestMethod.POST)
-    @PowerAuth(resourceId = "/pa/signature/validate")
+    @RequestMapping(value = "login", method = RequestMethod.POST)
+    @PowerAuth(resourceId = "/login")
     public @ResponseBody ObjectResponse<String> login(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
         // ##EXAMPLE: Here, we could store the authentication in the session like this:
@@ -70,10 +69,10 @@ public class AuthenticationController {
      * Validate any data sent to this end-point.
      * @param auth Automatically injected PowerAuth authentication object.
      * @return API response with success.
-     * @throws Exception In case any error occurs, including during signature validation.
+     * @throws PowerAuthAuthenticationException In case any error occurs, including during signature validation.
      */
-    @RequestMapping(value = "validate", method = RequestMethod.GET)
-    @PowerAuth(resourceId = "/pa/signature/validate")
+    @RequestMapping(value = "login", method = RequestMethod.GET)
+    @PowerAuth(resourceId = "/login")
     public @ResponseBody ObjectResponse<String> getLogin(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
         // ##EXAMPLE: Here, we could store the authentication in the session like this:

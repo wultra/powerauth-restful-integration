@@ -36,9 +36,9 @@ import java.io.IOException;
  */
 public class PowerAuthNonPersonalizedEncryptor {
 
-    private NonPersonalizedEncryptor encryptor;
+    private final NonPersonalizedEncryptor encryptor;
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private final ObjectMapper mapper = new ObjectMapper();
 
     public PowerAuthNonPersonalizedEncryptor(String applicationKeyBase64, String sessionKeyBytesBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) {
         byte[] applicationKey = BaseEncoding.base64().decode(applicationKeyBase64);

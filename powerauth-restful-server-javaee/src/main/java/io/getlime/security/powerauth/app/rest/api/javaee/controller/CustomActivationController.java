@@ -23,11 +23,10 @@ package io.getlime.security.powerauth.app.rest.api.javaee.controller;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.security.powerauth.app.rest.api.javaee.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateCustomRequest;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.rest.api.jaxrs.encryption.EncryptorFactory;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
@@ -41,7 +40,6 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.rmi.RemoteException;
 import java.util.Map;
 
 /**
@@ -64,7 +62,7 @@ public class CustomActivationController {
     @Path("create")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> createNewActivation(ObjectRequest<NonPersonalizedEncryptedPayloadModel> object) throws PowerAuthAuthenticationException, RemoteException, PowerAuthActivationException {
+    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> createNewActivation(ObjectRequest<NonPersonalizedEncryptedPayloadModel> object) throws PowerAuthActivationException {
         try {
 
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(object);

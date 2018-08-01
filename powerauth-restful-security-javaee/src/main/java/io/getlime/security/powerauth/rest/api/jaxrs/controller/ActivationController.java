@@ -22,9 +22,7 @@ package io.getlime.security.powerauth.rest.api.jaxrs.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
@@ -41,7 +39,6 @@ import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.rmi.RemoteException;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
@@ -67,13 +64,13 @@ public class ActivationController {
      * Create a new activation.
      * @param request PowerAuth RESTful request with {@link ActivationCreateRequest} payload.
      * @return PowerAuth RESTful response with {@link ActivationCreateResponse} payload.
-     * @throws RemoteException In case SOAP communication fails
+     * @throws PowerAuthActivationException In case creating activation fails.
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public ObjectResponse<ActivationCreateResponse> createActivation(ObjectRequest<ActivationCreateRequest> request) throws RemoteException, PowerAuthActivationException {
+    public ObjectResponse<ActivationCreateResponse> createActivation(ObjectRequest<ActivationCreateRequest> request) throws PowerAuthActivationException {
 
         if (request.getRequestObject() == null) {
             throw new PowerAuthActivationException();
@@ -119,13 +116,13 @@ public class ActivationController {
      * Get activation status.
      * @param request PowerAuth RESTful request with {@link ActivationStatusRequest} payload.
      * @return PowerAuth RESTful response with {@link ActivationStatusResponse} payload.
-     * @throws RemoteException In case SOAP communication fails
+     * @throws PowerAuthActivationException In case request fails.
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("status")
-    public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws RemoteException, PowerAuthActivationException {
+    public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws PowerAuthActivationException {
 
         if (request.getRequestObject() == null) {
             throw new PowerAuthActivationException();
@@ -151,7 +148,7 @@ public class ActivationController {
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
-     * @throws RemoteException In case SOAP communication fails
+     * @throws PowerAuthActivationException In case remove request fails.
      */
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
