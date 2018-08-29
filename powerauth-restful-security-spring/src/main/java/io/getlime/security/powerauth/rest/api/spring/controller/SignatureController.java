@@ -24,10 +24,10 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * End-point for validating signatures.
@@ -35,8 +35,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author Roman Strobl, roman.strobl@lime-company.eu
  *
  */
-@Controller
-@RequestMapping(value = "pa/signature")
+@RestController
+@RequestMapping(value = "/pa/signature")
 public class SignatureController {
 
     /**

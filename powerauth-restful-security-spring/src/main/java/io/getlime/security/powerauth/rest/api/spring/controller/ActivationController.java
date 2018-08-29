@@ -37,7 +37,6 @@ import io.getlime.security.powerauth.rest.api.model.response.ActivationStatusRes
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -47,7 +46,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Petr Dvorak, petr@lime-company.eu
  *
  */
-@Controller
+@RestController
 @RequestMapping(value = "/pa/activation")
 public class ActivationController {
 

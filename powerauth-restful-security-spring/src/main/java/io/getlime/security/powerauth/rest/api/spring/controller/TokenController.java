@@ -34,19 +34,19 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@Controller
-@RequestMapping("pa/token")
+@RestController
+@RequestMapping("/pa/token")
 public class TokenController {
 
     private final PowerAuthServiceClient powerAuthClient;
