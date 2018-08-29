@@ -34,19 +34,18 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@Controller
-@RequestMapping("pa/token")
+@RestController
+@RequestMapping("/pa/token")
 public class TokenController {
 
     private final PowerAuthServiceClient powerAuthClient;
@@ -63,7 +62,7 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public @ResponseBody ObjectResponse<TokenCreateResponse> createToken(@RequestBody ObjectRequest<TokenCreateRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenCreateResponse> createToken(@RequestBody ObjectRequest<TokenCreateRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
             if (authentication != null && authentication.getActivationId() != null) {
 
@@ -103,7 +102,7 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public @ResponseBody ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
             if (authentication != null && authentication.getActivationId() != null) {
 

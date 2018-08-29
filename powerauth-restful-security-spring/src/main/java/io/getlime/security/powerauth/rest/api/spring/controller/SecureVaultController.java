@@ -35,7 +35,6 @@ import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -46,7 +45,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@Controller
+@RestController
 @RequestMapping(value = "/pa/vault")
 public class SecureVaultController {
 
@@ -67,7 +66,7 @@ public class SecureVaultController {
      * @throws PowerAuthSecureVaultException In case unlocking the vault fails.
      */
     @RequestMapping(value = "unlock", method = RequestMethod.POST)
-    public @ResponseBody ObjectResponse<VaultUnlockResponse> unlockVault(
+    public ObjectResponse<VaultUnlockResponse> unlockVault(
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader,
             @RequestBody(required=false) ObjectRequest<VaultUnlockRequest> request,
             HttpServletRequest httpServletRequest)
