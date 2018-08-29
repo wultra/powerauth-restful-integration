@@ -26,7 +26,6 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthentica
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -51,7 +50,7 @@ public class SignatureController {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public @ResponseBody Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
+    public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
         if (auth != null && auth.getActivationId() != null) {
             return new Response();

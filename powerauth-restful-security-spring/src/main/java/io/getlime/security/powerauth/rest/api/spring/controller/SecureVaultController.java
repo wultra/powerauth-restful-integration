@@ -66,7 +66,7 @@ public class SecureVaultController {
      * @throws PowerAuthSecureVaultException In case unlocking the vault fails.
      */
     @RequestMapping(value = "unlock", method = RequestMethod.POST)
-    public @ResponseBody ObjectResponse<VaultUnlockResponse> unlockVault(
+    public ObjectResponse<VaultUnlockResponse> unlockVault(
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader,
             @RequestBody(required=false) ObjectRequest<VaultUnlockRequest> request,
             HttpServletRequest httpServletRequest)

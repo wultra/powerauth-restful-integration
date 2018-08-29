@@ -78,7 +78,7 @@ public class ActivationController {
      * @throws PowerAuthActivationException In case creating activation fails.
      */
     @RequestMapping(value = "create", method = RequestMethod.POST)
-    public @ResponseBody ObjectResponse<ActivationCreateResponse> createActivation(
+    public ObjectResponse<ActivationCreateResponse> createActivation(
             @RequestBody ObjectRequest<ActivationCreateRequest> request
     ) throws PowerAuthActivationException {
         try {
@@ -122,7 +122,7 @@ public class ActivationController {
      * @throws PowerAuthActivationException In case request fails.
      */
     @RequestMapping(value = "status", method = RequestMethod.POST)
-    public @ResponseBody ObjectResponse<ActivationStatusResponse> getActivationStatus(
+    public ObjectResponse<ActivationStatusResponse> getActivationStatus(
             @RequestBody ObjectRequest<ActivationStatusRequest> request
     ) throws PowerAuthActivationException {
         try {
@@ -148,7 +148,7 @@ public class ActivationController {
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
      */
     @RequestMapping(value = "remove", method = RequestMethod.POST)
-    public @ResponseBody ObjectResponse<ActivationRemoveResponse> removeActivation(
+    public ObjectResponse<ActivationRemoveResponse> removeActivation(
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader
     ) throws PowerAuthActivationException, PowerAuthAuthenticationException {
         try {
