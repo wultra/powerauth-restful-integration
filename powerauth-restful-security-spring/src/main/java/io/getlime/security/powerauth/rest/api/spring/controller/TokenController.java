@@ -39,6 +39,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
  *
@@ -91,6 +94,7 @@ public class TokenController {
         }  catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Creating PowerAuth token failed.", ex);
             throw new PowerAuthAuthenticationException(ex.getMessage());
         }
     }
@@ -127,6 +131,7 @@ public class TokenController {
         }  catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Removing PowerAuth token failed.", ex);
             throw new PowerAuthAuthenticationException(ex.getMessage());
         }
     }
