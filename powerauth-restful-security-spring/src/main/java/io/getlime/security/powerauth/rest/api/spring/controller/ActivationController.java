@@ -39,6 +39,9 @@ import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 /**
  * Controller implementing activation related end-points from the PowerAuth
  * Standard API.
@@ -111,6 +114,7 @@ public class ActivationController {
 
             return new ObjectResponse<>(response);
         } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Creating PowerAuth activation failed.", ex);
             throw new PowerAuthActivationException();
         }
     }
@@ -136,6 +140,7 @@ public class ActivationController {
             }
             return new ObjectResponse<>(response);
         } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "PowerAuth activation status check failed.", ex);
             throw new PowerAuthActivationException();
         }
     }
@@ -164,6 +169,7 @@ public class ActivationController {
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
+            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "PowerAuth activation removal failed.", ex);
             throw new PowerAuthActivationException();
         }
     }

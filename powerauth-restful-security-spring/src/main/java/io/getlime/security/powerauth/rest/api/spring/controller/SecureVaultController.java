@@ -38,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controller implementing secure vault related end-points from the
@@ -129,6 +131,7 @@ public class SecureVaultController {
             if (PowerAuthAuthenticationException.class.equals(ex.getClass())) {
                 throw ex;
             } else {
+                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "PowerAuth vault unlocking failed.", ex);
                 throw new PowerAuthSecureVaultException();
             }
         }
