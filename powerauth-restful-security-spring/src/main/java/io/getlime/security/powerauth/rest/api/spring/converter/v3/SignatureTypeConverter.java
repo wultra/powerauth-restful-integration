@@ -18,62 +18,61 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.jaxrs.converter;
+package io.getlime.security.powerauth.rest.api.spring.converter.v3;
 
-import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.powerauth.soap.v3.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
 /**
  * Helper class to convert from and to
- * {@link io.getlime.powerauth.soap.PowerAuthPortServiceStub.SignatureType} class.
+ * {@link io.getlime.powerauth.soap.v3.SignatureType} class.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
 public class SignatureTypeConverter {
 
     /**
-     * Convert {@link io.getlime.powerauth.soap.PowerAuthPortServiceStub.SignatureType}
+     * Convert {@link io.getlime.powerauth.soap.v3.SignatureType}
      * from a {@link String} value.
      * @param signatureTypeString String value representing signature type.
      * @return Signature type.
      */
-    public PowerAuthPortServiceStub.SignatureType convertFrom(String signatureTypeString) {
+    public SignatureType convertFrom(String signatureTypeString) {
 
         // Default to strongest signature type on null value
         if (signatureTypeString == null) {
-            return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
         }
 
         // Try to convert signature type
         try {
             signatureTypeString = signatureTypeString.toUpperCase();
-            return PowerAuthPortServiceStub.SignatureType.Factory.fromValue(signatureTypeString);
+            return SignatureType.fromValue(signatureTypeString);
         } catch (IllegalArgumentException e) {
-            return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
         }
 
     }
 
     /**
-     * Convert {@link io.getlime.powerauth.soap.PowerAuthPortServiceStub.SignatureType} from
-     * {@link PowerAuthSignatureTypes}.
+     * Convert {@link io.getlime.powerauth.soap.v3.SignatureType} from {@link PowerAuthSignatureTypes}.
      * @param powerAuthSignatureTypes Signature type from crypto representation.
      * @return Signature type.
      */
-    public PowerAuthPortServiceStub.SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
+    public SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
         switch (powerAuthSignatureTypes) {
             case POSSESSION:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION;
+                return SignatureType.POSSESSION;
             case KNOWLEDGE:
-                return PowerAuthPortServiceStub.SignatureType.KNOWLEDGE;
+                return SignatureType.KNOWLEDGE;
             case BIOMETRY:
-                return PowerAuthPortServiceStub.SignatureType.BIOMETRY;
+                return SignatureType.BIOMETRY;
             case POSSESSION_KNOWLEDGE:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE;
+                return SignatureType.POSSESSION_KNOWLEDGE;
             case POSSESSION_BIOMETRY:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION_BIOMETRY;
+                return SignatureType.POSSESSION_BIOMETRY;
             default:
-                return PowerAuthPortServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+                return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
         }
     }
 

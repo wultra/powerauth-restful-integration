@@ -17,13 +17,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.controller;
+package io.getlime.security.powerauth.rest.api.spring.controller.v2;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.GetActivationStatusResponse;
-import io.getlime.powerauth.soap.PrepareActivationResponse;
-import io.getlime.powerauth.soap.RemoveActivationResponse;
+import io.getlime.powerauth.soap.v3.GetActivationStatusResponse;
+import io.getlime.powerauth.soap.v2.PrepareActivationResponse;
+import io.getlime.powerauth.soap.v3.RemoveActivationResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
@@ -45,6 +45,12 @@ import java.util.logging.Logger;
 /**
  * Controller implementing activation related end-points from the PowerAuth
  * Standard API.
+ *
+ * <h5>PowerAuth protocol versions:</h5>
+ * <ul>
+ *     <li>2.0</li>
+ *     <li>2.1</li>
+ * </ul>
  *
  * @author Petr Dvorak, petr@lime-company.eu
  *
@@ -94,7 +100,7 @@ public class ActivationController {
             String applicationSignature = request.getRequestObject().getApplicationSignature();
             String clientEphemeralKey = request.getRequestObject().getEphemeralPublicKey();
 
-            PrepareActivationResponse soapResponse = powerAuthClient.prepareActivation(
+            PrepareActivationResponse soapResponse = powerAuthClient.v2().prepareActivation(
                     activationIDShort,
                     activationName,
                     activationNonce,

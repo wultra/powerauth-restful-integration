@@ -21,7 +21,7 @@
 package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
-import io.getlime.powerauth.soap.GetNonPersonalizedEncryptionKeyResponse;
+import io.getlime.powerauth.soap.v2.GetNonPersonalizedEncryptionKeyResponse;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
@@ -67,7 +67,7 @@ public class EncryptorFactory {
      * @return New instance of a non-personalized encryptor.
      */
     public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(String applicationKeyBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) {
-        final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.generateNonPersonalizedE2EEncryptionKey(
+        final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.v2().generateNonPersonalizedE2EEncryptionKey(
                 applicationKeyBase64,
                 ephemeralPublicKeyBase64,
                 sessionIndexBase64

@@ -22,7 +22,7 @@ package io.getlime.security.powerauth.app.rest.api.javaee.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.app.rest.api.javaee.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateCustomRequest;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
@@ -85,7 +85,7 @@ public class CustomActivationController {
             }
 
             ActivationCreateRequest acr = request.getPowerauth();
-            PowerAuthPortServiceStub.CreateActivationResponse response = powerAuthClient.createActivation(
+            PowerAuthPortV2ServiceStub.CreateActivationResponse response = powerAuthClient.v2().createActivation(
                     acr.getApplicationKey(),
                     userId,
                     acr.getActivationIdShort(),

@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.controller;
+package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
 import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
@@ -34,8 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Roman Strobl, roman.strobl@lime-company.eu
  *
  */
-@RestController
-@RequestMapping(value = "/pa/signature")
+@RestController("SignatureControllerV3")
+@RequestMapping(value = "/pa/v3/signature")
 public class SignatureController {
 
     /**

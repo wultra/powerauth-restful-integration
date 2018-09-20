@@ -22,7 +22,7 @@ package io.getlime.security.powerauth.app.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.CreateActivationResponse;
+import io.getlime.powerauth.soap.v2.CreateActivationResponse;
 import io.getlime.security.powerauth.app.rest.api.spring.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
@@ -107,7 +107,7 @@ public class CustomActivationController {
 
             // Create activation for a looked up user and application related to the given application key
             ActivationCreateRequest acr = request.getPowerauth();
-            CreateActivationResponse response = powerAuthClient.createActivation(
+            CreateActivationResponse response = powerAuthClient.v2().createActivation(
                     acr.getApplicationKey(),
                     userId,
                     acr.getActivationIdShort(),
