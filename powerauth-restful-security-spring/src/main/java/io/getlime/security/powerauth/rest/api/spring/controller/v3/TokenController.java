@@ -18,26 +18,27 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.spring.controller;
+package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.CreateTokenResponse;
+import io.getlime.powerauth.soap.v3.CreateTokenResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
+import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.model.request.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.request.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.TokenCreateResponse;
 import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
-import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -47,14 +48,14 @@ import java.util.logging.Logger;
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@RestController
-@RequestMapping("/pa/token")
+@RestController("TokenControllerV3")
+@RequestMapping("/pa/v3/token")
 public class TokenController {
 
-    private final PowerAuthServiceClient powerAuthClient;
+    private PowerAuthServiceClient powerAuthClient;
 
     @Autowired
-    public TokenController(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -65,9 +66,25 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public ObjectResponse<TokenCreateResponse> createToken(@RequestBody ObjectRequest<TokenCreateRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenCreateResponse> createToken(
+            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader,
+            @RequestBody ObjectRequest<TokenCreateRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
             if (authentication != null && authentication.getActivationId() != null) {
+                // Parse the header
+                PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
+
+                // Validate the header
+                try {
+                    PowerAuthSignatureHttpHeaderValidator.validate(header);
+                } catch (InvalidPowerAuthHttpHeaderException e) {
+                    throw new PowerAuthAuthenticationException(e.getMessage());
+                }
+
+                if (!"3.0".equals(header.getVersion())) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Endpoint does not support PowerAuth protocol version {}", header.getVersion());
+                    throw new PowerAuthSecureVaultException();
+                }
 
                 // Fetch activation ID and signature type
                 final String activationId = authentication.getActivationId();
@@ -98,7 +115,7 @@ public class TokenController {
             throw new PowerAuthAuthenticationException(ex.getMessage());
         }
     }
-    
+
     @RequestMapping(value = "remove", method = RequestMethod.POST)
     @PowerAuth(resourceId = "/pa/token/remove", signatureType = {
             PowerAuthSignatureTypes.POSSESSION,

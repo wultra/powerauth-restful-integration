@@ -22,7 +22,8 @@ package io.getlime.security.powerauth.rest.api.jaxrs.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
+import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
@@ -87,7 +88,7 @@ public class ActivationController {
             String applicationSignature = request.getRequestObject().getApplicationSignature();
             String clientEphemeralKey = request.getRequestObject().getEphemeralPublicKey();
 
-            PowerAuthPortServiceStub.PrepareActivationResponse soapResponse = powerAuthClient.prepareActivation(
+            PowerAuthPortV2ServiceStub.PrepareActivationResponse soapResponse = powerAuthClient.v2().prepareActivation(
                     activationIDShort,
                     activationName,
                     activationNonce,
@@ -130,7 +131,7 @@ public class ActivationController {
 
         try {
             String activationId = request.getRequestObject().getActivationId();
-            PowerAuthPortServiceStub.GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
+            PowerAuthPortV3ServiceStub.GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
             ActivationStatusResponse response = new ActivationStatusResponse();
             response.setActivationId(soapResponse.getActivationId());
             response.setEncryptedStatusBlob(soapResponse.getEncryptedStatusBlob());
@@ -158,7 +159,7 @@ public class ActivationController {
         try {
             PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);
             if (apiAuthentication != null && apiAuthentication.getActivationId() != null) {
-                PowerAuthPortServiceStub.RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
+                PowerAuthPortV3ServiceStub.RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
                 ActivationRemoveResponse response = new ActivationRemoveResponse();
                 response.setActivationId(soapResponse.getActivationId());
                 return new ObjectResponse<>(response);

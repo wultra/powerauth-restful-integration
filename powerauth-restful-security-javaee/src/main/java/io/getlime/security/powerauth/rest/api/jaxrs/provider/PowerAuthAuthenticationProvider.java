@@ -20,7 +20,7 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.provider;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
@@ -37,7 +37,7 @@ import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticat
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthSignatureAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthTokenAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.ejb.Stateless;
@@ -83,9 +83,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         if (authentication.getSignatureType() != null) {
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
-            final PowerAuthPortServiceStub.SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
+            final PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
 
-            PowerAuthPortServiceStub.VerifySignatureRequest soapRequest = new PowerAuthPortServiceStub.VerifySignatureRequest();
+            PowerAuthPortV3ServiceStub.VerifySignatureRequest soapRequest = new PowerAuthPortV3ServiceStub.VerifySignatureRequest();
             soapRequest.setActivationId(authentication.getActivationId());
             soapRequest.setApplicationKey(authentication.getApplicationKey());
             soapRequest.setSignature(authentication.getSignature());
@@ -97,7 +97,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                     authentication.getData()
             ));
 
-            PowerAuthPortServiceStub.VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
+            PowerAuthPortV3ServiceStub.VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
 
             if (soapResponse.getSignatureValid()) {
                 PowerAuthApiAuthentication apiAuthentication = new PowerAuthApiAuthenticationImpl();
@@ -123,13 +123,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      */
     private PowerAuthApiAuthentication validateTokenAuthentication(PowerAuthTokenAuthentication authentication) throws RemoteException {
 
-        PowerAuthPortServiceStub.ValidateTokenRequest soapRequest = new PowerAuthPortServiceStub.ValidateTokenRequest();
+        PowerAuthPortV3ServiceStub.ValidateTokenRequest soapRequest = new PowerAuthPortV3ServiceStub.ValidateTokenRequest();
         soapRequest.setTokenId(authentication.getTokenId());
         soapRequest.setTokenDigest(authentication.getTokenDigest());
         soapRequest.setNonce(authentication.getNonce());
         soapRequest.setTimestamp(Long.valueOf(authentication.getTimestamp()));
 
-        final PowerAuthPortServiceStub.ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
+        final PowerAuthPortV3ServiceStub.ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
 
         if (soapResponse.getTokenValid()) {
             return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(), soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()));

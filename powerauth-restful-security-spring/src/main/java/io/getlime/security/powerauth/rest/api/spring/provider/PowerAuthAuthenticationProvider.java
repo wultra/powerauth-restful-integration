@@ -20,7 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.*;
+import io.getlime.powerauth.soap.v3.*;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
@@ -35,7 +35,7 @@ import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticat
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthSignatureAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthTokenAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;

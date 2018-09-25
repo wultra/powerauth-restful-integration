@@ -18,21 +18,21 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.spring.converter;
+package io.getlime.security.powerauth.rest.api.spring.converter.v2;
 
-import io.getlime.powerauth.soap.SignatureType;
+import io.getlime.powerauth.soap.v2.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
 /**
  * Helper class to convert from and to
- * {@link io.getlime.powerauth.soap.SignatureType} class.
+ * {@link io.getlime.powerauth.soap.v2.SignatureType} class.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
 public class SignatureTypeConverter {
 
     /**
-     * Convert {@link io.getlime.powerauth.soap.SignatureType}
+     * Convert {@link io.getlime.powerauth.soap.v2.SignatureType}
      * from a {@link String} value.
      * @param signatureTypeString String value representing signature type.
      * @return Signature type.

@@ -21,7 +21,7 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.encryption;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
-import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
@@ -67,7 +67,7 @@ public class EncryptorFactory {
      * @throws RemoteException In case a SOAP exception occurs.
      */
     public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(String applicationKeyBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) throws RemoteException {
-        final PowerAuthPortServiceStub.GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.generateNonPersonalizedE2EEncryptionKey(
+        final PowerAuthPortV2ServiceStub.GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.v2().generateNonPersonalizedE2EEncryptionKey(
                 applicationKeyBase64,
                 ephemeralPublicKeyBase64,
                 sessionIndexBase64

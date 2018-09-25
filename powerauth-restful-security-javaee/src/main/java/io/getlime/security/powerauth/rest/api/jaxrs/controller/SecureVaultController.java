@@ -23,7 +23,7 @@ package io.getlime.security.powerauth.rest.api.jaxrs.controller;
 import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
@@ -31,7 +31,7 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
@@ -85,7 +85,7 @@ public class SecureVaultController {
             String activationId = header.getActivationId();
             String applicationId = header.getApplicationKey();
             String signature = header.getSignature();
-            PowerAuthPortServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            PowerAuthPortV2ServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
             String reason = null;
@@ -102,7 +102,7 @@ public class SecureVaultController {
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
-            PowerAuthPortServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
+            PowerAuthPortV2ServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!soapResponse.getSignatureValid()) {
                 throw new PowerAuthAuthenticationException();

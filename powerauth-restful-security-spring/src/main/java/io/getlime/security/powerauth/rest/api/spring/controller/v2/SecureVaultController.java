@@ -17,12 +17,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.controller;
+package io.getlime.security.powerauth.rest.api.spring.controller.v2;
 
 import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.SignatureType;
+import io.getlime.powerauth.soap.v2.SignatureType;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
@@ -32,8 +32,8 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaul
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
+import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
-import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -44,6 +44,12 @@ import java.util.logging.Logger;
 /**
  * Controller implementing secure vault related end-points from the
  * PowerAuth Standard API.
+ *
+ * <h5>PowerAuth protocol versions:</h5>
+ * <ul>
+ *     <li>2.0</li>
+ *     <li>2.1</li>
+ * </ul>
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
@@ -99,7 +105,7 @@ public class SecureVaultController {
             if ("2.0".equals(header.getVersion())) {
                 // Version 2.0 requires null data in signature for vault unlock.
                 requestBodyBytes = null;
-            } else {
+            } else if ("2.1".equals(header.getVersion())) {
                 // Version 2.1 or higher requires request data in signature (POST request body) for vault unlock.
                 if (request != null) {
                     // Send vault unlock reason, in case it is available.
@@ -112,11 +118,14 @@ public class SecureVaultController {
                 // Use POST request body as data for signature.
                 String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
                 requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+            } else {
+                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Endpoint does not support PowerAuth protocol version {}", header.getVersion());
+                throw new PowerAuthSecureVaultException();
             }
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
-            io.getlime.powerauth.soap.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
+            io.getlime.powerauth.soap.v2.VaultUnlockResponse soapResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!soapResponse.isSignatureValid()) {
                 throw new PowerAuthAuthenticationException();
