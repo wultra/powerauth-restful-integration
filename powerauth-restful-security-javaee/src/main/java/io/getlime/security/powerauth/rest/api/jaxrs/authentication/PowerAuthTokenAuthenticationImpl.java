@@ -32,6 +32,7 @@ public class PowerAuthTokenAuthenticationImpl implements PowerAuthTokenAuthentic
     private String tokenDigest;
     private String nonce;
     private String timestamp;
+    private String version;
 
     /**
      * Default constructor
@@ -109,4 +110,21 @@ public class PowerAuthTokenAuthenticationImpl implements PowerAuthTokenAuthentic
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

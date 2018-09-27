@@ -17,32 +17,46 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.request;
+
+package io.getlime.security.powerauth.rest.api.spring.encryption;
+
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 
 /**
- * Request object for /pa/activation/status end-point
+ * Implementation of the {@link PowerAuthEciesEncryption} interface.
  *
- * @author Petr Dvorak
- *
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class ActivationStatusRequest {
+public class PowerAuthEciesEncryptionImpl implements PowerAuthEciesEncryption {
 
+    private String applicationKey;
     private String activationId;
+    private String version;
 
-    /**
-     * Get activation ID
-     * @return Activation ID
-     */
+    @Override
+    public String getApplicationKey() {
+        return applicationKey;
+    }
+
+    public void setApplicationKey(String applicationKey) {
+        this.applicationKey = applicationKey;
+    }
+
+    @Override
     public String getActivationId() {
         return activationId;
     }
 
-    /**
-     * Set activation ID
-     * @param activationId Activation ID
-     */
     public void setActivationId(String activationId) {
         this.activationId = activationId;
     }
 
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

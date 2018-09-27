@@ -24,9 +24,9 @@ import io.getlime.security.powerauth.app.rest.api.javaee.configuration.DefaultJa
 import io.getlime.security.powerauth.app.rest.api.javaee.controller.AuthenticationController;
 import io.getlime.security.powerauth.crypto.lib.config.PowerAuthConfiguration;
 import io.getlime.security.powerauth.provider.CryptoProviderUtilFactory;
-import io.getlime.security.powerauth.rest.api.jaxrs.controller.ActivationController;
-import io.getlime.security.powerauth.rest.api.jaxrs.controller.SecureVaultController;
-import io.getlime.security.powerauth.rest.api.jaxrs.controller.TokenController;
+import io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.ActivationController;
+import io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.SecureVaultController;
+import io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.TokenController;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthActivationExceptionResolver;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthAuthenticationExceptionResolver;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthEncryptionExceptionResolver;

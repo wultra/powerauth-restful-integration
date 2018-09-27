@@ -41,6 +41,7 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     private String httpMethod;
     private byte[] nonce;
     private byte[] data;
+    private String version;
 
     /**
      * Default constructor.
@@ -191,4 +192,21 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
         this.data = data;
     }
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

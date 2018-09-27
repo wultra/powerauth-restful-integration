@@ -30,16 +30,15 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
-import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Controller implementing secure vault related end-points from the
@@ -56,6 +55,8 @@ import java.util.logging.Logger;
 @RestController
 @RequestMapping(value = "/pa/vault")
 public class SecureVaultController {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 
@@ -119,7 +120,7 @@ public class SecureVaultController {
                 String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
                 requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Endpoint does not support PowerAuth protocol version {}", header.getVersion());
+                logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
                 throw new PowerAuthSecureVaultException();
             }
 
@@ -140,7 +141,7 @@ public class SecureVaultController {
             if (PowerAuthAuthenticationException.class.equals(ex.getClass())) {
                 throw ex;
             } else {
-                Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "PowerAuth vault unlocking failed.", ex);
+                logger.warn("PowerAuth vault unlocking failed.", ex);
                 throw new PowerAuthSecureVaultException();
             }
         }

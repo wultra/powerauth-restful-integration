@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.jaxrs.controller;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v2;
 
 import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
@@ -32,8 +32,8 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthentica
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
-import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
-import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;

@@ -18,21 +18,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.jaxrs.controller;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v3;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
+import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
-import io.getlime.security.powerauth.rest.api.model.request.TokenCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.request.TokenRemoveRequest;
-import io.getlime.security.powerauth.rest.api.model.response.TokenCreateResponse;
-import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
+import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthEncryptionProvider;
+import io.getlime.security.powerauth.rest.api.model.request.v3.TokenCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.TokenRemoveResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;
@@ -41,13 +44,15 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Path("pa/token")
+@Path("pa/v3/token")
 @Produces(MediaType.APPLICATION_JSON)
 public class TokenController {
 
@@ -57,6 +62,9 @@ public class TokenController {
     @Inject
     private PowerAuthAuthenticationProvider authenticationProvider;
 
+    @Inject
+    private PowerAuthEncryptionProvider encryptionProvider;
+
     @Context
     private HttpServletRequest httpServletRequest;
 
@@ -64,7 +72,9 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request,
+                                                           @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader,
+                                                           @HeaderParam(PowerAuthEncryptionHttpHeader.HEADER_NAME) String encryptionHeader) throws PowerAuthAuthenticationException {
 
         try {
 
@@ -75,24 +85,44 @@ public class TokenController {
                     PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
             ));
 
-            if (authentication != null && authentication.getActivationId() != null) {
+            PowerAuthEciesEncryption encryption = encryptionProvider.validateEciesEncryption(encryptionHeader);
+
+            if (authentication != null && authentication.getActivationId() != null
+                    && encryption != null && encryption.getActivationId() != null
+                    && encryption.getApplicationKey() != null && authentication.getActivationId().equals(encryption.getActivationId())) {
+
+                if (!"3.0".equals(authentication.getVersion())) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+                    throw new PowerAuthAuthenticationException();
+                }
+
+                if (!"3.0".equals(encryption.getVersion())) {
+                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Endpoint does not support PowerAuth protocol version {}", encryption.getVersion());
+                    throw new PowerAuthAuthenticationException();
+                }
 
                 // Fetch activation ID and signature type
-                final String activationId = authentication.getActivationId();
                 final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
 
                 // Fetch data from the request
                 final TokenCreateRequest requestObject = request.getRequestObject();
-                final String ephemeralPublicKey = requestObject.getEphemeralPublicKey();
+                final String ephemeralPublicKey = requestObject.getEphemeralKey();
+                final String encryptedData = requestObject.getEncryptedData();
+                final String mac = requestObject.getMac();
 
                 // Prepare a signature type converter
                 SignatureTypeConverter converter = new SignatureTypeConverter();
 
+                // Get ECIES headers
+                String applicationKey = encryption.getApplicationKey();
+                String activationId = encryption.getActivationId();
+
                 // Create a token
-                final PowerAuthPortV2ServiceStub.CreateTokenResponse token = powerAuthClient.v2().createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
+                final PowerAuthPortV3ServiceStub.CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
+                        encryptedData, mac, converter.convertFrom(signatureFactors));
 
                 // Prepare a response
-                final TokenCreateResponse responseObject = new TokenCreateResponse();
+                final io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse responseObject = new io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse();
                 responseObject.setMac(token.getMac());
                 responseObject.setEncryptedData(token.getEncryptedData());
                 return new ObjectResponse<>(responseObject);

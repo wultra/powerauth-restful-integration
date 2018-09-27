@@ -76,4 +76,15 @@ public interface PowerAuthTokenAuthentication extends PowerAuthAuthentication {
      */
     void setTimestamp(String timestamp);
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    String getVersion();
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    void setVersion(String version);
 }

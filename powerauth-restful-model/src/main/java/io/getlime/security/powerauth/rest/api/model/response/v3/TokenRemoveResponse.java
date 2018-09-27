@@ -18,47 +18,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.response;
+package io.getlime.security.powerauth.rest.api.model.response.v3;
 
 /**
- * Response object for the /pa/token endpoint, that enables fetching token for simple authentication.
+ * Class representing response transport object for token removal.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
-public class TokenCreateResponse {
-
-    private String mac;
-    private String encryptedData;
+public class TokenRemoveResponse {
 
     /**
-     * Get MAC signature of the request.
-     * @return MAC of the request.
+     * Token ID of the token to be removed.
      */
-    public String getMac() {
-        return mac;
+    private String tokenId;
+
+    /**
+     * Get token ID.
+     * @return Token ID.
+     */
+    public String getTokenId() {
+        return tokenId;
     }
 
     /**
-     * Set MAC signature of the request.
-     * @param mac MAC of the request.
+     * Set token ID.
+     * @param tokenId Token ID.
      */
-    public void setMac(String mac) {
-        this.mac = mac;
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
 
-    /**
-     * Get encrypted data payload.
-     * @return Encrypted data.
-     */
-    public String getEncryptedData() {
-        return encryptedData;
-    }
-
-    /**
-     * Set encrypted data payload.
-     * @param encryptedData Encrypted data.
-     */
-    public void setEncryptedData(String encryptedData) {
-        this.encryptedData = encryptedData;
-    }
 }

@@ -34,6 +34,7 @@ public class PowerAuthTokenAuthenticationImpl extends AbstractAuthenticationToke
     private String tokenDigest;
     private String nonce;
     private String timestamp;
+    private String version;
 
     /**
      * Default constructor
@@ -124,4 +125,21 @@ public class PowerAuthTokenAuthenticationImpl extends AbstractAuthenticationToke
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

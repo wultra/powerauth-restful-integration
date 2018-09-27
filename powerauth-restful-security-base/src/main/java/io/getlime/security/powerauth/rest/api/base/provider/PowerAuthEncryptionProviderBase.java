@@ -17,35 +17,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+package io.getlime.security.powerauth.rest.api.base.provider;
 
-package io.getlime.security.powerauth.rest.api.model.response;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 
 /**
- * Class representing response transport object for token removal.
+ * Abstract class for PowerAuth encryption provider.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Roman Strobl, roman.strobl@wultra.com
+ *
  */
-public class TokenRemoveResponse {
+public abstract class PowerAuthEncryptionProviderBase {
 
     /**
-     * Token ID of the token to be removed.
+     * Validate the PowerAuth encryption HTTP header.
+     *
+     * @param encryptionHttpHeader PowerAuth encryption HTTP header as String.
+     * @return Validated PowerAuth encryption HTTP header.
+     * @throws PowerAuthEncryptionException In case PowerAuth encryption HTTP header is invalid.
      */
-    private String tokenId;
-
-    /**
-     * Get token ID.
-     * @return Token ID.
-     */
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    /**
-     * Set token ID.
-     * @param tokenId Token ID.
-     */
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
-    }
+    public abstract PowerAuthEciesEncryption validateEciesEncryption(String encryptionHttpHeader) throws PowerAuthEncryptionException;
 
 }

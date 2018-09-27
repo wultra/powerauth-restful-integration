@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-package io.getlime.security.powerauth.rest.api.model.response;
+package io.getlime.security.powerauth.rest.api.model.response.v2;
 
 import java.util.Date;
 
 /**
  * Response object for a system status call.
  *
- * @author Roman Strobl, roman.strobl@lime-company.eu
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 public class ServiceStatusResponse {
 

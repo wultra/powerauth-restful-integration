@@ -45,6 +45,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     private String userId;
     private Long applicationId;
     private PowerAuthSignatureTypes factors;
+    private String version;
 
     /**
      * Default constructor
@@ -162,4 +163,21 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
         this.factors = factors;
     }
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
 }

@@ -80,4 +80,15 @@ public interface PowerAuthApiAuthentication {
      */
     void setSignatureFactors(PowerAuthSignatureTypes factors);
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    String getVersion();
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    void setVersion(String version);
 }

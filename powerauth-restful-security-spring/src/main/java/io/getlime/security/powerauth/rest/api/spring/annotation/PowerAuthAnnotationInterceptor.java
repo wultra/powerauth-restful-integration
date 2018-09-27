@@ -20,11 +20,15 @@
 
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
+import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -41,10 +45,16 @@ import java.util.logging.Logger;
 public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
 
     private PowerAuthAuthenticationProvider authenticationProvider;
+    private PowerAuthEncryptionProvider encryptionProvider;
 
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
+    }
+
+    @Autowired
+    public void setEncryptionProvider(PowerAuthEncryptionProvider encryptionProvider) {
+        this.encryptionProvider = encryptionProvider;
     }
 
     @Override
@@ -61,8 +71,9 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
             // Obtain annotations
             PowerAuth powerAuthSignatureAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);
             PowerAuthToken powerAuthTokenAnnotation = handlerMethod.getMethodAnnotation(PowerAuthToken.class);
+            PowerAuthEncryption powerAuthEncryptionAnnotation = handlerMethod.getMethodAnnotation(PowerAuthEncryption.class);
 
-            // Check that only one annotation is active
+            // Check that either signature or token annotation is active
             if (powerAuthSignatureAnnotation != null && powerAuthTokenAnnotation != null) {
                 Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
                 powerAuthSignatureAnnotation = null;
@@ -101,6 +112,17 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                 }
             }
 
+            // Resolve @PowerAuthEncryption annotation
+            if (powerAuthEncryptionAnnotation != null) {
+                try {
+                    PowerAuthEciesEncryption eciesEncryption = this.encryptionProvider.validateEciesEncryption(request.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME));
+                    request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, eciesEncryption);
+                } catch (PowerAuthEncryptionException ex) {
+                    ex.printStackTrace();
+                    // silently ignore here and make sure authentication object is null
+                    request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, null);
+                }
+            }
         }
 
         return super.preHandle(request, response, handler);

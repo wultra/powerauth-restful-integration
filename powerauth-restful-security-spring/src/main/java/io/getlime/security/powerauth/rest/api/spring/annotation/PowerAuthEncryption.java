@@ -18,30 +18,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.request;
+package io.getlime.security.powerauth.rest.api.spring.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Request object for /pa/vault/unlock end-point used for unlocking the vault.
+ * Annotation that simplifies end to end encryption.
  *
- * @author Roman Strobl, roman.strobl@lime-company.eu
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class VaultUnlockRequest {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface PowerAuthEncryption {
 
-    private String reason;
+    String ENCRYPTION_OBJECT = "X-PowerAuth-Encryption-Object";
 
-    /**
-     * Get reason why vault is being unlocked.
-     * @return Reason why vault is being unlocked.
-     */
-    public String getReason() {
-        return reason;
-    }
-
-    /**
-     * Set reason why vault is being unlocked.
-     * @param reason Reason why vault is being unlocked.
-     */
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
 }
