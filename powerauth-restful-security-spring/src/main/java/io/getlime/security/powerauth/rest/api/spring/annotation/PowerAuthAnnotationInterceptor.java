@@ -105,7 +105,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     );
                     request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
-                    // silently ignore here and make sure authentication object is null
+                    // Silently ignore here and make sure authentication object is null
                     request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
                 }
 
@@ -120,7 +120,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     );
                     request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
-                    // silently ignore here and make sure authentication object is null
+                    // Silently ignore here and make sure authentication object is null
                     request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
                 }
             }
@@ -131,7 +131,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     PowerAuthEciesEncryption eciesEncryption = decryptRequest(request);
                     request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, eciesEncryption);
                 } catch (PowerAuthEncryptionException ex) {
-                    // silently ignore here and make sure authentication object is null
+                    // Silently ignore here and make sure encryption object is null
                     request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, null);
                 }
             }
