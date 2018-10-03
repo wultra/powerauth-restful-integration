@@ -79,15 +79,15 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         }
 
         // Convert response to JSON
-        byte[] encryptedResponseBytes;
+        byte[] responseBytes;
         try {
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             objectMapper.writeValue(baos, response);
-            encryptedResponseBytes = baos.toByteArray();
+            responseBytes = baos.toByteArray();
 
             // Encrypt response using decryptor and return ECIES cryptogram
             final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
-            return eciesDecryptor.encryptResponse(encryptedResponseBytes);
+            return eciesDecryptor.encryptResponse(responseBytes);
         } catch (Exception e) {
             return null;
         }
