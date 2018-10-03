@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.authentication;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 
 import java.io.Serializable;
@@ -40,6 +41,7 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
     private Long applicationId;
     private PowerAuthSignatureTypes factors;
     private String version;
+    private PowerAuthHttpHeader httpHeader;
 
     /**
      * Default constructor
@@ -149,5 +151,23 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
     @Override
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    /**
+     * Get parsed PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    @Override
+    public PowerAuthHttpHeader getHttpHeader() {
+        return httpHeader;
+    }
+
+    /**
+     * Set parsed PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    @Override
+    public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
+        this.httpHeader = httpHeader;
     }
 }

@@ -24,6 +24,7 @@ import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
@@ -34,6 +35,7 @@ import io.getlime.security.powerauth.rest.api.model.request.v2.TokenRemoveReques
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenRemoveResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -41,8 +43,6 @@ import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
@@ -52,6 +52,11 @@ import java.util.logging.Logger;
 @Path("pa/token")
 @Produces(MediaType.APPLICATION_JSON)
 public class TokenController {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TokenController.class);
+
+    @Context
+    private HttpServletRequest httpRequest;
 
     @Inject
     private PowerAuthServiceClient powerAuthClient;
@@ -66,20 +71,24 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request,
+                                                           @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader,
+                                                           @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
 
         try {
-
-            PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(tokenHeader, Arrays.asList(
-                    PowerAuthSignatureTypes.POSSESSION,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-                    PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
-            ));
+            // Verify request signature before creating token
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    httpRequest, "/pa/token/create", authHeader,
+                    Arrays.asList(
+                            PowerAuthSignatureTypes.POSSESSION,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+                            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+                    ));
 
             if (authentication != null && authentication.getActivationId() != null) {
                 if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
-                    Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+                    logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
                     throw new PowerAuthAuthenticationException();
                 }
 
@@ -141,7 +150,7 @@ public class TokenController {
 
                 // Prepare a response
                 final TokenRemoveResponse responseObject = new TokenRemoveResponse();
-                responseObject.setTokenId(requestObject.getTokenId());
+                responseObject.setTokenId(tokenId);
                 return new ObjectResponse<>(responseObject);
 
             } else {

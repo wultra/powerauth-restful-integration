@@ -52,7 +52,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@RestController
+@RestController("SecureVaultControllerV2")
 @RequestMapping(value = "/pa/vault")
 public class SecureVaultController {
 

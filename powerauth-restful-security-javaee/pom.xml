@@ -54,6 +54,10 @@
             <artifactId>powerauth-java-client-axis</artifactId>
             <version>0.21.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
 
     </dependencies>
 

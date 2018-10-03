@@ -24,15 +24,14 @@ import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v3.CreateTokenResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.LoggerFactory;
@@ -64,22 +63,13 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    @PowerAuthEncryption
     public ObjectResponse<TokenCreateResponse> createToken(
             @RequestBody ObjectRequest<TokenCreateRequest> request,
-            PowerAuthApiAuthentication authentication,
-            PowerAuthEciesEncryption encryption) throws PowerAuthAuthenticationException {
+            PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
-            if (authentication != null && authentication.getActivationId() != null
-                    && encryption != null && encryption.getActivationId() != null
-                    && encryption.getApplicationKey() != null && authentication.getActivationId().equals(encryption.getActivationId())) {
+            if (authentication != null && authentication.getActivationId() != null) {
                 if (!"3.0".equals(authentication.getVersion())) {
                     logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                    throw new PowerAuthAuthenticationException();
-                }
-
-                if (!"3.0".equals(encryption.getVersion())) {
-                    logger.warn("Endpoint does not support PowerAuth protocol version {}", encryption.getVersion());
                     throw new PowerAuthAuthenticationException();
                 }
 
@@ -96,8 +86,9 @@ public class TokenController {
                 SignatureTypeConverter converter = new SignatureTypeConverter();
 
                 // Get ECIES headers
-                String applicationKey = encryption.getApplicationKey();
-                String activationId = encryption.getActivationId();
+                String activationId = authentication.getActivationId();
+                PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
+                String applicationKey = httpHeader.getApplicationKey();
 
                 // Create a token
                 final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
@@ -142,7 +133,7 @@ public class TokenController {
 
                 // Prepare a response
                 final TokenRemoveResponse responseObject = new TokenRemoveResponse();
-                responseObject.setTokenId(requestObject.getTokenId());
+                responseObject.setTokenId(tokenId);
                 return new ObjectResponse<>(responseObject);
 
             } else {

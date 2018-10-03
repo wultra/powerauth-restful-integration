@@ -20,29 +20,134 @@
 
 package io.getlime.security.powerauth.rest.api.base.encryption;
 
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
+import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
+
 /**
- * Interface for authentication objects used for ECIES encryption. This object mirrors
- * data that are transmitted in "X-PowerAuth-Encryption" header.
+ * Class used for storing data used during ECIES decryption and encryption. A reference to an initialized ECIES decryptor
+ * is also stored so that response can be encrypted using same decryptor as used for request decryption.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public interface PowerAuthEciesEncryption {
+public class PowerAuthEciesEncryption {
+
+    private String applicationKey;
+    private String activationId;
+    private String version;
+    private PowerAuthEncryptionHttpHeader httpHeader;
+    private EciesDecryptor eciesDecryptor;
+    private byte[] encryptedRequest;
+    private byte[] decryptedRequest;
 
     /**
      * Get application key.
      * @return Application key.
      */
-    String getApplicationKey();
+    public String getApplicationKey() {
+        return applicationKey;
+    }
+
+    /**
+     * Set application key.
+     * @param applicationKey Application key.
+     */
+    public void setApplicationKey(String applicationKey) {
+        this.applicationKey = applicationKey;
+    }
 
     /**
      * Get activation ID.
      * @return Activation ID.
      */
-    String getActivationId();
+    public String getActivationId() {
+        return activationId;
+    }
+
+    /**
+     * Set activation ID.
+     * @param activationId Activation ID.
+     */
+    public void setActivationId(String activationId) {
+        this.activationId = activationId;
+    }
 
     /**
      * Get PowerAuth protocol version.
      * @return PowerAuth protocol version.
      */
-    String getVersion();
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    /**
+     * Get PowerAuth encryption HTTP header.
+     * @return PowerAuth encryption HTTP header.
+     */
+    public PowerAuthEncryptionHttpHeader getHttpHeader() {
+        return httpHeader;
+    }
+
+    /**
+     * Set PowerAuth encryption HTTP header.
+     * @param httpHeader PowerAuth encryption HTTP header.
+     */
+    public void setHttpHeader(PowerAuthEncryptionHttpHeader httpHeader) {
+        this.httpHeader = httpHeader;
+    }
+
+    /**
+     * Get ECIES decryptor.
+     * @return ECIES decryptor.
+     */
+    public EciesDecryptor getEciesDecryptor() {
+        return eciesDecryptor;
+    }
+
+    /**
+     * Set ECIES decryptor.
+     * @param eciesDecryptor ECIES decryptor.
+     */
+    public void setEciesDecryptor(EciesDecryptor eciesDecryptor) {
+        this.eciesDecryptor = eciesDecryptor;
+    }
+
+    /**
+     * Get encrypted request data.
+     * @return Encrypted request data.
+     */
+    public byte[] getEncryptedRequest() {
+        return encryptedRequest;
+    }
+
+    /**
+     * Set encrypted request data.
+     * @param encryptedRequest Encrypted request data.
+     */
+    public void setEncryptedRequest(byte[] encryptedRequest) {
+        this.encryptedRequest = encryptedRequest;
+    }
+
+    /**
+     * Get decrypted request data.
+     * @return Decrypted request data.
+     */
+    public byte[] getDecryptedRequest() {
+        return decryptedRequest;
+    }
+
+    /**
+     * Set decrypted request data.
+     * @param decryptedRequest Decrypted request data.
+     */
+    public void setDecryptedRequest(byte[] decryptedRequest) {
+        this.decryptedRequest = decryptedRequest;
+    }
 }

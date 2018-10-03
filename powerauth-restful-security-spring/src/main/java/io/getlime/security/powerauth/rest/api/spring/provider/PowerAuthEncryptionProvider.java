@@ -19,17 +19,15 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
-import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
-import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
-import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.powerauth.soap.v3.GetEciesDecryptorRequest;
+import io.getlime.powerauth.soap.v3.GetEciesDecryptorResponse;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthEncryptionProviderBase;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryptionImpl;
+import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implementation of PowerAuth encryption provider.
@@ -40,30 +38,28 @@ import java.util.logging.Logger;
 @Component
 public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase  {
 
-    @Override
-    public PowerAuthEciesEncryption validateEciesEncryption(String encryptionHttpHeader) throws PowerAuthEncryptionException {
-        // Check for HTTP PowerAuth Encryption signature header
-        if (encryptionHttpHeader == null || encryptionHttpHeader.equals("undefined")) {
-            throw new PowerAuthEncryptionException("POWER_AUTH_ENCRYPTION_INVALID_EMPTY");
-        }
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);
 
-        // Parse HTTP header
-        PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
+    private PowerAuthServiceClient powerAuthClient;
 
-        // Validate the header
-        try {
-            PowerAuthEncryptionHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
-            throw new PowerAuthEncryptionException(e.getMessage());
-        }
-
-        // Prepare encryption object
-        PowerAuthEciesEncryptionImpl eciesEncryption = new PowerAuthEciesEncryptionImpl();
-        eciesEncryption.setApplicationKey(header.getApplicationKey());
-        eciesEncryption.setActivationId(header.getActivationId());
-        eciesEncryption.setVersion(header.getVersion());
-
-        return eciesEncryption;
+    @Autowired
+    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+        this.powerAuthClient = powerAuthClient;
     }
+
+    @Override
+    public PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(String activationId, String applicationKey, String ephemeralPublicKey) throws PowerAuthEncryptionException {
+        try {
+            GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
+            eciesDecryptorRequest.setActivationId(activationId);
+            eciesDecryptorRequest.setApplicationKey(applicationKey);
+            eciesDecryptorRequest.setEphemeralKey(ephemeralPublicKey);
+            GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(eciesDecryptorRequest);
+            return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
+        } catch (Exception e) {
+            logger.warn("Get Ecies decryptor parameters call failed", e);
+            throw new PowerAuthEncryptionException();
+        }
+    }
+
 }

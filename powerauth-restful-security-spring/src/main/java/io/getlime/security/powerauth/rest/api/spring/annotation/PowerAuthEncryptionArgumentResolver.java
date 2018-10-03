@@ -20,6 +20,7 @@
 
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
@@ -29,6 +30,7 @@ import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * Argument resolver for {@link PowerAuthEciesEncryption} objects. It enables automatic
@@ -38,15 +40,23 @@ import javax.servlet.http.HttpServletRequest;
  */
 public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumentResolver {
 
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
-        return PowerAuthEciesEncryption.class.isAssignableFrom(parameter.getParameterType());
+        return parameter.hasMethodAnnotation(PowerAuthEncryption.class) && parameter.hasParameterAnnotation(EncryptedRequestBody.class);
     }
 
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        return request.getAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT);
+        final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+        final PowerAuthEciesEncryption eciesObject = (PowerAuthEciesEncryption) request.getAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT);
+        final Class<?> parameterType = parameter.getParameterType();
+        try {
+            return objectMapper.readValue(eciesObject.getDecryptedRequest(), parameterType);
+        } catch (IOException e) {
+            return null;
+        }
     }
 
 }

@@ -18,48 +18,44 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.response.v3;
+package io.getlime.security.powerauth.rest.api.base.encryption;
 
 /**
- * Response object for the /pa/v3/token endpoint, that enables fetching token for simple authentication.
+ * Class used for storing ECIES decryptor parameters.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class TokenCreateResponse {
+public class PowerAuthEciesDecryptorParameters {
 
-    private String encryptedData;
-    private String mac;
+    private final String secretKey;
+    private final String sharedInfo2;
 
     /**
-     * Get encrypted data payload.
-     * @return Encrypted data.
+     * Constructor with secretKey and sharedInfo2.
+     *
+     * @param secretKey ECIES secret key.
+     * @param sharedInfo2 Parameter sharedInfo2 for ECIES.
      */
-    public String getEncryptedData() {
-        return encryptedData;
+    public PowerAuthEciesDecryptorParameters(String secretKey, String sharedInfo2) {
+        this.secretKey = secretKey;
+        this.sharedInfo2 = sharedInfo2;
     }
 
     /**
-     * Set encrypted data payload.
-     * @param encryptedData Encrypted data.
+     * Get ECIES secret key.
+     *
+     * @return ECIES secret key.
      */
-    public void setEncryptedData(String encryptedData) {
-        this.encryptedData = encryptedData;
+    public String getSecretKey() {
+        return secretKey;
     }
 
     /**
-     * Get MAC signature of the request.
-     * @return MAC of the request.
+     * Get parameter sharedInfo2 for ECIES.
+     * @return Parameter sharedInfo2 for ECIES.
      */
-    public String getMac() {
-        return mac;
-    }
-
-    /**
-     * Set MAC signature of the request.
-     * @param mac MAC of the request.
-     */
-    public void setMac(String mac) {
-        this.mac = mac;
+    public String getSharedInfo2() {
+        return sharedInfo2;
     }
 
 }

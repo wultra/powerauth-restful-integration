@@ -19,11 +19,15 @@
  */
 package io.getlime.security.powerauth.rest.api.base.provider;
 
+import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
+import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
+import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 
 /**
- * Abstract class for PowerAuth encryption provider.
+ * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
@@ -31,12 +35,47 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryption
 public abstract class PowerAuthEncryptionProviderBase {
 
     /**
-     * Validate the PowerAuth encryption HTTP header.
+     * Get ECIES decryptor parameters from PowerAuth server.
      *
-     * @param encryptionHttpHeader PowerAuth encryption HTTP header as String.
-     * @return Validated PowerAuth encryption HTTP header.
+     * @param activationId Activation ID (only used in activation scope, in application scope use null).
+     * @param applicationKey Application key.
+     * @param ephemeralPublicKey Ephemeral public key for ECIES.
+     * @return ECIES decryptor parameters.
+     * @throws PowerAuthEncryptionException In case PowerAuth server call fails.
+     */
+    public abstract PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(String activationId, String applicationKey, String ephemeralPublicKey) throws PowerAuthEncryptionException;
+
+    /**
+     * Prepare ECIES data from PowerAuth encryption HTTP header.
+     *
+     * @param encryptionHttpHeader PowerAuth encryption HTTP header.
+     * @return PowerAuth ECIES encryption object.
      * @throws PowerAuthEncryptionException In case PowerAuth encryption HTTP header is invalid.
      */
-    public abstract PowerAuthEciesEncryption validateEciesEncryption(String encryptionHttpHeader) throws PowerAuthEncryptionException;
+    public PowerAuthEciesEncryption prepareEciesEncryption(String encryptionHttpHeader) throws PowerAuthEncryptionException {
+        // Check for HTTP PowerAuth encryption header
+        if (encryptionHttpHeader == null || encryptionHttpHeader.equals("undefined")) {
+            throw new PowerAuthEncryptionException("POWER_AUTH_ENCRYPTION_INVALID_EMPTY");
+        }
+
+        // Parse HTTP header
+        PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
+
+        // Validate the header
+        try {
+            PowerAuthEncryptionHttpHeaderValidator.validate(header);
+        } catch (InvalidPowerAuthHttpHeaderException e) {
+            throw new PowerAuthEncryptionException(e.getMessage());
+        }
+
+        // Prepare encryption object
+        PowerAuthEciesEncryption eciesEncryption = new PowerAuthEciesEncryption();
+        eciesEncryption.setApplicationKey(header.getApplicationKey());
+        eciesEncryption.setActivationId(header.getActivationId());
+        eciesEncryption.setVersion(header.getVersion());
+        eciesEncryption.setHttpHeader(header);
+
+        return eciesEncryption;
+    }
 
 }

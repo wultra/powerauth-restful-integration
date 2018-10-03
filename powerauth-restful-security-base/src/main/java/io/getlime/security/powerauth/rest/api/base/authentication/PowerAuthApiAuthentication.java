@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.base.authentication;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 
 /**
  * Interface for PowerAuth API authentication object used between intermediate server
@@ -91,4 +92,16 @@ public interface PowerAuthApiAuthentication {
      * @param version PowerAuth protocol version.
      */
     void setVersion(String version);
+
+    /**
+     * Get the PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    PowerAuthHttpHeader getHttpHeader();
+
+    /**
+     * Set the PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    void setHttpHeader(PowerAuthHttpHeader httpHeader);
 }

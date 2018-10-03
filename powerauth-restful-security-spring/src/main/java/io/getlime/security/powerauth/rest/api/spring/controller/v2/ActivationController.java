@@ -53,7 +53,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Petr Dvorak, petr@lime-company.eu
  *
  */
-@RestController
+@RestController("ActivationControllerV2")
 @RequestMapping(value = "/pa/activation")
 public class ActivationController {
 

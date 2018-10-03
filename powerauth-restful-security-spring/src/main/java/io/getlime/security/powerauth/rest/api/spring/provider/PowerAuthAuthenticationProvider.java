@@ -23,6 +23,7 @@ import com.google.common.io.BaseEncoding;
 import io.getlime.powerauth.soap.v3.*;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
@@ -112,7 +113,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
 
             if (soapResponse.isSignatureValid()) {
-                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(), soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()), authentication.getVersion());
+                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
+                        soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()),
+                        authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
             }
@@ -139,7 +142,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         final ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
 
         if (soapResponse.isTokenValid()) {
-            return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(), soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()), authentication.getVersion());
+            return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
+                    soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()),
+                    authentication.getVersion(), authentication.getHttpHeader());
         } else {
             return null;
         }
@@ -153,7 +158,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param signatureType Signature Type.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes signatureType, String version) {
+    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes signatureType, String version, PowerAuthHttpHeader httpHeader) {
         PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
         apiAuthentication.setActivationId(activationId);
         apiAuthentication.setUserId(userId);
@@ -161,6 +166,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         apiAuthentication.setSignatureFactors(signatureType);
         apiAuthentication.setAuthenticated(true);
         apiAuthentication.setVersion(version);
+        apiAuthentication.setHttpHeader(httpHeader);
         return apiAuthentication;
     }
 
@@ -230,6 +236,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         powerAuthAuthentication.setRequestUri(requestUriIdentifier);
         powerAuthAuthentication.setData(httpBody);
         powerAuthAuthentication.setVersion(header.getVersion());
+        powerAuthAuthentication.setHttpHeader(header);
 
         // Call the authentication based on signature authentication object
         PowerAuthApiAuthentication auth = (PowerAuthApiAuthentication) this.authenticate(powerAuthAuthentication);
@@ -267,6 +274,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         powerAuthTokenAuthentication.setNonce(header.getNonce());
         powerAuthTokenAuthentication.setTimestamp(header.getTimestamp());
         powerAuthTokenAuthentication.setVersion(header.getVersion());
+        powerAuthTokenAuthentication.setHttpHeader(header);
 
         // Call the authentication based on token authentication object
         final PowerAuthApiAuthentication auth = (PowerAuthApiAuthentication) this.authenticate(powerAuthTokenAuthentication);

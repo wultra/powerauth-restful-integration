@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@RestController
+@RestController("TokenControllerV2")
 @RequestMapping("/pa/token")
 public class TokenController {
 
@@ -124,7 +124,7 @@ public class TokenController {
 
                 // Prepare a response
                 final TokenRemoveResponse responseObject = new TokenRemoveResponse();
-                responseObject.setTokenId(requestObject.getTokenId());
+                responseObject.setTokenId(tokenId);
                 return new ObjectResponse<>(responseObject);
 
             } else {
