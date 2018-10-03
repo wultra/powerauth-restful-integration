@@ -126,15 +126,20 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("remove")
-    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request,
+                                                           @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader,
+                                                           @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
 
         try {
-            PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(tokenHeader, Arrays.asList(
-                    PowerAuthSignatureTypes.POSSESSION,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-                    PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
-            ));
+            // Verify request signature before creating token
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    httpRequest, "/pa/token/remove", authHeader,
+                    Arrays.asList(
+                            PowerAuthSignatureTypes.POSSESSION,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+                            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+                    ));
 
             if (authentication != null && authentication.getActivationId() != null) {
 
