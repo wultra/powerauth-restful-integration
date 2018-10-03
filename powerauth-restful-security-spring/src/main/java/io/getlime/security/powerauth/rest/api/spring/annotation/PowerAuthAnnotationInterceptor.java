@@ -131,7 +131,6 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     PowerAuthEciesEncryption eciesEncryption = decryptRequest(request);
                     request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, eciesEncryption);
                 } catch (PowerAuthEncryptionException ex) {
-                    ex.printStackTrace();
                     // silently ignore here and make sure authentication object is null
                     request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, null);
                 }
