@@ -140,7 +140,7 @@ public class TokenController {
                                                            @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
 
         try {
-            // Verify request signature before creating token
+            // Verify request signature before removing token
             PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
                     httpRequest, "/pa/token/remove", authHeader,
                     Arrays.asList(
