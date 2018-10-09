@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.base.authentication;
 
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
  * application (such as mobile banking API).
@@ -123,5 +125,29 @@ public interface PowerAuthSignatureAuthentication extends PowerAuthAuthenticatio
      * @param data Request data.
      */
     void setData(byte[] data);
+
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    String getVersion();
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    void setVersion(String version);
+
+    /**
+     * Get parsed PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    PowerAuthHttpHeader getHttpHeader();
+
+    /**
+     * Set parsed PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    void setHttpHeader(PowerAuthHttpHeader httpHeader);
 
 }

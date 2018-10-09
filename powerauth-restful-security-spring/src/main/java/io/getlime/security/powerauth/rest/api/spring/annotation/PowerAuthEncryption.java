@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Lime - HighTech Solutions s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,34 +18,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.response;
+package io.getlime.security.powerauth.rest.api.spring.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Class representing response transport object for token removal.
+ * Annotation that simplifies end to end encryption.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class TokenRemoveResponse {
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+public @interface PowerAuthEncryption {
 
-    /**
-     * Token ID of the token to be removed.
-     */
-    private String tokenId;
-
-    /**
-     * Get token ID.
-     * @return Token ID.
-     */
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    /**
-     * Set token ID.
-     * @param tokenId Token ID.
-     */
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
-    }
+    String ENCRYPTION_OBJECT = "X-PowerAuth-Encryption-Object";
 
 }

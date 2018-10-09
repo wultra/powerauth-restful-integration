@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -18,30 +18,34 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.request;
+package io.getlime.security.powerauth.rest.api.model.response.v3;
 
 /**
- * Request object for /pa/vault/unlock end-point used for unlocking the vault.
+ * Class representing response transport object for token removal.
  *
- * @author Roman Strobl, roman.strobl@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
-public class VaultUnlockRequest {
-
-    private String reason;
+public class TokenRemoveResponse {
 
     /**
-     * Get reason why vault is being unlocked.
-     * @return Reason why vault is being unlocked.
+     * Token ID of the token to be removed.
      */
-    public String getReason() {
-        return reason;
+    private String tokenId;
+
+    /**
+     * Get token ID.
+     * @return Token ID.
+     */
+    public String getTokenId() {
+        return tokenId;
     }
 
     /**
-     * Set reason why vault is being unlocked.
-     * @param reason Reason why vault is being unlocked.
+     * Set token ID.
+     * @param tokenId Token ID.
      */
-    public void setReason(String reason) {
-        this.reason = reason;
+    public void setTokenId(String tokenId) {
+        this.tokenId = tokenId;
     }
+
 }

@@ -18,81 +18,93 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.spring.controller.v3;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v2;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.v3.CreateTokenResponse;
+import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.model.request.v3.TokenCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse;
-import io.getlime.security.powerauth.rest.api.model.response.v3.TokenRemoveResponse;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v2.TokenRemoveRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v2.TokenRemoveResponse;
+import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import java.util.Arrays;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
  *
  * @author Petr Dvorak, petr@lime-company.eu
  */
-@RestController("TokenControllerV3")
-@RequestMapping("/pa/v3/token")
+@Path("pa/token")
+@Produces(MediaType.APPLICATION_JSON)
 public class TokenController {
 
     private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TokenController.class);
 
+    @Context
+    private HttpServletRequest httpRequest;
+
+    @Inject
     private PowerAuthServiceClient powerAuthClient;
 
-    @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
-        this.powerAuthClient = powerAuthClient;
-    }
+    @Inject
+    private PowerAuthAuthenticationProvider authenticationProvider;
 
-    @RequestMapping(value = "create", method = RequestMethod.POST)
-    @PowerAuth(resourceId = "/pa/token/create", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
-    })
-    public ObjectResponse<TokenCreateResponse> createToken(
-            @RequestBody ObjectRequest<TokenCreateRequest> request,
-            PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    @Context
+    private HttpServletRequest httpServletRequest;
+
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("create")
+    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request,
+                                                           @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader,
+                                                           @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
+
         try {
+            // Verify request signature before creating token
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    httpRequest, "/pa/token/create", authHeader,
+                    Arrays.asList(
+                            PowerAuthSignatureTypes.POSSESSION,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+                            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+                    ));
+
             if (authentication != null && authentication.getActivationId() != null) {
-                if (!"3.0".equals(authentication.getVersion())) {
+                if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
                     logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
                     throw new PowerAuthAuthenticationException();
                 }
 
                 // Fetch activation ID and signature type
+                final String activationId = authentication.getActivationId();
                 final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
 
                 // Fetch data from the request
                 final TokenCreateRequest requestObject = request.getRequestObject();
-                final String ephemeralPublicKey = requestObject.getEphemeralKey();
-                final String encryptedData = requestObject.getEncryptedData();
-                final String mac = requestObject.getMac();
+                final String ephemeralPublicKey = requestObject.getEphemeralPublicKey();
 
                 // Prepare a signature type converter
                 SignatureTypeConverter converter = new SignatureTypeConverter();
 
-                // Get ECIES headers
-                String activationId = authentication.getActivationId();
-                PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
-                String applicationKey = httpHeader.getApplicationKey();
-
                 // Create a token
-                final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                        encryptedData, mac, converter.convertFrom(signatureFactors));
+                final PowerAuthPortV2ServiceStub.CreateTokenResponse token = powerAuthClient.v2().createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
 
                 // Prepare a response
                 final TokenCreateResponse responseObject = new TokenCreateResponse();
@@ -105,20 +117,30 @@ public class TokenController {
         }  catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed.", ex);
             throw new PowerAuthAuthenticationException(ex.getMessage());
         }
+
     }
 
-    @RequestMapping(value = "remove", method = RequestMethod.POST)
-    @PowerAuth(resourceId = "/pa/token/remove", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
-    })
-    public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("remove")
+    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request,
+                                                           @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader,
+                                                           @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
+
         try {
+            // Verify request signature before removing token
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    httpRequest, "/pa/token/remove", authHeader,
+                    Arrays.asList(
+                            PowerAuthSignatureTypes.POSSESSION,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+                            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+                    ));
+
             if (authentication != null && authentication.getActivationId() != null) {
 
                 // Fetch activation ID
@@ -142,9 +164,9 @@ public class TokenController {
         }  catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("Removing PowerAuth token failed.", ex);
             throw new PowerAuthAuthenticationException(ex.getMessage());
         }
+
     }
 
 }

@@ -18,9 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.request;
-
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
+package io.getlime.security.powerauth.rest.api.model.request.v2;
 
 import java.util.Map;
 
@@ -30,7 +28,7 @@ import java.util.Map;
  * Object representing an activation performed with given identity, custom (non-identity related) attributes, and
  * PowerAuth 2.0 activation object.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 public class ActivationCreateCustomRequest {
 

@@ -29,18 +29,16 @@ import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicat
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationStatusRequest;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationCreateResponse;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationStatusResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationStatusRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationRemoveResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
@@ -55,9 +53,11 @@ import java.util.logging.Logger;
  * @author Petr Dvorak, petr@lime-company.eu
  *
  */
-@RestController
+@RestController("ActivationControllerV2")
 @RequestMapping(value = "/pa/activation")
 public class ActivationController {
+
+    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ActivationController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 
@@ -120,7 +120,7 @@ public class ActivationController {
 
             return new ObjectResponse<>(response);
         } catch (Exception ex) {
-            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "Creating PowerAuth activation failed.", ex);
+            logger.warn("Creating PowerAuth activation failed.", ex);
             throw new PowerAuthActivationException();
         }
     }
@@ -146,7 +146,7 @@ public class ActivationController {
             }
             return new ObjectResponse<>(response);
         } catch (Exception ex) {
-            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "PowerAuth activation status check failed.", ex);
+            logger.warn("PowerAuth activation status check failed.", ex);
             throw new PowerAuthActivationException();
         }
     }
@@ -175,7 +175,7 @@ public class ActivationController {
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            Logger.getLogger(this.getClass().getName()).log(Level.WARNING, "PowerAuth activation removal failed.", ex);
+            logger.warn("PowerAuth activation removal failed.", ex);
             throw new PowerAuthActivationException();
         }
     }

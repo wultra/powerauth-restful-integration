@@ -17,31 +17,32 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package io.getlime.security.powerauth.rest.api.model.request;
+package io.getlime.security.powerauth.rest.api.model.response.v2;
 
 /**
- * Request object for the /pa/token endpoint, that enables fetching token for simple authentication.
+ * Response object for /pa/activation/remove end-point
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
+ *
  */
-public class TokenCreateRequest {
+public class ActivationRemoveResponse {
 
-    private String ephemeralPublicKey;
+    private String activationId;
 
     /**
-     * Get ephemeral public key (Base64 encoded data).
-     * @return Ephemeral public key.
+     * Get activation ID
+     * @return Activation ID
      */
-    public String getEphemeralPublicKey() {
-        return ephemeralPublicKey;
+    public String getActivationId() {
+        return activationId;
     }
 
     /**
-     * Set ephemeral public key (Base64 encoded data).
-     * @param ephemeralPublicKey Ephemeral public key.
+     * Set activation ID
+     * @param activationId Activation ID
      */
-    public void setEphemeralPublicKey(String ephemeralPublicKey) {
-        this.ephemeralPublicKey = ephemeralPublicKey;
+    public void setActivationId(String activationId) {
+        this.activationId = activationId;
     }
+
 }

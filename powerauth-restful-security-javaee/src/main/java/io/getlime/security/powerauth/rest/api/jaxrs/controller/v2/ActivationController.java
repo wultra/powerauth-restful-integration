@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.jaxrs.controller;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v2;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
@@ -30,11 +30,11 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationStatusRequest;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationCreateResponse;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationStatusResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationStatusRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationRemoveResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationStatusResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;

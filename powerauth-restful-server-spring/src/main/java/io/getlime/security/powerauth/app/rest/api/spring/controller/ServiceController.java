@@ -18,7 +18,7 @@ package io.getlime.security.powerauth.app.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.app.rest.api.spring.configuration.PowerAuthWebServiceConfiguration;
-import io.getlime.security.powerauth.rest.api.model.response.ServiceStatusResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ServiceStatusResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.stereotype.Controller;

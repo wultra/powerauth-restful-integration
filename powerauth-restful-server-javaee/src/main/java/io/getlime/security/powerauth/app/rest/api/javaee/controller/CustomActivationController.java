@@ -24,13 +24,13 @@ import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.app.rest.api.javaee.provider.PowerAuthUserProvider;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateCustomRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateCustomRequest;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.encryption.EncryptorFactory;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.jaxrs.controller;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v2;
 
 import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
@@ -37,7 +37,7 @@ import java.util.Arrays;
 /**
  * End-point for validating signatures.
  *
- * @author Roman Strobl, roman.strobl@lime-company.eu
+ * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @Path("pa/signature")

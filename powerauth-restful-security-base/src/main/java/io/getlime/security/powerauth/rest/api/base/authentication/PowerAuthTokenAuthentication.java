@@ -20,6 +20,8 @@
 
 package io.getlime.security.powerauth.rest.api.base.authentication;
 
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+
 /**
  * Interface for authentication objects used for simple token-based authentication. This object mirrors
  * data that are transmitted in "X-PowerAuth-Token" header.
@@ -76,4 +78,27 @@ public interface PowerAuthTokenAuthentication extends PowerAuthAuthentication {
      */
     void setTimestamp(String timestamp);
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    String getVersion();
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    void setVersion(String version);
+
+    /**
+     * Get parsed PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    PowerAuthHttpHeader getHttpHeader();
+
+    /**
+     * Set parsed PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    void setHttpHeader(PowerAuthHttpHeader httpHeader);
 }

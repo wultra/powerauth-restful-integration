@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.authentication;
 
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthSignatureAuthentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
@@ -41,6 +42,8 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     private String httpMethod;
     private byte[] nonce;
     private byte[] data;
+    private String version;
+    private PowerAuthHttpHeader httpHeader;
 
     /**
      * Default constructor.
@@ -191,4 +194,40 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
         this.data = data;
     }
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+
+    /**
+     * Get parsed PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    @Override
+    public PowerAuthHttpHeader getHttpHeader() {
+        return httpHeader;
+    }
+
+    /**
+     * Set parsed PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    @Override
+    public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
+        this.httpHeader = httpHeader;
+    }
 }

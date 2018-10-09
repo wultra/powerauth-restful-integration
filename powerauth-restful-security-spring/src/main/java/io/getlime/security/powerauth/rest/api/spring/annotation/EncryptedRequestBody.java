@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Lime - HighTech Solutions s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,32 +17,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.request;
+
+package io.getlime.security.powerauth.rest.api.spring.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
 /**
- * Request object for /pa/activation/status end-point
+ * Annotation for encrypted request body parameters.
  *
- * @author Petr Dvorak
- *
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class ActivationStatusRequest {
-
-    private String activationId;
-
-    /**
-     * Get activation ID
-     * @return Activation ID
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID
-     * @param activationId Activation ID
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.PARAMETER)
+public @interface EncryptedRequestBody {
 
 }

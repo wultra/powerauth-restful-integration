@@ -17,12 +17,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.response;
+package io.getlime.security.powerauth.rest.api.model.response.v2;
 
 /**
  * Response object for /pa/vault/unlock end-point.
  *
- * @author Petr Dvorak
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 public class VaultUnlockResponse {

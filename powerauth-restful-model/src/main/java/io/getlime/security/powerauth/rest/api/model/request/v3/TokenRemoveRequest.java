@@ -18,12 +18,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package io.getlime.security.powerauth.rest.api.model.request;
+package io.getlime.security.powerauth.rest.api.model.request.v3;
 
 /**
  * Class representing request transport object for token removal.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 public class TokenRemoveRequest {
 
