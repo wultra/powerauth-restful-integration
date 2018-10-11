@@ -30,9 +30,9 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
-import io.getlime.security.powerauth.rest.api.model.request.v3.TokenCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.TokenRemoveResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import org.slf4j.LoggerFactory;
@@ -71,9 +71,9 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request,
-                                                           @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader,
-                                                           @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
+    public EciesEncryptedResponse createToken(EciesEncryptedRequest request,
+                                              @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader,
+                                              @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
 
         try {
 
@@ -98,10 +98,9 @@ public class TokenController {
                 final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
 
                 // Fetch data from the request
-                final TokenCreateRequest requestObject = request.getRequestObject();
-                final String ephemeralPublicKey = requestObject.getEphemeralKey();
-                final String encryptedData = requestObject.getEncryptedData();
-                final String mac = requestObject.getMac();
+                final String ephemeralPublicKey = request.getEphemeralPublicKey();
+                final String encryptedData = request.getEncryptedData();
+                final String mac = request.getMac();
 
                 // Prepare a signature type converter
                 SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -116,10 +115,10 @@ public class TokenController {
                         encryptedData, mac, converter.convertFrom(signatureFactors));
 
                 // Prepare a response
-                final io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse responseObject = new io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse();
+                final EciesEncryptedResponse responseObject = new EciesEncryptedResponse();
                 responseObject.setMac(token.getMac());
                 responseObject.setEncryptedData(token.getEncryptedData());
-                return new ObjectResponse<>(responseObject);
+                return responseObject;
             } else {
                 throw new PowerAuthAuthenticationException();
             }

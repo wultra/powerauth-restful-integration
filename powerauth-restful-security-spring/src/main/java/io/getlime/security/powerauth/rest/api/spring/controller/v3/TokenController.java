@@ -27,9 +27,9 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.model.request.v3.TokenCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v3.TokenCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
@@ -63,9 +63,9 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public ObjectResponse<TokenCreateResponse> createToken(
-            @RequestBody ObjectRequest<TokenCreateRequest> request,
-            PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    public EciesEncryptedResponse createToken(@RequestBody EciesEncryptedRequest request,
+                                              PowerAuthApiAuthentication authentication)
+            throws PowerAuthAuthenticationException {
         try {
             if (authentication != null && authentication.getActivationId() != null) {
                 if (!"3.0".equals(authentication.getVersion())) {
@@ -77,10 +77,9 @@ public class TokenController {
                 final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
 
                 // Fetch data from the request
-                final TokenCreateRequest requestObject = request.getRequestObject();
-                final String ephemeralPublicKey = requestObject.getEphemeralKey();
-                final String encryptedData = requestObject.getEncryptedData();
-                final String mac = requestObject.getMac();
+                final String ephemeralPublicKey = request.getEphemeralPublicKey();
+                final String encryptedData = request.getEncryptedData();
+                final String mac = request.getMac();
 
                 // Prepare a signature type converter
                 SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -95,10 +94,10 @@ public class TokenController {
                         encryptedData, mac, converter.convertFrom(signatureFactors));
 
                 // Prepare a response
-                final TokenCreateResponse responseObject = new TokenCreateResponse();
-                responseObject.setMac(token.getMac());
-                responseObject.setEncryptedData(token.getEncryptedData());
-                return new ObjectResponse<>(responseObject);
+                final EciesEncryptedResponse response = new EciesEncryptedResponse();
+                response.setMac(token.getMac());
+                response.setEncryptedData(token.getEncryptedData());
+                return response;
             } else {
                 throw new PowerAuthAuthenticationException();
             }
@@ -117,7 +116,8 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
+                                                           PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
             if (authentication != null && authentication.getActivationId() != null) {
 

@@ -20,9 +20,11 @@
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
@@ -70,7 +72,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @return ECIES cryptogram.
      */
     @Override
-    public EciesCryptogram beforeBodyWrite(Object response, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public EciesEncryptedResponse beforeBodyWrite(Object response, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         // Extract ECIES encryption object from HTTP request
         final HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
         final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT);
@@ -87,7 +89,10 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
             // Encrypt response using decryptor and return ECIES cryptogram
             final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
-            return eciesDecryptor.encryptResponse(responseBytes);
+            EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
+            String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
+            String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
+            return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception e) {
             return null;
         }

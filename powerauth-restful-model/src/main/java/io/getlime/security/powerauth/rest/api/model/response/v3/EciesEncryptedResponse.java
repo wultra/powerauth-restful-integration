@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,38 +17,36 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
-package io.getlime.security.powerauth.rest.api.model.request.v3;
+package io.getlime.security.powerauth.rest.api.model.response.v3;
 
 /**
- * Request object for the /pa/v3/token endpoint, that enables fetching token for simple authentication.
+ * Response object for endpoints returning data encrypted by ECIES.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class TokenCreateRequest {
+public class EciesEncryptedResponse {
 
-    private String ephemeralKey;
     private String encryptedData;
     private String mac;
 
     /**
-     * Get Base64 encoded ephemeral public key.
-     * @return Ephemeral public key.
+     * Default constructor.
      */
-    public String getEphemeralKey() {
-        return ephemeralKey;
+    public EciesEncryptedResponse() {
     }
 
     /**
-     * Set Base64 encoded ephemeral public key.
-     * @param ephemeralKey Ephemeral public key.
+     * Constructor with Base64 encoded encrypted data and MAC of key and data.
+     * @param encryptedData Encrypted data.
+     * @param mac MAC of key and data.
      */
-    public void setEphemeralKey(String ephemeralKey) {
-        this.ephemeralKey = ephemeralKey;
+    public EciesEncryptedResponse(String encryptedData, String mac) {
+        this.encryptedData = encryptedData;
+        this.mac = mac;
     }
 
     /**
-     * Get Base64 encoded encrypted data.
+     * Get Base64 encoded encrypted data payload.
      * @return Encrypted data.
      */
     public String getEncryptedData() {
@@ -56,7 +54,7 @@ public class TokenCreateRequest {
     }
 
     /**
-     * Set Base64 encoded encrypted data.
+     * Set Base64 encoded encrypted data payload.
      * @param encryptedData Encrypted data.
      */
     public void setEncryptedData(String encryptedData) {
@@ -64,18 +62,19 @@ public class TokenCreateRequest {
     }
 
     /**
-     * Get Base64 encoded MAC of key and data.
-     * @return MAC of key and data.
+     * Get Base64 encoded MAC signature of the response.
+     * @return MAC of the response.
      */
     public String getMac() {
         return mac;
     }
 
     /**
-     * Set Base64 encoded MAC of key and data.
-     * @param mac MAC of key and data.
+     * Set Base64 encoded MAC signature of the response.
+     * @param mac MAC of the response.
      */
     public void setMac(String mac) {
         this.mac = mac;
     }
+
 }
