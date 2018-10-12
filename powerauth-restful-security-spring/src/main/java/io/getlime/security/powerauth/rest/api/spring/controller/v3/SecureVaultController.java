@@ -112,7 +112,7 @@ public class SecureVaultController {
             byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
-            // PowerAuth 3.0 SOAP endpoint throws Exception in case signature is invalid
+            // Verify signature and get encrypted vault encryption key from PowerAuth server
             VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
                     signatureType, data, ephemeralPublicKey, encryptedData, mac);
 
