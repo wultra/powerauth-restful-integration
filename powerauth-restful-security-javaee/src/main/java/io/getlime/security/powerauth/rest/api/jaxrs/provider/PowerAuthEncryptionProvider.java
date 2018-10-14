@@ -48,7 +48,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
             PowerAuthPortV3ServiceStub.GetEciesDecryptorRequest eciesDecryptorRequest = new PowerAuthPortV3ServiceStub.GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);
             eciesDecryptorRequest.setApplicationKey(applicationKey);
-            eciesDecryptorRequest.setEphemeralKey(ephemeralPublicKey);
+            eciesDecryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
             PowerAuthPortV3ServiceStub.GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(eciesDecryptorRequest);
             return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
         } catch (RemoteException e) {

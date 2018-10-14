@@ -53,7 +53,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
             GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);
             eciesDecryptorRequest.setApplicationKey(applicationKey);
-            eciesDecryptorRequest.setEphemeralKey(ephemeralPublicKey);
+            eciesDecryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
             GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(eciesDecryptorRequest);
             return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
         } catch (Exception e) {
