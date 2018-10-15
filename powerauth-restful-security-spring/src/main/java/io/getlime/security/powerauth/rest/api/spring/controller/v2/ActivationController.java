@@ -19,18 +19,16 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller.v2;
 
-import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.v3.GetActivationStatusResponse;
 import io.getlime.powerauth.soap.v2.PrepareActivationResponse;
+import io.getlime.powerauth.soap.v3.GetActivationStatusResponse;
 import io.getlime.powerauth.soap.v3.RemoveActivationResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
@@ -41,8 +39,6 @@ import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
@@ -139,6 +135,10 @@ public class ActivationController {
     public ObjectResponse<ActivationStatusResponse> getActivationStatus(
             @RequestBody ObjectRequest<ActivationStatusRequest> request
     ) throws PowerAuthActivationException {
+        if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
+            logger.warn("Invalid request object in activation status.");
+            throw new PowerAuthActivationException();
+        }
         try {
             String activationId = request.getRequestObject().getActivationId();
             GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
@@ -156,7 +156,7 @@ public class ActivationController {
     }
 
     /**
-     * Get activation status.
+     * Remove activation.
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthActivationException In case activation access fails.
@@ -164,13 +164,10 @@ public class ActivationController {
      */
     @RequestMapping(value = "remove", method = RequestMethod.POST)
     public ObjectResponse<ActivationRemoveResponse> removeActivation(
-            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
-            HttpServletRequest httpServletRequest
+            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader
     ) throws PowerAuthActivationException, PowerAuthAuthenticationException {
         try {
-            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
-            PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
+            PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);
             if (apiAuthentication != null && apiAuthentication.getActivationId() != null) {
                 RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
                 ActivationRemoveResponse response = new ActivationRemoveResponse();

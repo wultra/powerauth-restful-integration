@@ -144,6 +144,10 @@ public class ActivationController {
     @RequestMapping(value = "status", method = RequestMethod.POST)
     public ObjectResponse<ActivationStatusResponse> getActivationStatus(@RequestBody ObjectRequest<ActivationStatusRequest> request)
             throws PowerAuthActivationException {
+        if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
+            logger.warn("Invalid request object in activation status.");
+            throw new PowerAuthActivationException();
+        }
         try {
             String activationId = request.getRequestObject().getActivationId();
             GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
@@ -161,7 +165,7 @@ public class ActivationController {
     }
 
     /**
-     * Get activation status.
+     * Remove activation.
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthActivationException In case activation access fails.

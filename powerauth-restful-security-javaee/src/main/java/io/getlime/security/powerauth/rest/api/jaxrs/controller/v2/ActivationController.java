@@ -20,7 +20,6 @@
 
 package io.getlime.security.powerauth.rest.api.jaxrs.controller.v2;
 
-import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
@@ -30,7 +29,6 @@ import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicat
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationStatusRequest;
@@ -40,9 +38,7 @@ import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationStatus
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 
 /**
@@ -129,7 +125,7 @@ public class ActivationController {
     @Path("status")
     public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws PowerAuthActivationException {
 
-        if (request.getRequestObject() == null) {
+        if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
             throw new PowerAuthActivationException();
         }
 
@@ -149,7 +145,7 @@ public class ActivationController {
     }
 
     /**
-     * Get activation status.
+     * Remove activation.
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
@@ -159,12 +155,9 @@ public class ActivationController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("remove")
-    public ObjectResponse<ActivationRemoveResponse> removeActivation(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
-                                                                     @Context HttpServletRequest httpServletRequest) throws PowerAuthAuthenticationException, PowerAuthActivationException {
+    public ObjectResponse<ActivationRemoveResponse> removeActivation(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader) throws PowerAuthAuthenticationException, PowerAuthActivationException {
         try {
-            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
-            PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
+            PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);
             if (apiAuthentication != null && apiAuthentication.getActivationId() != null) {
                 PowerAuthPortV3ServiceStub.RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
                 ActivationRemoveResponse response = new ActivationRemoveResponse();

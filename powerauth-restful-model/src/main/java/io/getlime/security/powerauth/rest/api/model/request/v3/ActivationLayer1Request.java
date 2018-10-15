@@ -33,6 +33,7 @@ public class ActivationLayer1Request {
 
     private ActivationType type;
     private Map<String, String> identityAttributes;
+    private Map<String, Object> customAttributes;
     private EciesEncryptedRequest activationData;
 
     /**
@@ -65,6 +66,22 @@ public class ActivationLayer1Request {
      */
     public void setIdentityAttributes(Map<String, String> identityAttributes) {
         this.identityAttributes = identityAttributes;
+    }
+
+    /**
+     * Get custom attributes.
+     * @return Custom attributes.
+     */
+    public Map<String, Object> getCustomAttributes() {
+        return customAttributes;
+    }
+
+    /**
+     * Set custom attributes.
+     * @param customAttributes Custom attributes.
+     */
+    public void setCustomAttributes(Map<String, Object> customAttributes) {
+        this.customAttributes = customAttributes;
     }
 
     /**
