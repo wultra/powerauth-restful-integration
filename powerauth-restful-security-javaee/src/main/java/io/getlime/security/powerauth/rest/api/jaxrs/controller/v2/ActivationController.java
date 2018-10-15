@@ -125,7 +125,7 @@ public class ActivationController {
     @Path("status")
     public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws PowerAuthActivationException {
 
-        if (request.getRequestObject() == null) {
+        if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
             throw new PowerAuthActivationException();
         }
 
@@ -145,7 +145,7 @@ public class ActivationController {
     }
 
     /**
-     * Get activation status.
+     * Remove activation.
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
