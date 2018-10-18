@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,9 +20,9 @@
 package io.getlime.security.powerauth.rest.api.model.request.v3;
 
 /**
- * Request object for /pa/v3/activation/status end-point
+ * Request object for /pa/v3/activation/status end-point.
  *
- * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 public class ActivationStatusRequest {
