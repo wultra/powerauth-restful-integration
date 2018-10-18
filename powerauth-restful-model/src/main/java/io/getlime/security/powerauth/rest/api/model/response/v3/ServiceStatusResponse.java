@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.getlime.security.powerauth.rest.api.model.response.v2;
+package io.getlime.security.powerauth.rest.api.model.response.v3;
 
 import java.util.Date;
 

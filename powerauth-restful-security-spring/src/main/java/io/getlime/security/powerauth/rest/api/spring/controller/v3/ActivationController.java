@@ -32,12 +32,12 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncr
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
+import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationRemoveResponse;
-import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
@@ -91,10 +91,10 @@ public class ActivationController {
     @RequestMapping(value = "create", method = RequestMethod.POST)
     @PowerAuthEncryption
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
-                                                     PowerAuthEciesEncryption eciesEncryption) throws PowerAuthAuthenticationException {
+                                                     PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
 
         if (eciesEncryption == null) {
-            throw new PowerAuthAuthenticationException("ECIES object is missing");
+            throw new PowerAuthActivationException();
         }
         try {
 
@@ -131,7 +131,7 @@ public class ActivationController {
             }
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth activation failed.", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            throw new PowerAuthActivationException();
         }
     }
 
