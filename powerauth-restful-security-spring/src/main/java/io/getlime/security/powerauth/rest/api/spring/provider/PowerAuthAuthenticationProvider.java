@@ -110,6 +110,16 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                     authentication.getData()
             ));
 
+            // Force signature version during migration when commit endpoint is invoked
+            String requestVersion = authentication.getVersion();
+            if ("/pa/migration/commit".equals(authentication.getRequestUri()) && requestVersion != null
+                    && requestVersion.matches("[0-9]+\\.[0-9]+")) {
+                // Expected PowerAuth protocol version is x.x which is converted into a major version number
+                String majorVersion = requestVersion.substring(0, requestVersion.indexOf("."));
+                Long signatureVersion = Long.valueOf(majorVersion);
+                soapRequest.setSignatureVersion(signatureVersion);
+            }
+
             VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
 
             if (soapResponse.isSignatureValid()) {

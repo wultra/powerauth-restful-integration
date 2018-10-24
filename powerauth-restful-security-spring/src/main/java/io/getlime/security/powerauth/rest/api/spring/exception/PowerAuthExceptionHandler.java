@@ -20,10 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
 import io.getlime.core.rest.model.base.response.ErrorResponse;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.exception.*;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -96,6 +93,19 @@ public class PowerAuthExceptionHandler {
         PowerAuthEncryptionException paex = (PowerAuthEncryptionException)ex;
         Logger.getLogger(PowerAuthExceptionHandler.class.getName()).log(Level.SEVERE, paex.getMessage(), paex);
         return new ErrorResponse(paex.getDefaultCode(), paex);
+    }
+
+    /**
+     * Handle PowerAuthMigrationException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthMigrationException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthMigrationException(Exception ex) {
+        PowerAuthMigrationException pamx = (PowerAuthMigrationException)ex;
+        Logger.getLogger(PowerAuthExceptionHandler.class.getName()).log(Level.SEVERE, pamx.getMessage(), pamx);
+        return new ErrorResponse(pamx.getDefaultCode(), pamx);
     }
 
 }
