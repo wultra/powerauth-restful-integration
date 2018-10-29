@@ -97,6 +97,11 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                     authentication.getData()
             ));
 
+            // In case forced signature version is specified, use it in the SOAP request
+            if (authentication.getForcedSignatureVersion() != null) {
+                soapRequest.setForcedSignatureVersion(authentication.getForcedSignatureVersion());
+            }
+
             PowerAuthPortV3ServiceStub.VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
 
             if (soapResponse.getSignatureValid()) {
@@ -166,6 +171,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of the signature.
+     * @param forcedSignatureVersion Forced signature version during upgrade.
      * @return Instance of a PowerAuthApiAuthenticationImpl on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
@@ -174,7 +180,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             byte[] httpBody,
             String requestUriIdentifier,
             String httpAuthorizationHeader,
-            List<PowerAuthSignatureTypes> allowedSignatureTypes
+            List<PowerAuthSignatureTypes> allowedSignatureTypes,
+            Integer forcedSignatureVersion
     ) throws PowerAuthAuthenticationException {
 
         // Check for HTTP PowerAuth signature header
@@ -209,6 +216,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         powerAuthAuthentication.setRequestUri(requestUriIdentifier);
         powerAuthAuthentication.setData(httpBody);
         powerAuthAuthentication.setVersion(header.getVersion());
+        powerAuthAuthentication.setForcedSignatureVersion(forcedSignatureVersion);
 
         // Call the authentication
         PowerAuthApiAuthentication auth;

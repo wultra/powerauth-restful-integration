@@ -44,6 +44,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -109,6 +110,12 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                     authentication.getNonce(),
                     authentication.getData()
             ));
+
+            // In case forced signature version is specified, use it in the SOAP request.
+            // This occurs when verifying signature during upgrade before upgrade is committed.
+            if (authentication.getForcedSignatureVersion() != null) {
+                soapRequest.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
+            }
 
             VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
 
@@ -184,6 +191,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of the signature.
+     * @param forcedSignatureVersion Forced signature version, optional parameter used during upgrade.
      * @return Instance of a PowerAuthApiAuthenticationImpl on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
@@ -192,7 +200,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             byte[] httpBody,
             String requestUriIdentifier,
             String httpAuthorizationHeader,
-            List<PowerAuthSignatureTypes> allowedSignatureTypes
+            List<PowerAuthSignatureTypes> allowedSignatureTypes,
+            @Nullable Integer forcedSignatureVersion
     ) throws PowerAuthAuthenticationException {
 
         // Check for HTTP PowerAuth signature header
@@ -237,6 +246,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         powerAuthAuthentication.setData(httpBody);
         powerAuthAuthentication.setVersion(header.getVersion());
         powerAuthAuthentication.setHttpHeader(header);
+        powerAuthAuthentication.setForcedSignatureVersion(forcedSignatureVersion);
 
         // Call the authentication based on signature authentication object
         PowerAuthApiAuthentication auth = (PowerAuthApiAuthentication) this.authenticate(powerAuthAuthentication);

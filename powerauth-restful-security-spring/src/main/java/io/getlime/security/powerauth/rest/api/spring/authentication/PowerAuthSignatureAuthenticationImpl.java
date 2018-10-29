@@ -43,6 +43,7 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     private byte[] nonce;
     private byte[] data;
     private String version;
+    private Integer forcedSignatureVersion;
     private PowerAuthHttpHeader httpHeader;
 
     /**
@@ -212,6 +213,23 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
         this.version = version;
     }
 
+    /**
+     * Get forced signature version which is used during upgrade.
+     * @return Forced signature version.
+     */
+    @Override
+    public Integer getForcedSignatureVersion() {
+        return forcedSignatureVersion;
+    }
+
+    /**
+     * Set forced signature version which is used during upgrade.
+     * @param forcedSignatureVersion Forced signature version.
+     */
+    @Override
+    public void setForcedSignatureVersion(Integer forcedSignatureVersion) {
+        this.forcedSignatureVersion = forcedSignatureVersion;
+    }
 
     /**
      * Get parsed PowerAuth HTTP header.

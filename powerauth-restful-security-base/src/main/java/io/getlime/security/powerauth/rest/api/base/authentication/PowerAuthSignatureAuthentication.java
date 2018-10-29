@@ -139,6 +139,18 @@ public interface PowerAuthSignatureAuthentication extends PowerAuthAuthenticatio
     void setVersion(String version);
 
     /**
+     * Get forced signature version which is used during upgrade.
+     * @return Forced signature version
+     */
+    Integer getForcedSignatureVersion();
+
+    /**
+     * Set forced signature version which is used during upgrade.
+     * @param forcedSignatureVersion Forced signature version.
+     */
+    void setForcedSignatureVersion(Integer forcedSignatureVersion);
+
+    /**
      * Get parsed PowerAuth HTTP header.
      * @return PowerAuth HTTP header.
      */
