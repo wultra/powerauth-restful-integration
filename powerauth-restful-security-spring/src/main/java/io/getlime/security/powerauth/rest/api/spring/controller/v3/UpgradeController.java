@@ -35,7 +35,6 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthUpgradeExc
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
@@ -132,9 +131,6 @@ public class UpgradeController {
      * @throws PowerAuthUpgradeException In case commit fails.
      */
     @RequestMapping(value = "commit", method = RequestMethod.POST)
-    @PowerAuth(resourceId = "/pa/upgrade/commit", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION
-    })
     public Response upgradeCommit(@RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
                                   HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
