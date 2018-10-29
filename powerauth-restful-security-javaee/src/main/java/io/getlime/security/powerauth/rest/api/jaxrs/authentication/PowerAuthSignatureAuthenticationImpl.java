@@ -41,6 +41,7 @@ public class PowerAuthSignatureAuthenticationImpl implements PowerAuthSignatureA
     private byte[] data;
     private String version;
     private PowerAuthHttpHeader httpHeader;
+    private Integer forcedSignatureVersion;
 
     /**
      * Get activation ID.
@@ -220,5 +221,23 @@ public class PowerAuthSignatureAuthenticationImpl implements PowerAuthSignatureA
     @Override
     public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
         this.httpHeader = httpHeader;
+    }
+
+    /**
+     * Get forced signature version which is used during upgrade.
+     * @return Forced signature version.
+     */
+    @Override
+    public Integer getForcedSignatureVersion() {
+        return forcedSignatureVersion;
+    }
+
+    /**
+     * Set forced signature version which is used during upgrade.
+     * @param forcedSignatureVersion Forced signature version.
+     */
+    @Override
+    public void setForcedSignatureVersion(Integer forcedSignatureVersion) {
+        this.forcedSignatureVersion = forcedSignatureVersion;
     }
 }

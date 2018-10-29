@@ -19,55 +19,70 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
+import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.response.Response;
-import io.getlime.powerauth.soap.v3.CommitMigrationResponse;
-import io.getlime.powerauth.soap.v3.StartMigrationResponse;
+import io.getlime.powerauth.soap.v3.CommitUpgradeResponse;
+import io.getlime.powerauth.soap.v3.StartUpgradeResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
+import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthMigrationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthUpgradeException;
+import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
+import java.util.Collections;
+import java.util.List;
+
 /**
- * Controller responsible for migration.
+ * Controller responsible for upgrade.
  *
  * @author Roman Strobl, roman.strobl@wultra
  */
 @RestController
-@RequestMapping("/pa/v3/migration")
-public class MigrationController {
+@RequestMapping("/pa/v3/upgrade")
+public class UpgradeController {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MigrationController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UpgradeController.class);
 
     private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthAuthenticationProvider authenticationProvider;
 
     @Autowired
     public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
+    @Autowired
+    public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
+        this.authenticationProvider = authenticationProvider;
+    }
+
     /**
-     * Start migration of activation to version 3.
+     * Start upgrade of activation to version 3.
      *
      * @param request ECIES encrypted request.
      * @param encryptionHeader Encryption HTTP header.
      * @return ECIES encrypted response.
-     * @throws PowerAuthMigrationException In case migration fails.
+     * @throws PowerAuthUpgradeException In case upgrade fails.
      */
     @RequestMapping(value = "start", method = RequestMethod.POST)
-    public EciesEncryptedResponse migrationStart(@RequestBody EciesEncryptedRequest request,
+    public EciesEncryptedResponse upgradeStart(@RequestBody EciesEncryptedRequest request,
                                                  @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
-            throws PowerAuthMigrationException {
+            throws PowerAuthUpgradeException {
 
         try {
             // Parse the encryption header
@@ -77,7 +92,7 @@ public class MigrationController {
             try {
                 PowerAuthEncryptionHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthMigrationException(e.getMessage());
+                throw new PowerAuthUpgradeException(e.getMessage());
             }
 
             if (!"3.0".equals(header.getVersion())) {
@@ -94,41 +109,67 @@ public class MigrationController {
             final String activationId = header.getActivationId();
             final String applicationKey = header.getApplicationKey();
 
-            // Start migration on PowerAuth server
-            StartMigrationResponse migrationResponse = powerAuthClient.startMigration(activationId, applicationKey, ephemeralPublicKey, encryptedData, mac);
+            // Start upgrade on PowerAuth server
+            StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(activationId, applicationKey, ephemeralPublicKey, encryptedData, mac);
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
-            response.setMac(migrationResponse.getMac());
-            response.setEncryptedData(migrationResponse.getEncryptedData());
+            response.setMac(upgradeResponse.getMac());
+            response.setEncryptedData(upgradeResponse.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("PowerAuth migration start failed.", ex);
-            throw new PowerAuthMigrationException();
+            logger.warn("PowerAuth upgrade start failed.", ex);
+            throw new PowerAuthUpgradeException();
         }
     }
 
     /**
-     * Commit migration of activation to version 3.
+     * Commit upgrade of activation to version 3.
      *
-     * @param authentication PowerAuth API authentication object.
+     * @param signatureHeader PowerAuth signature HTTP header.
      * @return Response.
      * @throws PowerAuthAuthenticationException In case request signature is invalid.
-     * @throws PowerAuthMigrationException In case commit fails.
+     * @throws PowerAuthUpgradeException In case commit fails.
      */
     @RequestMapping(value = "commit", method = RequestMethod.POST)
-    @PowerAuth(resourceId = "/pa/migration/commit", signatureType = {
+    @PowerAuth(resourceId = "/pa/upgrade/commit", signatureType = {
             PowerAuthSignatureTypes.POSSESSION
     })
-    public Response migrationCommit(PowerAuthApiAuthentication authentication)
-            throws PowerAuthAuthenticationException, PowerAuthMigrationException {
+    public Response upgradeCommit(@RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
+                                  HttpServletRequest httpServletRequest)
+            throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
 
         try {
-            if (authentication == null || authentication.getActivationId() == null) {
+            // Parse the signature header
+            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
+
+            // Validate the signature header
+            try {
+                PowerAuthSignatureHttpHeaderValidator.validate(header);
+            } catch (InvalidPowerAuthHttpHeaderException e) {
+                throw new PowerAuthUpgradeException(e.getMessage());
+            }
+
+            if (!"3.0".equals(header.getVersion())) {
+                logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
                 throw new PowerAuthAuthenticationException();
             }
-            if (!"3.0".equals(authentication.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+
+            // Extract request body
+            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
+            if (requestBodyString == null) {
+                // Expected request body is {}, do not accept empty body
+                throw new PowerAuthAuthenticationException();
+            }
+
+            byte[] requestBodyBytes = BaseEncoding.base64().decode(requestBodyString);
+
+            // Verify signature, force signature version during upgrade to version 3
+            List<PowerAuthSignatureTypes> allowedSignatureTypes = Collections.singletonList(PowerAuthSignatureTypes.POSSESSION);
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
+
+            // In case signature verification fails, upgrade fails, too
+            if (authentication == null || authentication.getActivationId() == null) {
                 throw new PowerAuthAuthenticationException();
             }
 
@@ -137,19 +178,19 @@ public class MigrationController {
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
 
-            // Start migration on PowerAuth server
-            CommitMigrationResponse migrationResponse = powerAuthClient.commitMigration(activationId, applicationKey);
+            // Commit upgrade on PowerAuth server
+            CommitUpgradeResponse upgradeResponse = powerAuthClient.commitUpgrade(activationId, applicationKey);
 
-            if (migrationResponse.isCommitted()) {
+            if (upgradeResponse.isCommitted()) {
                 return new Response();
             } else {
-                throw new PowerAuthMigrationException();
+                throw new PowerAuthUpgradeException();
             }
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth migration commit failed.", ex);
-            throw new PowerAuthMigrationException();
+            logger.warn("PowerAuth upgrade commit failed.", ex);
+            throw new PowerAuthUpgradeException();
         }
     }
 }

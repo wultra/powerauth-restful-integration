@@ -17,41 +17,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.base.exception;
+package io.getlime.security.powerauth.rest.api.model.response.v3;
 
 /**
- * Exception raised in case PowerAuth migration fails.
+ * Response object for upgrade payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-public class PowerAuthMigrationException extends Exception {
+public class UpgradeResponsePayload {
 
-    private static final long serialVersionUID = -5750221213611810117L;
-
-    private static final String DEFAULT_CODE = "ERR_MIGRATION";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_MIGRATION_FAILED";
+    private String ctrData;
 
     /**
-     * Default constructor.
+     * Get counter data.
+     * @return Counter data.
      */
-    public PowerAuthMigrationException() {
-        super(DEFAULT_ERROR);
+    public String getCtrData() {
+        return ctrData;
     }
 
     /**
-     * Constructor with a custom error message.
-     * @param message Error message.
+     * Set counter data.
+     * @param ctrData Counter data.
      */
-    public PowerAuthMigrationException(String message) {
-        super(message);
-    }
-
-    /**
-     * Get the default error code, used for example in REST response.
-     * @return Default error code.
-     */
-    public String getDefaultCode() {
-        return DEFAULT_CODE;
+    public void setCtrData(String ctrData) {
+        this.ctrData = ctrData;
     }
 }
