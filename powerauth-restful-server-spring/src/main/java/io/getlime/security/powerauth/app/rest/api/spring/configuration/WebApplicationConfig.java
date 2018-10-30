@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.app.rest.api.spring.configuration;
 
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthAnnotationInterceptor;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryptionArgumentResolver;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthWebArgumentResolver;
 import io.getlime.security.powerauth.rest.api.spring.filter.PowerAuthRequestFilter;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
@@ -61,6 +62,15 @@ public class WebApplicationConfig implements WebMvcConfigurer {
     }
 
     /**
+     * Register new method argument resolver for encryption.
+     * @return New PowerAuthEncryptionArgumentResolver bean.
+     */
+    @Bean
+    public PowerAuthEncryptionArgumentResolver powerAuthEncryptionArgumentResolver() {
+        return new PowerAuthEncryptionArgumentResolver();
+    }
+
+    /**
      * Register a new PowerAuthRequestFilter and map it to /* end-point.
      * @return PowerAuthRequestFilter instance.
      */
@@ -79,6 +89,7 @@ public class WebApplicationConfig implements WebMvcConfigurer {
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> argumentResolvers) {
         argumentResolvers.add(powerAuthWebArgumentResolver());
+        argumentResolvers.add(powerAuthEncryptionArgumentResolver());
     }
 
     /**

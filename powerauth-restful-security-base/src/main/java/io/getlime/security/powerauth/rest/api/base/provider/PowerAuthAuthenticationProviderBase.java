@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -25,6 +25,7 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +33,7 @@ import java.util.List;
 /**
  * Abstract class for PowerAuth authentication provider.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 public abstract class PowerAuthAuthenticationProviderBase {
@@ -43,12 +44,13 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Body of the HTTP request.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of the signature.
+     * @param forcedSignatureVersion Forced signature version during upgrade.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
-    public abstract PowerAuthApiAuthentication validateRequestSignature(String httpMethod, byte[] httpBody, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException;
+    public abstract PowerAuthApiAuthentication validateRequestSignature(String httpMethod, byte[] httpBody, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes, @Nullable Integer forcedSignatureVersion) throws PowerAuthAuthenticationException;
 
     /**
      * Validate the token digest from PowerAuth authentication header.
@@ -60,7 +62,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public abstract PowerAuthApiAuthentication validateToken(String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException;
 
     /**
-     * The same as {{@link #validateRequestSignature(String, byte[], String, String, List)} but uses default accepted signature type (2FA or 3FA).
+     * The same as {{@link #validateRequestSignature(String, byte[], String, String, List, Integer)} but uses default accepted signature type (2FA or 3FA) and does not specify forced signature version.
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Request body
      * @param requestUriIdentifier Request URI identifier.
@@ -73,14 +75,14 @@ public abstract class PowerAuthAuthenticationProviderBase {
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE);
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_BIOMETRY);
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY);
-        return this.validateRequestSignature(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedSignatureTypes);
+        return this.validateRequestSignature(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedSignatureTypes, null);
     }
 
     /**
-     * Validate a request signature, make sure only supported signature types are used.
+     * Validate a request signature, make sure only supported signature types are used, do not use forced signature version during upgrade.
      * @param servletRequest HTTPServletRequest with signed data.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of signatures.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
@@ -90,14 +92,32 @@ public abstract class PowerAuthAuthenticationProviderBase {
         String requestMethod = servletRequest.getMethod().toUpperCase();
         String requestBodyString = ((String) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
         byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
-        return this.validateRequestSignature(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes);
+        return this.validateRequestSignature(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes, null);
     }
 
     /**
-     * The same as {{@link #validateRequestSignature(HttpServletRequest, String, String, List)} but uses default accepted signature type (2FA or 3FA).
+     * Validate a request signature, make sure only supported signature types are used and allow specification of forced signature version.
      * @param servletRequest HTTPServletRequest with signed data.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
+     * @param allowedSignatureTypes Allowed types of signatures.
+     * @param forcedSignatureVersion Forced signature version during upgrade.
+     * @return Instance of a PowerAuthApiAuthentication on successful authorization.
+     * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
+     */
+    public PowerAuthApiAuthentication validateRequestSignature(HttpServletRequest servletRequest, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes, @Nullable Integer forcedSignatureVersion) throws PowerAuthAuthenticationException {
+        // Get HTTP method and body bytes
+        String requestMethod = servletRequest.getMethod().toUpperCase();
+        String requestBodyString = ((String) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
+        byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+        return this.validateRequestSignature(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes, forcedSignatureVersion);
+    }
+
+    /**
+     * The same as {{@link #validateRequestSignature(HttpServletRequest, String, String, List, Integer)} but uses default accepted signature type (2FA or 3FA) and does not specify forced signature version.
+     * @param servletRequest HTTPServletRequest with signed data.
+     * @param requestUriIdentifier Request URI identifier.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
@@ -106,7 +126,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE);
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_BIOMETRY);
         defaultAllowedSignatureTypes.add(PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY);
-        return this.validateRequestSignature(servletRequest, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedSignatureTypes);
+        return this.validateRequestSignature(servletRequest, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedSignatureTypes, null);
     }
 
     /**

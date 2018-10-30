@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.rest.api.jaxrs.exception;
 
 import io.getlime.core.rest.model.base.response.ErrorResponse;
@@ -27,10 +26,10 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
 
 /**
- * Class responsible for PowerAuth 2.0 Standard RESTful API exception handling for
+ * Class responsible for PowerAuth Standard RESTful API exception handling for
  * exceptions that are raised during the vault unlocking phase.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 public class PowerAuthSecureVaultExceptionResolver implements ExceptionMapper<PowerAuthSecureVaultException> {
 

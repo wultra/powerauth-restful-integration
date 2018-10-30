@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,19 +17,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.app.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.CreateActivationResponse;
+import io.getlime.powerauth.soap.v2.CreateActivationResponse;
 import io.getlime.security.powerauth.app.rest.api.spring.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateCustomRequest;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateCustomRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptorFactory;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +44,7 @@ import java.util.Map;
 /**
  * Example controller for a custom activation implementation.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 @Controller
 @RequestMapping(value = "/pa/activation/direct")
@@ -107,7 +106,7 @@ public class CustomActivationController {
 
             // Create activation for a looked up user and application related to the given application key
             ActivationCreateRequest acr = request.getPowerauth();
-            CreateActivationResponse response = powerAuthClient.createActivation(
+            CreateActivationResponse response = powerAuthClient.v2().createActivation(
                     acr.getApplicationKey(),
                     userId,
                     acr.getActivationIdShort(),

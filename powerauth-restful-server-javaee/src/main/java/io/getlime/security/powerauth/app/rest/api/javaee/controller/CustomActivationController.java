@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,20 +17,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.app.rest.api.javaee.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
+import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.app.rest.api.javaee.provider.PowerAuthUserProvider;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateCustomRequest;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.encryption.EncryptorFactory;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateCustomRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 
 import javax.inject.Inject;
@@ -43,7 +42,7 @@ import java.io.IOException;
 import java.util.Map;
 
 /**
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 @Path("pa/custom/activation")
 @Produces(MediaType.APPLICATION_JSON)
@@ -85,7 +84,7 @@ public class CustomActivationController {
             }
 
             ActivationCreateRequest acr = request.getPowerauth();
-            PowerAuthPortServiceStub.CreateActivationResponse response = powerAuthClient.createActivation(
+            PowerAuthPortV2ServiceStub.CreateActivationResponse response = powerAuthClient.v2().createActivation(
                     acr.getApplicationKey(),
                     userId,
                     acr.getActivationIdShort(),

@@ -14,9 +14,9 @@ before_install:
 addons:
   coverity_scan:
     project:
-      name: lime-company/powerauth-restful-integration
+      name: wultra/powerauth-restful-integration
       description: Build submitted via Travis CI
-    notification_email: petr@lime-company.eu
+    notification_email: petr@wultra.com
     build_command_prepend: mvn clean
     build_command: mvn -DskipTests=true compile
     branch_pattern: master
