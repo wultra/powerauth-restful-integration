@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.rest.api.model.request.v2;
 
 import java.util.Map;
@@ -26,7 +25,7 @@ import java.util.Map;
  * Request object for /pa/activation/direct/create end-point.
  *
  * Object representing an activation performed with given identity, custom (non-identity related) attributes, and
- * PowerAuth 2.0 activation object.
+ * PowerAuth activation object.
  *
  * @author Petr Dvorak, petr@wultra.com
  */

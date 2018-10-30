@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -31,7 +31,12 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * End-point for validating signatures.
  *
- * @author Roman Strobl, roman.strobl@lime-company.eu
+ * <h5>PowerAuth protocol versions:</h5>
+ * <ul>
+ *     <li>3.0</li>
+ * </ul>
+ *
+ * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @RestController("SignatureControllerV3")

@@ -33,6 +33,7 @@ import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedReq
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -54,7 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/pa/v3/vault")
 public class SecureVaultController {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 

@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -34,6 +34,7 @@ import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockReques
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -50,13 +51,13 @@ import javax.servlet.http.HttpServletRequest;
  *     <li>2.1</li>
  * </ul>
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 @RestController("SecureVaultControllerV2")
 @RequestMapping(value = "/pa/vault")
 public class SecureVaultController {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
+    private static final Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 

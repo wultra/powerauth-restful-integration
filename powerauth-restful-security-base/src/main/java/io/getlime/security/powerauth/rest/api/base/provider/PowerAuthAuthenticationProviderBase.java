@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -33,7 +33,7 @@ import java.util.List;
 /**
  * Abstract class for PowerAuth authentication provider.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 public abstract class PowerAuthAuthenticationProviderBase {
@@ -44,7 +44,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Body of the HTTP request.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of the signature.
      * @param forcedSignatureVersion Forced signature version during upgrade.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
@@ -82,7 +82,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * Validate a request signature, make sure only supported signature types are used, do not use forced signature version during upgrade.
      * @param servletRequest HTTPServletRequest with signed data.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of signatures.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
@@ -99,7 +99,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * Validate a request signature, make sure only supported signature types are used and allow specification of forced signature version.
      * @param servletRequest HTTPServletRequest with signed data.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of signatures.
      * @param forcedSignatureVersion Forced signature version during upgrade.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
@@ -117,7 +117,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * The same as {{@link #validateRequestSignature(HttpServletRequest, String, String, List, Integer)} but uses default accepted signature type (2FA or 3FA) and does not specify forced signature version.
      * @param servletRequest HTTPServletRequest with signed data.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */

@@ -49,6 +49,11 @@ import java.util.List;
 /**
  * Controller responsible for upgrade.
  *
+ * <h5>PowerAuth protocol versions:</h5>
+ * <ul>
+ *     <li>3.0</li>
+ * </ul>
+ *
  * @author Roman Strobl, roman.strobl@wultra
  */
 @RestController

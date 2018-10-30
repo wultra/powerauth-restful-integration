@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -164,12 +164,12 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     }
 
     /**
-     * Validate the signature from the PowerAuth 2.0 HTTP header against the provided HTTP method, request body and URI identifier.
+     * Validate the signature from the PowerAuth HTTP header against the provided HTTP method, request body and URI identifier.
      * Make sure to accept only allowed signatures.
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Body of the HTTP request.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of the signature.
      * @param forcedSignatureVersion Forced signature version during upgrade.
      * @return Instance of a PowerAuthApiAuthenticationImpl on successful authorization.

@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.rest.api.spring.controller.v2;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
@@ -26,27 +25,37 @@ import io.getlime.powerauth.soap.v2.CreateTokenResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.model.request.v2.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v2.TokenRemoveResponse;
+import io.getlime.security.powerauth.rest.api.model.request.v2.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v2.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * <h5>PowerAuth protocol versions:</h5>
+ * <ul>
+ *     <li>2.0</li>
+ *     <li>2.1</li>
+ * </ul>
+ *
+ * @author Petr Dvorak, petr@wultra.com
  */
 @RestController("TokenControllerV2")
 @RequestMapping("/pa/token")
 public class TokenController {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(TokenController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 

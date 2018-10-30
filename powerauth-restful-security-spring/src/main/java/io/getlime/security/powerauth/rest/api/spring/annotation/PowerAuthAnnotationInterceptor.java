@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,6 +37,8 @@ import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilter
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
@@ -47,11 +48,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Component
 public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
+
+    private static final Logger logger = LoggerFactory.getLogger(HandlerInterceptorAdapter.class);
 
     private PowerAuthAuthenticationProvider authenticationProvider;
     private PowerAuthEncryptionProvider encryptionProvider;
@@ -87,7 +88,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
 
             // Check that either signature or token annotation is active
             if (powerAuthSignatureAnnotation != null && powerAuthTokenAnnotation != null) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
+                logger.error("You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
                 powerAuthSignatureAnnotation = null;
                 powerAuthTokenAnnotation = null;
             }

@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,7 +17,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.app.rest.api.javaee;
 
 import io.getlime.security.powerauth.app.rest.api.javaee.configuration.DefaultJacksonJsonProvider;
@@ -41,9 +40,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * PowerAuth 2.0 Standard RESTful API application class.
+ * PowerAuth Standard RESTful API application class.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 @ApplicationPath("/")
 public class JavaEEApplication extends Application {
@@ -61,19 +60,19 @@ public class JavaEEApplication extends Application {
         // Jackson
         resources.add(DefaultJacksonJsonProvider.class);
 
-        // PowerAuth 2.0 Controllers
+        // PowerAuth Controllers
         resources.add(AuthenticationController.class);
         resources.add(ActivationController.class);
         resources.add(SecureVaultController.class);
         resources.add(TokenController.class);
 
-        // PowerAuth 2.0 Exception Resolvers
+        // PowerAuth Exception Resolvers
         resources.add(PowerAuthActivationExceptionResolver.class);
         resources.add(PowerAuthAuthenticationExceptionResolver.class);
         resources.add(PowerAuthEncryptionExceptionResolver.class);
         resources.add(PowerAuthSecureVaultExceptionResolver.class);
 
-        // PowerAuth 2.0 Filters
+        // PowerAuth Filters
         resources.add(PowerAuthRequestFilter.class);
         return resources;
     }

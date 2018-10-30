@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -36,6 +36,7 @@ import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationRemove
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -50,14 +51,14 @@ import org.springframework.web.bind.annotation.*;
  *     <li>2.1</li>
  * </ul>
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 @RestController("ActivationControllerV2")
 @RequestMapping(value = "/pa/activation")
 public class ActivationController {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ActivationController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 

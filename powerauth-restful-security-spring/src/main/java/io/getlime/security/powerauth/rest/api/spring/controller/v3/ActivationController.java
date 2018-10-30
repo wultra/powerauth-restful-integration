@@ -43,6 +43,7 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequest
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -65,7 +66,7 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/pa/v3/activation")
 public class ActivationController {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(ActivationController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 

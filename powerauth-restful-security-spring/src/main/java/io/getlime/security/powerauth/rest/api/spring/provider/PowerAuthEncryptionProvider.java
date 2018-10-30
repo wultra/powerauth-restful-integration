@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -25,6 +25,7 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecr
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthEncryptionProviderBase;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -38,7 +39,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase  {
 
-    private static final org.slf4j.Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);
 
     private PowerAuthServiceClient powerAuthClient;
 

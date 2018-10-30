@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -31,6 +31,7 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.http.validator.PowerAuthTokenHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticationProviderBase;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthenticationImpl;
@@ -38,6 +39,8 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthSig
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthTokenAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -46,17 +49,17 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nullable;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * Implementation of PowerAuth authentication provider.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 @Component
 public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProviderBase implements AuthenticationProvider {
+
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthAuthentication.class);
 
     private PowerAuthServiceClient powerAuthClient;
 
@@ -184,12 +187,12 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     }
 
     /**
-     * Validate the signature from the PowerAuth 2.0 HTTP header against the provided HTTP method, request body and URI identifier.
+     * Validate the signature from the PowerAuth HTTP header against the provided HTTP method, request body and URI identifier.
      * Make sure to accept only allowed signatures.
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Body of the HTTP request.
      * @param requestUriIdentifier Request URI identifier.
-     * @param httpAuthorizationHeader PowerAuth 2.0 HTTP authorization header.
+     * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedSignatureTypes Allowed types of the signature.
      * @param forcedSignatureVersion Forced signature version, optional parameter used during upgrade.
      * @return Instance of a PowerAuthApiAuthenticationImpl on successful authorization.
@@ -216,7 +219,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException e) {
-            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new PowerAuthAuthenticationException(e.getMessage());
         }
 
@@ -273,7 +276,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         try {
             PowerAuthTokenHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException e) {
-            Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, e.getMessage(), e);
+            logger.error(e.getMessage(), e);
             throw new PowerAuthAuthenticationException(e.getMessage());
         }
 
