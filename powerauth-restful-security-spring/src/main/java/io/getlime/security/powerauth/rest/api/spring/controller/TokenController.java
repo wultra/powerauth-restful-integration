@@ -22,7 +22,10 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
+import io.getlime.powerauth.soap.CreateTokenRequest;
 import io.getlime.powerauth.soap.CreateTokenResponse;
+import io.getlime.powerauth.soap.PowerAuthPort;
+import io.getlime.powerauth.soap.RemoveTokenRequest;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
@@ -32,7 +35,6 @@ import io.getlime.security.powerauth.rest.api.model.response.TokenCreateResponse
 import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -49,10 +51,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("pa/token")
 public class TokenController {
 
-    private final PowerAuthServiceClient powerAuthClient;
+    private final PowerAuthPort powerAuthClient;
 
     @Autowired
-    public TokenController(PowerAuthServiceClient powerAuthClient) {
+    public TokenController(PowerAuthPort powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -79,7 +81,11 @@ public class TokenController {
                 SignatureTypeConverter converter = new SignatureTypeConverter();
 
                 // Create a token
-                final CreateTokenResponse token = powerAuthClient.createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
+                final CreateTokenRequest soapRequest = new CreateTokenRequest();
+                soapRequest.setActivationId(activationId);
+                soapRequest.setEphemeralPublicKey(ephemeralPublicKey);
+                soapRequest.setSignatureType(converter.convertFrom(signatureFactors));
+                final CreateTokenResponse token = powerAuthClient.createToken(soapRequest);
 
                 // Prepare a response
                 final TokenCreateResponse responseObject = new TokenCreateResponse();
@@ -115,7 +121,10 @@ public class TokenController {
                 final String tokenId = requestObject.getTokenId();
 
                 // Remove a token, ignore response, since the endpoint should quietly return
-                powerAuthClient.removeToken(tokenId, activationId);
+                final RemoveTokenRequest soapRequest = new RemoveTokenRequest();
+                soapRequest.setActivationId(activationId);
+                soapRequest.setTokenId(tokenId);
+                powerAuthClient.removeToken(soapRequest);
 
                 // Prepare a response
                 final TokenRemoveResponse responseObject = new TokenRemoveResponse();

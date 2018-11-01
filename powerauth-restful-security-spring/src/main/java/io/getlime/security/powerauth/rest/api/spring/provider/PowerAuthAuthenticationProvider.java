@@ -36,7 +36,6 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthSignatureAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthTokenAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
@@ -56,12 +55,12 @@ import java.util.logging.Logger;
 @Component
 public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProviderBase implements AuthenticationProvider {
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthPort powerAuthClient;
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthPort powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 

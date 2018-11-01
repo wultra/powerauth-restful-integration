@@ -22,6 +22,7 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
+import io.getlime.powerauth.soap.PowerAuthPort;
 import io.getlime.powerauth.soap.SignatureType;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
@@ -32,7 +33,6 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaul
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.model.request.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.VaultUnlockResponse;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -50,10 +50,10 @@ import javax.servlet.http.HttpServletRequest;
 @RequestMapping(value = "/pa/vault")
 public class SecureVaultController {
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthPort powerAuthClient;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthPort powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -115,7 +115,14 @@ public class SecureVaultController {
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
-            io.getlime.powerauth.soap.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationId, data, signature, signatureType, reason);
+            final io.getlime.powerauth.soap.VaultUnlockRequest soapRequest = new io.getlime.powerauth.soap.VaultUnlockRequest();
+            soapRequest.setActivationId(activationId);
+            soapRequest.setActivationId(applicationId);
+            soapRequest.setData(data);
+            soapRequest.setSignature(signature);
+            soapRequest.setSignatureType(signatureType);
+            soapRequest.setReason(reason);
+            io.getlime.powerauth.soap.VaultUnlockResponse soapResponse = powerAuthClient.vaultUnlock(soapRequest);
 
             if (!soapResponse.isSignatureValid()) {
                 throw new PowerAuthAuthenticationException();

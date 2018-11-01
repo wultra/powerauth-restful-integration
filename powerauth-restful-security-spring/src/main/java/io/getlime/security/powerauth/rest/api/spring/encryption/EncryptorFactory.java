@@ -21,10 +21,12 @@
 package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
+import io.getlime.powerauth.soap.GetNonPersonalizedEncryptionKeyRequest;
 import io.getlime.powerauth.soap.GetNonPersonalizedEncryptionKeyResponse;
+import io.getlime.powerauth.soap.PowerAuthPort;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -36,13 +38,13 @@ import org.springframework.stereotype.Component;
 @Component
 public class EncryptorFactory {
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthPort powerAuthClient;
 
     public EncryptorFactory() {
     }
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthPort powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -61,17 +63,17 @@ public class EncryptorFactory {
 
     /**
      * Return a new instance of a non-personalized encryptor.
-     * @param applicationKeyBase64 Application key associated with an application master key used for encryption.
-     * @param sessionIndexBase64 Session index.
+     * @param applicationKeyBase64     Application key associated with an application master key used for encryption.
+     * @param sessionIndexBase64       Session index.
      * @param ephemeralPublicKeyBase64 Ephemeral public key.
      * @return New instance of a non-personalized encryptor.
      */
     public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(String applicationKeyBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) {
-        final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.generateNonPersonalizedE2EEncryptionKey(
-                applicationKeyBase64,
-                ephemeralPublicKeyBase64,
-                sessionIndexBase64
-        );
+        final GetNonPersonalizedEncryptionKeyRequest soapRequest = new GetNonPersonalizedEncryptionKeyRequest();
+        soapRequest.setApplicationKey(applicationKeyBase64);
+        soapRequest.setEphemeralPublicKey(ephemeralPublicKeyBase64);
+        soapRequest.setSessionIndex(sessionIndexBase64);
+        final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.getNonPersonalizedEncryptionKey(soapRequest);
         return new PowerAuthNonPersonalizedEncryptor(
                 encryptionKeyResponse.getApplicationKey(),
                 encryptionKeyResponse.getEncryptionKey(), encryptionKeyResponse.getEncryptionKeyIndex(),
