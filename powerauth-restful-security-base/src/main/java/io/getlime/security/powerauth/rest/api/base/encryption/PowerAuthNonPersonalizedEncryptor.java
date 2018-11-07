@@ -26,9 +26,12 @@ import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.crypto.lib.encryptor.NonPersonalizedEncryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.model.NonPersonalizedEncryptedMessage;
+import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
+import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 
 import java.io.IOException;
+import java.security.InvalidKeyException;
 
 /**
  * @author Petr Dvorak, petr@wultra.com
@@ -47,7 +50,7 @@ public class PowerAuthNonPersonalizedEncryptor {
         this.encryptor = new NonPersonalizedEncryptor(applicationKey, sessionKeyBytes, sessionIndex, ephemeralKeyBytes);
     }
 
-    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> encrypt(Object object) throws JsonProcessingException {
+    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> encrypt(Object object) throws JsonProcessingException, GenericCryptoException, CryptoProviderException, InvalidKeyException {
         if (object == null) {
             return null;
         }
@@ -55,7 +58,7 @@ public class PowerAuthNonPersonalizedEncryptor {
         return this.encrypt(originalData);
     }
 
-    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> encrypt(byte[] originalData) {
+    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> encrypt(byte[] originalData) throws GenericCryptoException, CryptoProviderException, InvalidKeyException {
 
         if (originalData == null) {
             return null;
@@ -80,7 +83,7 @@ public class PowerAuthNonPersonalizedEncryptor {
         return new ObjectResponse<>(responseObject);
     }
 
-    public byte[] decrypt(ObjectRequest<NonPersonalizedEncryptedPayloadModel> request) {
+    public byte[] decrypt(ObjectRequest<NonPersonalizedEncryptedPayloadModel> request) throws GenericCryptoException, CryptoProviderException, InvalidKeyException {
 
         if (request == null) {
             return null;
@@ -105,7 +108,7 @@ public class PowerAuthNonPersonalizedEncryptor {
         return encryptor.decrypt(message);
     }
 
-    public <T> T decrypt(ObjectRequest<NonPersonalizedEncryptedPayloadModel> request, Class<T> resultClass) throws IOException {
+    public <T> T decrypt(ObjectRequest<NonPersonalizedEncryptedPayloadModel> request, Class<T> resultClass) throws IOException, GenericCryptoException, CryptoProviderException, InvalidKeyException {
         byte[] result = this.decrypt(request);
         if (result == null) {
             return null;
