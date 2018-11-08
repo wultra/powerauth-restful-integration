@@ -21,6 +21,8 @@ package io.getlime.security.powerauth.app.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
+import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
+import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
@@ -31,6 +33,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.security.InvalidKeyException;
 
 /**
  * Sample end-point demonstrating how to receive and send encrypted data.
@@ -62,10 +66,10 @@ public class EncryptedDataExchangeController {
         }
 
         // Decrypt the request object
-        byte[] requestDataBytes = encryptor.decrypt(request);
-
-        // Decryption failed
-        if (requestDataBytes == null) {
+        byte[] requestDataBytes;
+        try {
+            requestDataBytes = encryptor.decrypt(request);
+        } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
             throw new PowerAuthEncryptionException();
         }
 
@@ -75,10 +79,10 @@ public class EncryptedDataExchangeController {
         String responseData = "Server successfully decrypted data: " + requestData;
 
         // Encrypt response data
-        ObjectResponse<NonPersonalizedEncryptedPayloadModel> encryptedResponse = encryptor.encrypt(responseData.getBytes());
-
-        // Encryption failed
-        if (encryptedResponse == null) {
+        ObjectResponse<NonPersonalizedEncryptedPayloadModel> encryptedResponse;
+        try {
+            encryptedResponse = encryptor.encrypt(responseData.getBytes());
+        } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
             throw new PowerAuthEncryptionException();
         }
 
