@@ -160,7 +160,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
             // Parse ECIES cryptogram from request body
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
             byte[] requestBodyBytes = requestBody.getRequestBytes();
-            if (requestBodyBytes.length == 0) {
+            if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 throw new PowerAuthEncryptionException("Invalid HTTP request");
             }
             final EciesEncryptedRequest eciesRequest = objectMapper.readValue(requestBodyBytes, EciesEncryptedRequest.class);

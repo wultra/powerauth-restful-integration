@@ -159,7 +159,7 @@ public class UpgradeController {
             // Extract request body
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
             byte[] requestBodyBytes = requestBody.getRequestBytes();
-            if (requestBodyBytes.length == 0) {
+            if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
                 throw new PowerAuthAuthenticationException();
             }
