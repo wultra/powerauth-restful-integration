@@ -19,11 +19,11 @@
  */
 package io.getlime.security.powerauth.rest.api.base.provider;
 
-import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -90,8 +90,8 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public PowerAuthApiAuthentication validateRequestSignature(HttpServletRequest servletRequest, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException {
         // Get HTTP method and body bytes
         String requestMethod = servletRequest.getMethod().toUpperCase();
-        String requestBodyString = ((String) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-        byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+        PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+        byte[] requestBodyBytes = requestBody.getRequestBytes();
         return this.validateRequestSignature(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes, null);
     }
 
@@ -108,8 +108,8 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public PowerAuthApiAuthentication validateRequestSignature(HttpServletRequest servletRequest, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes, @Nullable Integer forcedSignatureVersion) throws PowerAuthAuthenticationException {
         // Get HTTP method and body bytes
         String requestMethod = servletRequest.getMethod().toUpperCase();
-        String requestBodyString = ((String) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-        byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+        PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+        byte[] requestBodyBytes = requestBody.getRequestBytes();
         return this.validateRequestSignature(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes, forcedSignatureVersion);
     }
 

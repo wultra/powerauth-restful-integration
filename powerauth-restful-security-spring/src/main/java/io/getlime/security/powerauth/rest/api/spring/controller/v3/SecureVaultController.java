@@ -29,6 +29,7 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
@@ -109,8 +110,8 @@ public class SecureVaultController {
             final String mac = request.getMac();
 
             // Prepare data for signature to allow signature verification on PowerAuth server
-            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+            byte[] requestBodyBytes = requestBody.getRequestBytes();
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server

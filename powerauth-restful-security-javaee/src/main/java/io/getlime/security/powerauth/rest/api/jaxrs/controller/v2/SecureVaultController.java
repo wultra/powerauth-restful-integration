@@ -30,6 +30,7 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
@@ -96,8 +97,8 @@ public class SecureVaultController {
                 }
             }
 
-            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+            byte[] requestBodyBytes = requestBody.getRequestBytes();
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 

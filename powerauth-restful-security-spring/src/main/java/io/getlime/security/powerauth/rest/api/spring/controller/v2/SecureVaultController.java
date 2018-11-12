@@ -30,6 +30,7 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
@@ -118,8 +119,9 @@ public class SecureVaultController {
                 }
 
                 // Use POST request body as data for signature.
-                String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-                requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+
+                PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+                requestBodyBytes = requestBody.getRequestBytes();
             } else {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
                 throw new PowerAuthSecureVaultException();
