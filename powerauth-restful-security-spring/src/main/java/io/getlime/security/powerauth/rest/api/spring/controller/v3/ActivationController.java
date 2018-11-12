@@ -19,7 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
-import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v3.GetActivationStatusResponse;
@@ -32,6 +31,7 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncr
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
@@ -178,8 +178,8 @@ public class ActivationController {
             HttpServletRequest httpServletRequest)
             throws PowerAuthActivationException, PowerAuthAuthenticationException {
         try {
-            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+            byte[] requestBodyBytes = requestBody.getRequestBytes();
             PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
             if (apiAuthentication != null && apiAuthentication.getActivationId() != null) {
                 RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());

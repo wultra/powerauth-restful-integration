@@ -34,6 +34,7 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncr
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
@@ -157,11 +158,11 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
 
         try {
             // Parse ECIES cryptogram from request body
-            String requestBodyString = ((String) request.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            if (requestBodyString == null || requestBodyString.isEmpty()) {
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+            byte[] requestBodyBytes = requestBody.getRequestBytes();
+            if (requestBodyBytes.length == 0) {
                 throw new PowerAuthEncryptionException("Invalid HTTP request");
             }
-            byte[] requestBodyBytes = BaseEncoding.base64().decode(requestBodyString);
             final EciesEncryptedRequest eciesRequest = objectMapper.readValue(requestBodyBytes, EciesEncryptedRequest.class);
 
             // Prepare ephemeral public key

@@ -19,7 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
-import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.powerauth.soap.v3.CommitUpgradeResponse;
 import io.getlime.powerauth.soap.v3.StartUpgradeResponse;
@@ -33,6 +32,7 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthUpgradeException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
@@ -157,13 +157,12 @@ public class UpgradeController {
             }
 
             // Extract request body
-            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            if (requestBodyString == null) {
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+            byte[] requestBodyBytes = requestBody.getRequestBytes();
+            if (requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
                 throw new PowerAuthAuthenticationException();
             }
-
-            byte[] requestBodyBytes = BaseEncoding.base64().decode(requestBodyString);
 
             // Verify signature, force signature version during upgrade to version 3
             List<PowerAuthSignatureTypes> allowedSignatureTypes = Collections.singletonList(PowerAuthSignatureTypes.POSSESSION);

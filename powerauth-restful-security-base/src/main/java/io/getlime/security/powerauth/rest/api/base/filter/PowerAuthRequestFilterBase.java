@@ -19,12 +19,13 @@
  */
 package io.getlime.security.powerauth.rest.api.base.filter;
 
-import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.http.PowerAuthRequestCanonizationUtils;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Class representing for holding any static constants available to request filters.
@@ -36,7 +37,7 @@ public class PowerAuthRequestFilterBase {
     /**
      * Constant for the request attribute name "X-PowerAuth-Request-Body".
      */
-    public static final String POWERAUTH_SIGNATURE_BASE_STRING = "X-PowerAuth-Request-Body";
+    public static final String POWERAUTH_REQUEST_BODY = "X-PowerAuth-Request-Body";
 
     public static ResettableStreamHttpServletRequest filterRequest(HttpServletRequest httpRequest) throws IOException {
         ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
@@ -55,8 +56,14 @@ public class PowerAuthRequestFilterBase {
                 // Pass the signature base string as the request attribute
                 if (signatureBaseStringData != null) {
                     resettableRequest.setAttribute(
-                            PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING,
-                            BaseEncoding.base64().encode(signatureBaseStringData.getBytes("UTF-8"))
+                            PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                            new PowerAuthRequestBody(signatureBaseStringData.getBytes(StandardCharsets.UTF_8))
+                    );
+                } else {
+                    // Store empty request body in request attribute
+                    resettableRequest.setAttribute(
+                            PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                            new PowerAuthRequestBody()
                     );
                 }
 
@@ -68,8 +75,14 @@ public class PowerAuthRequestFilterBase {
             byte[] body = resettableRequest.getRequestBody();
             if (body != null) {
                 resettableRequest.setAttribute(
-                        PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING,
-                        BaseEncoding.base64().encode(body)
+                        PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                        new PowerAuthRequestBody(body)
+                );
+            } else {
+                // Store empty request body in request attribute
+                resettableRequest.setAttribute(
+                        PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                        new PowerAuthRequestBody()
                 );
             }
         }
