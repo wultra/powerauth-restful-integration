@@ -24,6 +24,8 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +45,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/pa/v3/signature")
 public class SignatureController {
 
+    private static final Logger logger = LoggerFactory.getLogger(SignatureController.class);
+
     /**
      * Validate signature by validating any data sent in request to this end-point.
      * @param auth Automatically injected PowerAuth authentication object.
@@ -58,6 +62,10 @@ public class SignatureController {
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
         if (auth != null && auth.getActivationId() != null) {
+            if (!"3.0".equals(auth.getVersion())) {
+                logger.warn("Endpoint does not support PowerAuth protocol version {}", auth.getVersion());
+                throw new PowerAuthAuthenticationException();
+            }
             return new Response();
         } else {
             throw new PowerAuthAuthenticationException("Signature validation failed");
