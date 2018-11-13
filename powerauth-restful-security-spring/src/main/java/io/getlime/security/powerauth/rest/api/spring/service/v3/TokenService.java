@@ -41,11 +41,10 @@ import org.springframework.web.bind.annotation.RequestBody;
  *
  * <h5>PowerAuth protocol versions:</h5>
  * <ul>
- *     <li>3.0</li>
+ * <li>3.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
- *
  */
 @Service("TokenServiceV3")
 public class TokenService {
@@ -61,7 +60,8 @@ public class TokenService {
 
     /**
      * Create token.
-     * @param request ECIES encrypted create token request.
+     *
+     * @param request        ECIES encrypted create token request.
      * @param authentication PowerAuth API authentication object.
      * @return ECIES encrypted create token response.
      * @throws PowerAuthAuthenticationException In case token could not be created.
@@ -70,32 +70,31 @@ public class TokenService {
                                               PowerAuthApiAuthentication authentication)
             throws PowerAuthAuthenticationException {
         try {
+            // Fetch activation ID and signature type
+            final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
 
-                // Fetch activation ID and signature type
-                final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
+            // Fetch data from the request
+            final String ephemeralPublicKey = request.getEphemeralPublicKey();
+            final String encryptedData = request.getEncryptedData();
+            final String mac = request.getMac();
 
-                // Fetch data from the request
-                final String ephemeralPublicKey = request.getEphemeralPublicKey();
-                final String encryptedData = request.getEncryptedData();
-                final String mac = request.getMac();
+            // Prepare a signature type converter
+            SignatureTypeConverter converter = new SignatureTypeConverter();
 
-                // Prepare a signature type converter
-                SignatureTypeConverter converter = new SignatureTypeConverter();
+            // Get ECIES headers
+            String activationId = authentication.getActivationId();
+            PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
+            String applicationKey = httpHeader.getApplicationKey();
 
-                // Get ECIES headers
-                String activationId = authentication.getActivationId();
-                PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
-                String applicationKey = httpHeader.getApplicationKey();
+            // Create a token
+            final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
+                    encryptedData, mac, converter.convertFrom(signatureFactors));
 
-                // Create a token
-                final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                        encryptedData, mac, converter.convertFrom(signatureFactors));
-
-                // Prepare a response
-                final EciesEncryptedResponse response = new EciesEncryptedResponse();
-                response.setMac(token.getMac());
-                response.setEncryptedData(token.getEncryptedData());
-                return response;
+            // Prepare a response
+            final EciesEncryptedResponse response = new EciesEncryptedResponse();
+            response.setMac(token.getMac());
+            response.setEncryptedData(token.getEncryptedData());
+            return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth token failed", ex);
             throw new PowerAuthAuthenticationException(ex.getMessage());
@@ -104,7 +103,8 @@ public class TokenService {
 
     /**
      * Remove token.
-     * @param request Remove token request.
+     *
+     * @param request        Remove token request.
      * @param authentication PowerAuth API authentication object.
      * @return Remove token response.
      * @throws PowerAuthAuthenticationException In case authentication fails.
@@ -130,7 +130,7 @@ public class TokenService {
             } else {
                 throw new PowerAuthAuthenticationException();
             }
-        }  catch (PowerAuthAuthenticationException ex) {
+        } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
             logger.warn("Removing PowerAuth token failed", ex);
