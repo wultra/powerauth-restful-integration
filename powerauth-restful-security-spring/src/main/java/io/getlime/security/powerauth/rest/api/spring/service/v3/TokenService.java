@@ -111,27 +111,19 @@ public class TokenService {
      */
     public TokenRemoveResponse removeToken(TokenRemoveRequest request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
-            if (authentication != null && authentication.getActivationId() != null) {
+            // Fetch activation ID
+            final String activationId = authentication.getActivationId();
 
-                // Fetch activation ID
-                final String activationId = authentication.getActivationId();
+            // Fetch token ID from the request
+            final String tokenId = request.getTokenId();
 
-                // Fetch token ID from the request
-                final String tokenId = request.getTokenId();
+            // Remove a token, ignore response, since the endpoint should quietly return
+            powerAuthClient.removeToken(tokenId, activationId);
 
-                // Remove a token, ignore response, since the endpoint should quietly return
-                powerAuthClient.removeToken(tokenId, activationId);
-
-                // Prepare a response
-                final TokenRemoveResponse response = new TokenRemoveResponse();
-                response.setTokenId(tokenId);
-                return response;
-
-            } else {
-                throw new PowerAuthAuthenticationException();
-            }
-        } catch (PowerAuthAuthenticationException ex) {
-            throw ex;
+            // Prepare a response
+            final TokenRemoveResponse response = new TokenRemoveResponse();
+            response.setTokenId(tokenId);
+            return response;
         } catch (Exception ex) {
             logger.warn("Removing PowerAuth token failed", ex);
             throw new PowerAuthAuthenticationException(ex.getMessage());

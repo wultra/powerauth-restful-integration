@@ -49,7 +49,6 @@ import org.springframework.stereotype.Service;
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
- *
  */
 @Service("ActivationServiceV3")
 public class ActivationService {
@@ -72,6 +71,7 @@ public class ActivationService {
 
     /**
      * Create activation.
+     *
      * @param request Create activation layer 1 request.
      * @param eciesEncryption PowerAuth ECIES encryption object.
      * @return Create activation layer 1 response.
@@ -109,7 +109,7 @@ public class ActivationService {
                     throw new IllegalStateException("Not implemented yet");
 
                 default:
-                    throw new PowerAuthAuthenticationException("Unsupported activation type: "+request.getType());
+                    throw new PowerAuthAuthenticationException("Unsupported activation type: " + request.getType());
             }
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth activation failed", ex);
@@ -119,6 +119,7 @@ public class ActivationService {
 
     /**
      * Get activation status.
+     *
      * @param request Activation status request.
      * @return Activation status response.
      * @throws PowerAuthActivationException In case retrieving activation status fails.
@@ -142,23 +143,18 @@ public class ActivationService {
 
     /**
      * Remove activation.
+     *
      * @param apiAuthentication PowerAuth API authentication object.
      * @return Activation remove response.
-     * @throws PowerAuthActivationException In case remove activation fails.
+     * @throws PowerAuthActivationException     In case remove activation fails.
      * @throws PowerAuthAuthenticationException In case authentication fails.
      */
-    public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException, PowerAuthAuthenticationException {
+    public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException {
         try {
-            if (apiAuthentication != null && apiAuthentication.getActivationId() != null) {
-                RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
-                ActivationRemoveResponse response = new ActivationRemoveResponse();
-                response.setActivationId(soapResponse.getActivationId());
-                return response;
-            } else {
-                throw new PowerAuthAuthenticationException("USER_NOT_AUTHENTICATED");
-            }
-        } catch (PowerAuthAuthenticationException ex) {
-            throw ex;
+            RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
+            ActivationRemoveResponse response = new ActivationRemoveResponse();
+            response.setActivationId(soapResponse.getActivationId());
+            return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth activation removal failed", ex);
             throw new PowerAuthActivationException();
