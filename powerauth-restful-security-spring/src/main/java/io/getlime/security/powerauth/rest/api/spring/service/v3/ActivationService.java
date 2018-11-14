@@ -147,7 +147,6 @@ public class ActivationService {
      * @param apiAuthentication PowerAuth API authentication object.
      * @return Activation remove response.
      * @throws PowerAuthActivationException     In case remove activation fails.
-     * @throws PowerAuthAuthenticationException In case authentication fails.
      */
     public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException {
         try {
