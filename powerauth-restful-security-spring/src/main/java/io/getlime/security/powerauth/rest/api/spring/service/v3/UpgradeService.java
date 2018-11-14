@@ -57,7 +57,6 @@ import java.util.List;
 @Service("UpgradeServiceV3")
 public class UpgradeService {
 
-
     private static final Logger logger = LoggerFactory.getLogger(UpgradeService.class);
 
     private PowerAuthServiceClient powerAuthClient;
