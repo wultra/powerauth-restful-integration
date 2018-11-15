@@ -19,21 +19,14 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
-import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v3.SignatureType;
-import io.getlime.powerauth.soap.v3.VaultUnlockResponse;
-import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import io.getlime.security.powerauth.rest.api.spring.service.v3.SecureVaultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +40,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * <h5>PowerAuth protocol versions:</h5>
  * <ul>
- *     <li>3.0</li>
+ * <li>3.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
@@ -58,11 +51,11 @@ public class SecureVaultController {
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
 
-    private PowerAuthServiceClient powerAuthClient;
+    private SecureVaultService secureVaultServiceV3;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
-        this.powerAuthClient = powerAuthClient;
+    public void setSecureVaultServiceV3(SecureVaultService secureVaultServiceV3) {
+        this.secureVaultServiceV3 = secureVaultServiceV3;
     }
 
     /**
@@ -80,57 +73,27 @@ public class SecureVaultController {
             HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
 
-        try {
-            // Parse the header
-            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
-
-            // Validate the header
-            try {
-                PowerAuthSignatureHttpHeaderValidator.validate(header);
-            } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthAuthenticationException(e.getMessage());
-            }
-
-            if (!"3.0".equals(header.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-                throw new PowerAuthAuthenticationException();
-            }
-
-            SignatureTypeConverter converter = new SignatureTypeConverter();
-
-            String activationId = header.getActivationId();
-            String applicationKey = header.getApplicationKey();
-            String signature = header.getSignature();
-            SignatureType signatureType = converter.convertFrom(header.getSignatureType());
-            String nonce = header.getNonce();
-
-            // Fetch data from the request
-            final String ephemeralPublicKey = request.getEphemeralPublicKey();
-            final String encryptedData = request.getEncryptedData();
-            final String mac = request.getMac();
-
-            // Prepare data for signature to allow signature verification on PowerAuth server
-            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
-            byte[] requestBodyBytes = requestBody.getRequestBytes();
-            String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
-
-            // Verify signature and get encrypted vault encryption key from PowerAuth server
-            VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
-                    signatureType, data, ephemeralPublicKey, encryptedData, mac);
-
-            if (!soapResponse.isSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
-            }
-
-            return new EciesEncryptedResponse(soapResponse.getEncryptedData(), soapResponse.getMac());
-        } catch (Exception ex) {
-            if (PowerAuthAuthenticationException.class.equals(ex.getClass())) {
-                throw ex;
-            } else {
-                logger.warn("PowerAuth vault unlock failed.", ex);
-                throw new PowerAuthSecureVaultException();
-            }
+        if (request == null) {
+            logger.warn("Invalid request object in vault unlock");
+            throw new PowerAuthAuthenticationException();
         }
+
+        // Parse the header
+        PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
+
+        // Validate the header
+        try {
+            PowerAuthSignatureHttpHeaderValidator.validate(header);
+        } catch (InvalidPowerAuthHttpHeaderException ex) {
+            throw new PowerAuthAuthenticationException(ex.getMessage());
+        }
+
+        if (!"3.0".equals(header.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
+            throw new PowerAuthAuthenticationException();
+        }
+
+        return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }
 
 }
