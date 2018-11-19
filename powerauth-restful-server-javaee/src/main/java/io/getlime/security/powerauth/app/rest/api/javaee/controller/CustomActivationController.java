@@ -101,7 +101,7 @@ public class CustomActivationController {
             );
 
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), ActivationType.CUSTOM);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
             createResponse.setActivationId(response.getActivationId());

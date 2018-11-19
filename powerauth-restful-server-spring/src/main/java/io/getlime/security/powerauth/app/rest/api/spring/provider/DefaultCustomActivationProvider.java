@@ -39,7 +39,7 @@ public class DefaultCustomActivationProvider implements PowerAuthCustomActivatio
     }
 
     @Override
-    public void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, ActivationType activationType) {
+    public void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {
     }
 
     @Override

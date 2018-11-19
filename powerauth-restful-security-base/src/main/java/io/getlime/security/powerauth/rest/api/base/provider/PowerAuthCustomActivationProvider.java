@@ -43,9 +43,10 @@ public interface PowerAuthCustomActivationProvider {
      * Process custom attributes, in any way that is suitable for the purpose of your application.
      * @param customAttributes Custom attributes (not related to identity) to be processed.
      * @param activationId Activation ID of created activation.
+     * @param userId User ID of user who created the activation.
      * @param activationType Activation type (CODE or CUSTOM).
      */
-    void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, ActivationType activationType);
+    void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
 
     /**
      * Variable that specifies if the activation should be automatically committed based on provided attributes.

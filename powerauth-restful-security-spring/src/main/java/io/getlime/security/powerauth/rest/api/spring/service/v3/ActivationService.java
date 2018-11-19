@@ -111,7 +111,7 @@ public class ActivationService {
 
                     // In case a custom activation provider is enabled, process custom attributes
                     if (activationProvider != null) {
-                        activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), ActivationType.CODE);
+                        activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
                     }
 
                     // Prepare encrypted response object for layer 2
@@ -152,7 +152,7 @@ public class ActivationService {
                     );
 
                     // Process custom attributes using a custom logic
-                    activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), ActivationType.CUSTOM);
+                    activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
                     // Check if activation should be committed instantly and if yes, perform commit
                     if (activationProvider.shouldAutoCommitActivation(identity, customAttributes)) {

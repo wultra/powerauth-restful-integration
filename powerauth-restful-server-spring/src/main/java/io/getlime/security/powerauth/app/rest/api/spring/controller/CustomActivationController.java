@@ -151,7 +151,7 @@ public class CustomActivationController {
 
             // Process custom attributes using a custom logic
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), ActivationType.CUSTOM);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
             // Prepare the created activation response data
             ActivationCreateResponse createResponse = new ActivationCreateResponse();

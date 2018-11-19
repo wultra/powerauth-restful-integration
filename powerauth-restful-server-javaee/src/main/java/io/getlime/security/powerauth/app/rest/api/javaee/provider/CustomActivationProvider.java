@@ -35,7 +35,7 @@ public class CustomActivationProvider implements PowerAuthCustomActivationProvid
     }
 
     @Override
-    public void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, ActivationType activationType) {}
+    public void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {}
 
     @Override
     public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes) {
