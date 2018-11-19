@@ -17,16 +17,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.app.rest.api.spring.provider;
+package io.getlime.security.powerauth.rest.api.base.provider;
+
+import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
 import java.util.Map;
 
 /**
- * Interface that specifies a method for obtaining a user ID based on arbitrary attributes.
+ * Interface which enables implementation of custom activations. The interface defines a method for obtaining
+ * a user ID based on arbitrary identity attributes, configuration of auto-commit mode and processing of custom
+ * activation attributes.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-public interface PowerAuthUserProvider {
+public interface PowerAuthCustomActivationProvider {
 
     /**
      * This method is responsible for looking user ID up based on a provided set of identity attributes.
@@ -36,20 +40,22 @@ public interface PowerAuthUserProvider {
     String lookupUserIdForAttributes(Map<String, String> identityAttributes);
 
     /**
-     * Variable that specifies if the activation should be automatically commited based on provided attributes.
+     * Variable that specifies if the activation should be automatically committed based on provided attributes.
      * Return true in case you would like to create an activation that is ready to be used for signing (ACTIVE),
      * and false for the cases when you need activation to remain in OTP_USED state.
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
-     * @return True in case activation should be commited, false otherwise.
+     * @return True in case activation should be committed, false otherwise.
      */
     boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes);
 
     /**
      * Process custom attributes, in any way that is suitable for the purpose of your application.
      * @param customAttributes Custom attributes (not related to identity) to be processed.
+     * @param activationId Activation ID of created activation.
+     * @param activationType Activation type (CODE or CUSTOM).
      */
-    void processCustomActivationAttributes(Map<String, Object> customAttributes);
+    void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, ActivationType activationType);
 
 }

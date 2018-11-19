@@ -19,15 +19,19 @@
  */
 package io.getlime.security.powerauth.app.rest.api.spring.provider;
 
-import org.springframework.stereotype.Component;
+import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthCustomActivationProvider;
+import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.Map;
 
 /**
- * @author Petr Dvorak, petr@wultra.com
+ * Sample basic implementation of PowerAuthCustomActivationProvider interface.
+ *
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Component
-public class DefaultUserProvider implements PowerAuthUserProvider {
+@Configuration
+public class CustomActivationProvider implements PowerAuthCustomActivationProvider {
 
     @Override
     public String lookupUserIdForAttributes(Map<String, String> identityAttributes) {
@@ -35,7 +39,8 @@ public class DefaultUserProvider implements PowerAuthUserProvider {
     }
 
     @Override
-    public void processCustomActivationAttributes(Map<String, Object> customAttributes) {}
+    public void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, ActivationType activationType) {
+    }
 
     @Override
     public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes) {
