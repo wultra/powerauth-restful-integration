@@ -25,8 +25,8 @@ import java.util.Map;
 
 /**
  * Interface which enables implementation of custom activations. The interface defines a method for obtaining
- * a user ID based on arbitrary identity attributes, configuration of auto-commit mode and processing of custom
- * activation attributes.
+ * a user ID based on arbitrary identity attributes, processing of custom activation attributes and configuration
+ * of auto-commit mode.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
@@ -40,6 +40,14 @@ public interface PowerAuthCustomActivationProvider {
     String lookupUserIdForAttributes(Map<String, String> identityAttributes);
 
     /**
+     * Process custom attributes, in any way that is suitable for the purpose of your application.
+     * @param customAttributes Custom attributes (not related to identity) to be processed.
+     * @param activationId Activation ID of created activation.
+     * @param activationType Activation type (CODE or CUSTOM).
+     */
+    void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, ActivationType activationType);
+
+    /**
      * Variable that specifies if the activation should be automatically committed based on provided attributes.
      * Return true in case you would like to create an activation that is ready to be used for signing (ACTIVE),
      * and false for the cases when you need activation to remain in OTP_USED state.
@@ -50,12 +58,5 @@ public interface PowerAuthCustomActivationProvider {
      */
     boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes);
 
-    /**
-     * Process custom attributes, in any way that is suitable for the purpose of your application.
-     * @param customAttributes Custom attributes (not related to identity) to be processed.
-     * @param activationId Activation ID of created activation.
-     * @param activationType Activation type (CODE or CUSTOM).
-     */
-    void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, ActivationType activationType);
 
 }
