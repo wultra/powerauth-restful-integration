@@ -22,7 +22,7 @@ package io.getlime.security.powerauth.app.rest.api.spring.controller;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v2.CreateActivationResponse;
-import io.getlime.security.powerauth.app.rest.api.spring.provider.CustomActivationProvider;
+import io.getlime.security.powerauth.app.rest.api.spring.provider.DefaultCustomActivationProvider;
 import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
@@ -182,7 +182,7 @@ public class CustomActivationController {
      * Sample custom activation implementation for version 3 of activations. In version 3 the default implementation
      * can be reused by implementing a custom activation provider which handles the logic during the activation.
      *
-     * See {@link CustomActivationProvider} and
+     * See {@link DefaultCustomActivationProvider} and
      * {@link io.getlime.security.powerauth.rest.api.spring.service.v3.ActivationService}.
      *
      * <h5>PowerAuth protocol versions:</h5>
