@@ -130,8 +130,8 @@ public class CustomActivationController {
             final Map<String, String> identity = request.getIdentity();
             String userId = activationProvider.lookupUserIdForAttributes(identity);
 
-            // If no user was found, return error
-            if (userId == null) {
+            // If no user was found or user ID is invalid, return error
+            if (userId == null || userId.equals("") || userId.length() > 255) {
                 throw new PowerAuthActivationException();
             }
 

@@ -135,8 +135,8 @@ public class ActivationService {
                     // Lookup user ID using a provided identity attributes
                     String userId = activationProvider.lookupUserIdForAttributes(identity);
 
-                    // If no user was found, return an error
-                    if (userId == null) {
+                    // If no user was found or user ID is invalid, return an error
+                    if (userId == null || userId.equals("") || userId.length() > 255) {
                         throw new PowerAuthActivationException();
                     }
 
