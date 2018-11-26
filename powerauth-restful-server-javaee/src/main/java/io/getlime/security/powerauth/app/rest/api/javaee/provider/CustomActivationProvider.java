@@ -19,7 +19,6 @@
  */
 package io.getlime.security.powerauth.app.rest.api.javaee.provider;
 
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthCustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
 import java.util.Map;
@@ -27,7 +26,7 @@ import java.util.Map;
 /**
  * @author Petr Dvorak, petr@wultra.com
  */
-public class CustomActivationProvider implements PowerAuthCustomActivationProvider {
+public class CustomActivationProvider implements io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider {
 
     @Override
     public String lookupUserIdForAttributes(Map<String, String> identityAttributes) {
@@ -38,7 +37,7 @@ public class CustomActivationProvider implements PowerAuthCustomActivationProvid
     public void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {}
 
     @Override
-    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes) {
+    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId) {
         return true;
     }
 }

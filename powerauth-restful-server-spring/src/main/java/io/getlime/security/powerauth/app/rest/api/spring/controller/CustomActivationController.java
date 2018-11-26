@@ -28,7 +28,7 @@ import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthCustomActivationProvider;
+import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateCustomRequest;
@@ -65,7 +65,7 @@ public class CustomActivationController {
 
     private EncryptorFactory encryptorFactory;
 
-    private PowerAuthCustomActivationProvider activationProvider;
+    private CustomActivationProvider activationProvider;
 
     private ActivationService activationService;
 
@@ -80,7 +80,7 @@ public class CustomActivationController {
     }
 
     @Autowired(required = false)
-    public void setPowerAuthActivationProvider(PowerAuthCustomActivationProvider activationProvider) {
+    public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
         this.activationProvider = activationProvider;
     }
 
@@ -165,7 +165,7 @@ public class CustomActivationController {
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
             // Check if activation should be committed instantly and if yes, perform commit
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
                 powerAuthClient.commitActivation(response.getActivationId());
             }
 

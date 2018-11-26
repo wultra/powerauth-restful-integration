@@ -30,7 +30,7 @@ import java.util.Map;
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-public interface PowerAuthCustomActivationProvider {
+public interface CustomActivationProvider {
 
     /**
      * This method is responsible for looking user ID up based on a provided set of identity attributes.
@@ -57,7 +57,7 @@ public interface PowerAuthCustomActivationProvider {
      * @param customAttributes Custom attributes, not related to identity.
      * @return True in case activation should be committed, false otherwise.
      */
-    boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes);
+    boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId);
 
 
 }

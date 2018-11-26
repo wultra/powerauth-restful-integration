@@ -28,7 +28,7 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthCustomActivationProvider;
+import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
@@ -62,7 +62,7 @@ public class ActivationService {
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
 
-    private PowerAuthCustomActivationProvider activationProvider;
+    private CustomActivationProvider activationProvider;
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
@@ -77,7 +77,7 @@ public class ActivationService {
     }
 
     @Autowired(required = false)
-    public void setPowerAuthActivationProvider(PowerAuthCustomActivationProvider activationProvider) {
+    public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
         this.activationProvider = activationProvider;
     }
 
@@ -155,7 +155,7 @@ public class ActivationService {
                     activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
                     // Check if activation should be committed instantly and if yes, perform commit
-                    if (activationProvider.shouldAutoCommitActivation(identity, customAttributes)) {
+                    if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
                         powerAuthClient.commitActivation(response.getActivationId());
                     }
 

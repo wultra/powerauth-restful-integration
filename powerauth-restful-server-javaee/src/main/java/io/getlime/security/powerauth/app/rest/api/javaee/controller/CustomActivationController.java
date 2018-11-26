@@ -26,7 +26,7 @@ import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoExc
 import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthCustomActivationProvider;
+import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.jaxrs.encryption.EncryptorFactory;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
@@ -59,7 +59,7 @@ public class CustomActivationController {
     private EncryptorFactory encryptorFactory;
 
     @Inject
-    private PowerAuthCustomActivationProvider activationProvider;
+    private CustomActivationProvider activationProvider;
 
     @POST
     @Path("create")
@@ -112,7 +112,7 @@ public class CustomActivationController {
 
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
                 powerAuthClient.commitActivation(response.getActivationId());
             }
 
