@@ -17,17 +17,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.app.rest.api.spring.provider;
+package io.getlime.security.powerauth.app.rest.api.javaee.provider;
 
-import org.springframework.stereotype.Component;
+import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
 import java.util.Map;
 
 /**
  * @author Petr Dvorak, petr@wultra.com
  */
-@Component
-public class DefaultUserProvider implements PowerAuthUserProvider {
+public class CustomActivationProvider implements io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider {
 
     @Override
     public String lookupUserIdForAttributes(Map<String, String> identityAttributes) {
@@ -35,10 +34,10 @@ public class DefaultUserProvider implements PowerAuthUserProvider {
     }
 
     @Override
-    public void processCustomActivationAttributes(Map<String, Object> customAttributes) {}
+    public void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {}
 
     @Override
-    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes) {
+    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId) {
         return true;
     }
 }

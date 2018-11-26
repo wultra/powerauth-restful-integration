@@ -22,16 +22,24 @@ package io.getlime.security.powerauth.app.rest.api.spring.controller;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v2.CreateActivationResponse;
-import io.getlime.security.powerauth.app.rest.api.spring.provider.PowerAuthUserProvider;
+import io.getlime.security.powerauth.app.rest.api.spring.provider.DefaultCustomActivationProvider;
 import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
+import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
+import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateCustomRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
+import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptorFactory;
+import io.getlime.security.powerauth.rest.api.spring.service.v3.ActivationService;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -57,7 +65,9 @@ public class CustomActivationController {
 
     private EncryptorFactory encryptorFactory;
 
-    private PowerAuthUserProvider userProvider;
+    private CustomActivationProvider activationProvider;
+
+    private ActivationService activationService;
 
     @Autowired
     public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
@@ -70,29 +80,47 @@ public class CustomActivationController {
     }
 
     @Autowired(required = false)
-    public void setUserProvider(PowerAuthUserProvider userProvider) {
-        this.userProvider = userProvider;
+    public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
+        this.activationProvider = activationProvider;
     }
 
+    @Autowired
+    public void setActivationService(ActivationService activationService) {
+        this.activationService = activationService;
+    }
+
+    /**
+     * Sample custom activation implementation for version 2 of activations.
+     *
+     * <h5>PowerAuth protocol versions:</h5>
+     * <ul>
+     *     <li>2.0</li>
+     *     <li>2.1</li>
+     * </ul>
+     *
+     * @param encryptedRequest Activation request encrypted using non-personalised end-to-end encryption.
+     * @return Encrypted activation response.
+     * @throws PowerAuthActivationException In case custom activation fails.
+     */
     @RequestMapping(value = "create", method = RequestMethod.POST)
-    public @ResponseBody ObjectResponse<NonPersonalizedEncryptedPayloadModel> createNewActivation(
-            @RequestBody ObjectRequest<NonPersonalizedEncryptedPayloadModel> object
+    public @ResponseBody ObjectResponse<NonPersonalizedEncryptedPayloadModel> createActivationV2(
+            @RequestBody ObjectRequest<NonPersonalizedEncryptedPayloadModel> encryptedRequest
     ) throws PowerAuthActivationException {
         try {
 
             // Check if there is any user provider to be autowired
-            if (userProvider == null) {
+            if (activationProvider == null) {
                 throw new PowerAuthActivationException();
             }
 
             // Prepare an encryptor
-            final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(object);
+            final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(encryptedRequest);
             if (encryptor == null) {
                 throw new PowerAuthActivationException();
             }
 
             // Decrypt the request object
-            ActivationCreateCustomRequest request = encryptor.decrypt(object, ActivationCreateCustomRequest.class);
+            ActivationCreateCustomRequest request = encryptor.decrypt(encryptedRequest, ActivationCreateCustomRequest.class);
 
             if (request == null) {
                 throw new PowerAuthActivationException();
@@ -100,10 +128,10 @@ public class CustomActivationController {
 
             // Lookup user ID using a provided identity
             final Map<String, String> identity = request.getIdentity();
-            String userId = userProvider.lookupUserIdForAttributes(identity);
+            String userId = activationProvider.lookupUserIdForAttributes(identity);
 
-            // If no user was found, return error
-            if (userId == null) {
+            // If no user was found or user ID is invalid, return error
+            if (userId == null || userId.equals("") || userId.length() > 255) {
                 throw new PowerAuthActivationException();
             }
 
@@ -123,7 +151,7 @@ public class CustomActivationController {
 
             // Process custom attributes using a custom logic
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            userProvider.processCustomActivationAttributes(customAttributes);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
             // Prepare the created activation response data
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
@@ -137,7 +165,7 @@ public class CustomActivationController {
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
             // Check if activation should be committed instantly and if yes, perform commit
-            if (userProvider.shouldAutoCommitActivation(identity, customAttributes)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
                 powerAuthClient.commitActivation(response.getActivationId());
             }
 
@@ -148,6 +176,30 @@ public class CustomActivationController {
             throw new PowerAuthActivationException();
         }
 
+    }
+
+    /**
+     * Sample custom activation implementation for version 3 of activations. In version 3 the default implementation
+     * can be reused by implementing a custom activation provider which handles the logic during the activation.
+     *
+     * See {@link DefaultCustomActivationProvider} and
+     * {@link io.getlime.security.powerauth.rest.api.spring.service.v3.ActivationService}.
+     *
+     * <h5>PowerAuth protocol versions:</h5>
+     * <ul>
+     *     <li>3.0</li>
+     * </ul>
+     *
+     * @param request Activation request encrypted using ECIES.
+     * @param eciesEncryption ECIES encryption object.
+     * @return ECIES encrypted activation response.
+     * @throws PowerAuthActivationException In case custom activation fails.
+     */
+    @RequestMapping(value = "v3/create", method = RequestMethod.POST)
+    @PowerAuthEncryption
+    public @ResponseBody ActivationLayer1Response createActivationV3(@EncryptedRequestBody ActivationLayer1Request request,
+                                                                     PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
+        return activationService.createActivation(request, eciesEncryption);
     }
 
 }

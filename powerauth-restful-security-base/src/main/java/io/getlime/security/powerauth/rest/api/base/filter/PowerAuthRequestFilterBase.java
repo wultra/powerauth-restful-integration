@@ -66,7 +66,12 @@ public class PowerAuthRequestFilterBase {
                             new PowerAuthRequestBody()
                     );
                 }
-
+            } else {
+                // Store empty request body in request attribute
+                resettableRequest.setAttribute(
+                        PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                        new PowerAuthRequestBody()
+                );
             }
 
         } else { // ... handle POST, PUT, DELETE, ... method

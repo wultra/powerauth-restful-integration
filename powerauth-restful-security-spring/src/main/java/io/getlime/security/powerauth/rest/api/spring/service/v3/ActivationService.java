@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
+import io.getlime.powerauth.soap.v3.CreateActivationResponse;
 import io.getlime.powerauth.soap.v3.GetActivationStatusResponse;
 import io.getlime.powerauth.soap.v3.PrepareActivationResponse;
 import io.getlime.powerauth.soap.v3.RemoveActivationResponse;
@@ -27,6 +28,8 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
+import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
@@ -39,6 +42,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 /**
  * Service implementing activation functionality.
@@ -57,6 +62,8 @@ public class ActivationService {
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
 
+    private CustomActivationProvider activationProvider;
+
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
     @Autowired
@@ -67,6 +74,11 @@ public class ActivationService {
     @Autowired(required = false)
     public void setApplicationConfiguration(PowerAuthApplicationConfiguration applicationConfiguration) {
         this.applicationConfiguration = applicationConfiguration;
+    }
+
+    @Autowired(required = false)
+    public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
+        this.activationProvider = activationProvider;
     }
 
     /**
@@ -80,19 +92,27 @@ public class ActivationService {
     public ActivationLayer1Response createActivation(ActivationLayer1Request request, PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
         try {
 
+            final String applicationKey = eciesEncryption.getApplicationKey();
+            final EciesEncryptedRequest activationData = request.getActivationData();
+            final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
+            final String encryptedData = activationData.getEncryptedData();
+            final String mac = activationData.getMac();
+            final Map<String, Object> customAttributes = request.getCustomAttributes();
+            final Map<String, String> identity = request.getIdentityAttributes();
+
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute
-                case CODE:
+                case CODE: {
                     // Extract data from request and encryption object
                     String activationCode = request.getIdentityAttributes().get("code");
-                    String applicationKey = eciesEncryption.getApplicationKey();
-                    EciesEncryptedRequest activationData = request.getActivationData();
-                    String ephemeralPublicKey = activationData.getEphemeralPublicKey();
-                    String encryptedData = activationData.getEncryptedData();
-                    String mac = activationData.getMac();
 
                     // Call PrepareActivation SOAP method on PA server
                     PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac);
+
+                    // In case a custom activation provider is enabled, process custom attributes
+                    if (activationProvider != null) {
+                        activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
+                    }
 
                     // Prepare encrypted response object for layer 2
                     EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
@@ -103,10 +123,53 @@ public class ActivationService {
                     ActivationLayer1Response responseL1 = new ActivationLayer1Response();
                     responseL1.setActivationData(encryptedResponseL2);
                     return responseL1;
+                }
 
                 // Custom activation
-                case CUSTOM:
-                    throw new IllegalStateException("Not implemented yet");
+                case CUSTOM: {
+                    // Check if there is a custom activation provider available, return an error in case it is not available
+                    if (activationProvider == null) {
+                        throw new PowerAuthActivationException();
+                    }
+
+                    // Lookup user ID using a provided identity attributes
+                    String userId = activationProvider.lookupUserIdForAttributes(identity);
+
+                    // If no user was found or user ID is invalid, return an error
+                    if (userId == null || userId.equals("") || userId.length() > 255) {
+                        throw new PowerAuthActivationException();
+                    }
+
+                    // Create activation for a looked up user and application related to the given application key
+                    CreateActivationResponse response = powerAuthClient.createActivation(
+                            userId,
+                            null,
+                            null,
+                            applicationKey,
+                            ephemeralPublicKey,
+                            encryptedData,
+                            mac
+                    );
+
+                    // Process custom attributes using a custom logic
+                    activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
+
+                    // Check if activation should be committed instantly and if yes, perform commit
+                    if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
+                        powerAuthClient.commitActivation(response.getActivationId());
+                    }
+
+                    // Prepare encrypted activation data
+                    EciesEncryptedResponse encryptedActivationData = new EciesEncryptedResponse(response.getEncryptedData(), response.getMac());
+
+                    // Prepare the created activation response data
+                    ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+                    responseL1.setCustomAttributes(customAttributes);
+                    responseL1.setActivationData(encryptedActivationData);
+
+                    // Return response
+                    return responseL1;
+                }
 
                 default:
                     throw new PowerAuthAuthenticationException("Unsupported activation type: " + request.getType());

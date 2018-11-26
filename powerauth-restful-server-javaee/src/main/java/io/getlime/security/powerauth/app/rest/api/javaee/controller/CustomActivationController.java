@@ -22,12 +22,13 @@ package io.getlime.security.powerauth.app.rest.api.javaee.controller;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
-import io.getlime.security.powerauth.app.rest.api.javaee.provider.PowerAuthUserProvider;
 import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
+import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.jaxrs.encryption.EncryptorFactory;
+import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateCustomRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
@@ -58,7 +59,7 @@ public class CustomActivationController {
     private EncryptorFactory encryptorFactory;
 
     @Inject
-    private PowerAuthUserProvider userProvider;
+    private CustomActivationProvider activationProvider;
 
     @POST
     @Path("create")
@@ -80,7 +81,7 @@ public class CustomActivationController {
             }
 
             final Map<String, String> identity = request.getIdentity();
-            String userId = userProvider.lookupUserIdForAttributes(identity);
+            String userId = activationProvider.lookupUserIdForAttributes(identity);
 
             if (userId == null) {
                 throw new PowerAuthActivationException();
@@ -100,7 +101,7 @@ public class CustomActivationController {
             );
 
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            userProvider.processCustomActivationAttributes(customAttributes);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
             createResponse.setActivationId(response.getActivationId());
@@ -111,7 +112,7 @@ public class CustomActivationController {
 
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
-            if (userProvider.shouldAutoCommitActivation(identity, customAttributes)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
                 powerAuthClient.commitActivation(response.getActivationId());
             }
 
