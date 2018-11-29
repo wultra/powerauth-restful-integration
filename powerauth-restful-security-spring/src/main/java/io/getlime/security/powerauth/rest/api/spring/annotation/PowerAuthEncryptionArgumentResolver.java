@@ -62,7 +62,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
         }
         // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption
         if (PowerAuthEciesEncryption.class.isAssignableFrom(parameter.getParameterType())) {
-             return eciesObject;
+            return eciesObject;
         }
         return null;
     }
