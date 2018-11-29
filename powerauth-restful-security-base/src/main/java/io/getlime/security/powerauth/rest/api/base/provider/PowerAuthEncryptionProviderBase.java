@@ -110,7 +110,6 @@ public abstract class PowerAuthEncryptionProviderBase {
             eciesEncryption.setDecryptedRequest(decryptedData);
             eciesEncryption.setRequestObject(objectMapper.readValue(decryptedData, requestType));
         } catch (Exception ex) {
-            ex.printStackTrace();
             throw new PowerAuthEncryptionException("Invalid HTTP request");
         }
         return eciesEncryption;
@@ -131,7 +130,6 @@ public abstract class PowerAuthEncryptionProviderBase {
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
-            ex.printStackTrace();
             return null;
         }
     }
