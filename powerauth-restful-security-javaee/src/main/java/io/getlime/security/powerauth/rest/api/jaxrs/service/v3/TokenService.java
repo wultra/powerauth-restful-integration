@@ -17,23 +17,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.service.v3;
+package io.getlime.security.powerauth.rest.api.jaxrs.service.v3;
 
-import io.getlime.powerauth.soap.v3.CreateTokenResponse;
+import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.TokenRemoveResponse;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 
 /**
  * Service implementing token functionality.
@@ -45,17 +46,13 @@ import org.springframework.stereotype.Service;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Service("TokenServiceV3")
+@Stateless(name = "TokenServiceV3")
 public class TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
+    @Inject
     private PowerAuthServiceClient powerAuthClient;
-
-    @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
-        this.powerAuthClient = powerAuthClient;
-    }
 
     /**
      * Create token.
@@ -86,7 +83,7 @@ public class TokenService {
             String applicationKey = httpHeader.getApplicationKey();
 
             // Create a token
-            final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
+            final PowerAuthPortV3ServiceStub.CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
                     encryptedData, mac, converter.convertFrom(signatureFactors));
 
             // Prepare a response

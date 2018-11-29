@@ -27,6 +27,7 @@ import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.rmi.RemoteException;
 
@@ -36,6 +37,7 @@ import java.rmi.RemoteException;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Stateless
 public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase  {
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);

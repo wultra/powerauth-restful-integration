@@ -21,15 +21,11 @@ package io.getlime.security.powerauth.app.rest.api.javaee;
 
 import io.getlime.security.powerauth.app.rest.api.javaee.configuration.DefaultJacksonJsonProvider;
 import io.getlime.security.powerauth.app.rest.api.javaee.controller.AuthenticationController;
+import io.getlime.security.powerauth.app.rest.api.javaee.controller.CustomActivationController;
+import io.getlime.security.powerauth.app.rest.api.javaee.controller.TokenController;
 import io.getlime.security.powerauth.crypto.lib.config.PowerAuthConfiguration;
 import io.getlime.security.powerauth.provider.CryptoProviderUtilFactory;
-import io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.ActivationController;
-import io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.SecureVaultController;
-import io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.TokenController;
-import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthActivationExceptionResolver;
-import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthAuthenticationExceptionResolver;
-import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthEncryptionExceptionResolver;
-import io.getlime.security.powerauth.rest.api.jaxrs.exception.PowerAuthSecureVaultExceptionResolver;
+import io.getlime.security.powerauth.rest.api.jaxrs.exception.*;
 import io.getlime.security.powerauth.rest.api.jaxrs.filter.PowerAuthRequestFilter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
@@ -62,15 +58,24 @@ public class JavaEEApplication extends Application {
 
         // PowerAuth Controllers
         resources.add(AuthenticationController.class);
-        resources.add(ActivationController.class);
-        resources.add(SecureVaultController.class);
+        resources.add(CustomActivationController.class);
         resources.add(TokenController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.ActivationController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.SignatureController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.SecureVaultController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.TokenController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.ActivationController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.SecureVaultController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.SignatureController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.TokenController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.UpgradeController.class);
 
         // PowerAuth Exception Resolvers
         resources.add(PowerAuthActivationExceptionResolver.class);
         resources.add(PowerAuthAuthenticationExceptionResolver.class);
         resources.add(PowerAuthEncryptionExceptionResolver.class);
         resources.add(PowerAuthSecureVaultExceptionResolver.class);
+        resources.add(PowerAuthUpgradeExceptionResolver.class);
 
         // PowerAuth Filters
         resources.add(PowerAuthRequestFilter.class);

@@ -73,6 +73,10 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      */
     @Override
     public EciesEncryptedResponse beforeBodyWrite(Object response, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+        if (response == null) {
+            return null;
+        }
+
         // Extract ECIES encryption object from HTTP request
         final HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
         final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT);
