@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
@@ -44,7 +45,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
         return parameter.hasMethodAnnotation(PowerAuthEncryption.class)
-                && (parameter.hasParameterAnnotation(EncryptedRequestBody.class) || PowerAuthEciesEncryption.class.isAssignableFrom(parameter.getParameterType()));
+                && (parameter.hasParameterAnnotation(EncryptedRequestBody.class) || EciesEncryptionContext.class.isAssignableFrom(parameter.getParameterType()));
     }
 
     @Override
@@ -61,8 +62,8 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
             }
         }
         // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption
-        if (PowerAuthEciesEncryption.class.isAssignableFrom(parameter.getParameterType())) {
-            return eciesObject;
+        if (eciesObject != null && EciesEncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
+            return eciesObject.getContext();
         }
         return null;
     }

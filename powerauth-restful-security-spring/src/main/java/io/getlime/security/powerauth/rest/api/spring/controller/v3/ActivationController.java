@@ -23,7 +23,7 @@ import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
@@ -79,11 +79,11 @@ public class ActivationController {
     @RequestMapping(value = "create", method = RequestMethod.POST)
     @PowerAuthEncryption
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
-                                                     PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
-        if (request == null || eciesEncryption == null) {
+                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
+        if (request == null || eciesContext == null) {
             throw new PowerAuthActivationException();
         }
-        return activationServiceV3.createActivation(request, eciesEncryption);
+        return activationServiceV3.createActivation(request, eciesContext);
     }
 
     /**

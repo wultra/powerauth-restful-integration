@@ -17,17 +17,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.base.model;
+package io.getlime.security.powerauth.rest.api.base.encryption;
 
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 
 /**
- * Class for storing ECIES encryption parameters derived from HTTP headers.
+ * Class for storing ECIES encryption context derived from HTTP headers.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-public class EciesEncryptionParameters {
+public class EciesEncryptionContext {
 
     private String applicationKey;
     private String activationId;
@@ -37,18 +37,18 @@ public class EciesEncryptionParameters {
     /**
      * Default constructor.
      */
-    public EciesEncryptionParameters() {
+    public EciesEncryptionContext() {
     }
 
     /**
-     * Constructor with all parameters.
+     * Constructor with all context parameters.
      *
      * @param applicationKey Application key.
      * @param activationId Activation ID.
      * @param version PowerAuth protocol version.
-     * @param httpHeader HTTP header used to derive ECIES encryption parameters.
+     * @param httpHeader HTTP header used to derive ECIES encryption context.
      */
-    public EciesEncryptionParameters(String applicationKey, String activationId, String version, PowerAuthHttpHeader httpHeader) {
+    public EciesEncryptionContext(String applicationKey, String activationId, String version, PowerAuthHttpHeader httpHeader) {
         this.applicationKey = applicationKey;
         this.activationId = activationId;
         this.version = version;
@@ -110,18 +110,18 @@ public class EciesEncryptionParameters {
     }
 
     /**
-     * Get PowerAuth HTTP header used for deriving ECIES encryption parameters.
+     * Get PowerAuth HTTP header used for deriving ECIES encryption context.
      *
-     * @return PowerAuth HTTP header used for deriving ECIES encryption parameters.
+     * @return PowerAuth HTTP header used for deriving ECIES encryption context.
      */
     public PowerAuthHttpHeader getHttpHeader() {
         return httpHeader;
     }
 
     /**
-     * Set PowerAuth HTTP header used for deriving ECIES encryption parameters.
+     * Set PowerAuth HTTP header used for deriving ECIES encryption context.
      *
-     * @param httpHeader PowerAuth HTTP header used for deriving ECIES encryption parameters.
+     * @param httpHeader PowerAuth HTTP header used for deriving ECIES encryption context.
      */
     public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
         this.httpHeader = httpHeader;

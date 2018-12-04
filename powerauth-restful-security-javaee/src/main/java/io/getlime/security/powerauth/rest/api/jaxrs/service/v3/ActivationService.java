@@ -77,7 +77,7 @@ public class ActivationService {
     public ActivationLayer1Response createActivation(ActivationLayer1Request request, PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
         try {
 
-            final String applicationKey = eciesEncryption.getApplicationKey();
+            final String applicationKey = eciesEncryption.getContext().getApplicationKey();
             final EciesEncryptedRequest activationData = request.getActivationData();
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
             final String encryptedData = activationData.getEncryptedData();

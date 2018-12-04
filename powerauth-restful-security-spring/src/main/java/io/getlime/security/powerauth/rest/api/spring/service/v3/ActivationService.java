@@ -25,7 +25,7 @@ import io.getlime.powerauth.soap.v3.PrepareActivationResponse;
 import io.getlime.powerauth.soap.v3.RemoveActivationResponse;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
@@ -85,14 +85,14 @@ public class ActivationService {
      * Create activation.
      *
      * @param request Create activation layer 1 request.
-     * @param eciesEncryption PowerAuth ECIES encryption object.
+     * @param eciesContext PowerAuth ECIES encryption context.
      * @return Create activation layer 1 response.
      * @throws PowerAuthActivationException In case create activation fails.
      */
-    public ActivationLayer1Response createActivation(ActivationLayer1Request request, PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
+    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
         try {
 
-            final String applicationKey = eciesEncryption.getApplicationKey();
+            final String applicationKey = eciesContext.getApplicationKey();
             final EciesEncryptedRequest activationData = request.getActivationData();
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
             final String encryptedData = activationData.getEncryptedData();

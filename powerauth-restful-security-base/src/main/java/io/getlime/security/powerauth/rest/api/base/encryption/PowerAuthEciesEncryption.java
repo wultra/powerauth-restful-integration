@@ -20,8 +20,6 @@
 package io.getlime.security.powerauth.rest.api.base.encryption;
 
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
-import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
-import io.getlime.security.powerauth.rest.api.base.model.EciesEncryptionParameters;
 
 /**
  * Class used for storing data used during ECIES decryption and encryption. A reference to an initialized ECIES decryptor
@@ -33,10 +31,7 @@ import io.getlime.security.powerauth.rest.api.base.model.EciesEncryptionParamete
  */
 public class PowerAuthEciesEncryption<T> {
 
-    private String applicationKey;
-    private String activationId;
-    private String version;
-    private PowerAuthHttpHeader httpHeader;
+    private EciesEncryptionContext context;
     private EciesDecryptor eciesDecryptor;
     private byte[] encryptedRequest;
     private byte[] decryptedRequest;
@@ -45,77 +40,18 @@ public class PowerAuthEciesEncryption<T> {
     /**
      * Initialize ECIES encryption object from either encryption or signature HTTP header.
      *
-     * @param encryptionParameters PowerAuth encryption parameters derived from either encryption or signature HTTP header.
+     * @param context PowerAuth encryption context derived from either encryption or signature HTTP header.
      */
-    public PowerAuthEciesEncryption(EciesEncryptionParameters encryptionParameters) {
-        this.applicationKey = encryptionParameters.getApplicationKey();
-        this.activationId = encryptionParameters.getActivationId();
-        this.version = encryptionParameters.getVersion();
-        this.httpHeader = encryptionParameters.getHttpHeader();
+    public PowerAuthEciesEncryption(EciesEncryptionContext context) {
+        this.context = context;
     }
 
     /**
-     * Get application key.
-     * @return Application key.
+     * Get ECIES encryption context.
+     * @return ECIES encryption context.
      */
-    public String getApplicationKey() {
-        return applicationKey;
-    }
-
-    /**
-     * Set application key.
-     * @param applicationKey Application key.
-     */
-    public void setApplicationKey(String applicationKey) {
-        this.applicationKey = applicationKey;
-    }
-
-    /**
-     * Get activation ID.
-     * @return Activation ID.
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID.
-     * @param activationId Activation ID.
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
-
-    /**
-     * Get PowerAuth protocol version.
-     * @return PowerAuth protocol version.
-     */
-    public String getVersion() {
-        return version;
-    }
-
-    /**
-     * Set PowerAuth protocol version.
-     * @param version PowerAuth protocol version.
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    /**
-     * Get PowerAuth HTTP header related to encryption.
-     * @return PowerAuth HTTP header related to encryption.
-     */
-    public PowerAuthHttpHeader getHttpHeader() {
-        return httpHeader;
-    }
-
-    /**
-     * Set PowerAuth HTTP header related to encryption.
-     * @param httpHeader PowerAuth HTTP header related to encryption.
-     */
-    public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
-        this.httpHeader = httpHeader;
+    public EciesEncryptionContext getContext() {
+        return context;
     }
 
     /**

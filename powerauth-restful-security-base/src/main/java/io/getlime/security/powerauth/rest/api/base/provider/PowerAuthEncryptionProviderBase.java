@@ -30,11 +30,11 @@ import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
+import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.base.model.EciesEncryptionParameters;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
@@ -80,10 +80,10 @@ public abstract class PowerAuthEncryptionProviderBase {
         }
 
         // Resolve either signature or encryption HTTP header for ECIES
-        EciesEncryptionParameters encryptionParameters = extractEciesEncryptionParameters(request);
+        EciesEncryptionContext encryptionContext = extractEciesEncryptionContext(request);
 
         // Construct ECIES encryption object from HTTP header
-        final PowerAuthEciesEncryption<T> eciesEncryption = new PowerAuthEciesEncryption<>(encryptionParameters);
+        final PowerAuthEciesEncryption<T> eciesEncryption = new PowerAuthEciesEncryption<>(encryptionContext);
 
         try {
             // Parse ECIES cryptogram from request body
@@ -111,9 +111,11 @@ public abstract class PowerAuthEncryptionProviderBase {
             final byte[] encryptedDataBytes = BaseEncoding.base64().decode(encryptedData);
             final byte[] macBytes = BaseEncoding.base64().decode(mac);
 
+            final String activationId = eciesEncryption.getContext().getActivationId();
+            final String applicationKey = eciesEncryption.getContext().getApplicationKey();
+
             // Obtain ECIES decryptor parameters from PowerAuth server
-            final PowerAuthEciesDecryptorParameters decryptorParameters = getEciesDecryptorParameters(eciesEncryption.getActivationId(),
-                    eciesEncryption.getApplicationKey(), ephemeralPublicKey);
+            final PowerAuthEciesDecryptorParameters decryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey);
 
             // Prepare envelope key and sharedInfo2 parameter for decryptor
             final byte[] secretKey = BaseEncoding.base64().decode(decryptorParameters.getSecretKey());
@@ -157,13 +159,13 @@ public abstract class PowerAuthEncryptionProviderBase {
     }
 
     /**
-     * Extract parameters required for ECIES encryption from either encryption or signature HTTP header.
+     * Extract context required for ECIES encryption from either encryption or signature HTTP header.
      *
      * @param request HTTP servlet request.
-     * @return Parameters for ECIES encryption.
+     * @return Context for ECIES encryption.
      * @throws PowerAuthEncryptionException Thrown when HTTP header with ECIES data is invalid.
      */
-    private EciesEncryptionParameters extractEciesEncryptionParameters(HttpServletRequest request) throws PowerAuthEncryptionException {
+    private EciesEncryptionContext extractEciesEncryptionContext(HttpServletRequest request) throws PowerAuthEncryptionException {
         final String encryptionHttpHeader = request.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME);
         final String signatureHttpHeader = request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME);
 
@@ -188,7 +190,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             String applicationKey = header.getApplicationKey();
             String activationId = header.getActivationId();
             String version = header.getVersion();
-            return new EciesEncryptionParameters(applicationKey, activationId, version, header);
+            return new EciesEncryptionContext(applicationKey, activationId, version, header);
         } else {
             // Parse signature HTTP header
             PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
@@ -204,7 +206,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             String applicationKey = header.getApplicationKey();
             String activationId = header.getActivationId();
             String version = header.getVersion();
-            return new EciesEncryptionParameters(applicationKey, activationId, version, header);
+            return new EciesEncryptionContext(applicationKey, activationId, version, header);
         }
     }
 
