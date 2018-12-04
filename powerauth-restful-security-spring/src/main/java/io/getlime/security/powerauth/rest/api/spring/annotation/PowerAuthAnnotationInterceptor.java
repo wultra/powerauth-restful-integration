@@ -37,8 +37,6 @@ import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -132,25 +130,19 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
     }
 
     /**
-     * Resolve type of generic request object, if it is present, otherwise use Object.class
+     * Resolve type of request object which is annotated by the @EncryptedRequestBody annotation.
+     * In case such parameter is missing the Object.class type is returned.
+     *
      * @param handlerMethod Handler method.
-     * @return Resolved type of generic request object.
+     * @return Resolved type of request object.
      */
     private Class<?> resolveGenericParameterTypeForEcies(HandlerMethod handlerMethod) {
-        Class<?> requestType = Object.class;
         for (MethodParameter parameter: handlerMethod.getMethodParameters()) {
-            if (PowerAuthEciesEncryption.class.isAssignableFrom(parameter.getParameterType())) {
-                ParameterizedType type = (ParameterizedType) parameter.getGenericParameterType();
-                if (type.getActualTypeArguments().length == 1) {
-                    Type typeArgument = type.getActualTypeArguments()[0];
-                    if (typeArgument instanceof Class) {
-                        requestType = (Class<?>) typeArgument;
-                    }
-                }
-                break;
+            if (parameter.hasParameterAnnotation(EncryptedRequestBody.class)) {
+                return parameter.getParameterType();
             }
         }
-        return requestType;
+        return Object.class;
     }
 
 }

@@ -79,7 +79,7 @@ public class ActivationController {
     @RequestMapping(value = "create", method = RequestMethod.POST)
     @PowerAuthEncryption
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
-                                                     PowerAuthEciesEncryption<ActivationLayer1Request> eciesEncryption) throws PowerAuthActivationException {
+                                                     PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
         if (request == null || eciesEncryption == null) {
             throw new PowerAuthActivationException();
         }

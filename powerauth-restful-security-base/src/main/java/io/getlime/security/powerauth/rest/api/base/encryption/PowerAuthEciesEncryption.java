@@ -20,10 +20,8 @@
 package io.getlime.security.powerauth.rest.api.base.encryption;
 
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
-import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
-import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
-import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.rest.api.base.model.EciesEncryptionParameters;
 
 /**
  * Class used for storing data used during ECIES decryption and encryption. A reference to an initialized ECIES decryptor
@@ -38,39 +36,22 @@ public class PowerAuthEciesEncryption<T> {
     private String applicationKey;
     private String activationId;
     private String version;
-    private PowerAuthEncryptionHttpHeader httpHeader;
+    private PowerAuthHttpHeader httpHeader;
     private EciesDecryptor eciesDecryptor;
     private byte[] encryptedRequest;
     private byte[] decryptedRequest;
     private T requestObject;
 
     /**
-     * Initialize ECIES encryption object from PowerAuth encryption HTTP header.
+     * Initialize ECIES encryption object from either encryption or signature HTTP header.
      *
-     * @param encryptionHttpHeader PowerAuth encryption HTTP header.
-     * @throws PowerAuthEncryptionException In case PowerAuth encryption HTTP header is invalid.
+     * @param encryptionParameters PowerAuth encryption parameters derived from either encryption or signature HTTP header.
      */
-    public PowerAuthEciesEncryption(String encryptionHttpHeader) throws PowerAuthEncryptionException {
-        // Check for HTTP PowerAuth encryption header
-        if (encryptionHttpHeader == null || encryptionHttpHeader.equals("undefined")) {
-            throw new PowerAuthEncryptionException("POWER_AUTH_ENCRYPTION_INVALID_EMPTY");
-        }
-
-        // Parse HTTP header
-        PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
-
-        // Validate the header
-        try {
-            PowerAuthEncryptionHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            throw new PowerAuthEncryptionException(e.getMessage());
-        }
-
-        // Prepare encryption object
-        applicationKey = header.getApplicationKey();
-        activationId = header.getActivationId();
-        version = header.getVersion();
-        httpHeader = header;
+    public PowerAuthEciesEncryption(EciesEncryptionParameters encryptionParameters) {
+        this.applicationKey = encryptionParameters.getApplicationKey();
+        this.activationId = encryptionParameters.getActivationId();
+        this.version = encryptionParameters.getVersion();
+        this.httpHeader = encryptionParameters.getHttpHeader();
     }
 
     /**
@@ -122,18 +103,18 @@ public class PowerAuthEciesEncryption<T> {
     }
 
     /**
-     * Get PowerAuth encryption HTTP header.
-     * @return PowerAuth encryption HTTP header.
+     * Get PowerAuth HTTP header related to encryption.
+     * @return PowerAuth HTTP header related to encryption.
      */
-    public PowerAuthEncryptionHttpHeader getHttpHeader() {
+    public PowerAuthHttpHeader getHttpHeader() {
         return httpHeader;
     }
 
     /**
-     * Set PowerAuth encryption HTTP header.
-     * @param httpHeader PowerAuth encryption HTTP header.
+     * Set PowerAuth HTTP header related to encryption.
+     * @param httpHeader PowerAuth HTTP header related to encryption.
      */
-    public void setHttpHeader(PowerAuthEncryptionHttpHeader httpHeader) {
+    public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
         this.httpHeader = httpHeader;
     }
 

@@ -198,7 +198,7 @@ public class CustomActivationController {
     @RequestMapping(value = "v3/create", method = RequestMethod.POST)
     @PowerAuthEncryption
     public @ResponseBody ActivationLayer1Response createActivationV3(@EncryptedRequestBody ActivationLayer1Request request,
-                                                                     PowerAuthEciesEncryption<ActivationLayer1Request> eciesEncryption) throws PowerAuthActivationException {
+                                                                     PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
         return activationService.createActivation(request, eciesEncryption);
     }
 
