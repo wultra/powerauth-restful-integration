@@ -20,45 +20,47 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<artifactId>powerauth-restful-security-spring</artifactId>
+    <artifactId>powerauth-restful-security-spring</artifactId>
     <version>0.21.0</version>
     <name>powerauth-restful-security-spring</name>
-	<description>PowerAuth RESTful API Security Additions for Spring</description>
+    <description>PowerAuth RESTful API Security Additions for Spring</description>
 
-	<parent>
-		<groupId>io.getlime.security</groupId>
-		<artifactId>powerauth-restful-integration-parent</artifactId>
-		<version>0.21.0</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>io.getlime.security</groupId>
+        <artifactId>powerauth-restful-integration-parent</artifactId>
+        <version>0.21.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<dependencies>
+    <dependencies>
 
-		<!-- Spring Dependencies -->
+        <!-- Spring Dependencies -->
         <dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-web</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework.boot</groupId>
-			<artifactId>spring-boot-starter-security</artifactId>
-		</dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+            <version>${spring-boot.version}</version>
+        </dependency>
 
-		<!-- PowerAuth Dependencies -->
-		<dependency>
-			<groupId>io.getlime.security</groupId>
-			<artifactId>powerauth-restful-security-base</artifactId>
-			<version>0.21.0</version>
-		</dependency>
-		<dependency>
-			<groupId>io.getlime.security</groupId>
-			<artifactId>powerauth-java-client-spring</artifactId>
-			<version>0.21.0</version>
-		</dependency>
+        <!-- PowerAuth Dependencies -->
+        <dependency>
+            <groupId>io.getlime.security</groupId>
+            <artifactId>powerauth-restful-security-base</artifactId>
+            <version>0.21.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.getlime.security</groupId>
+            <artifactId>powerauth-java-client-spring</artifactId>
+            <version>0.21.0</version>
+        </dependency>
 
-	</dependencies>
+    </dependencies>
 
 </project>
