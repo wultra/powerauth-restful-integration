@@ -20,27 +20,27 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<artifactId>powerauth-restful-model</artifactId>
-	<version>0.21.0</version>
-	<name>powerauth-restful-model</name>
-	<description>Model classes PowerAuth Standard RESTful API</description>
+    <artifactId>powerauth-restful-model</artifactId>
+    <version>0.21.0</version>
+    <name>powerauth-restful-model</name>
+    <description>Model classes PowerAuth Standard RESTful API</description>
 
-	<parent>
-		<groupId>io.getlime.security</groupId>
-		<artifactId>powerauth-restful-integration-parent</artifactId>
-		<version>0.21.0</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>io.getlime.security</groupId>
+        <artifactId>powerauth-restful-integration-parent</artifactId>
+        <version>0.21.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<dependencies>
-		<dependency>
-			<groupId>io.getlime.core</groupId>
-			<artifactId>rest-model-base</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>io.getlime.core</groupId>
+            <artifactId>rest-model-base</artifactId>
+            <version>${rest-model-base.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>
