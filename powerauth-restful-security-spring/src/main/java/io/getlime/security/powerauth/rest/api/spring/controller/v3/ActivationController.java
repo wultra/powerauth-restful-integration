@@ -21,13 +21,12 @@ package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
@@ -77,7 +76,7 @@ public class ActivationController {
     }
 
     @RequestMapping(value = "create", method = RequestMethod.POST)
-    @PowerAuthEncryption
+    @PowerAuthEncryption(scope = EciesScope.APPLICATION_SCOPE)
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
                                                      EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
         if (request == null || eciesContext == null) {
@@ -114,8 +113,7 @@ public class ActivationController {
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
             HttpServletRequest httpServletRequest)
             throws PowerAuthActivationException, PowerAuthAuthenticationException {
-        PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
-        byte[] requestBodyBytes = requestBody.getRequestBytes();
+        byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
         if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
             throw new PowerAuthAuthenticationException("Signature validation failed");

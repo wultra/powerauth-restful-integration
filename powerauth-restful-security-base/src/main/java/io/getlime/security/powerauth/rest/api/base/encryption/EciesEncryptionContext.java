@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.base.encryption;
 
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 
 /**
@@ -32,6 +33,7 @@ public class EciesEncryptionContext {
     private String applicationKey;
     private String activationId;
     private String version;
+    private EciesScope eciesScope;
     private PowerAuthHttpHeader httpHeader;
 
     /**
@@ -107,6 +109,22 @@ public class EciesEncryptionContext {
      */
     public void setVersion(String version) {
         this.version = version;
+    }
+
+    /**
+     * Get ECIES scope (application or activation).
+     * @return ECIES scope.
+     */
+    public EciesScope getEciesScope() {
+        return eciesScope;
+    }
+
+    /**
+     * Set ECIES scope (application or activation).
+     * @param eciesScope ECIES scope.
+     */
+    public void setEciesScope(EciesScope eciesScope) {
+        this.eciesScope = eciesScope;
     }
 
     /**

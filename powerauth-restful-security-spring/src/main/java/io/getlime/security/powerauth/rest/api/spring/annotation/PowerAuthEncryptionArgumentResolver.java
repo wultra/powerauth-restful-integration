@@ -22,6 +22,9 @@ package io.getlime.security.powerauth.rest.api.spring.annotation;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -40,6 +43,8 @@ import java.io.IOException;
  */
 public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumentResolver {
 
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionArgumentResolver.class);
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
@@ -51,7 +56,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        final PowerAuthEciesEncryption eciesObject = (PowerAuthEciesEncryption) request.getAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT);
+        final PowerAuthEciesEncryption eciesObject = (PowerAuthEciesEncryption) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         // Decrypted object is inserted into parameter annotated by @EncryptedRequestBody annotation
         if (parameter.hasParameterAnnotation(EncryptedRequestBody.class) && eciesObject != null && eciesObject.getDecryptedRequest() != null) {
             final Class<?> parameterType = parameter.getParameterType();
@@ -63,9 +68,48 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
         }
         // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption
         if (eciesObject != null && EciesEncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
-            return eciesObject.getContext();
+            // Set ECIES scope in case it is specified by the @PowerAuthEncryption annotation
+            PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(PowerAuthEncryption.class);
+            if (powerAuthEncryption != null) {
+                EciesEncryptionContext eciesContext = eciesObject.getContext();
+                boolean validScope = validateEciesScope(eciesContext);
+                if (validScope) {
+                    return eciesContext;
+                }
+            }
         }
         return null;
+    }
+
+    /**
+     * Validate that encryption HTTP header contains correct values for given ECIES scope.
+     * @param eciesContext ECIES context.
+     */
+    private boolean validateEciesScope(EciesEncryptionContext eciesContext) {
+        switch (eciesContext.getEciesScope()) {
+            case ACTIVATION_SCOPE:
+                if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
+                    logger.warn("ECIES activation scope is invalid because of missing application key");
+                    return false;
+                }
+                if (eciesContext.getActivationId() == null || eciesContext.getActivationId().isEmpty()) {
+                    logger.warn("ECIES activation scope is invalid because of missing activation ID");
+                    return false;
+                }
+                break;
+
+            case APPLICATION_SCOPE:
+                if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
+                    logger.warn("ECIES application scope is invalid because of missing application key");
+                    return false;
+                }
+                break;
+
+            default:
+                logger.error("Unsupported ECIES scope: {}", eciesContext.getEciesScope());
+                return false;
+        }
+        return true;
     }
 
 }

@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
 import org.springframework.web.bind.support.WebDataBinderFactory;
@@ -45,7 +46,7 @@ public class PowerAuthWebArgumentResolver implements HandlerMethodArgumentResolv
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        return request.getAttribute(PowerAuth.AUTHENTICATION_OBJECT);
+        return request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
     }
 
 }

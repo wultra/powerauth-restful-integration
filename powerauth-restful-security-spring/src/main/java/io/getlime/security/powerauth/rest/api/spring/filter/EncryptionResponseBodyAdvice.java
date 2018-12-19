@@ -24,6 +24,7 @@ import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import org.springframework.core.MethodParameter;
@@ -79,7 +80,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
         // Extract ECIES encryption object from HTTP request
         final HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
-        final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT);
+        final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         if (eciesEncryption == null) {
             return null;
         }
@@ -97,7 +98,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
-        } catch (Exception e) {
+        } catch (Exception ex) {
             return null;
         }
     }

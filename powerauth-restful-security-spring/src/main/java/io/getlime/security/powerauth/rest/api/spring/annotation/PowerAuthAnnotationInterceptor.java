@@ -22,9 +22,9 @@ package io.getlime.security.powerauth.rest.api.spring.annotation;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
 import org.slf4j.Logger;
@@ -43,7 +43,7 @@ import java.util.Arrays;
 @Component
 public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
 
-    private static final Logger logger = LoggerFactory.getLogger(HandlerInterceptorAdapter.class);
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthAnnotationInterceptor.class);
 
     private PowerAuthAuthenticationProvider authenticationProvider;
     private PowerAuthEncryptionProvider encryptionProvider;
@@ -81,20 +81,32 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                 powerAuthTokenAnnotation = null;
             }
 
+            // Resolve @PowerAuthEncryption annotation. The order of processing is important, PowerAuth expects
+            // sign-then-encrypt sequence in case both authorization and encryption are used.
+            if (powerAuthEncryptionAnnotation != null) {
+                Class<?> requestType = resolveGenericParameterTypeForEcies(handlerMethod);
+                try {
+                    encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope());
+                    // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for both Spring and Java EE
+                } catch (PowerAuthEncryptionException ex) {
+                    // Silently ignore errors
+                }
+            }
+
             // Resolve @PowerAuth annotation
             if (powerAuthSignatureAnnotation != null) {
 
                 try {
-                    PowerAuthApiAuthentication authentication = this.authenticationProvider.validateRequestSignature(
+                    PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
                             request,
                             powerAuthSignatureAnnotation.resourceId(),
                             request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME),
                             new ArrayList<>(Arrays.asList(powerAuthSignatureAnnotation.signatureType()))
                     );
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
                     // Silently ignore here and make sure authentication object is null
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
                 }
 
             }
@@ -102,28 +114,17 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
             // Resolve @PowerAuthToken annotation
             if (powerAuthTokenAnnotation != null) {
                 try {
-                    PowerAuthApiAuthentication authentication = this.authenticationProvider.validateToken(
+                    PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(
                             request.getHeader(PowerAuthTokenHttpHeader.HEADER_NAME),
                             new ArrayList<>(Arrays.asList(powerAuthTokenAnnotation.signatureType()))
                     );
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
                     // Silently ignore here and make sure authentication object is null
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
                 }
             }
 
-            // Resolve @PowerAuthEncryption annotation
-            if (powerAuthEncryptionAnnotation != null) {
-                Class<?> requestType = resolveGenericParameterTypeForEcies(handlerMethod);
-                try {
-                    PowerAuthEciesEncryption eciesEncryption = this.encryptionProvider.decryptRequest(request, requestType);
-                    request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, eciesEncryption);
-                } catch (PowerAuthEncryptionException ex) {
-                    // Silently ignore here and make sure encryption object is null
-                    request.setAttribute(PowerAuthEncryption.ENCRYPTION_OBJECT, null);
-                }
-            }
         }
 
         return super.preHandle(request, response, handler);

@@ -35,8 +35,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface PowerAuth {
 
-    String AUTHENTICATION_OBJECT = "X-PowerAuth-Authentication-Object";
-
     /**
      * Identifier of the resource URI, usually the "effective" part of the URL, for example
      * "/banking/payment/commit".
