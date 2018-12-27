@@ -60,12 +60,12 @@ public class EncryptedDataExchangeController {
     public DataExchangeResponse exchangeInApplicationScope(@EncryptedRequestBody DataExchangeRequest request,
                                              EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
-        if (request == null || eciesContext == null) {
+        if (eciesContext == null) {
             throw new PowerAuthEncryptionException("Decryption failed");
         }
 
         // Return a slightly different String containing original data in response
-        return new DataExchangeResponse("Server successfully decrypted signed data: " + request.getData() + ", scope: " + eciesContext.getEciesScope());
+        return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
     }
 
     /**
@@ -81,12 +81,12 @@ public class EncryptedDataExchangeController {
     public DataExchangeResponse exchangeInActivationScope(@EncryptedRequestBody DataExchangeRequest request,
                                             EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
-        if (request == null || eciesContext == null) {
+        if (eciesContext == null) {
             throw new PowerAuthEncryptionException("Decryption failed");
         }
 
         // Return a slightly different String containing original data in response
-        return new DataExchangeResponse("Server successfully decrypted signed data: " + request.getData() + ", scope: " + eciesContext.getEciesScope());
+        return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
     }
 
     /**
@@ -108,12 +108,12 @@ public class EncryptedDataExchangeController {
             throw new PowerAuthAuthenticationException("Signature validation failed");
         }
 
-        if (request == null || eciesContext == null) {
+        if (eciesContext == null) {
             throw new PowerAuthEncryptionException("Decryption failed");
         }
 
         // Return a slightly different String containing original data in response
-        return new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + request.getData() + ", user ID: " + auth.getUserId());
+        return new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
     }
 
 }

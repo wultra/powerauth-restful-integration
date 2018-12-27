@@ -145,7 +145,10 @@ public abstract class PowerAuthEncryptionProviderBase {
             byte[] decryptedData = eciesDecryptor.decryptRequest(cryptogram);
             eciesEncryption.setEncryptedRequest(encryptedDataBytes);
             eciesEncryption.setDecryptedRequest(decryptedData);
-            eciesEncryption.setRequestObject(objectMapper.readValue(decryptedData, requestType));
+            if (decryptedData.length != 0) {
+                // Deserialize and set the request object only in case when request data is sent
+                eciesEncryption.setRequestObject(objectMapper.readValue(decryptedData, requestType));
+            }
 
             // Set encryption object in HTTP servlet request
             request.setAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT, eciesEncryption);

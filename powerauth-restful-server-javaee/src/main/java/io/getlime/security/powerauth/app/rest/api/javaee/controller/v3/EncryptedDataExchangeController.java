@@ -79,7 +79,7 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
         // Prepare response object
-        DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted signed data: " + request.getData() + ", scope: " + eciesContext.getEciesScope());
+        DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
 
         // Encrypt response
         return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
@@ -104,7 +104,7 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
         // Prepare response object
-        DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted signed data: " + request.getData() + ", scope: " + eciesContext.getEciesScope());
+        DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
 
         // Encrypt response
         return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
@@ -136,7 +136,7 @@ public class EncryptedDataExchangeController {
 
         if (auth != null && auth.getUserId() != null) {
             // Prepare response object
-            DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + request.getData() + ", user ID: " + auth.getUserId());
+            DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
 
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
