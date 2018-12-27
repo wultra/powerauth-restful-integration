@@ -21,20 +21,18 @@ package io.getlime.security.powerauth.rest.api.jaxrs.controller.v2;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
-import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
-import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
-import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationStatusRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
-import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationRemoveResponse;
-import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationStatusResponse;
-import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.*;
@@ -51,14 +49,16 @@ import javax.ws.rs.core.MediaType;
 @Produces(MediaType.APPLICATION_JSON)
 public class ActivationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);
+
     @Inject
-    private PowerAuthServiceClient powerAuthClient;
+    private io.getlime.security.powerauth.rest.api.jaxrs.service.v2.ActivationService activationServiceV2;
+
+    @Inject
+    private io.getlime.security.powerauth.rest.api.jaxrs.service.v3.ActivationService activationServiceV3;
 
     @Inject
     private PowerAuthAuthenticationProvider authenticationProvider;
-
-    @Inject
-    private PowerAuthApplicationConfiguration applicationConfiguration;
 
     /**
      * Create a new activation.
@@ -71,45 +71,11 @@ public class ActivationController {
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
     public ObjectResponse<ActivationCreateResponse> createActivation(ObjectRequest<ActivationCreateRequest> request) throws PowerAuthActivationException {
-
-        if (request.getRequestObject() == null) {
+        if (request.getRequestObject() == null || request.getRequestObject().getActivationIdShort() == null) {
+            logger.warn("Invalid request object in activation create");
             throw new PowerAuthActivationException();
         }
-
-        try {
-
-            String activationIDShort = request.getRequestObject().getActivationIdShort();
-            String activationNonce = request.getRequestObject().getActivationNonce();
-            String cDevicePublicKey = request.getRequestObject().getEncryptedDevicePublicKey();
-            String activationName = request.getRequestObject().getActivationName();
-            String extras = request.getRequestObject().getExtras();
-            String applicationKey = request.getRequestObject().getApplicationKey();
-            String applicationSignature = request.getRequestObject().getApplicationSignature();
-            String clientEphemeralKey = request.getRequestObject().getEphemeralPublicKey();
-
-            PowerAuthPortV2ServiceStub.PrepareActivationResponse soapResponse = powerAuthClient.v2().prepareActivation(
-                    activationIDShort,
-                    activationName,
-                    activationNonce,
-                    clientEphemeralKey,
-                    cDevicePublicKey,
-                    extras,
-                    applicationKey,
-                    applicationSignature
-            );
-
-            ActivationCreateResponse response = new ActivationCreateResponse();
-            response.setActivationId(soapResponse.getActivationId());
-            response.setActivationNonce(soapResponse.getActivationNonce());
-            response.setEncryptedServerPublicKey(soapResponse.getEncryptedServerPublicKey());
-            response.setEncryptedServerPublicKeySignature(soapResponse.getEncryptedServerPublicKeySignature());
-            response.setEphemeralPublicKey(soapResponse.getEphemeralPublicKey());
-
-            return new ObjectResponse<>(response);
-
-        } catch (Exception e) {
-            throw new PowerAuthActivationException();
-        }
+        return new ObjectResponse<>(activationServiceV2.createActivation(request.getRequestObject()));
     }
 
     /**
@@ -123,24 +89,11 @@ public class ActivationController {
     @Produces({MediaType.APPLICATION_JSON})
     @Path("status")
     public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws PowerAuthActivationException {
-
         if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
+            logger.warn("Invalid request object in activation status");
             throw new PowerAuthActivationException();
         }
-
-        try {
-            String activationId = request.getRequestObject().getActivationId();
-            PowerAuthPortV3ServiceStub.GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
-            ActivationStatusResponse response = new ActivationStatusResponse();
-            response.setActivationId(soapResponse.getActivationId());
-            response.setEncryptedStatusBlob(soapResponse.getEncryptedStatusBlob());
-            if (applicationConfiguration != null) {
-                response.setCustomObject(applicationConfiguration.statusServiceCustomObject());
-            }
-            return new ObjectResponse<>(response);
-        } catch (Exception e) {
-            throw new PowerAuthActivationException();
-        }
+        return new ObjectResponse<>(activationServiceV3.getActivationStatus(request.getRequestObject()));
     }
 
     /**
@@ -155,21 +108,16 @@ public class ActivationController {
     @Produces({MediaType.APPLICATION_JSON})
     @Path("remove")
     public ObjectResponse<ActivationRemoveResponse> removeActivation(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader) throws PowerAuthAuthenticationException, PowerAuthActivationException {
-        try {
-            PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);
-            if (apiAuthentication != null && apiAuthentication.getActivationId() != null) {
-                PowerAuthPortV3ServiceStub.RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
-                ActivationRemoveResponse response = new ActivationRemoveResponse();
-                response.setActivationId(soapResponse.getActivationId());
-                return new ObjectResponse<>(response);
-            } else {
-                throw new PowerAuthAuthenticationException("USER_NOT_AUTHENTICATED");
-            }
-        } catch (PowerAuthAuthenticationException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            throw new PowerAuthActivationException();
+        // Request body needs to be set to null because the SDK uses null for the signature, although {} is sent as request body
+        PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);
+        if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
+            throw new PowerAuthAuthenticationException("Signature validation failed");
         }
+        if (!"2.0".equals(apiAuthentication.getVersion()) && !"2.1".equals(apiAuthentication.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
+            throw new PowerAuthAuthenticationException();
+        }
+        return new ObjectResponse<>(activationServiceV3.removeActivation(apiAuthentication));
     }
 
 

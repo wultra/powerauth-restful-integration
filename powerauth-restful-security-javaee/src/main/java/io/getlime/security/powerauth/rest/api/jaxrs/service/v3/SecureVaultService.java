@@ -17,26 +17,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.service.v3;
+package io.getlime.security.powerauth.rest.api.jaxrs.service.v3;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v3.SignatureType;
-import io.getlime.powerauth.soap.v3.VaultUnlockResponse;
+import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
+import io.getlime.security.powerauth.rest.api.jaxrs.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -50,17 +49,13 @@ import javax.servlet.http.HttpServletRequest;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@Service("SecureVaultServiceV3")
+@Stateless(name = "SecureVaultServiceV3")
 public class SecureVaultService {
 
+    @Inject
     private PowerAuthServiceClient powerAuthClient;
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);
-
-    @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
-        this.powerAuthClient = powerAuthClient;
-    }
 
     /**
      * Unlock secure vault.
@@ -80,7 +75,7 @@ public class SecureVaultService {
             String activationId = header.getActivationId();
             String applicationKey = header.getApplicationKey();
             String signature = header.getSignature();
-            SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             String nonce = header.getNonce();
 
             // Fetch data from the request
@@ -94,10 +89,10 @@ public class SecureVaultService {
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server
-            VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
+            PowerAuthPortV3ServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
                     signatureType, data, ephemeralPublicKey, encryptedData, mac);
 
-            if (!soapResponse.isSignatureValid()) {
+            if (!soapResponse.getSignatureValid()) {
                 throw new PowerAuthAuthenticationException();
             }
 

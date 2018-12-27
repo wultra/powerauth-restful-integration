@@ -20,86 +20,38 @@
 package io.getlime.security.powerauth.rest.api.base.encryption;
 
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
-import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 
 /**
  * Class used for storing data used during ECIES decryption and encryption. A reference to an initialized ECIES decryptor
  * is also stored so that response can be encrypted using same decryptor as used for request decryption.
  *
+ * Use the T parameter to specify the type of request object to be decrypted.
+ *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class PowerAuthEciesEncryption {
+public class PowerAuthEciesEncryption<T> {
 
-    private String applicationKey;
-    private String activationId;
-    private String version;
-    private PowerAuthEncryptionHttpHeader httpHeader;
+    private EciesEncryptionContext context;
     private EciesDecryptor eciesDecryptor;
     private byte[] encryptedRequest;
     private byte[] decryptedRequest;
+    private T requestObject;
 
     /**
-     * Get application key.
-     * @return Application key.
+     * Initialize ECIES encryption object from either encryption or signature HTTP header.
+     *
+     * @param context PowerAuth encryption context derived from either encryption or signature HTTP header.
      */
-    public String getApplicationKey() {
-        return applicationKey;
+    public PowerAuthEciesEncryption(EciesEncryptionContext context) {
+        this.context = context;
     }
 
     /**
-     * Set application key.
-     * @param applicationKey Application key.
+     * Get ECIES encryption context.
+     * @return ECIES encryption context.
      */
-    public void setApplicationKey(String applicationKey) {
-        this.applicationKey = applicationKey;
-    }
-
-    /**
-     * Get activation ID.
-     * @return Activation ID.
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID.
-     * @param activationId Activation ID.
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
-
-    /**
-     * Get PowerAuth protocol version.
-     * @return PowerAuth protocol version.
-     */
-    public String getVersion() {
-        return version;
-    }
-
-    /**
-     * Set PowerAuth protocol version.
-     * @param version PowerAuth protocol version.
-     */
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    /**
-     * Get PowerAuth encryption HTTP header.
-     * @return PowerAuth encryption HTTP header.
-     */
-    public PowerAuthEncryptionHttpHeader getHttpHeader() {
-        return httpHeader;
-    }
-
-    /**
-     * Set PowerAuth encryption HTTP header.
-     * @param httpHeader PowerAuth encryption HTTP header.
-     */
-    public void setHttpHeader(PowerAuthEncryptionHttpHeader httpHeader) {
-        this.httpHeader = httpHeader;
+    public EciesEncryptionContext getContext() {
+        return context;
     }
 
     /**
@@ -149,4 +101,21 @@ public class PowerAuthEciesEncryption {
     public void setDecryptedRequest(byte[] decryptedRequest) {
         this.decryptedRequest = decryptedRequest;
     }
+
+    /**
+     * Get decrypted request object.
+     * @return Decrypted request object.
+     */
+    public T getRequestObject() {
+        return requestObject;
+    }
+
+    /**
+     * Set decrypted request object.
+     * @param requestObject Decrypted request object.
+     */
+    public void setRequestObject(T requestObject) {
+        this.requestObject = requestObject;
+    }
+
 }

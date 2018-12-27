@@ -17,15 +17,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.service.v3;
+package io.getlime.security.powerauth.rest.api.jaxrs.service.v3;
 
-import io.getlime.powerauth.soap.v3.CreateActivationResponse;
-import io.getlime.powerauth.soap.v3.GetActivationStatusResponse;
-import io.getlime.powerauth.soap.v3.PrepareActivationResponse;
-import io.getlime.powerauth.soap.v3.RemoveActivationResponse;
+import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
@@ -37,12 +34,12 @@ import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
 
+import javax.ejb.Stateless;
+import javax.inject.Inject;
 import java.util.Map;
 
 /**
@@ -55,44 +52,32 @@ import java.util.Map;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Service("ActivationServiceV3")
+@Stateless(name = "ActivationServiceV3")
 public class ActivationService {
 
+    @Inject
     private PowerAuthServiceClient powerAuthClient;
 
+    @Inject
     private PowerAuthApplicationConfiguration applicationConfiguration;
 
+    @Inject
     private CustomActivationProvider activationProvider;
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
-
-    @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
-        this.powerAuthClient = powerAuthClient;
-    }
-
-    @Autowired(required = false)
-    public void setApplicationConfiguration(PowerAuthApplicationConfiguration applicationConfiguration) {
-        this.applicationConfiguration = applicationConfiguration;
-    }
-
-    @Autowired(required = false)
-    public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
-        this.activationProvider = activationProvider;
-    }
 
     /**
      * Create activation.
      *
      * @param request Create activation layer 1 request.
-     * @param eciesContext PowerAuth ECIES encryption context.
+     * @param eciesEncryption PowerAuth ECIES encryption object.
      * @return Create activation layer 1 response.
      * @throws PowerAuthActivationException In case create activation fails.
      */
-    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
+    public ActivationLayer1Response createActivation(ActivationLayer1Request request, PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
         try {
 
-            final String applicationKey = eciesContext.getApplicationKey();
+            final String applicationKey = eciesEncryption.getContext().getApplicationKey();
             final EciesEncryptedRequest activationData = request.getActivationData();
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
             final String encryptedData = activationData.getEncryptedData();
@@ -107,7 +92,7 @@ public class ActivationService {
                     String activationCode = request.getIdentityAttributes().get("code");
 
                     // Call PrepareActivation SOAP method on PA server
-                    PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac);
+                    PowerAuthPortV3ServiceStub.PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac);
 
                     // In case a custom activation provider is enabled, process custom attributes
                     if (activationProvider != null) {
@@ -141,7 +126,7 @@ public class ActivationService {
                     }
 
                     // Create activation for a looked up user and application related to the given application key
-                    CreateActivationResponse response = powerAuthClient.createActivation(
+                    PowerAuthPortV3ServiceStub.CreateActivationResponse response = powerAuthClient.createActivation(
                             userId,
                             null,
                             null,
@@ -190,7 +175,7 @@ public class ActivationService {
     public ActivationStatusResponse getActivationStatus(ActivationStatusRequest request) throws PowerAuthActivationException {
         try {
             String activationId = request.getActivationId();
-            GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
+            PowerAuthPortV3ServiceStub.GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
             ActivationStatusResponse response = new ActivationStatusResponse();
             response.setActivationId(soapResponse.getActivationId());
             response.setEncryptedStatusBlob(soapResponse.getEncryptedStatusBlob());
@@ -213,7 +198,7 @@ public class ActivationService {
      */
     public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException {
         try {
-            RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
+            PowerAuthPortV3ServiceStub.RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
             ActivationRemoveResponse response = new ActivationRemoveResponse();
             response.setActivationId(soapResponse.getActivationId());
             return response;

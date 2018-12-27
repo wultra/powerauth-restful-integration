@@ -17,73 +17,73 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.controller.v3;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v3;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
+import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthEncryptionProvider;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
-import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
-import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
-import io.getlime.security.powerauth.rest.api.spring.service.v3.ActivationService;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
  * Standard API.
  *
- * <h5>PowerAuth protocol versions:</h5>
- * <ul>
- *     <li>3.0</li>
- * </ul>
- *
- * @author Roman Strobl, roman.strobl@wultra.com
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
-@RestController("ActivationControllerV3")
-@RequestMapping(value = "/pa/v3/activation")
+@Path("pa/v3/activation")
+@Produces(MediaType.APPLICATION_JSON)
 public class ActivationController {
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);
 
+    @Inject
+    private io.getlime.security.powerauth.rest.api.jaxrs.service.v3.ActivationService activationServiceV3;
+
+    @Inject
     private PowerAuthAuthenticationProvider authenticationProvider;
 
-    private ActivationService activationServiceV3;
+    @Inject
+    private PowerAuthEncryptionProvider encryptionProvider;
 
-    @Autowired
-    public void setActivationServiceV3(ActivationService activationServiceV3) {
-        this.activationServiceV3 = activationServiceV3;
-    }
+    @Context
+    private HttpServletRequest httpServletRequest;
 
-    @Autowired
-    public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
-    }
-
-    @RequestMapping(value = "create", method = RequestMethod.POST)
-    @PowerAuthEncryption
-    public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
-                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
-        if (request == null || eciesContext == null) {
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("create")
+    public EciesEncryptedResponse createActivation() throws PowerAuthActivationException {
+        try {
+            PowerAuthEciesEncryption<ActivationLayer1Request> eciesEncryption = encryptionProvider.decryptRequest(httpServletRequest, ActivationLayer1Request.class);
+            ActivationLayer1Request layer1Request = eciesEncryption.getRequestObject();
+            ActivationLayer1Response layer1Response = activationServiceV3.createActivation(layer1Request, eciesEncryption);
+            return encryptionProvider.encryptResponse(layer1Response, eciesEncryption);
+        } catch (PowerAuthEncryptionException ex) {
             throw new PowerAuthActivationException();
         }
-        return activationServiceV3.createActivation(request, eciesContext);
     }
 
     /**
@@ -92,9 +92,11 @@ public class ActivationController {
      * @return PowerAuth RESTful response with {@link ActivationStatusResponse} payload.
      * @throws PowerAuthActivationException In case request fails.
      */
-    @RequestMapping(value = "status", method = RequestMethod.POST)
-    public ObjectResponse<ActivationStatusResponse> getActivationStatus(@RequestBody ObjectRequest<ActivationStatusRequest> request)
-            throws PowerAuthActivationException {
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("status")
+    public ObjectResponse<ActivationStatusResponse> getActivationStatus(ObjectRequest<ActivationStatusRequest> request) throws PowerAuthActivationException {
         if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
             logger.warn("Invalid request object in activation status");
             throw new PowerAuthActivationException();
@@ -106,14 +108,14 @@ public class ActivationController {
      * Remove activation.
      * @param signatureHeader PowerAuth signature HTTP header.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
-     * @throws PowerAuthActivationException In case activation access fails.
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
+     * @throws PowerAuthActivationException In case remove request fails.
      */
-    @RequestMapping(value = "remove", method = RequestMethod.POST)
-    public ObjectResponse<ActivationRemoveResponse> removeActivation(
-            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
-            HttpServletRequest httpServletRequest)
-            throws PowerAuthActivationException, PowerAuthAuthenticationException {
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("remove")
+    public ObjectResponse<ActivationRemoveResponse> removeActivation(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader) throws PowerAuthAuthenticationException, PowerAuthActivationException {
         PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
         byte[] requestBodyBytes = requestBody.getRequestBytes();
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
@@ -126,4 +128,6 @@ public class ActivationController {
         }
         return new ObjectResponse<>(activationServiceV3.removeActivation(apiAuthentication));
     }
+
+
 }

@@ -55,6 +55,8 @@ public interface CustomActivationProvider {
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
+     * @param activationId Activation ID of created activation.
+     * @param userId User ID of user who created the activation.
      * @return True in case activation should be committed, false otherwise.
      */
     boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId);

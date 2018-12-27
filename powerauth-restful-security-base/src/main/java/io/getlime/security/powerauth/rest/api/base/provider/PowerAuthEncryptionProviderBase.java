@@ -19,12 +19,27 @@
  */
 package io.getlime.security.powerauth.rest.api.base.provider;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.io.BaseEncoding;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEnvelopeKey;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesFactory;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
+import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
+import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
+import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic.
@@ -33,6 +48,9 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryption
  *
  */
 public abstract class PowerAuthEncryptionProviderBase {
+
+    private ObjectMapper objectMapper = new ObjectMapper();
+    private EciesFactory eciesFactory = new EciesFactory();
 
     /**
      * Get ECIES decryptor parameters from PowerAuth server.
@@ -46,36 +64,150 @@ public abstract class PowerAuthEncryptionProviderBase {
     public abstract PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(String activationId, String applicationKey, String ephemeralPublicKey) throws PowerAuthEncryptionException;
 
     /**
-     * Prepare ECIES data from PowerAuth encryption HTTP header.
+     * Decrypt HTTP request body and construct object with ECIES data. Use the requestType parameter to specify
+     * the type of decrypted object.
      *
-     * @param encryptionHttpHeader PowerAuth encryption HTTP header.
-     * @return PowerAuth ECIES encryption object.
-     * @throws PowerAuthEncryptionException In case PowerAuth encryption HTTP header is invalid.
+     * @param <T> Generic request object type.
+     * @param request HTTP request.
+     * @param requestType Class of request object.
+     * @return Object with ECIES data.
+     * @throws PowerAuthEncryptionException In case request decryption fails.
      */
-    public PowerAuthEciesEncryption prepareEciesEncryption(String encryptionHttpHeader) throws PowerAuthEncryptionException {
-        // Check for HTTP PowerAuth encryption header
-        if (encryptionHttpHeader == null || encryptionHttpHeader.equals("undefined")) {
-            throw new PowerAuthEncryptionException("POWER_AUTH_ENCRYPTION_INVALID_EMPTY");
+    public <T> PowerAuthEciesEncryption<T> decryptRequest(HttpServletRequest request, Class<T> requestType) throws PowerAuthEncryptionException {
+        // Only POST HTTP method is supported for ECIES
+        if (!"POST".equals(request.getMethod())) {
+            throw new PowerAuthEncryptionException("Invalid HTTP request");
         }
 
-        // Parse HTTP header
-        PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
+        // Resolve either signature or encryption HTTP header for ECIES
+        EciesEncryptionContext encryptionContext = extractEciesEncryptionContext(request);
 
-        // Validate the header
+        // Construct ECIES encryption object from HTTP header
+        final PowerAuthEciesEncryption<T> eciesEncryption = new PowerAuthEciesEncryption<>(encryptionContext);
+
         try {
-            PowerAuthEncryptionHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            throw new PowerAuthEncryptionException(e.getMessage());
+            // Parse ECIES cryptogram from request body
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+            byte[] requestBodyBytes = requestBody.getRequestBytes();
+            if (requestBodyBytes == null || requestBodyBytes.length == 0) {
+                throw new PowerAuthEncryptionException("Invalid HTTP request");
+            }
+            final EciesEncryptedRequest eciesRequest = objectMapper.readValue(requestBodyBytes, EciesEncryptedRequest.class);
+            if (eciesRequest == null) {
+                throw new PowerAuthEncryptionException("Invalid ECIES request data");
+            }
+
+            // Prepare ephemeral public key
+            final String ephemeralPublicKey = eciesRequest.getEphemeralPublicKey();
+            final String encryptedData = eciesRequest.getEncryptedData();
+            final String mac = eciesRequest.getMac();
+
+            // Verify ECIES request data
+            if (ephemeralPublicKey == null || encryptedData == null || mac == null) {
+                throw new PowerAuthEncryptionException("Invalid ECIES request data");
+            }
+
+            final byte[] ephemeralPublicKeyBytes = BaseEncoding.base64().decode(ephemeralPublicKey);
+            final byte[] encryptedDataBytes = BaseEncoding.base64().decode(encryptedData);
+            final byte[] macBytes = BaseEncoding.base64().decode(mac);
+
+            final String activationId = eciesEncryption.getContext().getActivationId();
+            final String applicationKey = eciesEncryption.getContext().getApplicationKey();
+
+            // Obtain ECIES decryptor parameters from PowerAuth server
+            final PowerAuthEciesDecryptorParameters decryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey);
+
+            // Prepare envelope key and sharedInfo2 parameter for decryptor
+            final byte[] secretKey = BaseEncoding.base64().decode(decryptorParameters.getSecretKey());
+            final EciesEnvelopeKey envelopeKey = new EciesEnvelopeKey(secretKey, ephemeralPublicKeyBytes);
+            final byte[] sharedInfo2 = BaseEncoding.base64().decode(decryptorParameters.getSharedInfo2());
+
+            // Construct decryptor and set it to the request for later encryption of response
+            final EciesDecryptor eciesDecryptor = eciesFactory.getEciesDecryptor(envelopeKey, sharedInfo2);
+            eciesEncryption.setEciesDecryptor(eciesDecryptor);
+
+            // Decrypt request data
+            EciesCryptogram cryptogram = new EciesCryptogram(ephemeralPublicKeyBytes, macBytes, encryptedDataBytes);
+            byte[] decryptedData = eciesDecryptor.decryptRequest(cryptogram);
+            eciesEncryption.setEncryptedRequest(encryptedDataBytes);
+            eciesEncryption.setDecryptedRequest(decryptedData);
+            eciesEncryption.setRequestObject(objectMapper.readValue(decryptedData, requestType));
+        } catch (Exception ex) {
+            throw new PowerAuthEncryptionException("Invalid request");
+        }
+        return eciesEncryption;
+    }
+
+    /**
+     * Encrypt response using ECIES.
+     *
+     * @param responseObject Response object which should be encrypted.
+     * @param eciesEncryption PowerAuth encryption object.
+     * @return ECIES encrypted response.
+     */
+    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption eciesEncryption) {
+        try {
+            byte[] responseData = objectMapper.writeValueAsBytes(responseObject);
+            // Encrypt response using decryptor and return ECIES cryptogram
+            EciesCryptogram cryptogram = eciesEncryption.getEciesDecryptor().encryptResponse(responseData);
+            String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
+            String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
+            return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
+        } catch (Exception ex) {
+            return null;
+        }
+    }
+
+    /**
+     * Extract context required for ECIES encryption from either encryption or signature HTTP header.
+     *
+     * @param request HTTP servlet request.
+     * @return Context for ECIES encryption.
+     * @throws PowerAuthEncryptionException Thrown when HTTP header with ECIES data is invalid.
+     */
+    private EciesEncryptionContext extractEciesEncryptionContext(HttpServletRequest request) throws PowerAuthEncryptionException {
+        final String encryptionHttpHeader = request.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME);
+        final String signatureHttpHeader = request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME);
+
+        // Check that at least one PowerAuth HTTP header with parameters for ECIES is present
+        if (encryptionHttpHeader == null && signatureHttpHeader == null) {
+            throw new PowerAuthEncryptionException("POWER_AUTH_ENCRYPTION_INVALID_HEADER");
         }
 
-        // Prepare encryption object
-        PowerAuthEciesEncryption eciesEncryption = new PowerAuthEciesEncryption();
-        eciesEncryption.setApplicationKey(header.getApplicationKey());
-        eciesEncryption.setActivationId(header.getActivationId());
-        eciesEncryption.setVersion(header.getVersion());
-        eciesEncryption.setHttpHeader(header);
+        // In case the PowerAuth encryption HTTP header is present, use it for ECIES
+        if (encryptionHttpHeader != null) {
+            // Parse encryption HTTP header
+            PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
 
-        return eciesEncryption;
+            // Validate the encryption HTTP header
+            try {
+                PowerAuthEncryptionHttpHeaderValidator.validate(header);
+            } catch (InvalidPowerAuthHttpHeaderException e) {
+                throw new PowerAuthEncryptionException(e.getMessage());
+            }
+
+            // Construct encryption parameters object
+            String applicationKey = header.getApplicationKey();
+            String activationId = header.getActivationId();
+            String version = header.getVersion();
+            return new EciesEncryptionContext(applicationKey, activationId, version, header);
+        } else {
+            // Parse signature HTTP header
+            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
+
+            // Validate the signature HTTP header
+            try {
+                PowerAuthSignatureHttpHeaderValidator.validate(header);
+            } catch (InvalidPowerAuthHttpHeaderException e) {
+                throw new PowerAuthEncryptionException(e.getMessage());
+            }
+
+            // Construct encryption parameters object
+            String applicationKey = header.getApplicationKey();
+            String activationId = header.getActivationId();
+            String version = header.getVersion();
+            return new EciesEncryptionContext(applicationKey, activationId, version, header);
+        }
     }
 
 }

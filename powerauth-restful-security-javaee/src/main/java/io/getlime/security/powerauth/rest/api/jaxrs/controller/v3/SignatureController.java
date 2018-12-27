@@ -25,6 +25,8 @@ import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -44,8 +46,10 @@ import java.util.Arrays;
 @Produces(MediaType.APPLICATION_JSON)
 public class SignatureController {
 
+    private static final Logger logger = LoggerFactory.getLogger(SignatureController.class);
+
     @Context
-    private HttpServletRequest request;
+    private HttpServletRequest httpServletRequest;
 
     @Inject
     private PowerAuthAuthenticationProvider authenticationProvider;
@@ -107,7 +111,7 @@ public class SignatureController {
     private Response validateSignature(String authHeader) throws PowerAuthAuthenticationException {
         try {
             PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
-                    request,
+                    httpServletRequest,
                     "/pa/signature/validate",
                     authHeader,
                     Arrays.asList(
@@ -117,9 +121,14 @@ public class SignatureController {
                     )
             );
             if (authentication != null && authentication.getActivationId() != null) {
+                if (!"3.0".equals(authentication.getVersion())) {
+                    logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+                    throw new PowerAuthAuthenticationException();
+                }
                 return new Response();
+            } else {
+                throw new PowerAuthAuthenticationException("Signature validation failed");
             }
-            throw new PowerAuthAuthenticationException("Signature validation failed");
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {

@@ -25,7 +25,7 @@ import io.getlime.powerauth.soap.v2.CreateActivationResponse;
 import io.getlime.security.powerauth.app.rest.api.spring.provider.DefaultCustomActivationProvider;
 import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.provider.exception.CryptoProviderException;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
@@ -191,15 +191,15 @@ public class CustomActivationController {
      * </ul>
      *
      * @param request Activation request encrypted using ECIES.
-     * @param eciesEncryption ECIES encryption object.
+     * @param eciesContext ECIES encryption context.
      * @return ECIES encrypted activation response.
      * @throws PowerAuthActivationException In case custom activation fails.
      */
     @RequestMapping(value = "v3/create", method = RequestMethod.POST)
     @PowerAuthEncryption
     public @ResponseBody ActivationLayer1Response createActivationV3(@EncryptedRequestBody ActivationLayer1Request request,
-                                                                     PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException {
-        return activationService.createActivation(request, eciesEncryption);
+                                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
+        return activationService.createActivation(request, eciesContext);
     }
 
 }

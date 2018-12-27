@@ -17,64 +17,59 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.controller.v3;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v3;
 
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.jaxrs.service.v3.SecureVaultService;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.rest.api.spring.service.v3.SecureVaultService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
 
+import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
 
 /**
  * Controller implementing secure vault related end-points from the
  * PowerAuth Standard API.
  *
- * <h5>PowerAuth protocol versions:</h5>
- * <ul>
- * <li>3.0</li>
- * </ul>
- *
- * @author Roman Strobl, roman.strobl@wultra.com
+ * @author Petr Dvorak, petr@wultra.com
  */
-@RestController("SecureVaultControllerV3")
-@RequestMapping(value = "/pa/v3/vault")
+@Path("pa/v3/vault")
+@Produces(MediaType.APPLICATION_JSON)
 public class SecureVaultController {
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
 
+    @Inject
     private SecureVaultService secureVaultServiceV3;
 
-    @Autowired
-    public void setSecureVaultServiceV3(SecureVaultService secureVaultServiceV3) {
-        this.secureVaultServiceV3 = secureVaultServiceV3;
-    }
+    @Context
+    private HttpServletRequest httpServletRequest;
 
     /**
      * Request the vault unlock key.
-     *
-     * @param signatureHeader PowerAuth HTTP signature header.
-     * @param request Request object encrypted by ECIES.
+     * @param signatureHeader PowerAuth signature HTTP header.
+     * @param request Vault unlock request data.
      * @param httpServletRequest HTTP servlet request.
      * @return Response object encrypted by ECIES.
      * @throws PowerAuthAuthenticationException In case authentication fails.
      * @throws PowerAuthSecureVaultException In case unlocking the vault fails.
      */
-    @RequestMapping(value = "unlock", method = RequestMethod.POST)
-    public EciesEncryptedResponse unlockVault(
-            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader,
-            @RequestBody EciesEncryptedRequest request,
-            HttpServletRequest httpServletRequest)
-            throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
-
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("unlock")
+    public EciesEncryptedResponse unlockVault(@HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
+                                              EciesEncryptedRequest request,
+                                              @Context HttpServletRequest httpServletRequest) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
         if (request == null) {
             logger.warn("Invalid request object in vault unlock");
             throw new PowerAuthAuthenticationException();
