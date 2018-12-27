@@ -28,8 +28,6 @@ import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthUpgradeException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
@@ -120,8 +118,7 @@ public class UpgradeService {
 
         try {
             // Extract request body
-            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
-            byte[] requestBodyBytes = requestBody.getRequestBytes();
+            byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
                 throw new PowerAuthAuthenticationException();

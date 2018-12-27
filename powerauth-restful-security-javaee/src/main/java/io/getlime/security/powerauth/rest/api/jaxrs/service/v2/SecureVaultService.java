@@ -27,9 +27,8 @@ import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
@@ -59,6 +58,9 @@ public class SecureVaultService {
 
     @Inject
     private PowerAuthServiceClient powerAuthClient;
+
+    @Inject
+    private PowerAuthAuthenticationProvider authenticationProvider;
 
     /**
      * Unlock secure vault.
@@ -107,9 +109,7 @@ public class SecureVaultService {
                 }
 
                 // Use POST request body as data for signature.
-
-                PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
-                requestBodyBytes = requestBody.getRequestBytes();
+                requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             } else {
                 throw new PowerAuthSecureVaultException();
             }

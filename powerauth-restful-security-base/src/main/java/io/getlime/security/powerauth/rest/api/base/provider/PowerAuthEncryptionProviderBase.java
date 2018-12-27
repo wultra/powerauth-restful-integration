@@ -25,6 +25,7 @@ import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEnvelopeKey;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesFactory;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
@@ -34,8 +35,8 @@ import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionCon
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 
@@ -70,10 +71,11 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param <T> Generic request object type.
      * @param request HTTP request.
      * @param requestType Class of request object.
+     * @param eciesScope ECIES scope.
      * @return Object with ECIES data.
      * @throws PowerAuthEncryptionException In case request decryption fails.
      */
-    public <T> PowerAuthEciesEncryption<T> decryptRequest(HttpServletRequest request, Class<T> requestType) throws PowerAuthEncryptionException {
+    public <T> PowerAuthEciesEncryption<T> decryptRequest(HttpServletRequest request, Class<T> requestType, EciesScope eciesScope) throws PowerAuthEncryptionException {
         // Only POST HTTP method is supported for ECIES
         if (!"POST".equals(request.getMethod())) {
             throw new PowerAuthEncryptionException("Invalid HTTP request");
@@ -85,9 +87,12 @@ public abstract class PowerAuthEncryptionProviderBase {
         // Construct ECIES encryption object from HTTP header
         final PowerAuthEciesEncryption<T> eciesEncryption = new PowerAuthEciesEncryption<>(encryptionContext);
 
+        // Save ECIES scope in context
+        eciesEncryption.getContext().setEciesScope(eciesScope);
+
         try {
             // Parse ECIES cryptogram from request body
-            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
             byte[] requestBodyBytes = requestBody.getRequestBytes();
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 throw new PowerAuthEncryptionException("Invalid HTTP request");
@@ -111,11 +116,20 @@ public abstract class PowerAuthEncryptionProviderBase {
             final byte[] encryptedDataBytes = BaseEncoding.base64().decode(encryptedData);
             final byte[] macBytes = BaseEncoding.base64().decode(mac);
 
-            final String activationId = eciesEncryption.getContext().getActivationId();
             final String applicationKey = eciesEncryption.getContext().getApplicationKey();
-
+            final PowerAuthEciesDecryptorParameters decryptorParameters;
             // Obtain ECIES decryptor parameters from PowerAuth server
-            final PowerAuthEciesDecryptorParameters decryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey);
+            switch (eciesScope) {
+                case ACTIVATION_SCOPE:
+                    final String activationId = eciesEncryption.getContext().getActivationId();
+                    decryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey);
+                    break;
+                case APPLICATION_SCOPE:
+                    decryptorParameters = getEciesDecryptorParameters(null, applicationKey, ephemeralPublicKey);
+                    break;
+                default:
+                        throw new PowerAuthEncryptionException("Unsupported ECIES scope: " + eciesScope);
+            }
 
             // Prepare envelope key and sharedInfo2 parameter for decryptor
             final byte[] secretKey = BaseEncoding.base64().decode(decryptorParameters.getSecretKey());
@@ -131,7 +145,13 @@ public abstract class PowerAuthEncryptionProviderBase {
             byte[] decryptedData = eciesDecryptor.decryptRequest(cryptogram);
             eciesEncryption.setEncryptedRequest(encryptedDataBytes);
             eciesEncryption.setDecryptedRequest(decryptedData);
-            eciesEncryption.setRequestObject(objectMapper.readValue(decryptedData, requestType));
+            if (decryptedData.length != 0) {
+                // Deserialize and set the request object only in case when request data is sent
+                eciesEncryption.setRequestObject(objectMapper.readValue(decryptedData, requestType));
+            }
+
+            // Set encryption object in HTTP servlet request
+            request.setAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT, eciesEncryption);
         } catch (Exception ex) {
             throw new PowerAuthEncryptionException("Invalid request");
         }

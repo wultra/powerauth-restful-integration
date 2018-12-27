@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.base.filter;
 
 import io.getlime.security.powerauth.http.PowerAuthRequestCanonizationUtils;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -28,17 +29,19 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Class representing for holding any static constants available to request filters.
+ * Class implementing filter for extracting request body from HTTP servlet request.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
 public class PowerAuthRequestFilterBase {
 
     /**
-     * Constant for the request attribute name "X-PowerAuth-Request-Body".
+     * Extract request body from HTTP servlet request. Different logic is used for GET and for all other HTTP methods.
+     *
+     * @param httpRequest HTTP servlet request.
+     * @return Resettable HTTP servlet request.
+     * @throws IOException In case request body extraction fails.
      */
-    public static final String POWERAUTH_REQUEST_BODY = "X-PowerAuth-Request-Body";
-
     public static ResettableStreamHttpServletRequest filterRequest(HttpServletRequest httpRequest) throws IOException {
         ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
         if (httpRequest.getMethod().toUpperCase().equals("GET")) {
@@ -56,20 +59,20 @@ public class PowerAuthRequestFilterBase {
                 // Pass the signature base string as the request attribute
                 if (signatureBaseStringData != null) {
                     resettableRequest.setAttribute(
-                            PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                            PowerAuthRequestObjects.REQUEST_BODY,
                             new PowerAuthRequestBody(signatureBaseStringData.getBytes(StandardCharsets.UTF_8))
                     );
                 } else {
                     // Store empty request body in request attribute
                     resettableRequest.setAttribute(
-                            PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                            PowerAuthRequestObjects.REQUEST_BODY,
                             new PowerAuthRequestBody()
                     );
                 }
             } else {
                 // Store empty request body in request attribute
                 resettableRequest.setAttribute(
-                        PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                        PowerAuthRequestObjects.REQUEST_BODY,
                         new PowerAuthRequestBody()
                 );
             }
@@ -80,13 +83,13 @@ public class PowerAuthRequestFilterBase {
             byte[] body = resettableRequest.getRequestBody();
             if (body != null) {
                 resettableRequest.setAttribute(
-                        PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                        PowerAuthRequestObjects.REQUEST_BODY,
                         new PowerAuthRequestBody(body)
                 );
             } else {
                 // Store empty request body in request attribute
                 resettableRequest.setAttribute(
-                        PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY,
+                        PowerAuthRequestObjects.REQUEST_BODY,
                         new PowerAuthRequestBody()
                 );
             }

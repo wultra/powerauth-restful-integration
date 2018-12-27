@@ -27,11 +27,10 @@ import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
-import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,9 +58,16 @@ public class SecureVaultService {
 
     private PowerAuthServiceClient powerAuthClient;
 
+    private PowerAuthAuthenticationProvider authenticationProvider;
+
     @Autowired
     public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
+    }
+
+    @Autowired
+    public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
+        this.authenticationProvider = authenticationProvider;
     }
 
     /**
@@ -111,9 +117,7 @@ public class SecureVaultService {
                 }
 
                 // Use POST request body as data for signature.
-
-                PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
-                requestBodyBytes = requestBody.getRequestBytes();
+                requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             } else {
                 throw new PowerAuthSecureVaultException();
             }

@@ -21,7 +21,6 @@ package io.getlime.security.powerauth.app.rest.api.javaee;
 
 import io.getlime.security.powerauth.app.rest.api.javaee.configuration.DefaultJacksonJsonProvider;
 import io.getlime.security.powerauth.app.rest.api.javaee.controller.AuthenticationController;
-import io.getlime.security.powerauth.app.rest.api.javaee.controller.CustomActivationController;
 import io.getlime.security.powerauth.app.rest.api.javaee.controller.TokenController;
 import io.getlime.security.powerauth.crypto.lib.config.PowerAuthConfiguration;
 import io.getlime.security.powerauth.provider.CryptoProviderUtilFactory;
@@ -58,8 +57,11 @@ public class JavaEEApplication extends Application {
 
         // PowerAuth Controllers
         resources.add(AuthenticationController.class);
-        resources.add(CustomActivationController.class);
         resources.add(TokenController.class);
+        resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v2.CustomActivationController.class);
+        resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v2.EncryptedDataExchangeController.class);
+        resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v3.CustomActivationController.class);
+        resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v3.EncryptedDataExchangeController.class);
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.ActivationController.class);
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.SignatureController.class);
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.SecureVaultController.class);

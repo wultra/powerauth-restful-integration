@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -33,6 +35,6 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface PowerAuthEncryption {
 
-    String ENCRYPTION_OBJECT = "X-PowerAuth-Encryption-Object";
+    EciesScope scope() default EciesScope.ACTIVATION_SCOPE;
 
 }

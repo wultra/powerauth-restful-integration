@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.app.rest.api.spring.controller;
+package io.getlime.security.powerauth.app.rest.api.spring.controller.v2;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
@@ -28,21 +28,25 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryption
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptorFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.security.InvalidKeyException;
 
 /**
  * Sample end-point demonstrating how to receive and send encrypted data.
  *
- * @author Roman Strobl, roman.strobl@wultra.com
+ * <h5>PowerAuth protocol versions:</h5>
+ * <ul>
+ *     <li>2.0</li>
+ *     <li>2.1</li>
+ * </ul>
  *
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Controller
+@RestController("EncryptedDataExchangeControllerV2")
 public class EncryptedDataExchangeController {
 
     private EncryptorFactory encryptorFactory;
@@ -52,9 +56,15 @@ public class EncryptedDataExchangeController {
         this.encryptorFactory = encryptorFactory;
     }
 
-
+    /**
+     * Sample encrypted data exchange.
+     *
+     * @param request Encrypted request.
+     * @return Encrypted response.
+     * @throws PowerAuthEncryptionException In case encryption or decryption fails.
+     */
     @RequestMapping(value = "exchange", method = RequestMethod.POST)
-    public @ResponseBody ObjectResponse<NonPersonalizedEncryptedPayloadModel> exchange(@RequestBody ObjectRequest<NonPersonalizedEncryptedPayloadModel> request) throws PowerAuthEncryptionException {
+    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> exchange(@RequestBody ObjectRequest<NonPersonalizedEncryptedPayloadModel> request) throws PowerAuthEncryptionException {
         if (request == null) {
             throw new PowerAuthEncryptionException();
         }
@@ -75,7 +85,7 @@ public class EncryptedDataExchangeController {
 
         String requestData = new String(requestDataBytes);
 
-        // In response return a slightly different String containing original data
+        // Return a slightly different String containing original data in response
         String responseData = "Server successfully decrypted data: " + requestData;
 
         // Encrypt response data

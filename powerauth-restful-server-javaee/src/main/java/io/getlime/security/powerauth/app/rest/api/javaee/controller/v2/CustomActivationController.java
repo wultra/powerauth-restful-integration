@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.app.rest.api.javaee.controller;
+package io.getlime.security.powerauth.app.rest.api.javaee.controller.v2;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
@@ -46,9 +46,17 @@ import java.security.InvalidKeyException;
 import java.util.Map;
 
 /**
+ * Sample controller for a custom activation implementation.
+ *
+ * <h5>PowerAuth protocol versions:</h5>
+ * <ul>
+ *     <li>2.0</li>
+ *     <li>2.1</li>
+ * </ul>
+ *
  * @author Petr Dvorak, petr@wultra.com
  */
-@Path("pa/custom/activation")
+@Path("/pa/activation/direct")
 @Produces(MediaType.APPLICATION_JSON)
 public class CustomActivationController {
 
@@ -61,11 +69,18 @@ public class CustomActivationController {
     @Inject
     private CustomActivationProvider activationProvider;
 
+    /**
+     * Sample custom activation implementation for version 2 of activations.
+     *
+     * @param object Encrypted activation request.
+     * @return Encrypted activation response.
+     * @throws PowerAuthActivationException In case activation fails.
+     */
     @POST
     @Path("create")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> createNewActivation(ObjectRequest<NonPersonalizedEncryptedPayloadModel> object) throws PowerAuthActivationException {
+    public ObjectResponse<NonPersonalizedEncryptedPayloadModel> createActivationV2(ObjectRequest<NonPersonalizedEncryptedPayloadModel> object) throws PowerAuthActivationException {
         try {
 
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(object);

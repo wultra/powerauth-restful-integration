@@ -21,9 +21,10 @@ package io.getlime.security.powerauth.rest.api.base.provider;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.filter.PowerAuthRequestFilterBase;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -90,8 +91,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public PowerAuthApiAuthentication validateRequestSignature(HttpServletRequest servletRequest, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException {
         // Get HTTP method and body bytes
         String requestMethod = servletRequest.getMethod().toUpperCase();
-        PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
-        byte[] requestBodyBytes = requestBody.getRequestBytes();
+        byte[] requestBodyBytes = extractRequestBodyBytes(servletRequest);
         return this.validateRequestSignature(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes, null);
     }
 
@@ -108,8 +108,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public PowerAuthApiAuthentication validateRequestSignature(HttpServletRequest servletRequest, String requestUriIdentifier, String httpAuthorizationHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes, @Nullable Integer forcedSignatureVersion) throws PowerAuthAuthenticationException {
         // Get HTTP method and body bytes
         String requestMethod = servletRequest.getMethod().toUpperCase();
-        PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_REQUEST_BODY));
-        byte[] requestBodyBytes = requestBody.getRequestBytes();
+        byte[] requestBodyBytes = extractRequestBodyBytes(servletRequest);
         return this.validateRequestSignature(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes, forcedSignatureVersion);
     }
 
@@ -143,4 +142,20 @@ public abstract class PowerAuthAuthenticationProviderBase {
         return this.validateToken(tokenHeader, defaultAllowedSignatureTypes);
     }
 
+    /**
+     * Extract request body bytes from HTTP servlet request. In case the data was transparently decrypted, use the decrypted request data.
+     * @param servletRequest HTTP servlet request.
+     * @return Request body bytes.
+     */
+    public byte[] extractRequestBodyBytes(HttpServletRequest servletRequest) {
+        if (servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT) != null) {
+            // Implementation of sign-then-encrypt - in case the encryption object is present and signature is validate, use decrypted request data
+            PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+            return eciesEncryption.getDecryptedRequest();
+        } else {
+            // Request data was not encrypted - use regular PowerAuth request body for signature validation
+            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
+            return requestBody.getRequestBytes();
+        }
+    }
 }
