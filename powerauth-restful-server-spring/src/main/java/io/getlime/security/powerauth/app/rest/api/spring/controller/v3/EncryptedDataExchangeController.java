@@ -36,9 +36,9 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Sample end-point demonstrating how to receive and send encrypted data.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- * <li>3.0</li>
+ *     <li>3.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
@@ -94,7 +94,9 @@ public class EncryptedDataExchangeController {
      *
      * @param request Data exchange request.
      * @param eciesContext ECIES context.
+     * @param auth PowerAuth authentication object.
      * @return Data exchange response.
+     * @throws PowerAuthAuthenticationException In case signature validation fails.
      * @throws PowerAuthEncryptionException In case encryption or decryption fails.
      */
     @RequestMapping(value = "v3/signed", method = RequestMethod.POST)

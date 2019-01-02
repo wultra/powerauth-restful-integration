@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Service implementing secure vault functionality.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
  * </ul>

@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * End-point for validating signatures.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
  * </ul>

@@ -41,7 +41,7 @@ import javax.ws.rs.core.MediaType;
 /**
  * Sample end-point demonstrating how to receive and send encrypted data.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  * <li>3.0</li>
  * </ul>
@@ -113,6 +113,7 @@ public class EncryptedDataExchangeController {
     /**
      * Sample encrypted data exchange in activation scope.
      *
+     * @param authHeader PowerAuth signature HTTP header.
      * @return ECIES encrypted response.
      * @throws PowerAuthAuthenticationException In case signature validation fails
      * @throws PowerAuthEncryptionException In case encryption fails.

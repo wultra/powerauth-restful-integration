@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>2.0</li>
  *     <li>2.1</li>

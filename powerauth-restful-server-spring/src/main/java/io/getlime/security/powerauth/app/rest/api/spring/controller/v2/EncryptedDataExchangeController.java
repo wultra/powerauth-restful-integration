@@ -38,7 +38,7 @@ import java.security.InvalidKeyException;
 /**
  * Sample end-point demonstrating how to receive and send encrypted data.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>2.0</li>
  *     <li>2.1</li>
