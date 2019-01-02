@@ -38,6 +38,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * Controller advice used for encryption of responses of REST endpoints.
@@ -73,7 +74,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @return ECIES cryptogram.
      */
     @Override
-    public EciesEncryptedResponse beforeBodyWrite(Object response, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public Object beforeBodyWrite(Object response, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
         if (response == null) {
             return null;
         }
@@ -86,20 +87,67 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         }
 
         // Convert response to JSON
-        byte[] responseBytes;
         try {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            objectMapper.writeValue(baos, response);
-            responseBytes = baos.toByteArray();
+            byte[] responseBytes = serializeResponseObject(response);
 
             // Encrypt response using decryptor and return ECIES cryptogram
             final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
             EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
             String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
-            return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
+
+            // Convert encrypted response based on response type and return it
+            final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64);
+            return convertEncryptedResponse(response.getClass(), encryptedResponse);
         } catch (Exception ex) {
             return null;
         }
     }
+
+    /**
+     * Serialize response object to byte[].
+     *
+     * @param response Response object.
+     * @return Response data as byte[].
+     * @throws IOException In case JSON serialization fails.
+     */
+    private byte[] serializeResponseObject(Object response) throws IOException {
+        if (response.getClass() == byte[].class) {
+            // Response data is raw byte[], data conversion is not required
+            return (byte[]) response;
+        } else {
+            // Convert response object to byte[] using ObjectMapper
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            objectMapper.writeValue(baos, response);
+            return baos.toByteArray();
+        }
+    }
+
+    /**
+     * Convert encrypted response to response object serializable by Spring based on response type.
+     *
+     * @param responseType Response object type.
+     * @param encryptedResponse Encrypted response to convert.
+     * @return Converted encrypted response.
+     * @throws IOException In case JSON serialization fails.
+     */
+    private Object convertEncryptedResponse(Class<?> responseType, EciesEncryptedResponse encryptedResponse) throws IOException {
+        if (responseType == byte[].class) {
+            // Conversion of encrypted response to byte[] needs to be handled, the ByteArrayHttpMessageConverter
+            // can not convert EciesEncryptedResponse to byte[].
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            objectMapper.writeValue(baos, encryptedResponse);
+            return baos.toByteArray();
+        } else if (responseType == String.class) {
+            // Conversion of encrypted response to String needs to be handled, the StringHttpMessageConverter
+            // can not convert EciesEncryptedResponse to String.
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            objectMapper.writeValue(baos, encryptedResponse);
+            return baos.toString();
+        } else {
+            // Object mapping to JSON is handled automatically by Spring for generic objects.
+            return encryptedResponse;
+        }
+    }
+
 }
