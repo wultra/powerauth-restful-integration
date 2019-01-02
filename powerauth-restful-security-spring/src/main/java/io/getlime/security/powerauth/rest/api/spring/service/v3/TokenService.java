@@ -38,9 +38,9 @@ import org.springframework.stereotype.Service;
 /**
  * Service implementing token functionality.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- * <li>3.0</li>
+ *     <li>3.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com

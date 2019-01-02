@@ -36,7 +36,7 @@ import javax.inject.Inject;
 /**
  * Service implementing token functionality.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>2.0</li>
  *     <li>2.1</li>

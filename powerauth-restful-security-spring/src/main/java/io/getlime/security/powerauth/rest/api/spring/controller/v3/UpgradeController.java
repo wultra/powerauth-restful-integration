@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 /**
  * Controller responsible for upgrade.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
  * </ul>
@@ -101,6 +101,7 @@ public class UpgradeController {
      * Commit upgrade of activation to version 3.
      *
      * @param signatureHeader PowerAuth signature HTTP header.
+     * @param httpServletRequest HTTP servlet request.
      * @return Response.
      * @throws PowerAuthAuthenticationException In case request signature is invalid.
      * @throws PowerAuthUpgradeException In case commit fails.

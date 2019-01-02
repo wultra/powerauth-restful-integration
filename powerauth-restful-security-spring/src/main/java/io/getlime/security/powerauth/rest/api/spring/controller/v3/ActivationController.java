@@ -47,7 +47,7 @@ import javax.servlet.http.HttpServletRequest;
  * Controller implementing activation related end-points from the PowerAuth
  * Standard API.
  *
- * <h5>PowerAuth protocol versions:</h5>
+ * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
  * </ul>
@@ -104,6 +104,7 @@ public class ActivationController {
     /**
      * Remove activation.
      * @param signatureHeader PowerAuth signature HTTP header.
+     * @param httpServletRequest HTTP servlet request.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthActivationException In case activation access fails.
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
