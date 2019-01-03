@@ -37,7 +37,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Sample end-point demonstrating how to receive and send encrypted data.
@@ -175,7 +174,7 @@ public class EncryptedDataExchangeController {
         // Decrypt request
         PowerAuthEciesEncryption<String> eciesEncryption = encryptionProvider.decryptRequest(httpServletRequest,
                 String.class, EciesScope.ACTIVATION_SCOPE);
-        String request = eciesEncryption.getRequestObject();
+        String requestData = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
             throw new PowerAuthEncryptionException("Decryption failed");
@@ -190,7 +189,7 @@ public class EncryptedDataExchangeController {
 
         if (auth != null && auth.getUserId() != null) {
             // Prepare response String
-            String exchangeResponse = "\"Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request) + ", user ID: " + auth.getUserId() + "\"";
+            String exchangeResponse = "\"Server successfully decrypted data and verified signature, request data: " + (requestData == null ? "''" : requestData) + ", user ID: " + auth.getUserId() + "\"";
 
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
@@ -215,7 +214,7 @@ public class EncryptedDataExchangeController {
         // Decrypt request
         PowerAuthEciesEncryption<byte[]> eciesEncryption = encryptionProvider.decryptRequest(httpServletRequest,
                 byte[].class, EciesScope.ACTIVATION_SCOPE);
-        byte[] request = eciesEncryption.getRequestObject();
+        byte[] requestData = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
             throw new PowerAuthEncryptionException("Decryption failed");
@@ -229,11 +228,8 @@ public class EncryptedDataExchangeController {
         );
 
         if (auth != null && auth.getUserId() != null) {
-            // Prepare response object
-            String exchangeResponse = "Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : new String(request)) + ", user ID: " + auth.getUserId();
-
-            // Encrypt response
-            return encryptionProvider.encryptResponse(exchangeResponse.getBytes(StandardCharsets.UTF_8), eciesEncryption);
+            // Encrypt response - return the same data as in request
+            return encryptionProvider.encryptResponse(requestData, eciesEncryption);
         } else {
             throw new PowerAuthAuthenticationException("Authentication failed.");
         }
