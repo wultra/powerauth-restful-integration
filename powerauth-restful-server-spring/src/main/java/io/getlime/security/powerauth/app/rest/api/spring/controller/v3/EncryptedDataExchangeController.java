@@ -33,8 +33,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.nio.charset.StandardCharsets;
-
 /**
  * Sample end-point demonstrating how to receive and send encrypted data.
  *
@@ -123,7 +121,7 @@ public class EncryptedDataExchangeController {
     /**
      * Sample signed and encrypted data exchange of String data.
      *
-     * @param request Request with String data.
+     * @param requestData Request with String data.
      * @param eciesContext ECIES context.
      * @param auth PowerAuth authentication object.
      * @return Data exchange response.
@@ -133,7 +131,7 @@ public class EncryptedDataExchangeController {
     @RequestMapping(value = "v3/signed/string", method = RequestMethod.POST)
     @PowerAuth(resourceId = "/exchange/v3/signed/string")
     @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
-    public String exchangeSignedAndEncryptedDataString(@EncryptedRequestBody String request,
+    public String exchangeSignedAndEncryptedDataString(@EncryptedRequestBody String requestData,
                                                                        EciesEncryptionContext eciesContext,
                                                                        PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
@@ -146,13 +144,13 @@ public class EncryptedDataExchangeController {
         }
 
         // Return a slightly different String containing original data in response
-        return "Server successfully decrypted data and verified signature, request data: " + request + ", user ID: " + auth.getUserId();
+        return "Server successfully decrypted data and verified signature, request data: " + requestData + ", user ID: " + auth.getUserId();
     }
 
     /**
      * Sample signed and encrypted data exchange of raw data as byte[].
      *
-     * @param request Request with raw byte[] data.
+     * @param requestData Request with raw byte[] data.
      * @param eciesContext ECIES context.
      * @param auth PowerAuth authentication object.
      * @return Data exchange response.
@@ -162,7 +160,7 @@ public class EncryptedDataExchangeController {
     @RequestMapping(value = "v3/signed/raw", method = RequestMethod.POST)
     @PowerAuth(resourceId = "/exchange/v3/signed/raw")
     @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
-    public byte[] exchangeSignedAndEncryptedDataRaw(@EncryptedRequestBody byte[] request,
+    public byte[] exchangeSignedAndEncryptedDataRaw(@EncryptedRequestBody byte[] requestData,
                                                                EciesEncryptionContext eciesContext,
                                                                PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
@@ -174,9 +172,8 @@ public class EncryptedDataExchangeController {
             throw new PowerAuthEncryptionException("Decryption failed");
         }
 
-        // Return a slightly different String containing original data in response
-        String response = "Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : new String(request)) + ", user ID: " + auth.getUserId();
-        return response.getBytes(StandardCharsets.UTF_8);
+        // Return data back for verification
+        return requestData;
     }
 
 }
