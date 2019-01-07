@@ -30,9 +30,11 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncrypt
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
@@ -54,12 +56,12 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * Whether method supports encryption.
      *
      * @param methodParameter Method parameter.
-     * @param aClass HTTP message converter.
+     * @param converterClass Chosen HTTP message converter class.
      * @return Whether method supports encryption.
      */
     @Override
-    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
-        return methodParameter.hasMethodAnnotation(PowerAuthEncryption.class);
+    public boolean supports(@NonNull MethodParameter methodParameter, @NonNull Class<? extends HttpMessageConverter<?>> converterClass) {
+        return methodParameter.hasMethodAnnotation(PowerAuthEncryption.class) && converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class);
     }
 
     /**
@@ -68,13 +70,13 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @param response Response object.
      * @param methodParameter Method parameter.
      * @param mediaType Media type.
-     * @param aClass HTTP message converter.
+     * @param converter Chosen HTTP message converter class.
      * @param serverHttpRequest HTTP request.
      * @param serverHttpResponse HTTP response.
      * @return ECIES cryptogram.
      */
     @Override
-    public Object beforeBodyWrite(Object response, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public EciesEncryptedResponse beforeBodyWrite(Object response, @NonNull MethodParameter methodParameter, @NonNull MediaType mediaType, @NonNull Class<? extends HttpMessageConverter<?>> converter, @NonNull ServerHttpRequest serverHttpRequest, @NonNull ServerHttpResponse serverHttpResponse) {
         if (response == null) {
             return null;
         }
@@ -96,9 +98,8 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
 
-            // Convert encrypted response based on response type and return it
-            final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64);
-            return convertEncryptedResponse(response.getClass(), encryptedResponse);
+            // Return encrypted response
+            return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
             return null;
         }
@@ -120,33 +121,6 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             final ByteArrayOutputStream baos = new ByteArrayOutputStream();
             objectMapper.writeValue(baos, response);
             return baos.toByteArray();
-        }
-    }
-
-    /**
-     * Convert encrypted response to response object serializable by Spring based on response type.
-     *
-     * @param responseType Response object type.
-     * @param encryptedResponse Encrypted response to convert.
-     * @return Converted encrypted response.
-     * @throws IOException In case JSON serialization fails.
-     */
-    private Object convertEncryptedResponse(Class<?> responseType, EciesEncryptedResponse encryptedResponse) throws IOException {
-        if (responseType == byte[].class) {
-            // Conversion of encrypted response to byte[] needs to be handled, the ByteArrayHttpMessageConverter
-            // can not convert EciesEncryptedResponse to byte[].
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            objectMapper.writeValue(baos, encryptedResponse);
-            return baos.toByteArray();
-        } else if (responseType == String.class) {
-            // Conversion of encrypted response to String needs to be handled, the StringHttpMessageConverter
-            // can not convert EciesEncryptedResponse to String.
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            objectMapper.writeValue(baos, encryptedResponse);
-            return baos.toString();
-        } else {
-            // Object mapping to JSON is handled automatically by Spring for generic objects.
-            return encryptedResponse;
         }
     }
 
