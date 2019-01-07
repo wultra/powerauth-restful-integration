@@ -78,6 +78,10 @@ public class EncryptedDataExchangeController {
         DataExchangeRequest request = eciesEncryption.getRequestObject();
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
+        if (eciesContext == null) {
+            throw new PowerAuthEncryptionException("Decryption failed");
+        }
+
         // Prepare response object
         DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
 
@@ -103,6 +107,10 @@ public class EncryptedDataExchangeController {
         DataExchangeRequest request = eciesEncryption.getRequestObject();
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
+        if (eciesContext == null) {
+            throw new PowerAuthEncryptionException("Decryption failed");
+        }
+
         // Prepare response object
         DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
 
@@ -111,7 +119,7 @@ public class EncryptedDataExchangeController {
     }
 
     /**
-     * Sample encrypted data exchange in activation scope.
+     * Sample signed and encrypted data exchange.
      *
      * @param authHeader PowerAuth signature HTTP header.
      * @return ECIES encrypted response.
@@ -128,6 +136,10 @@ public class EncryptedDataExchangeController {
                 DataExchangeRequest.class, EciesScope.ACTIVATION_SCOPE);
         DataExchangeRequest request = eciesEncryption.getRequestObject();
 
+        if (eciesEncryption.getContext() == null) {
+            throw new PowerAuthEncryptionException("Decryption failed");
+        }
+
         // Verify PowerAuth signature
         PowerAuthApiAuthentication auth = authenticationProvider.validateRequestSignature(
                 httpServletRequest,
@@ -141,6 +153,83 @@ public class EncryptedDataExchangeController {
 
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
+        } else {
+            throw new PowerAuthAuthenticationException("Authentication failed.");
+        }
+    }
+
+    /**
+     * Sample signed and encrypted data exchange of String data.
+     *
+     * @param authHeader PowerAuth signature HTTP header.
+     * @return ECIES encrypted response.
+     * @throws PowerAuthAuthenticationException In case signature validation fails
+     * @throws PowerAuthEncryptionException In case encryption fails.
+     */
+    @POST
+    @Path("v3/signed/string")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public EciesEncryptedResponse exchangeSignedAndEncryptedDataString(@HeaderParam(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthEncryptionException, PowerAuthAuthenticationException {
+        // Decrypt request
+        PowerAuthEciesEncryption<String> eciesEncryption = encryptionProvider.decryptRequest(httpServletRequest,
+                String.class, EciesScope.ACTIVATION_SCOPE);
+        String requestData = eciesEncryption.getRequestObject();
+
+        if (eciesEncryption.getContext() == null) {
+            throw new PowerAuthEncryptionException("Decryption failed");
+        }
+
+        // Verify PowerAuth signature
+        PowerAuthApiAuthentication auth = authenticationProvider.validateRequestSignature(
+                httpServletRequest,
+                "/exchange/v3/signed/string",
+                authHeader
+        );
+
+        if (auth != null && auth.getUserId() != null) {
+            // Prepare response String
+            String exchangeResponse = "\"Server successfully decrypted data and verified signature, request data: " + (requestData == null ? "''" : requestData) + ", user ID: " + auth.getUserId() + "\"";
+
+            // Encrypt response
+            return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
+        } else {
+            throw new PowerAuthAuthenticationException("Authentication failed.");
+        }
+    }
+
+    /**
+     * Sample signed and encrypted data exchange of String data.
+     *
+     * @param authHeader PowerAuth signature HTTP header.
+     * @return ECIES encrypted response.
+     * @throws PowerAuthAuthenticationException In case signature validation fails
+     * @throws PowerAuthEncryptionException In case encryption fails.
+     */
+    @POST
+    @Path("v3/signed/raw")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public EciesEncryptedResponse exchangeSignedAndEncryptedDataRaw(@HeaderParam(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthEncryptionException, PowerAuthAuthenticationException {
+        // Decrypt request
+        PowerAuthEciesEncryption<byte[]> eciesEncryption = encryptionProvider.decryptRequest(httpServletRequest,
+                byte[].class, EciesScope.ACTIVATION_SCOPE);
+        byte[] requestData = eciesEncryption.getRequestObject();
+
+        if (eciesEncryption.getContext() == null) {
+            throw new PowerAuthEncryptionException("Decryption failed");
+        }
+
+        // Verify PowerAuth signature
+        PowerAuthApiAuthentication auth = authenticationProvider.validateRequestSignature(
+                httpServletRequest,
+                "/exchange/v3/signed/raw",
+                authHeader
+        );
+
+        if (auth != null && auth.getUserId() != null) {
+            // Encrypt response - return the same data as in request
+            return encryptionProvider.encryptResponse(requestData, eciesEncryption);
         } else {
             throw new PowerAuthAuthenticationException("Authentication failed.");
         }

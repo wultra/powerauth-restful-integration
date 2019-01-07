@@ -118,4 +118,62 @@ public class EncryptedDataExchangeController {
         return new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
     }
 
+    /**
+     * Sample signed and encrypted data exchange of String data.
+     *
+     * @param requestData Request with String data.
+     * @param eciesContext ECIES context.
+     * @param auth PowerAuth authentication object.
+     * @return Data exchange response.
+     * @throws PowerAuthAuthenticationException In case signature validation fails.
+     * @throws PowerAuthEncryptionException In case encryption or decryption fails.
+     */
+    @RequestMapping(value = "v3/signed/string", method = RequestMethod.POST)
+    @PowerAuth(resourceId = "/exchange/v3/signed/string")
+    @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
+    public String exchangeSignedAndEncryptedDataString(@EncryptedRequestBody String requestData,
+                                                                       EciesEncryptionContext eciesContext,
+                                                                       PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
+
+        if (auth == null || auth.getUserId() == null) {
+            throw new PowerAuthAuthenticationException("Signature validation failed");
+        }
+
+        if (eciesContext == null) {
+            throw new PowerAuthEncryptionException("Decryption failed");
+        }
+
+        // Return a slightly different String containing original data in response
+        return "Server successfully decrypted data and verified signature, request data: " + requestData + ", user ID: " + auth.getUserId();
+    }
+
+    /**
+     * Sample signed and encrypted data exchange of raw data as byte[].
+     *
+     * @param requestData Request with raw byte[] data.
+     * @param eciesContext ECIES context.
+     * @param auth PowerAuth authentication object.
+     * @return Data exchange response.
+     * @throws PowerAuthAuthenticationException In case signature validation fails.
+     * @throws PowerAuthEncryptionException In case encryption or decryption fails.
+     */
+    @RequestMapping(value = "v3/signed/raw", method = RequestMethod.POST)
+    @PowerAuth(resourceId = "/exchange/v3/signed/raw")
+    @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
+    public byte[] exchangeSignedAndEncryptedDataRaw(@EncryptedRequestBody byte[] requestData,
+                                                               EciesEncryptionContext eciesContext,
+                                                               PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
+
+        if (auth == null || auth.getUserId() == null) {
+            throw new PowerAuthAuthenticationException("Signature validation failed");
+        }
+
+        if (eciesContext == null) {
+            throw new PowerAuthEncryptionException("Decryption failed");
+        }
+
+        // Return data back for verification
+        return requestData;
+    }
+
 }

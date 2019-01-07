@@ -60,10 +60,14 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
         // Decrypted object is inserted into parameter annotated by @EncryptedRequestBody annotation
         if (parameter.hasParameterAnnotation(EncryptedRequestBody.class) && eciesObject != null && eciesObject.getDecryptedRequest() != null) {
             final Class<?> parameterType = parameter.getParameterType();
-            try {
-                return objectMapper.readValue(eciesObject.getDecryptedRequest(), parameterType);
-            } catch (IOException e) {
-                return null;
+            if (parameterType == byte[].class) {
+                return eciesObject.getDecryptedRequest();
+            } else {
+                try {
+                    return objectMapper.readValue(eciesObject.getDecryptedRequest(), parameterType);
+                } catch (IOException e) {
+                    return null;
+                }
             }
         }
         // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption

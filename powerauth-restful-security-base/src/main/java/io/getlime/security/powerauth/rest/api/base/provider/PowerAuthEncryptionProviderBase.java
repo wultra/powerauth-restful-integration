@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.base.provider;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
@@ -41,6 +42,7 @@ import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedReq
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.IOException;
 
 /**
  * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic.
@@ -122,13 +124,16 @@ public abstract class PowerAuthEncryptionProviderBase {
             switch (eciesScope) {
                 case ACTIVATION_SCOPE:
                     final String activationId = eciesEncryption.getContext().getActivationId();
+                    if (activationId == null) {
+                        throw new PowerAuthEncryptionException("Activation ID is required in ECIES activation scope");
+                    }
                     decryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey);
                     break;
                 case APPLICATION_SCOPE:
                     decryptorParameters = getEciesDecryptorParameters(null, applicationKey, ephemeralPublicKey);
                     break;
                 default:
-                        throw new PowerAuthEncryptionException("Unsupported ECIES scope: " + eciesScope);
+                    throw new PowerAuthEncryptionException("Unsupported ECIES scope: " + eciesScope);
             }
 
             // Prepare envelope key and sharedInfo2 parameter for decryptor
@@ -145,9 +150,9 @@ public abstract class PowerAuthEncryptionProviderBase {
             byte[] decryptedData = eciesDecryptor.decryptRequest(cryptogram);
             eciesEncryption.setEncryptedRequest(encryptedDataBytes);
             eciesEncryption.setDecryptedRequest(decryptedData);
+            // Set the request object only in case when request data is sent
             if (decryptedData.length != 0) {
-                // Deserialize and set the request object only in case when request data is sent
-                eciesEncryption.setRequestObject(objectMapper.readValue(decryptedData, requestType));
+                eciesEncryption.setRequestObject(deserializeRequestData(decryptedData, requestType));
             }
 
             // Set encryption object in HTTP servlet request
@@ -167,7 +172,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      */
     public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption eciesEncryption) {
         try {
-            byte[] responseData = objectMapper.writeValueAsBytes(responseObject);
+            byte[] responseData = serializeResponseData(responseObject);
             // Encrypt response using decryptor and return ECIES cryptogram
             EciesCryptogram cryptogram = eciesEncryption.getEciesDecryptor().encryptResponse(responseData);
             String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
@@ -175,6 +180,43 @@ public abstract class PowerAuthEncryptionProviderBase {
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
             return null;
+        }
+    }
+
+    /**
+     * Convert byte[] request data to Object with given type.
+     *
+     * @param requestData Raw request data.
+     * @param requestType Class specifying request type.
+     * @param <T> Type of request object.
+     * @return Request object.
+     * @throws IOException In case request object could not be deserialized.
+     */
+    @SuppressWarnings("unchecked")
+    private <T> T deserializeRequestData(byte[] requestData, Class<T> requestType) throws IOException {
+        if (requestType == byte[].class) {
+            // Raw data without deserialization from JSON
+            return (T) requestData;
+        } else {
+            // Object is deserialized from JSON based on request type
+            return objectMapper.readValue(requestData, requestType);
+        }
+    }
+
+    /**
+     * Convert response object to byte[].
+     *
+     * @param responseObject Response object.
+     * @return Response data as byte[].
+     * @throws JsonProcessingException In case JSON serialization fails.
+     */
+    private byte[] serializeResponseData(Object responseObject) throws JsonProcessingException {
+        if (responseObject.getClass() == byte[].class) {
+            // Raw data without serialization into JSON
+            return (byte[]) responseObject;
+        } else {
+            // Object is serialized to JSON
+            return objectMapper.writeValueAsBytes(responseObject);
         }
     }
 

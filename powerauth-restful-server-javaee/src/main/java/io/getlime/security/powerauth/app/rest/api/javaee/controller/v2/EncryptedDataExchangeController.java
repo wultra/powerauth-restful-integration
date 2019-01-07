@@ -91,6 +91,10 @@ public class EncryptedDataExchangeController {
             throw new PowerAuthEncryptionException();
         }
 
+        if (requestDataBytes == null) {
+            throw new PowerAuthEncryptionException();
+        }
+
         String requestData = new String(requestDataBytes);
 
         // Return a slightly different String containing original data in response

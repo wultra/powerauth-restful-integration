@@ -30,14 +30,17 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncrypt
 import org.springframework.core.MethodParameter;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
+import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 /**
  * Controller advice used for encryption of responses of REST endpoints.
@@ -53,12 +56,12 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * Whether method supports encryption.
      *
      * @param methodParameter Method parameter.
-     * @param aClass HTTP message converter.
+     * @param converterClass Chosen HTTP message converter class.
      * @return Whether method supports encryption.
      */
     @Override
-    public boolean supports(MethodParameter methodParameter, Class<? extends HttpMessageConverter<?>> aClass) {
-        return methodParameter.hasMethodAnnotation(PowerAuthEncryption.class);
+    public boolean supports(@NonNull MethodParameter methodParameter, @NonNull Class<? extends HttpMessageConverter<?>> converterClass) {
+        return methodParameter.hasMethodAnnotation(PowerAuthEncryption.class) && converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class);
     }
 
     /**
@@ -67,13 +70,13 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @param response Response object.
      * @param methodParameter Method parameter.
      * @param mediaType Media type.
-     * @param aClass HTTP message converter.
+     * @param converter Chosen HTTP message converter class.
      * @param serverHttpRequest HTTP request.
      * @param serverHttpResponse HTTP response.
      * @return ECIES cryptogram.
      */
     @Override
-    public EciesEncryptedResponse beforeBodyWrite(Object response, MethodParameter methodParameter, MediaType mediaType, Class<? extends HttpMessageConverter<?>> aClass, ServerHttpRequest serverHttpRequest, ServerHttpResponse serverHttpResponse) {
+    public EciesEncryptedResponse beforeBodyWrite(Object response, @NonNull MethodParameter methodParameter, @NonNull MediaType mediaType, @NonNull Class<? extends HttpMessageConverter<?>> converter, @NonNull ServerHttpRequest serverHttpRequest, @NonNull ServerHttpResponse serverHttpResponse) {
         if (response == null) {
             return null;
         }
@@ -86,20 +89,39 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         }
 
         // Convert response to JSON
-        byte[] responseBytes;
         try {
-            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            objectMapper.writeValue(baos, response);
-            responseBytes = baos.toByteArray();
+            byte[] responseBytes = serializeResponseObject(response);
 
             // Encrypt response using decryptor and return ECIES cryptogram
             final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
             EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
             String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
+
+            // Return encrypted response
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
             return null;
         }
     }
+
+    /**
+     * Serialize response object to byte[].
+     *
+     * @param response Response object.
+     * @return Response data as byte[].
+     * @throws IOException In case JSON serialization fails.
+     */
+    private byte[] serializeResponseObject(Object response) throws IOException {
+        if (response.getClass() == byte[].class) {
+            // Response data is raw byte[], data conversion is not required
+            return (byte[]) response;
+        } else {
+            // Convert response object to byte[] using ObjectMapper
+            final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            objectMapper.writeValue(baos, response);
+            return baos.toByteArray();
+        }
+    }
+
 }
