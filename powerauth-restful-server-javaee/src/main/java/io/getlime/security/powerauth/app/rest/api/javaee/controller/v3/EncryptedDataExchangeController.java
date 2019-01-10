@@ -189,7 +189,7 @@ public class EncryptedDataExchangeController {
 
         if (auth != null && auth.getUserId() != null) {
             // Prepare response String
-            String exchangeResponse = "\"Server successfully decrypted data and verified signature, request data: " + (requestData == null ? "''" : requestData) + ", user ID: " + auth.getUserId() + "\"";
+            String exchangeResponse = "Server successfully decrypted data and verified signature, request data: " + (requestData == null ? "''" : requestData) + ", user ID: " + auth.getUserId();
 
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
