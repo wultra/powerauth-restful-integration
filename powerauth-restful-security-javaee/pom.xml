@@ -24,7 +24,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>powerauth-restful-security-javaee</artifactId>
-    <version>0.19.0</version>
+    <version>0.19.1</version>
     <name>powerauth-restful-security-javaee</name>
     <description>PowerAuth 2.0 RESTful API Security Additions for EJB</description>
 
@@ -52,7 +52,7 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-java-client-axis</artifactId>
-            <version>0.19.0</version>
+            <version>0.19.1</version>
         </dependency>
 
     </dependencies>

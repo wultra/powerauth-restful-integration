@@ -89,16 +89,25 @@ public class SecureVaultController {
             String nonce = header.getNonce();
 
             String reason = null;
+            byte[] requestBodyBytes;
 
-            if (request != null) {
-                VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();
-                if (vaultUnlockRequest != null && vaultUnlockRequest.getReason() != null) {
-                    reason = vaultUnlockRequest.getReason();
+            if ("2.0".equals(header.getVersion())) {
+                // Version 2.0 requires null data in signature for vault unlock.
+                requestBodyBytes = null;
+            } else {
+                // Version 2.1 or higher requires request data in signature (POST request body) for vault unlock.
+                if (request != null) {
+                    // Send vault unlock reason, in case it is available.
+                    VaultUnlockRequest vaultUnlockRequest = request.getRequestObject();
+                    if (vaultUnlockRequest != null && vaultUnlockRequest.getReason() != null) {
+                        reason = vaultUnlockRequest.getReason();
+                    }
                 }
-            }
 
-            String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
-            byte[] requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+                // Use POST request body as data for signature.
+                String requestBodyString = ((String) httpServletRequest.getAttribute(PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING));
+                requestBodyBytes = requestBodyString == null ? null : BaseEncoding.base64().decode(requestBodyString);
+            }
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 

@@ -27,7 +27,7 @@
     <artifactId>powerauth-restful-server-javaee</artifactId>
     <name>powerauth-restful-server-javaee</name>
     <packaging>war</packaging>
-    <version>0.19.0</version>
+    <version>0.19.1</version>
 
     <parent>
         <artifactId>powerauth-restful-integration-parent</artifactId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-restful-security-javaee</artifactId>
-            <version>0.19.0</version>
+            <version>0.19.1</version>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
