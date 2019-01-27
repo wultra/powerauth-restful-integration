@@ -83,7 +83,7 @@ public class PowerAuthWebServiceConfiguration {
 }
 ```
 
-_Note: The `v3` endpoints provide the most current implementation of PowerAuth security protocol. If you still need to use the `v2` endpoints, include the `v2` context path for the Marshaller:_
+_Note: The `v3` endpoints provide the most current implementation of PowerAuth cryptography protocol. If you still need to use the `v2` endpoints, include the `v2` context path for the Marshaller:_
 
 ```
 marshaller.setContextPaths("io.getlime.powerauth.soap.v2", "io.getlime.powerauth.soap.v3");
