@@ -377,8 +377,8 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The encryption provider decrypts the request data using ECIES decryptor in `activation` scope. In case the decryption succeeds, the request data signature is verified. 
-The signature validity is checked and the code prepares a response which is encrypted using previously created ECIES decryptor.
+The encryption provider decrypts the request data using ECIES decryptor in `activation` scope. In case the decryption succeeds, the signature received in PowerAuth HTTP signature header is verified. 
+If the signature verification succeeds a response is encrypted using previously created ECIES decryptor.
 
 _Note: You can also use `String` or `byte[]` data types instead of using request/response objects for encryption of raw data._
 
