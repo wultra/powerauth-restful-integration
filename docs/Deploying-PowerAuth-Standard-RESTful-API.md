@@ -2,7 +2,7 @@
 
 This chapter explains how to deploy PowerAuth Standard RESTful API.
 
-PowerAuth Standard RESTful API is a Java EE application (packaged as an executable WAR file) responsible for exposing the [RESTful API according to the specification](https://github.com/wultra/powerauth-crypto/docs/Standard-RESTful-API.md). It exposes services for end-user applications (PowerAuth Clients), such as the mobile banking app or mobile token app.
+PowerAuth Standard RESTful API is a Java EE application (packaged as an executable WAR file) responsible for exposing the [RESTful API according to the specification](https://github.com/wultra/powerauth-crypto/blob/develop/docs/Standard-RESTful-API.md). It exposes services for end-user applications (PowerAuth Clients), such as the mobile banking app or mobile token app.
 
 You can use this application in case you need to use PowerAuth and cannot integrate it in your own API using our integration libraries.
 
