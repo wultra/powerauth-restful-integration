@@ -288,7 +288,7 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The encryption provider decrypts the request data using ECIES decryptor in `application` scope. In case the decryption succeeds, the code prepares a response which is encrypted using previously created ECIES decryptor.
+The encryption provider decrypts the request data using ECIES decryptor in `application` scope. In case the decryption succeeds, a response object is created and encrypted using previously created ECIES decryptor.
 
 ### Encryption in Activation Scope
 
@@ -326,7 +326,7 @@ public class EncryptedDataExchangeController {
 }
 ``` 
 
-The encryption provider decrypts the request data using ECIES decryptor in `activation` scope. In case the decryption succeeds, the code prepares a response which is encrypted using previously created ECIES decryptor.
+The encryption provider decrypts the request data using ECIES decryptor in `activation` scope. In case the decryption succeeds, a response object is created and encrypted using previously created ECIES decryptor.
 
 ### Signed and Encrypted Requests
 
