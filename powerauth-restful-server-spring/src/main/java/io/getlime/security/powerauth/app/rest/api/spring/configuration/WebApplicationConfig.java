@@ -33,7 +33,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import java.util.List;
 
 /**
- * Default implementation of WebMvcConfigurerAdapter, maps PowerAuthRequestFilter instance
+ * Default implementation of WebMvcConfigurer, maps PowerAuthRequestFilter instance
  * (that passes HTTP request body to the request as an attribute, so that it's available
  * in the controller) to /pa/signature/validate demo end-point.
  *
