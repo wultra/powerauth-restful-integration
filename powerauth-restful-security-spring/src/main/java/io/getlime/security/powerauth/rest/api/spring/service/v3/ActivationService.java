@@ -121,6 +121,7 @@ public class ActivationService {
 
                     // The response is encrypted once more before sent to client using ResponseBodyAdvice
                     ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+                    responseL1.setCustomAttributes(customAttributes);
                     responseL1.setActivationData(encryptedResponseL2);
                     return responseL1;
                 }
