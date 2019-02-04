@@ -176,7 +176,7 @@ public class WebApplicationConfig implements WebMvcConfigurer {
 
 `PowerAuthWebArgumentResolver` bean is responsible for auto-injecting PowerAuth authentication objects into the controller handler methods (see example in [Verify Signatures Chapter](#verify-signatures)). You need to add it to argument resolver list.
 
-`PowerAuthEncryptionArgumentResolver` bean is responsible for auto-injecting PowerAuth encryption objects into the controller handler methods (see example in [Use End-to-End Encryption Chapter](#use-end-to-end-encryption). You need to add it to argument resolver list.
+`PowerAuthEncryptionArgumentResolver` bean is responsible for auto-injecting PowerAuth encryption objects into the controller handler methods (see example in [Use End-to-End Encryption Chapter](#use-end-to-end-encryption)). You need to add it to argument resolver list.
 
 `PowerAuthInterceptor` bean is responsible for the `@PowerAuth` annotation handling (see example in [Verify Signatures Chapter](#verify-signatures)). You need to add it to the interceptor registry.
 
