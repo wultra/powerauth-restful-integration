@@ -94,9 +94,10 @@ public class ActivationService {
                     // Call PrepareActivation SOAP method on PA server
                     PowerAuthPortV3ServiceStub.PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac);
 
+                    Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes
                     if (activationProvider != null) {
-                        activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
+                        processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
                     }
 
                     // Prepare encrypted response object for layer 2
@@ -106,7 +107,7 @@ public class ActivationService {
 
                     // The response is encrypted once more before sent to client using ResponseBodyAdvice
                     ActivationLayer1Response responseL1 = new ActivationLayer1Response();
-                    responseL1.setCustomAttributes(customAttributes);
+                    responseL1.setCustomAttributes(processedCustomAttributes);
                     responseL1.setActivationData(encryptedResponseL2);
                     return responseL1;
                 }
@@ -138,7 +139,7 @@ public class ActivationService {
                     );
 
                     // Process custom attributes using a custom logic
-                    activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
+                    final Map<String, Object> processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
                     // Check if activation should be committed instantly and if yes, perform commit
                     if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
@@ -150,7 +151,7 @@ public class ActivationService {
 
                     // Prepare the created activation response data
                     ActivationLayer1Response responseL1 = new ActivationLayer1Response();
-                    responseL1.setCustomAttributes(customAttributes);
+                    responseL1.setCustomAttributes(processedCustomAttributes);
                     responseL1.setActivationData(encryptedActivationData);
 
                     // Return response
