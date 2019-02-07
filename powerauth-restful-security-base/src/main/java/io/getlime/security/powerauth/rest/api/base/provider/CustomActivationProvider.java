@@ -45,8 +45,9 @@ public interface CustomActivationProvider {
      * @param activationId Activation ID of created activation.
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type (CODE or CUSTOM).
+     * @return Custom attributes after processing.
      */
-    void processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
+    Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
 
     /**
      * Variable that specifies if the activation should be automatically committed based on provided attributes.
