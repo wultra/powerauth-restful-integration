@@ -95,9 +95,9 @@ public class TokenController {
 
     /**
      * Remove token.
-     * @param request ECIES encrypted remove token request.
+     * @param request Remove token request.
      * @param authentication PowerAuth API authentication object.
-     * @return ECIES encrypted remove token response.
+     * @return Remove token response.
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
     @RequestMapping(value = "remove", method = RequestMethod.POST)
