@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -21,23 +21,24 @@ package io.getlime.security.powerauth.app.rest.api.spring.errorhandling;
 
 import io.getlime.core.rest.model.base.entity.Error;
 import io.getlime.core.rest.model.base.response.ErrorResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
 /**
  * Implementation of a default exception handler for the demo server.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 @ControllerAdvice
 public class DefaultExceptionHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(DefaultExceptionHandler.class);
 
     /**
      * Handle Exception exceptions.
@@ -47,7 +48,7 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleException(Exception exception) {
-        Logger.getLogger(DefaultExceptionHandler.class.getName()).log(Level.SEVERE, exception.getMessage(), exception);
+        logger.error(exception.getMessage(), exception);
         return new ErrorResponse(Error.Code.ERROR_GENERIC, exception);
     }
 

@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,15 +17,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
@@ -34,17 +39,23 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 @Component
 public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
 
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthAnnotationInterceptor.class);
+
     private PowerAuthAuthenticationProvider authenticationProvider;
+    private PowerAuthEncryptionProvider encryptionProvider;
 
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
+    }
+
+    @Autowired
+    public void setEncryptionProvider(PowerAuthEncryptionProvider encryptionProvider) {
+        this.encryptionProvider = encryptionProvider;
     }
 
     @Override
@@ -61,28 +72,41 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
             // Obtain annotations
             PowerAuth powerAuthSignatureAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);
             PowerAuthToken powerAuthTokenAnnotation = handlerMethod.getMethodAnnotation(PowerAuthToken.class);
+            PowerAuthEncryption powerAuthEncryptionAnnotation = handlerMethod.getMethodAnnotation(PowerAuthEncryption.class);
 
-            // Check that only one annotation is active
+            // Check that either signature or token annotation is active
             if (powerAuthSignatureAnnotation != null && powerAuthTokenAnnotation != null) {
-                Logger.getLogger(this.getClass().getName()).log(Level.SEVERE, "You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
+                logger.error("You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
                 powerAuthSignatureAnnotation = null;
                 powerAuthTokenAnnotation = null;
+            }
+
+            // Resolve @PowerAuthEncryption annotation. The order of processing is important, PowerAuth expects
+            // sign-then-encrypt sequence in case both authorization and encryption are used.
+            if (powerAuthEncryptionAnnotation != null) {
+                Class<?> requestType = resolveGenericParameterTypeForEcies(handlerMethod);
+                try {
+                    encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope());
+                    // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for both Spring and Java EE
+                } catch (PowerAuthEncryptionException ex) {
+                    // Silently ignore errors
+                }
             }
 
             // Resolve @PowerAuth annotation
             if (powerAuthSignatureAnnotation != null) {
 
                 try {
-                    PowerAuthApiAuthentication authentication = this.authenticationProvider.validateRequestSignature(
+                    PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
                             request,
                             powerAuthSignatureAnnotation.resourceId(),
                             request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME),
                             new ArrayList<>(Arrays.asList(powerAuthSignatureAnnotation.signatureType()))
                     );
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
-                    // silently ignore here and make sure authentication object is null
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
+                    // Silently ignore here and make sure authentication object is null
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
                 }
 
             }
@@ -90,20 +114,36 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
             // Resolve @PowerAuthToken annotation
             if (powerAuthTokenAnnotation != null) {
                 try {
-                    PowerAuthApiAuthentication authentication = this.authenticationProvider.validateToken(
+                    PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(
                             request.getHeader(PowerAuthTokenHttpHeader.HEADER_NAME),
                             new ArrayList<>(Arrays.asList(powerAuthTokenAnnotation.signatureType()))
                     );
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, authentication);
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
-                    // silently ignore here and make sure authentication object is null
-                    request.setAttribute(PowerAuth.AUTHENTICATION_OBJECT, null);
+                    // Silently ignore here and make sure authentication object is null
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
                 }
             }
 
         }
 
         return super.preHandle(request, response, handler);
+    }
+
+    /**
+     * Resolve type of request object which is annotated by the @EncryptedRequestBody annotation.
+     * In case such parameter is missing the Object.class type is returned.
+     *
+     * @param handlerMethod Handler method.
+     * @return Resolved type of request object.
+     */
+    private Class<?> resolveGenericParameterTypeForEcies(HandlerMethod handlerMethod) {
+        for (MethodParameter parameter: handlerMethod.getMethodParameters()) {
+            if (parameter.hasParameterAnnotation(EncryptedRequestBody.class)) {
+                return parameter.getParameterType();
+            }
+        }
+        return Object.class;
     }
 
 }

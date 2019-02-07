@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,11 +17,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
-import io.getlime.powerauth.soap.GetNonPersonalizedEncryptionKeyResponse;
+import io.getlime.powerauth.soap.v2.GetNonPersonalizedEncryptionKeyResponse;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
@@ -31,7 +30,7 @@ import org.springframework.stereotype.Component;
 /**
  * Class responsible for building encryptors.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 @Component
 public class EncryptorFactory {
@@ -67,7 +66,7 @@ public class EncryptorFactory {
      * @return New instance of a non-personalized encryptor.
      */
     public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(String applicationKeyBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) {
-        final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.generateNonPersonalizedE2EEncryptionKey(
+        final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.v2().generateNonPersonalizedE2EEncryptionKey(
                 applicationKeyBase64,
                 ephemeralPublicKeyBase64,
                 sessionIndexBase64

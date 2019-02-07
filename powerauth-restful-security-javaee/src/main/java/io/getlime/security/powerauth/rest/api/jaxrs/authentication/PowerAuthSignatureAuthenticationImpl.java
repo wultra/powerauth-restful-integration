@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.authentication;
 
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthSignatureAuthentication;
 
 /**
@@ -38,6 +39,9 @@ public class PowerAuthSignatureAuthenticationImpl implements PowerAuthSignatureA
     private String httpMethod;
     private byte[] nonce;
     private byte[] data;
+    private String version;
+    private PowerAuthHttpHeader httpHeader;
+    private Integer forcedSignatureVersion;
 
     /**
      * Get activation ID.
@@ -183,4 +187,57 @@ public class PowerAuthSignatureAuthenticationImpl implements PowerAuthSignatureA
         this.data = data;
     }
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    /**
+     * Get parsed PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    @Override
+    public PowerAuthHttpHeader getHttpHeader() {
+        return httpHeader;
+    }
+
+    /**
+     * Set parsed PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    @Override
+    public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
+        this.httpHeader = httpHeader;
+    }
+
+    /**
+     * Get forced signature version which is used during upgrade.
+     * @return Forced signature version.
+     */
+    @Override
+    public Integer getForcedSignatureVersion() {
+        return forcedSignatureVersion;
+    }
+
+    /**
+     * Set forced signature version which is used during upgrade.
+     * @param forcedSignatureVersion Forced signature version.
+     */
+    @Override
+    public void setForcedSignatureVersion(Integer forcedSignatureVersion) {
+        this.forcedSignatureVersion = forcedSignatureVersion;
+    }
 }

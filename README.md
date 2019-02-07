@@ -4,10 +4,10 @@ In order to easily secure your RESTful APIs with PowerAuth, you can use our easy
 
 **Integration Tutorials**
 
-- [Introduction](https://github.com/lime-company/powerauth-restful-integration/wiki/Introduction)
-- [RESTful API (Spring)](https://github.com/lime-company/powerauth-restful-integration/wiki/RESTful-API-for-Spring)
-- [RESTful API (JAX-RS)](https://github.com/lime-company/powerauth-restful-integration/wiki/RESTful-API-for-JavaEE)
+- [Introduction](https://github.com/wultra/powerauth-restful-integration/wiki/Introduction)
+- [RESTful API (Spring)](https://github.com/wultra/powerauth-restful-integration/wiki/RESTful-API-for-Spring)
+- [RESTful API (JAX-RS)](https://github.com/wultra/powerauth-restful-integration/wiki/RESTful-API-for-JavaEE)
 
 **Deployment Tutorials**
 
-- [PowerAuth REST API](https://github.com/lime-company/powerauth-restful-integration/wiki/Deploying-PowerAuth-Standard-RESTful-API)
+- [PowerAuth REST API](https://github.com/wultra/powerauth-restful-integration/wiki/Deploying-PowerAuth-Standard-RESTful-API)

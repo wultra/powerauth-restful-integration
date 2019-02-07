@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -19,12 +19,13 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.authentication;
 
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthTokenAuthentication;
 
 /**
  * Implementation of the {@link PowerAuthTokenAuthentication} interface, with Spring Security objects.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 public class PowerAuthTokenAuthenticationImpl implements PowerAuthTokenAuthentication {
 
@@ -32,6 +33,8 @@ public class PowerAuthTokenAuthenticationImpl implements PowerAuthTokenAuthentic
     private String tokenDigest;
     private String nonce;
     private String timestamp;
+    private String version;
+    private PowerAuthHttpHeader httpHeader;
 
     /**
      * Default constructor
@@ -109,4 +112,39 @@ public class PowerAuthTokenAuthenticationImpl implements PowerAuthTokenAuthentic
         this.timestamp = timestamp;
     }
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    @Override
+    public String getVersion() {
+        return version;
+    }
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    @Override
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    /**
+     * Get parsed PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    @Override
+    public PowerAuthHttpHeader getHttpHeader() {
+        return httpHeader;
+    }
+
+    /**
+     * Set parsed PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    @Override
+    public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
+        this.httpHeader = httpHeader;
+    }
 }

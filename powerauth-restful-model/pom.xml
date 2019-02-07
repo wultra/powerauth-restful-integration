@@ -1,45 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ PowerAuth integration libraries for RESTful API applications, examples and
-  ~ related software components
-  ~
-  ~ Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
-  ~
-  ~ This program is free software: you can redistribute it and/or modify
-  ~ it under the terms of the GNU Affero General Public License as published
-  ~ by the Free Software Foundation, either version 3 of the License, or
-  ~ (at your option) any later version.
-  ~
-  ~ This program is distributed in the hope that it will be useful,
-  ~ but WITHOUT ANY WARRANTY; without even the implied warranty of
-  ~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  ~ GNU Affero General Public License for more details.
-  ~
-  ~ You should have received a copy of the GNU Affero General Public License
-  ~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
-  -->
+~ PowerAuth integration libraries for RESTful API applications, examples and
+~ related software components
+~
+~ Copyright (C) 2018 Wultra s.r.o.
+~
+~ This program is free software: you can redistribute it and/or modify
+~ it under the terms of the GNU Affero General Public License as published
+~ by the Free Software Foundation, either version 3 of the License, or
+~ (at your option) any later version.
+~
+~ This program is distributed in the hope that it will be useful,
+~ but WITHOUT ANY WARRANTY; without even the implied warranty of
+~ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+~ GNU Affero General Public License for more details.
+~
+~ You should have received a copy of the GNU Affero General Public License
+~ along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
 
-	<artifactId>powerauth-restful-model</artifactId>
-	<version>0.19.1</version>
-	<name>powerauth-restful-model</name>
-	<description>Model classes PowerAuth Standard RESTful API</description>
+    <artifactId>powerauth-restful-model</artifactId>
+    <version>0.21.0</version>
+    <name>powerauth-restful-model</name>
+    <description>Model classes PowerAuth Standard RESTful API</description>
 
-	<parent>
-		<groupId>io.getlime.security</groupId>
-		<artifactId>powerauth-restful-integration-parent</artifactId>
-		<version>0.19.1</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
+    <parent>
+        <groupId>io.getlime.security</groupId>
+        <artifactId>powerauth-restful-integration-parent</artifactId>
+        <version>0.21.0</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
 
-	<dependencies>
-		<dependency>
-			<groupId>io.getlime.core</groupId>
-			<artifactId>rest-model-base</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>io.getlime.core</groupId>
+            <artifactId>rest-model-base</artifactId>
+            <version>${rest-model-base.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

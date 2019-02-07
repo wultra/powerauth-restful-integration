@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,28 +17,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
 package io.getlime.security.powerauth.rest.api.base.filter;
 
-import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.http.PowerAuthRequestCanonizationUtils;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
+import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 
 /**
- * Class representing for holding any static constants available to request filters.
+ * Class implementing filter for extracting request body from HTTP servlet request.
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  */
 public class PowerAuthRequestFilterBase {
 
     /**
-     * Constant for the request attribute name "X-PowerAuth-Request-Body".
+     * Extract request body from HTTP servlet request. Different logic is used for GET and for all other HTTP methods.
+     *
+     * @param httpRequest HTTP servlet request.
+     * @return Resettable HTTP servlet request.
+     * @throws IOException In case request body extraction fails.
      */
-    public static final String POWERAUTH_SIGNATURE_BASE_STRING = "X-PowerAuth-Request-Body";
-
     public static ResettableStreamHttpServletRequest filterRequest(HttpServletRequest httpRequest) throws IOException {
         ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
         if (httpRequest.getMethod().toUpperCase().equals("GET")) {
@@ -56,11 +59,22 @@ public class PowerAuthRequestFilterBase {
                 // Pass the signature base string as the request attribute
                 if (signatureBaseStringData != null) {
                     resettableRequest.setAttribute(
-                            PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING,
-                            BaseEncoding.base64().encode(signatureBaseStringData.getBytes("UTF-8"))
+                            PowerAuthRequestObjects.REQUEST_BODY,
+                            new PowerAuthRequestBody(signatureBaseStringData.getBytes(StandardCharsets.UTF_8))
+                    );
+                } else {
+                    // Store empty request body in request attribute
+                    resettableRequest.setAttribute(
+                            PowerAuthRequestObjects.REQUEST_BODY,
+                            new PowerAuthRequestBody()
                     );
                 }
-
+            } else {
+                // Store empty request body in request attribute
+                resettableRequest.setAttribute(
+                        PowerAuthRequestObjects.REQUEST_BODY,
+                        new PowerAuthRequestBody()
+                );
             }
 
         } else { // ... handle POST, PUT, DELETE, ... method
@@ -69,8 +83,14 @@ public class PowerAuthRequestFilterBase {
             byte[] body = resettableRequest.getRequestBody();
             if (body != null) {
                 resettableRequest.setAttribute(
-                        PowerAuthRequestFilterBase.POWERAUTH_SIGNATURE_BASE_STRING,
-                        BaseEncoding.base64().encode(body)
+                        PowerAuthRequestObjects.REQUEST_BODY,
+                        new PowerAuthRequestBody(body)
+                );
+            } else {
+                // Store empty request body in request attribute
+                resettableRequest.setAttribute(
+                        PowerAuthRequestObjects.REQUEST_BODY,
+                        new PowerAuthRequestBody()
                 );
             }
         }
