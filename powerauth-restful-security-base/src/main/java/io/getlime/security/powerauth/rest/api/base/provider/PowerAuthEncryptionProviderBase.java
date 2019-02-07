@@ -194,7 +194,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      */
     @SuppressWarnings("unchecked")
     private <T> T deserializeRequestData(byte[] requestData, Class<T> requestType) throws IOException {
-        if (requestType == byte[].class) {
+        if (requestType.equals(byte[].class)) {
             // Raw data without deserialization from JSON
             return (T) requestData;
         } else {
@@ -211,7 +211,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @throws JsonProcessingException In case JSON serialization fails.
      */
     private byte[] serializeResponseData(Object responseObject) throws JsonProcessingException {
-        if (responseObject.getClass() == byte[].class) {
+        if (responseObject.getClass().equals(byte[].class)) {
             // Raw data without serialization into JSON
             return (byte[]) responseObject;
         } else {
@@ -237,13 +237,13 @@ public abstract class PowerAuthEncryptionProviderBase {
         }
 
         // In case the PowerAuth encryption HTTP header is present, use it for ECIES
-        if (encryptionHttpHeader != null) {
-            // Parse encryption HTTP header
-            PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
+        if (signatureHttpHeader != null) {
+            // Parse signature HTTP header
+            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
 
-            // Validate the encryption HTTP header
+            // Validate the signature HTTP header
             try {
-                PowerAuthEncryptionHttpHeaderValidator.validate(header);
+                PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException e) {
                 throw new PowerAuthEncryptionException(e.getMessage());
             }
@@ -254,12 +254,12 @@ public abstract class PowerAuthEncryptionProviderBase {
             String version = header.getVersion();
             return new EciesEncryptionContext(applicationKey, activationId, version, header);
         } else {
-            // Parse signature HTTP header
-            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
+            // Parse encryption HTTP header
+            PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
 
-            // Validate the signature HTTP header
+            // Validate the encryption HTTP header
             try {
-                PowerAuthSignatureHttpHeaderValidator.validate(header);
+                PowerAuthEncryptionHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException e) {
                 throw new PowerAuthEncryptionException(e.getMessage());
             }

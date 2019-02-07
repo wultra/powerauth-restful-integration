@@ -142,7 +142,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @throws IOException In case JSON serialization fails.
      */
     private byte[] serializeResponseObject(Object response) throws IOException {
-        if (response.getClass() == byte[].class) {
+        if (response.getClass().equals(byte[].class)) {
             // Response data is raw byte[], data conversion is not required
             return (byte[]) response;
         } else {
