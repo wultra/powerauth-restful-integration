@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,12 +20,13 @@
 package io.getlime.security.powerauth.rest.api.base.authentication;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 
 /**
  * Interface for PowerAuth API authentication object used between intermediate server
  * application (such as mobile banking API) and core systems (such as banking core).
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 public interface PowerAuthApiAuthentication {
@@ -80,4 +81,27 @@ public interface PowerAuthApiAuthentication {
      */
     void setSignatureFactors(PowerAuthSignatureTypes factors);
 
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    String getVersion();
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    void setVersion(String version);
+
+    /**
+     * Get the PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    PowerAuthHttpHeader getHttpHeader();
+
+    /**
+     * Set the PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    void setHttpHeader(PowerAuthHttpHeader httpHeader);
 }

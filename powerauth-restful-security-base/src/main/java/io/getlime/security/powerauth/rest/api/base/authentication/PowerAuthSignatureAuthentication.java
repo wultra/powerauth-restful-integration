@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2017 Lime - HighTech Solutions s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -19,11 +19,13 @@
  */
 package io.getlime.security.powerauth.rest.api.base.authentication;
 
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
  * application (such as mobile banking API).
  *
- * @author Petr Dvorak, petr@lime-company.eu
+ * @author Petr Dvorak, petr@wultra.com
  *
  */
 public interface PowerAuthSignatureAuthentication extends PowerAuthAuthentication {
@@ -123,5 +125,41 @@ public interface PowerAuthSignatureAuthentication extends PowerAuthAuthenticatio
      * @param data Request data.
      */
     void setData(byte[] data);
+
+    /**
+     * Get PowerAuth protocol version.
+     * @return PowerAuth protocol version.
+     */
+    String getVersion();
+
+    /**
+     * Set PowerAuth protocol version.
+     * @param version PowerAuth protocol version.
+     */
+    void setVersion(String version);
+
+    /**
+     * Get forced signature version which is used during upgrade.
+     * @return Forced signature version
+     */
+    Integer getForcedSignatureVersion();
+
+    /**
+     * Set forced signature version which is used during upgrade.
+     * @param forcedSignatureVersion Forced signature version.
+     */
+    void setForcedSignatureVersion(Integer forcedSignatureVersion);
+
+    /**
+     * Get parsed PowerAuth HTTP header.
+     * @return PowerAuth HTTP header.
+     */
+    PowerAuthHttpHeader getHttpHeader();
+
+    /**
+     * Set parsed PowerAuth HTTP header.
+     * @param httpHeader PowerAuth HTTP header.
+     */
+    void setHttpHeader(PowerAuthHttpHeader httpHeader);
 
 }
