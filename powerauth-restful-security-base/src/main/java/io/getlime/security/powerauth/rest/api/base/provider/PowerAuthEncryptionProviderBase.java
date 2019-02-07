@@ -236,7 +236,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             throw new PowerAuthEncryptionException("POWER_AUTH_ENCRYPTION_INVALID_HEADER");
         }
 
-        // In case the PowerAuth encryption HTTP header is present, use it for ECIES
+        // In case the PowerAuth signature HTTP header is present, use it for ECIES
         if (signatureHttpHeader != null) {
             // Parse signature HTTP header
             PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
