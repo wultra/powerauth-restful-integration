@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.app.rest.api.javaee.provider;
 
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -36,8 +37,12 @@ public class CustomActivationProvider implements io.getlime.security.powerauth.r
 
     @Override
     public Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {
-        // Copy custom attributes
-        return new HashMap<>(customAttributes);
+        if (customAttributes != null) {
+            // Copy custom attributes
+            return new HashMap<>(customAttributes);
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
     @Override
