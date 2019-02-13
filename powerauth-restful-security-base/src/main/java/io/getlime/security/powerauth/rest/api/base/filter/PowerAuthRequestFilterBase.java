@@ -48,7 +48,11 @@ public class PowerAuthRequestFilterBase {
         ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
 
         if (httpRequest.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME) == null && httpRequest.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME) == null) {
-            // PowerAuth HTTP headers are not present, do not extract request data
+            // PowerAuth HTTP headers are not present, store empty request body in request attribute
+            resettableRequest.setAttribute(
+                    PowerAuthRequestObjects.REQUEST_BODY,
+                    new PowerAuthRequestBody()
+            );
             return resettableRequest;
         }
 
