@@ -69,16 +69,22 @@ public interface CustomActivationProvider {
      * Get maximum failed attempt count for activations.
      * Use null value for using value which is configured on PowerAuth server.
      *
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param userId User ID of user who created the activation.
      * @return Maximum failed attempt count for activations.
      */
-    Integer getMaxFailedAttemptCount();
+    Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId);
 
     /**
      * Get length of the period of activation record validity during activation in milliseconds.
      * Use null value for using value which is configured on PowerAuth server.
      *
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param userId User ID of user who created the activation.
      * @return Period in milliseconds during which activation is valid before it expires.
      */
-    Integer getValidityPeriodDuringActivation();
+    Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId);
 
 }

@@ -56,13 +56,13 @@ public class DefaultCustomActivationProvider implements CustomActivationProvider
     }
 
     @Override
-    public Integer getMaxFailedAttemptCount() {
+    public Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId) {
         // Null value means use value configured on PowerAuth server
         return null;
     }
 
     @Override
-    public Integer getValidityPeriodDuringActivation() {
+    public Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId) {
         // Null value means use value configured on PowerAuth server
         return null;
     }
