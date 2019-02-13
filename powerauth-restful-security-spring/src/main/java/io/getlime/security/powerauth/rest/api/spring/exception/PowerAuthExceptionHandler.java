@@ -21,7 +21,6 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
 
 import io.getlime.core.rest.model.base.response.ErrorResponse;
 import io.getlime.security.powerauth.rest.api.base.exception.*;
-import io.getlime.security.powerauth.rest.api.spring.controller.v3.UpgradeController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -43,7 +42,7 @@ public class PowerAuthExceptionHandler {
 
     public static final int PRECEDENCE = -100;
 
-    private static final Logger logger = LoggerFactory.getLogger(UpgradeController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthExceptionHandler.class);
 
     /**
      * Handle PowerAuthAuthenticationException exceptions.
