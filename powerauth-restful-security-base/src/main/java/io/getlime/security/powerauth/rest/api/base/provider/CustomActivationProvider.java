@@ -29,11 +29,13 @@ import java.util.Map;
  * of auto-commit mode.
  *
  * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 public interface CustomActivationProvider {
 
     /**
      * This method is responsible for looking user ID up based on a provided set of identity attributes.
+     *
      * @param identityAttributes Attributes that uniquely identify user with given ID.
      * @return User ID value.
      */
@@ -41,6 +43,7 @@ public interface CustomActivationProvider {
 
     /**
      * Process custom attributes, in any way that is suitable for the purpose of your application.
+     *
      * @param customAttributes Custom attributes (not related to identity) to be processed.
      * @param activationId Activation ID of created activation.
      * @param userId User ID of user who created the activation.
@@ -62,5 +65,26 @@ public interface CustomActivationProvider {
      */
     boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId);
 
+    /**
+     * Get maximum failed attempt count for activations.
+     * Use null value for using value which is configured on PowerAuth server.
+     *
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param userId User ID of user who created the activation.
+     * @return Maximum failed attempt count for activations.
+     */
+    Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId);
+
+    /**
+     * Get length of the period of activation record validity during activation in milliseconds.
+     * Use null value for using value which is configured on PowerAuth server.
+     *
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param userId User ID of user who created the activation.
+     * @return Period in milliseconds during which activation is valid before it expires.
+     */
+    Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId);
 
 }

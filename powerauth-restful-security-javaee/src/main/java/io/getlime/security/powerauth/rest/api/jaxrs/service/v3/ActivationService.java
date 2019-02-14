@@ -40,6 +40,9 @@ import org.slf4j.LoggerFactory;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.Map;
 
 /**
@@ -127,11 +130,22 @@ public class ActivationService {
                         throw new PowerAuthActivationException();
                     }
 
+                    // Resolve maxFailedCount and activationExpireTimestamp parameters, null value means use value configured on PowerAuth server
+                    Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId);
+                    final Long maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
+                    final Integer activationValidityPeriod = activationProvider.getValidityPeriodDuringActivation(identity, customAttributes, userId);
+                    Date activationExpireTimestamp = null;
+                    if (activationValidityPeriod != null) {
+                        Calendar activationExpiration = GregorianCalendar.getInstance();
+                        activationExpiration.add(Calendar.MILLISECOND, activationValidityPeriod);
+                        activationExpireTimestamp = activationExpiration.getTime();
+                    }
+
                     // Create activation for a looked up user and application related to the given application key
                     PowerAuthPortV3ServiceStub.CreateActivationResponse response = powerAuthClient.createActivation(
                             userId,
-                            null,
-                            null,
+                            activationExpireTimestamp,
+                            maxFailedCount,
                             applicationKey,
                             ephemeralPublicKey,
                             encryptedData,

@@ -54,4 +54,16 @@ public class DefaultCustomActivationProvider implements CustomActivationProvider
     public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId) {
         return true;
     }
+
+    @Override
+    public Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId) {
+        // Null value means use value configured on PowerAuth server
+        return null;
+    }
+
+    @Override
+    public Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId) {
+        // Null value means use value configured on PowerAuth server
+        return null;
+    }
 }
