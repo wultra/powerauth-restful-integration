@@ -19,7 +19,9 @@
  */
 package io.getlime.security.powerauth.rest.api.base.filter;
 
+import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthRequestCanonizationUtils;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 
@@ -44,6 +46,16 @@ public class PowerAuthRequestFilterBase {
      */
     public static ResettableStreamHttpServletRequest filterRequest(HttpServletRequest httpRequest) throws IOException {
         ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
+
+        if (httpRequest.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME) == null && httpRequest.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME) == null) {
+            // PowerAuth HTTP headers are not present, store empty request body in request attribute
+            resettableRequest.setAttribute(
+                    PowerAuthRequestObjects.REQUEST_BODY,
+                    new PowerAuthRequestBody()
+            );
+            return resettableRequest;
+        }
+
         if (httpRequest.getMethod().toUpperCase().equals("GET")) {
             // Parse the query parameters
             String queryString = httpRequest.getQueryString();
