@@ -41,7 +41,7 @@ import org.springframework.stereotype.Service;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@Service("ActivationServiceV2")
+@Service("activationServiceV2")
 public class ActivationService {
 
     private PowerAuthServiceClient powerAuthClient;

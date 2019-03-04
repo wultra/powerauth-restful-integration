@@ -58,7 +58,7 @@ import java.util.Map;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Service("ActivationServiceV3")
+@Service("activationServiceV3")
 public class ActivationService {
 
     private PowerAuthServiceClient powerAuthClient;

@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController("CustomActivationControllerV3")
+@RestController("customActivationControllerV3")
 @RequestMapping(value = "/pa/activation/direct")
 public class CustomActivationController {
 

@@ -49,7 +49,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@Service("SecureVaultServiceV3")
+@Service("secureVaultServiceV3")
 public class SecureVaultService {
 
     private PowerAuthServiceClient powerAuthClient;

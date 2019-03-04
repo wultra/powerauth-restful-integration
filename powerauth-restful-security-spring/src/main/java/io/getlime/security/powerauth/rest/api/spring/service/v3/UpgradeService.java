@@ -52,7 +52,7 @@ import java.util.List;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@Service("UpgradeServiceV3")
+@Service("upgradeServiceV3")
 public class UpgradeService {
 
     private static final Logger logger = LoggerFactory.getLogger(UpgradeService.class);
