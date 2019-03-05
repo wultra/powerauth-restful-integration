@@ -45,7 +45,7 @@ import javax.servlet.http.HttpServletRequest;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController("SecureVaultControllerV3")
+@RestController("secureVaultControllerV3")
 @RequestMapping(value = "/pa/v3/vault")
 public class SecureVaultController {
 

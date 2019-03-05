@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController("EncryptedDataExchangeControllerV3")
+@RestController("encryptedDataExchangeControllerV3")
 @RequestMapping(value = "/exchange")
 public class EncryptedDataExchangeController {
 

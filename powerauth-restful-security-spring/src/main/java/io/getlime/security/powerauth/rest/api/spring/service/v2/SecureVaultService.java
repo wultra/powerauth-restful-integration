@@ -51,7 +51,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@Service("SecureVaultServiceV2")
+@Service("secureVaultServiceV2")
 public class SecureVaultService {
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);

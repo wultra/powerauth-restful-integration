@@ -55,7 +55,7 @@ import javax.servlet.http.HttpServletRequest;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@RestController("ActivationControllerV3")
+@RestController("activationControllerV3")
 @RequestMapping(value = "/pa/v3/activation")
 public class ActivationController {
 

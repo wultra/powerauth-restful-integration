@@ -55,7 +55,7 @@ import java.util.Map;
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-@RestController("CustomActivationControllerV2")
+@RestController("customActivationControllerV2")
 @RequestMapping(value = "/pa/activation/direct")
 public class CustomActivationController {
 

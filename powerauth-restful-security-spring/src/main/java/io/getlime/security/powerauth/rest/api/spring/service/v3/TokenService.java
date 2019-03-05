@@ -45,7 +45,7 @@ import org.springframework.stereotype.Service;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Service("TokenServiceV3")
+@Service("tokenServiceV3")
 public class TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);

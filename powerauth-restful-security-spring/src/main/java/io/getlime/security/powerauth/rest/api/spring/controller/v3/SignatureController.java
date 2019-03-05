@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@RestController("SignatureControllerV3")
+@RestController("signatureControllerV3")
 @RequestMapping(value = "/pa/v3/signature")
 public class SignatureController {
 

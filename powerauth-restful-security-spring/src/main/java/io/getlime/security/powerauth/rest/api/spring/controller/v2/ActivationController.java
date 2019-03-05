@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Petr Dvorak, petr@wultra.com
  *
  */
-@RestController("ActivationControllerV2")
+@RestController("activationControllerV2")
 @RequestMapping(value = "/pa/activation")
 public class ActivationController {
 

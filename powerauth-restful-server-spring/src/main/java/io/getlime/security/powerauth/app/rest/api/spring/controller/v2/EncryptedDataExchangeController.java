@@ -46,7 +46,7 @@ import java.security.InvalidKeyException;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController("EncryptedDataExchangeControllerV2")
+@RestController("encryptedDataExchangeControllerV2")
 public class EncryptedDataExchangeController {
 
     private EncryptorFactory encryptorFactory;
