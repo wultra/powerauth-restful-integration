@@ -151,7 +151,7 @@ public class CustomActivationController {
 
             // Check if activation should be committed instantly and if yes, perform commit
             if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
-                powerAuthClient.commitActivation(response.getActivationId());
+                powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 
             // Return response
