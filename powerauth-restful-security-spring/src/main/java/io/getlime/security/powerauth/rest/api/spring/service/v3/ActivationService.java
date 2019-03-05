@@ -172,7 +172,7 @@ public class ActivationService {
 
                     // Check if activation should be committed instantly and if yes, perform commit
                     if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
-                        powerAuthClient.commitActivation(response.getActivationId());
+                        powerAuthClient.commitActivation(response.getActivationId(), null);
                     }
 
                     // Prepare encrypted activation data
@@ -229,7 +229,7 @@ public class ActivationService {
      */
     public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException {
         try {
-            RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId());
+            RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId(), null);
             ActivationRemoveResponse response = new ActivationRemoveResponse();
             response.setActivationId(soapResponse.getActivationId());
             return response;
