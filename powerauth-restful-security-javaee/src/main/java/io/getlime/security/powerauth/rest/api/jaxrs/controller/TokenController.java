@@ -24,7 +24,7 @@ import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.powerauth.soap.PowerAuthPortServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.SignatureTypeConverter;
@@ -64,16 +64,18 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenCreateResponse> createToken(ObjectRequest<TokenCreateRequest> request, @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
 
         try {
-
-            PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(tokenHeader, Arrays.asList(
-                    PowerAuthSignatureTypes.POSSESSION,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-                    PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
-            ));
+            // Verify request signature before creating token
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    httpServletRequest, "/pa/token/create", authHeader,
+                    Arrays.asList(
+                            PowerAuthSignatureTypes.POSSESSION,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+                            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+                    ));
 
             if (authentication != null && authentication.getActivationId() != null) {
 
@@ -111,15 +113,18 @@ public class TokenController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("remove")
-    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request, @HeaderParam(PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
+    public ObjectResponse<TokenRemoveResponse> removeToken(ObjectRequest<TokenRemoveRequest> request, @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
 
         try {
-            PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(tokenHeader, Arrays.asList(
-                    PowerAuthSignatureTypes.POSSESSION,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-                    PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-                    PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
-            ));
+            // Verify request signature before removing token
+            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    httpServletRequest, "/pa/token/remove", authHeader,
+                    Arrays.asList(
+                            PowerAuthSignatureTypes.POSSESSION,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+                            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+                            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+                    ));
 
             if (authentication != null && authentication.getActivationId() != null) {
 
