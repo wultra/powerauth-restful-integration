@@ -74,6 +74,7 @@ public class JavaEEApplication extends Application {
 
         // PowerAuth Exception Resolvers
         resources.add(PowerAuthActivationExceptionResolver.class);
+        resources.add(PowerAuthRecoveryExceptionResolver.class);
         resources.add(PowerAuthAuthenticationExceptionResolver.class);
         resources.add(PowerAuthEncryptionExceptionResolver.class);
         resources.add(PowerAuthSecureVaultExceptionResolver.class);

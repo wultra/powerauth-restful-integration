@@ -19,10 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
-import io.getlime.powerauth.soap.v3.CreateActivationResponse;
-import io.getlime.powerauth.soap.v3.GetActivationStatusResponse;
-import io.getlime.powerauth.soap.v3.PrepareActivationResponse;
-import io.getlime.powerauth.soap.v3.RemoveActivationResponse;
+import io.getlime.powerauth.soap.v3.*;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
@@ -184,6 +181,41 @@ public class ActivationService {
                     responseL1.setActivationData(encryptedActivationData);
 
                     // Return response
+                    return responseL1;
+                }
+
+                // Activation using recovery code
+                case RECOVERY: {
+                    // Extract data from request and encryption object
+                    String recoveryCode = request.getIdentityAttributes().get("recoveryCode");
+                    String recoveryPuk = request.getIdentityAttributes().get("puk");
+
+                    if (recoveryCode == null || recoveryCode.isEmpty()) {
+                        throw new PowerAuthActivationException();
+                    }
+
+                    if (recoveryPuk == null || recoveryPuk.isEmpty()) {
+                        throw new PowerAuthActivationException();
+                    }
+
+                    // Call RecoveryCodeActivation SOAP method on PA server
+                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, ephemeralPublicKey, encryptedData, mac);
+
+                    Map<String, Object> processedCustomAttributes = customAttributes;
+                    // In case a custom activation provider is enabled, process custom attributes
+                    if (activationProvider != null) {
+                        processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.RECOVERY);
+                    }
+
+                    // Prepare encrypted response object for layer 2
+                    EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
+                    encryptedResponseL2.setEncryptedData(response.getEncryptedData());
+                    encryptedResponseL2.setMac(response.getMac());
+
+                    // The response is encrypted once more before sent to client using ResponseBodyAdvice
+                    ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+                    responseL1.setCustomAttributes(processedCustomAttributes);
+                    responseL1.setActivationData(encryptedResponseL2);
                     return responseL1;
                 }
 

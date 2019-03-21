@@ -70,6 +70,20 @@ public class PowerAuthExceptionHandler {
         return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
+
+    /**
+     * Handle PowerAuthRecoveryException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthRecoveryException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handleRecoveryException(Exception ex) {
+        PowerAuthRecoveryException paex = (PowerAuthRecoveryException)ex;
+        logger.error(paex.getMessage(), paex);
+        return new ErrorResponse(paex.getDefaultCode(), paex);
+    }
+
     /**
      * Handle PowerAuthSecureVaultException exceptions.
      * @param ex Exception instance.
