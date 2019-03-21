@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2019 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,12 +20,44 @@
 package io.getlime.security.powerauth.rest.api.model.entity;
 
 /**
- * Activation type specifying how activation will be handled.
+ * Activation recovery model class for recovery code and PUK.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public enum ActivationType {
-    CODE,
-    CUSTOM,
-    RECOVERY
+public class ActivationRecovery {
+
+    private String recoveryCode;
+    private String puk;
+
+    /**
+     * Get recovery code.
+     * @return Recovery code.
+     */
+    public String getRecoveryCode() {
+        return recoveryCode;
+    }
+
+    /**
+     * Set recovery code.
+     * @param recoveryCode Recovery code.
+     */
+    public void setRecoveryCode(String recoveryCode) {
+        this.recoveryCode = recoveryCode;
+    }
+
+    /**
+     * Get recovery PUK.
+     * @return Recovery PUK.
+     */
+    public String getPuk() {
+        return puk;
+    }
+
+    /**
+     * Set recovery PUK.
+     * @param puk Recovery PUK.
+     */
+    public void setPuk(String puk) {
+        this.puk = puk;
+    }
 }
