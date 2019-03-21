@@ -17,31 +17,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.request.v3;
+package io.getlime.security.powerauth.rest.api.model.response.v3;
 
 /**
- * Request object for confirm recovery code ECIES payload.
+ * Response object for confirm recovery code ECIES payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-public class ConfimRecoveryRequestPayload {
+public class ConfirmRecoveryResponsePayload {
 
-    private String recoveryCode;
+    private boolean alreadyConfirmed;
 
     /**
-     * Get recovery code.
-     * @return Recovery code.
+     * Get whether recovery code was already confirmed.
+     * @return Whether recovery code was already confirmed.
      */
-    public String getRecoveryCode() {
-        return recoveryCode;
+    public boolean getAlreadyConfirmed() {
+        return alreadyConfirmed;
     }
 
     /**
-     * Set recovery code.
-     * @param recoveryCode Recovery code.
+     * Set whether recovery code was already confirmed.
+     * @param alreadyConfirmed Whether recovery code was already confirmed.
      */
-    public void setRecoveryCode(String recoveryCode) {
-        this.recoveryCode = recoveryCode;
+    public void setAlreadyConfirmed(boolean alreadyConfirmed) {
+        this.alreadyConfirmed = alreadyConfirmed;
     }
 }
