@@ -143,7 +143,7 @@ public class ActivationService {
                     }
 
                     // Resolve maxFailedCount and activationExpireTimestamp parameters, null value means use value configured on PowerAuth server
-                    Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId);
+                    final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId);
                     final Long maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
                     final Integer activationValidityPeriod = activationProvider.getValidityPeriodDuringActivation(identity, customAttributes, userId);
                     Date activationExpireTimestamp = null;
@@ -186,6 +186,11 @@ public class ActivationService {
 
                 // Activation using recovery code
                 case RECOVERY: {
+
+                    if (request.getIdentityAttributes() == null) {
+                        throw new PowerAuthActivationException();
+                    }
+
                     // Extract data from request and encryption object
                     String recoveryCode = request.getIdentityAttributes().get("recoveryCode");
                     String recoveryPuk = request.getIdentityAttributes().get("puk");
@@ -198,8 +203,15 @@ public class ActivationService {
                         throw new PowerAuthActivationException();
                     }
 
+                    // Resolve maxFailedCount, user ID is not known
+                    Long maxFailedCount = null;
+                    if (activationProvider != null) {
+                        final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, null);
+                        maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
+                    }
+
                     // Call RecoveryCodeActivation SOAP method on PA server
-                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, ephemeralPublicKey, encryptedData, mac);
+                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes
