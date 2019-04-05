@@ -150,7 +150,7 @@ public class CustomActivationController {
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
             // Check if activation should be committed instantly and if yes, perform commit
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
                 powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 

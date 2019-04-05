@@ -20,8 +20,9 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import io.getlime.powerauth.soap.v3.ConfirmRecoveryCodeResponse;
-import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
@@ -59,30 +60,31 @@ public class RecoveryService {
     /**
      * Confirm recovery code.
      * @param request Ecies encrypted request.
-     * @param eciesContext Ecies encryption context.
+     * @param authentication PowerAuth API authentication object.
      * @return Ecies encrypted response.
-     * @throws PowerAuthRecoveryException In case confirm recovery fails.
+     * @throws PowerAuthAuthenticationException In case confirm recovery fails.
      */
     public EciesEncryptedResponse confirmRecoveryCode(EciesEncryptedRequest request,
-                                                      EciesEncryptionContext eciesContext) throws PowerAuthRecoveryException {
+                                                      PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
-            String activationId = eciesContext.getActivationId();
-            String applicationKey = eciesContext.getApplicationKey();
+            final String activationId = authentication.getActivationId();
+            final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
+            final String applicationKey = httpHeader.getApplicationKey();
             if (activationId == null || applicationKey == null || request.getEphemeralPublicKey() == null
                     || request.getEncryptedData() == null || request.getMac() == null) {
                 logger.error("PowerAuth confirm recovery failed because of invalid request");
-                throw new PowerAuthRecoveryException();
+                throw new PowerAuthAuthenticationException();
             }
             ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(activationId, applicationKey,
                     request.getEphemeralPublicKey(), request.getEncryptedData(), request.getMac());
             if (!paResponse.getActivationId().equals(activationId)) {
                 logger.error("PowerAuth confirm recovery failed because of invalid activation ID in response");
-                throw new PowerAuthRecoveryException();
+                throw new PowerAuthAuthenticationException();
             }
             return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
         } catch (Exception ex) {
             logger.warn("PowerAuth confirm recovery failed", ex);
-            throw new PowerAuthRecoveryException();
+            throw new PowerAuthAuthenticationException();
         }
     }
 }

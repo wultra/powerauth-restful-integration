@@ -131,9 +131,9 @@ public class ActivationService {
                     }
 
                     // Resolve maxFailedCount and activationExpireTimestamp parameters, null value means use value configured on PowerAuth server
-                    Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId);
+                    Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId, ActivationType.CUSTOM);
                     final Long maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
-                    final Integer activationValidityPeriod = activationProvider.getValidityPeriodDuringActivation(identity, customAttributes, userId);
+                    final Integer activationValidityPeriod = activationProvider.getValidityPeriodDuringActivation(identity, customAttributes, userId, ActivationType.CUSTOM);
                     Date activationExpireTimestamp = null;
                     if (activationValidityPeriod != null) {
                         Calendar activationExpiration = GregorianCalendar.getInstance();
@@ -156,8 +156,11 @@ public class ActivationService {
                     final Map<String, Object> processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
                     // Check if activation should be committed instantly and if yes, perform commit
-                    if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
-                        powerAuthClient.commitActivation(response.getActivationId(), null);
+                    if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
+                        PowerAuthPortV3ServiceStub.CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
+                        if (commitResponse.getActivated()) {
+                            activationProvider.activationWasCommitted(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
+                        }
                     }
 
                     // Prepare encrypted activation data

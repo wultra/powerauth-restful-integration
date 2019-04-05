@@ -27,6 +27,7 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
@@ -75,10 +76,18 @@ public class ActivationController {
         this.authenticationProvider = authenticationProvider;
     }
 
+    /**
+     * Create activation.
+     * @param request Encrypted activation layer 1 request.
+     * @param eciesContext ECIES encryption context.
+     * @return Activation layer 1 response.
+     * @throws PowerAuthActivationException In case activation fails.
+     * @throws PowerAuthRecoveryException In case recovery PUK is invalid.
+     */
     @RequestMapping(value = "create", method = RequestMethod.POST)
     @PowerAuthEncryption(scope = EciesScope.APPLICATION_SCOPE)
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
-                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
+                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
         if (request == null || eciesContext == null) {
             throw new PowerAuthActivationException();
         }

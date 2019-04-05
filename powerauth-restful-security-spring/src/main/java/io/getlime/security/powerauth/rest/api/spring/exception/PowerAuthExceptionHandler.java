@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
 
 import io.getlime.core.rest.model.base.response.ErrorResponse;
 import io.getlime.security.powerauth.rest.api.base.exception.*;
+import io.getlime.security.powerauth.rest.api.model.exception.RecoveryErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -78,10 +79,10 @@ public class PowerAuthExceptionHandler {
      */
     @ExceptionHandler(value = PowerAuthRecoveryException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody ErrorResponse handleRecoveryException(Exception ex) {
+    public @ResponseBody RecoveryErrorResponse handleRecoveryException(Exception ex) {
         PowerAuthRecoveryException paex = (PowerAuthRecoveryException)ex;
         logger.error(paex.getMessage(), paex);
-        return new ErrorResponse(paex.getDefaultCode(), paex);
+        return new RecoveryErrorResponse(paex.getErrorCode(), paex, paex.getCurrentRecoveryPukIndex());
     }
 
     /**

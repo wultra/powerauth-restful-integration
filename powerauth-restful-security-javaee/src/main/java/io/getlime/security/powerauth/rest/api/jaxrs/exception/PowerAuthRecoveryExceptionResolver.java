@@ -19,8 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.exception;
 
-import io.getlime.core.rest.model.base.response.ErrorResponse;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
+import io.getlime.security.powerauth.rest.api.model.exception.RecoveryErrorResponse;
 
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -37,7 +37,7 @@ public class PowerAuthRecoveryExceptionResolver implements ExceptionMapper<Power
     public Response toResponse(PowerAuthRecoveryException ex) {
         return Response
                 .status(Response.Status.BAD_REQUEST)
-                .entity(new ErrorResponse(ex.getDefaultCode(), ex.getMessage()))
+                .entity(new RecoveryErrorResponse(ex.getErrorCode(), ex.getMessage(), ex.getCurrentRecoveryPukIndex()))
                 .build();
     }
 }

@@ -17,77 +17,44 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.base.exception;
+package io.getlime.security.powerauth.rest.api.model.exception;
+
+import io.getlime.core.rest.model.base.entity.Error;
 
 /**
- * Exception related to processes during a new activation process.
+ * Recovery error.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class PowerAuthRecoveryException extends Exception {
+public class RecoveryError extends Error {
 
-    private static final long serialVersionUID = 6497199187989286105L;
-
-    private static final String DEFAULT_CODE = "ERR_RECOVERY";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_RECOVERY_INVALID";
-
-    private String errorCode;
     private Integer currentRecoveryPukIndex;
 
     /**
      * Default constructor.
      */
-    public PowerAuthRecoveryException() {
-        super(DEFAULT_ERROR);
+    public RecoveryError() {
+        super();
     }
 
     /**
-     * Constructor with a custom error message.
+     * Constructor with error code and message.
+     * @param code Error code.
      * @param message Error message.
      */
-    public PowerAuthRecoveryException(String message) {
-        super(message);
+    public RecoveryError(String code, String message) {
+        super(code, message);
     }
 
     /**
-     * Constructor with a custom error message and error code.
+     * Constructor with error code, message and current recovery PUK index.
+     * @param code Error code.
      * @param message Error message.
-     * @param errorCode Error code.
-     */
-    public PowerAuthRecoveryException(String message, String errorCode) {
-        super(message);
-        this.errorCode = errorCode;
-    }
-
-    /**
-     * Constructor with a custom error message, error code and current recovery PUK index.
-     * @param message Error message.
-     * @param errorCode Error code.
      * @param currentRecoveryPukIndex Current recovery PUK index.
      */
-    public PowerAuthRecoveryException(String message, String errorCode, Integer currentRecoveryPukIndex) {
-        super(message);
-        this.errorCode = errorCode;
+    public RecoveryError(String code, String message, Integer currentRecoveryPukIndex) {
+        super(code, message);
         this.currentRecoveryPukIndex = currentRecoveryPukIndex;
-    }
-
-    /**
-     * Get error code.
-     * @return Error code.
-     */
-    public String getErrorCode() {
-        if (errorCode == null) {
-            return DEFAULT_CODE;
-        }
-        return errorCode;
-    }
-
-    /**
-     * Set error code.
-     * @param errorCode Error code.
-     */
-    public void setErrorCode(String errorCode) {
-        this.errorCode = errorCode;
     }
 
     /**

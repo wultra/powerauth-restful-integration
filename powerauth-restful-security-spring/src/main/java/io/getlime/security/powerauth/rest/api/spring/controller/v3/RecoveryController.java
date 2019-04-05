@@ -20,8 +20,8 @@
 package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
+import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
@@ -64,21 +64,29 @@ public class RecoveryController {
     /**
      * Confirm recovery code.
      * @param request Ecies encrypted request.
-     * @param eciesContext Ecies encryption context.
+     * @param authentication PowerAuth API authentication object.
      * @return Ecies encrypted response.
-     * @throws PowerAuthRecoveryException In case confirm recovery fails.
+     * @throws PowerAuthAuthenticationException In case confirm recovery fails.
      */
     @RequestMapping(value = "confirm", method = RequestMethod.POST)
     @PowerAuth(resourceId = "/pa/recovery/confirm", signatureType = {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
     })
-    public EciesEncryptedResponse createActivation(@RequestBody EciesEncryptedRequest request,
-                                                   EciesEncryptionContext eciesContext) throws PowerAuthRecoveryException {
-        if (request == null || eciesContext == null) {
+    public EciesEncryptedResponse confirmRecoveryCode(@RequestBody EciesEncryptedRequest request,
+                                                      PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+        if (request == null) {
             logger.warn("Invalid request object in confirm recovery");
-            throw new PowerAuthRecoveryException();
+            throw new PowerAuthAuthenticationException();
         }
-        return recoveryService.confirmRecoveryCode(request, eciesContext);
+        if (authentication != null && authentication.getActivationId() != null) {
+            if (!"3.0".equals(authentication.getVersion())) {
+                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+                throw new PowerAuthAuthenticationException();
+            }
+            return recoveryService.confirmRecoveryCode(request, authentication);
+        } else {
+            throw new PowerAuthAuthenticationException();
+        }
     }
 
 }
