@@ -212,7 +212,7 @@ public class ActivationService {
                     // Resolve maxFailedCount, user ID is not known
                     Long maxFailedCount = null;
                     if (activationProvider != null) {
-                        final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, null, ActivationType.CUSTOM);
+                        final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, null, ActivationType.RECOVERY);
                         maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
                     }
 
