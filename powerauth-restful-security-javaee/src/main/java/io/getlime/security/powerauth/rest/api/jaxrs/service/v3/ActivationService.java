@@ -235,8 +235,6 @@ public class ActivationService {
                     throw new PowerAuthAuthenticationException("Unsupported activation type: " + request.getType());
             }
         } catch (AxisFault ex) {
-            System.out.println("AXIS FAULT");
-            System.out.println(ex.getFaultDetailElement());
             if (ex.getFaultDetailElement() != null) {
                 handleInvalidRecoveryError(ex.getFaultDetailElement());
             }
