@@ -325,7 +325,11 @@ public class ActivationService {
                     errorMessage = node.getTextContent();
                     break;
                 case "currentRecoveryPukIndex":
-                    currentRecoveryPukIndex = Integer.parseInt(node.getTextContent());
+                    try {
+                        currentRecoveryPukIndex = Integer.parseInt(node.getTextContent());
+                    } catch (NumberFormatException ex) {
+                        // Ignore invalid index
+                    }
                     break;
             }
         }

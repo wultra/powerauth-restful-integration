@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2019 Wultra s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,21 +17,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.controller.v3;
+package io.getlime.security.powerauth.rest.api.jaxrs.controller.v3;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.jaxrs.service.v3.RecoveryService;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
-import io.getlime.security.powerauth.rest.api.spring.service.v3.RecoveryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.MediaType;
+import java.util.Collections;
 
 /**
  * Controller implementing recovery related end-points from the PowerAuth
@@ -45,39 +49,44 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@RestController
-@RequestMapping(value = "/pa/v3/recovery")
+@Path("/pa/v3/recovery")
+@Produces(MediaType.APPLICATION_JSON)
 public class RecoveryController {
 
     private static final Logger logger = LoggerFactory.getLogger(RecoveryController.class);
 
-    private final RecoveryService recoveryService;
+    @Context
+    private HttpServletRequest httpServletRequest;
 
-    /**
-     * Service constructor.
-     * @param recoveryService Recovery service.
-     */
-    public RecoveryController(RecoveryService recoveryService) {
-        this.recoveryService = recoveryService;
-    }
+    @Inject
+    private PowerAuthAuthenticationProvider authenticationProvider;
+
+    @Inject
+    private RecoveryService recoveryService;
 
     /**
      * Confirm recovery code.
      * @param request ECIES encrypted request.
-     * @param authentication PowerAuth API authentication object.
      * @return ECIES encrypted response.
      * @throws PowerAuthAuthenticationException In case confirm recovery fails.
      */
-    @RequestMapping(value = "confirm", method = RequestMethod.POST)
-    @PowerAuth(resourceId = "/pa/recovery/confirm", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
-    })
-    public EciesEncryptedResponse confirmRecoveryCode(@RequestBody EciesEncryptedRequest request,
-                                                      PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+    @POST
+    @Consumes({MediaType.APPLICATION_JSON})
+    @Produces({MediaType.APPLICATION_JSON})
+    @Path("confirm")
+    public EciesEncryptedResponse confirmRecoveryCode(EciesEncryptedRequest request,
+                                                      @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
+
         if (request == null) {
             logger.warn("Invalid request object in confirm recovery");
             throw new PowerAuthAuthenticationException();
         }
+        // Verify request signature before creating token
+        PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                httpServletRequest, "/pa/recovery/confirm", authHeader,
+                Collections.singletonList(
+                        PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
+                ));
         if (authentication != null && authentication.getActivationId() != null) {
             if (!"3.0".equals(authentication.getVersion())) {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());

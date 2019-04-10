@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2019 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -29,7 +29,7 @@ import javax.ws.rs.ext.ExceptionMapper;
  * Class responsible for PowerAuth Standard RESTful API exception handling for
  * exceptions that are raised during the recovery phase.
  *
- * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 public class PowerAuthRecoveryExceptionResolver implements ExceptionMapper<PowerAuthRecoveryException> {
 
