@@ -28,6 +28,7 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncr
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthEncryptionProvider;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
@@ -74,7 +75,7 @@ public class ActivationController {
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     @Path("create")
-    public EciesEncryptedResponse createActivation() throws PowerAuthActivationException {
+    public EciesEncryptedResponse createActivation() throws PowerAuthActivationException, PowerAuthRecoveryException {
         try {
             PowerAuthEciesEncryption<ActivationLayer1Request> eciesEncryption = encryptionProvider.decryptRequest(httpServletRequest, ActivationLayer1Request.class, EciesScope.APPLICATION_SCOPE);
             ActivationLayer1Request layer1Request = eciesEncryption.getRequestObject();

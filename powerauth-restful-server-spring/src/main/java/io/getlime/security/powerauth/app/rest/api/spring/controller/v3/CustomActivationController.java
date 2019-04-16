@@ -23,6 +23,7 @@ import io.getlime.security.powerauth.app.rest.api.spring.provider.DefaultCustomA
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
@@ -69,7 +70,7 @@ public class CustomActivationController {
     @RequestMapping(value = "v3/create", method = RequestMethod.POST)
     @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
     public ActivationLayer1Response createActivationV3(@EncryptedRequestBody ActivationLayer1Request request,
-                                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException {
+                                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
         if (request == null || eciesContext == null) {
             throw new PowerAuthActivationException();
         }

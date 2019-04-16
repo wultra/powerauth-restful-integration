@@ -109,9 +109,11 @@ public class JavaEEApplication extends Application {
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.SignatureController.class);
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.TokenController.class);
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.UpgradeController.class);
+        resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v3.RecoveryController.class);
         
         // PowerAuth Exception Resolvers
         resources.add(PowerAuthActivationExceptionResolver.class);
+        resources.add(PowerAuthRecoveryExceptionResolver.class);
         resources.add(PowerAuthAuthenticationExceptionResolver.class);
         resources.add(PowerAuthEncryptionExceptionResolver.class);
         resources.add(PowerAuthSecureVaultExceptionResolver.class);

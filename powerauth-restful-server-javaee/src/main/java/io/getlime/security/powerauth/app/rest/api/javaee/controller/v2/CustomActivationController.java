@@ -127,7 +127,7 @@ public class CustomActivationController {
 
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
                 powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 
