@@ -55,7 +55,7 @@ import java.util.Map;
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-@RestController("CustomActivationControllerV2")
+@RestController("customActivationControllerV2")
 @RequestMapping(value = "/pa/activation/direct")
 public class CustomActivationController {
 
@@ -150,8 +150,8 @@ public class CustomActivationController {
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
             // Check if activation should be committed instantly and if yes, perform commit
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId)) {
-                powerAuthClient.commitActivation(response.getActivationId());
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
+                powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 
             // Return response

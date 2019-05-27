@@ -23,6 +23,7 @@ import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProv
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,12 +42,32 @@ public class DefaultCustomActivationProvider implements CustomActivationProvider
 
     @Override
     public Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {
-        // Copy custom attributes
-        return new HashMap<>(customAttributes);
+        if (customAttributes != null) {
+            // Copy custom attributes
+            return new HashMap<>(customAttributes);
+        } else {
+            return Collections.emptyMap();
+        }
     }
 
     @Override
-    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId) {
+    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {
         return true;
+    }
+
+    @Override
+    public void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {
+    }
+
+    @Override
+    public Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) {
+        // Null value means use value configured on PowerAuth server
+        return null;
+    }
+
+    @Override
+    public Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) {
+        // Null value means use value configured on PowerAuth server
+        return null;
     }
 }

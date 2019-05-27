@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-@RestController("TokenControllerV2")
+@RestController("tokenControllerV2")
 @RequestMapping("/pa/token")
 public class TokenController {
 

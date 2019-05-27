@@ -29,11 +29,13 @@ import java.util.Map;
  * of auto-commit mode.
  *
  * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 public interface CustomActivationProvider {
 
     /**
      * This method is responsible for looking user ID up based on a provided set of identity attributes.
+     *
      * @param identityAttributes Attributes that uniquely identify user with given ID.
      * @return User ID value.
      */
@@ -41,10 +43,11 @@ public interface CustomActivationProvider {
 
     /**
      * Process custom attributes, in any way that is suitable for the purpose of your application.
+     *
      * @param customAttributes Custom attributes (not related to identity) to be processed.
      * @param activationId Activation ID of created activation.
      * @param userId User ID of user who created the activation.
-     * @param activationType Activation type (CODE or CUSTOM).
+     * @param activationType Activation type.
      * @return Custom attributes after processing.
      */
     Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
@@ -58,9 +61,43 @@ public interface CustomActivationProvider {
      * @param customAttributes Custom attributes, not related to identity.
      * @param activationId Activation ID of created activation.
      * @param userId User ID of user who created the activation.
+     * @param activationType Activation type.
      * @return True in case activation should be committed, false otherwise.
      */
-    boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId);
+    boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
 
+    /**
+     * Method is called when activation commit succeeds.
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param activationId Activation ID of created activation.
+     * @param userId User ID of user who created the activation.
+     * @param activationType Activation type.
+     */
+    void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
+
+    /**
+     * Get maximum failed attempt count for activations.
+     * Use null value for using value which is configured on PowerAuth server.
+     *
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param userId User ID of user who created the activation.
+     * @param activationType Activation type.
+     * @return Maximum failed attempt count for activations.
+     */
+    Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType);
+
+    /**
+     * Get length of the period of activation record validity during activation in milliseconds.
+     * Use null value for using value which is configured on PowerAuth server.
+     *
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param userId User ID of user who created the activation.
+     * @param activationType Activation type.
+     * @return Period in milliseconds during which activation is valid before it expires.
+     */
+    Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType);
 
 }
