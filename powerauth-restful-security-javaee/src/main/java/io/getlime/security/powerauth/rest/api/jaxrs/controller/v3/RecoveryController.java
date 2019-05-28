@@ -67,6 +67,7 @@ public class RecoveryController {
     /**
      * Confirm recovery code.
      * @param request ECIES encrypted request.
+     * @param authHeader PowerAuth signature HTTP header.
      * @return ECIES encrypted response.
      * @throws PowerAuthAuthenticationException In case confirm recovery fails.
      */
