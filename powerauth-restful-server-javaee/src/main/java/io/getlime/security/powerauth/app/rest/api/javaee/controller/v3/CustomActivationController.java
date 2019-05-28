@@ -67,6 +67,7 @@ public class CustomActivationController {
      *
      * @return ECIES encrypted response.
      * @throws PowerAuthActivationException In case activation fails.
+     * @throws PowerAuthRecoveryException In case activation recovery fails.
      */
     @POST
     @Path("v3/create")
