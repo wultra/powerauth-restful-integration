@@ -66,6 +66,7 @@ public class CustomActivationController {
      * @param eciesContext ECIES encryption context.
      * @return ECIES encrypted activation response.
      * @throws PowerAuthActivationException In case custom activation fails.
+     * @throws PowerAuthRecoveryException In case activation recovery fails.
      */
     @RequestMapping(value = "v3/create", method = RequestMethod.POST)
     @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
