@@ -91,7 +91,7 @@
         <guava.version>27.0.1-jre</guava.version>
         <slf4j-api.version>1.7.25</slf4j-api.version>
         <jackson-databind.version>2.9.9</jackson-databind.version>
-        <bcprov.version>1.61</bcprov.version>
+        <bcprov.version>1.62</bcprov.version>
         <rest-model-base.version>1.1.0</rest-model-base.version>
     </properties>
 
