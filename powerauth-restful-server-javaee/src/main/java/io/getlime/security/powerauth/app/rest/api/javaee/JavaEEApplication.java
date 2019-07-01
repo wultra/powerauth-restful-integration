@@ -60,7 +60,6 @@ public class JavaEEApplication extends Application {
         resources.add(TokenController.class);
         resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v2.CustomActivationController.class);
         resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v2.EncryptedDataExchangeController.class);
-        resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v3.CustomActivationController.class);
         resources.add(io.getlime.security.powerauth.app.rest.api.javaee.controller.v3.EncryptedDataExchangeController.class);
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.ActivationController.class);
         resources.add(io.getlime.security.powerauth.rest.api.jaxrs.controller.v2.SignatureController.class);
