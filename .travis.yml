@@ -4,19 +4,20 @@ jdk:
 branches:
   only:
   - master
+  - coverity_scan
 env:
   global:
-  - secure: "T5N2JPg3RXeohHv11G4Yi5WR2wXI+d85VLkF9nt1293FvqblxVrN26CipeKPuRYi5Xo71wNbqsLdmy83cE8Mm0n6eTxTRbzsc/CjK7xoAMId+MAEznozEaiZPzRECF63LNP+tWobGLsMT7gJMFJL/94ib8p+I5E1kqFtMAQo/a0uh82vvcgS1r9jtXq/DXxsUKGQPJwGeQH8dIegUPVuXcXvIfwEFI9WNYYBLhwAlW5r+FYQqgTDOiP2jttVhRMDU37SiWbh0YaR2Bc0Iw1muy2Du30VROWgkV98HRDU8B8TBxdcBL9QkCvkzD3EmPiD/JeccG0DwtBXpEirtk8v2EwlKAVwuTDVxwdwAdYxREl2w4fx+8XCb0ps6GWEcWgbKEL/XRNP4uXziAMor5udUMpuS8r9kPqoy/sIhpVaM9df+Wd1KEnzv88Bd04IwZasOeuA8wdOPOLpickf/+s29Ez3oUKggZMo6kQvfhiBjXqkfQ10N7bog7ZjQXouSVBDj9t34ksJMNaIJ01mfBXddBh7pq7kp/Uct1MJU9/LfaOXQ8FILu6Qxqr50Gyr9CwSm0fAFJL60EDNdYhq8jF6yPGlaoild1SQKx+veFUzu6bbk49WrVvwxv4leiXH9jhf6kIVtpCZ8RoBDBH5EdMUmPPz7t09EKPs7U75BVkD420="
+    - secure: "IDCejLeSEtw2QJsZwLxYXYdqXamd/DvrqEZJ6zVwpV6XD4p1HiJXrGLpd2h99sqVJ+hwYQ7FCvZwULavqQH81QtMRSHk6xb+Imnyk02gWwBRQOoKZeaELE3D8+y4YPQfvcpYBq+TgjJVSU34VvGKPAM3oZNXTogJvSSFyf3OcmyMpKgLe2yR23M/8OC+/XKU7tOFVJfuDsKoxumeqtz+OoXLABNSbbI6K2iO/+JHxMmoYt0Xjx/yy74+rOA0E6s2sMszaiJ/QIBGcTSHoydG/Hb+2rBEHB5sIShWhUdZVpk7iUT6CCq2AL5zW+r7/qvyXGE1wLxb2nNwnUa/rnQvWz4V99Jv9QBhbfabI/xp+eNo9uKCH1LRrKJSdD9cO/ZkZQ30I2+deYciT1qduVDDOAcxc7/WMDhOYlGN+HA7B7xSlbTqsA5OVKF+Cppi+OtKdDX6PxNUWNm8VAg+Wef2USrRWnWBau/aVnUUsTPPLInPQeANh8E9bxknxmTh+VLIysQXid+LvDXNC2eTRkk9CaBGnHK96izvScWB2SUTXICZtQdu8BpWIOwHxK0fwTJZEMCuWe2y1onGNse4sCpyE00nQzKB0KsSC9uJOOIiOlATinRgg17Jomn5T7AGVVrKp9WxrwXERcYOHmNZC8CMuAK5+sKR/7vUwJZkG03QxSI="
 
 before_install:
-  - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
+  - echo -n | openssl s_client -connect https://scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 addons:
   coverity_scan:
     project:
-      name: wultra/powerauth-restful-integration
-      description: Build submitted via Travis CI
-    notification_email: petr@wultra.com
-    build_command_prepend: mvn clean
-    build_command: mvn -DskipTests=true compile
-    branch_pattern: master
+      name: "wultra/powerauth-restful-integration"
+      description: "Build submitted via Travis CI"
+    notification_email: roman.strobl@wultra.com
+    build_command_prepend: "mvn clean"
+    build_command: "mvn -DskipTests=true compile"
+    branch_pattern: coverity_scan
