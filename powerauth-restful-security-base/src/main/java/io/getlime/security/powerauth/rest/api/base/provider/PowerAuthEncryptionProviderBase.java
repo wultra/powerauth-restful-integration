@@ -52,8 +52,8 @@ import java.io.IOException;
  */
 public abstract class PowerAuthEncryptionProviderBase {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private EciesFactory eciesFactory = new EciesFactory();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final EciesFactory eciesFactory = new EciesFactory();
 
     /**
      * Get ECIES decryptor parameters from PowerAuth server.
@@ -192,7 +192,6 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @return Request object.
      * @throws IOException In case request object could not be deserialized.
      */
-    @SuppressWarnings("unchecked")
     private <T> T deserializeRequestData(byte[] requestData, Class<T> requestType) throws IOException {
         if (requestType.equals(byte[].class)) {
             // Raw data without deserialization from JSON

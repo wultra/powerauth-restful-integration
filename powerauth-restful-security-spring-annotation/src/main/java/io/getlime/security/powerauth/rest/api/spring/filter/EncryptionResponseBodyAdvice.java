@@ -178,10 +178,11 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
     private class BasicHttpOutputMessage implements HttpOutputMessage {
 
-        private ByteArrayOutputStream os = new ByteArrayOutputStream();
-        private HttpHeaders httpHeaders = new HttpHeaders();
+        private final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        private final HttpHeaders httpHeaders = new HttpHeaders();
 
         @Override
+        @NonNull
         public OutputStream getBody() {
             return os;
         }
@@ -191,6 +192,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         }
 
         @Override
+        @NonNull
         public HttpHeaders getHeaders() {
             return httpHeaders;
         }
