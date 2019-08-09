@@ -192,6 +192,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @return Request object.
      * @throws IOException In case request object could not be deserialized.
      */
+    @SuppressWarnings("unchecked")
     private <T> T deserializeRequestData(byte[] requestData, Class<T> requestType) throws IOException {
         if (requestType.equals(byte[].class)) {
             // Raw data without deserialization from JSON

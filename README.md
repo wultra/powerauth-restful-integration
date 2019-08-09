@@ -4,4 +4,4 @@ In order to easily secure your RESTful APIs with PowerAuth, you can use our easy
 
 ## Documentation
 
-For the most recent documentation and tutorials, please visit [PowerAuth RESTful Integration Documentation](https://developers.wultra.com/docs/current/powerauth-restful-integration/).
+For the most recent documentation and tutorials, please visit [PowerAuth RESTful Integration Documentation on GitHub](./docs/Readme.md) or visit [developers.wultra.com](https://developers.wultra.com/docs/develop/powerauth-restful-integration/).

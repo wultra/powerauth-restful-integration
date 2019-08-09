@@ -77,6 +77,7 @@ public class ActivationService {
      * @param eciesEncryption PowerAuth ECIES encryption object.
      * @return Create activation layer 1 response.
      * @throws PowerAuthActivationException In case create activation fails.
+     * @throws PowerAuthRecoveryException In case activation recovery fails.
      */
     public ActivationLayer1Response createActivation(ActivationLayer1Request request, PowerAuthEciesEncryption eciesEncryption) throws PowerAuthActivationException, PowerAuthRecoveryException {
         try {
