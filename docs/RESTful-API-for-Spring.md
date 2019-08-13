@@ -131,11 +131,11 @@ _Note: For SOAP interface, PowerAuth Server uses WS-Security, `UsernameToken` va
 
 ## Register PowerAuth Components
 
-As a part of the PowerAuth integration setup, you need to register following components by registering appropriate `@Beans` and by adding these components to the Spring life-cycle in your `WebMvcConfigurerAdapter`:
+As a part of the PowerAuth integration setup, you need to register following components by registering appropriate `@Beans` and by adding these components to the Spring life-cycle in your `WebMvcConfigurer`:
 
 ```java
 @Configuration
-public class WebApplicationConfig extends WebMvcConfigurerAdapter {
+public class WebApplicationConfig implements WebMvcConfigurer {
 
     @Bean
     public PowerAuthWebArgumentResolver powerAuthWebArgumentResolver() {
@@ -154,7 +154,7 @@ public class WebApplicationConfig extends WebMvcConfigurerAdapter {
 
     @Bean
     public FilterRegistrationBean powerAuthFilterRegistration() {
-        FilterRegistrationBean registrationBean = new FilterRegistrationBean();
+        FilterRegistrationBean<PowerAuthRequestFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new PowerAuthRequestFilter());
         registrationBean.setMatchAfter(true);
         return registrationBean;
@@ -341,7 +341,7 @@ End-to-end encryption provided by PowerAuth uses `POST` method for all data tran
 ### Encryption in Application Scope
 
 You can encrypt data in `application` scope (non-personalized) using following pattern:
- 
+
 ```java
 @RestController
 @RequestMapping(value = "/exchange")
@@ -369,7 +369,7 @@ The response data is automatically encrypted using the previously created ECIES 
 ### Encryption in Activation Scope
 
 You can encrypt data in `activation` scope (personalized) using following pattern:
- 
+
 ```java
 @RestController
 @RequestMapping(value = "/exchange")
@@ -388,7 +388,7 @@ public class EncryptedDataExchangeController {
         return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
     }
 }
-``` 
+```
 
 The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using ECIES decryptor initialized in `activation` scope.
 
