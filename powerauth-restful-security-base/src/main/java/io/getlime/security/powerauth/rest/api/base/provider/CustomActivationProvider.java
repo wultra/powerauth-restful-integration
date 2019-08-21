@@ -35,6 +35,8 @@ public interface CustomActivationProvider {
 
     /**
      * This method is responsible for looking user ID up based on a provided set of identity attributes.
+     * <br><br>
+     * This method is called for the CUSTOM activation type only.
      *
      * @param identityAttributes Attributes that uniquely identify user with given ID.
      * @return User ID value.
@@ -43,6 +45,8 @@ public interface CustomActivationProvider {
 
     /**
      * Process custom attributes, in any way that is suitable for the purpose of your application.
+     * <br><br>
+     * This method is called for all activation types.
      *
      * @param customAttributes Custom attributes (not related to identity) to be processed.
      * @param activationId Activation ID of created activation.
@@ -56,6 +60,9 @@ public interface CustomActivationProvider {
      * Variable that specifies if the activation should be automatically committed based on provided attributes.
      * Return true in case you would like to create an activation that is ready to be used for signing (ACTIVE),
      * and false for the cases when you need activation to remain in OTP_USED state.
+     * <br><br>
+     * Note that this setting only affects CUSTOM or RECOVERY activation types. On CODE activation type, auto-commit
+     * is always disabled.
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
@@ -68,6 +75,11 @@ public interface CustomActivationProvider {
 
     /**
      * Method is called when activation commit succeeds.
+     * <br><br>
+     * Note that this method is only called for CUSTOM or RECOVERY activation types, and only in the case activation
+     * was successfully committed on the server side. Method is not called in case commit fails on server. On CODE
+     * activation type, auto-commit is always disabled and hence this method is not called.
+     *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
      * @param activationId Activation ID of created activation.
@@ -79,6 +91,9 @@ public interface CustomActivationProvider {
     /**
      * Get maximum failed attempt count for activations.
      * Use null value for using value which is configured on PowerAuth server.
+     * <br><br>
+     * Note that this method is only called for CUSTOM or RECOVERY activation types, since for CODE activation,
+     * the number of max. failed attempts is set earlier while creating the activation code.
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
@@ -91,6 +106,9 @@ public interface CustomActivationProvider {
     /**
      * Get length of the period of activation record validity during activation in milliseconds.
      * Use null value for using value which is configured on PowerAuth server.
+     * <br><br>
+     * Note that this method is only called for CUSTOM or RECOVERY activation types, since for CODE activation,
+     * the expiration period for activation is set earlier while creating the activation code.
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
