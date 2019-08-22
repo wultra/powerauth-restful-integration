@@ -119,16 +119,8 @@ public class ActivationService {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
                     }
 
-                    // Prepare encrypted response object for layer 2
-                    EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
-                    encryptedResponseL2.setEncryptedData(response.getEncryptedData());
-                    encryptedResponseL2.setMac(response.getMac());
-
-                    // The response is encrypted once more before sent to client using ResponseBodyAdvice
-                    ActivationLayer1Response responseL1 = new ActivationLayer1Response();
-                    responseL1.setCustomAttributes(processedCustomAttributes);
-                    responseL1.setActivationData(encryptedResponseL2);
-                    return responseL1;
+                    // Prepare and return encrypted response
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes);
                 }
 
                 // Custom activation
@@ -234,16 +226,8 @@ public class ActivationService {
                         }
                     }
 
-                    // Prepare encrypted response object for layer 2
-                    EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
-                    encryptedResponseL2.setEncryptedData(response.getEncryptedData());
-                    encryptedResponseL2.setMac(response.getMac());
-
-                    // The response is encrypted once more before sent to client using ResponseBodyAdvice
-                    ActivationLayer1Response responseL1 = new ActivationLayer1Response();
-                    responseL1.setCustomAttributes(processedCustomAttributes);
-                    responseL1.setActivationData(encryptedResponseL2);
-                    return responseL1;
+                    // Prepare and return encrypted response
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes);
                 }
 
                 default:
@@ -339,4 +323,27 @@ public class ActivationService {
             throw new PowerAuthRecoveryException(errorMessage, "INVALID_RECOVERY_CODE", currentRecoveryPukIndex);
         }
     }
+
+
+    /**
+     * Prepare payload for the encrypted response.
+     *
+     * @param encryptedData Encrypted data.
+     * @param mac MAC code of the encrypted data.
+     * @param processedCustomAttributes Custom attributes to be returned.
+     * @return Encrypted response object.
+     */
+    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, Map<String, Object> processedCustomAttributes) {
+        // Prepare encrypted response object for layer 2
+        EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
+        encryptedResponseL2.setEncryptedData(encryptedData);
+        encryptedResponseL2.setMac(mac);
+
+        // The response is encrypted once more before sent to client using ResponseBodyAdvice
+        ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+        responseL1.setCustomAttributes(processedCustomAttributes);
+        responseL1.setActivationData(encryptedResponseL2);
+        return responseL1;
+    }
+
 }

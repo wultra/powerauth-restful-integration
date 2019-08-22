@@ -52,8 +52,8 @@ import java.io.IOException;
  */
 public abstract class PowerAuthEncryptionProviderBase {
 
-    private ObjectMapper objectMapper = new ObjectMapper();
-    private EciesFactory eciesFactory = new EciesFactory();
+    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final EciesFactory eciesFactory = new EciesFactory();
 
     /**
      * Get ECIES decryptor parameters from PowerAuth server.
