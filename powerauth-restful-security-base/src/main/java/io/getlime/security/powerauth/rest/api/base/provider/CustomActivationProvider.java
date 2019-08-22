@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.base.provider;
 
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
 import java.util.Map;
@@ -38,8 +39,9 @@ public interface CustomActivationProvider {
      *
      * @param identityAttributes Attributes that uniquely identify user with given ID.
      * @return User ID value.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    String lookupUserIdForAttributes(Map<String, String> identityAttributes);
+    String lookupUserIdForAttributes(Map<String, String> identityAttributes) throws PowerAuthActivationException;
 
     /**
      * Process custom attributes, in any way that is suitable for the purpose of your application.
@@ -49,8 +51,9 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
      * @return Custom attributes after processing.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
+    Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException;
 
     /**
      * Variable that specifies if the activation should be automatically committed based on provided attributes.
@@ -63,8 +66,9 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
      * @return True in case activation should be committed, false otherwise.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
+    boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException;
 
     /**
      * Method is called when activation commit succeeds.
@@ -73,8 +77,9 @@ public interface CustomActivationProvider {
      * @param activationId Activation ID of created activation.
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType);
+    void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException;
 
     /**
      * Get maximum failed attempt count for activations.
@@ -85,8 +90,9 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
      * @return Maximum failed attempt count for activations.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType);
+    Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException;
 
     /**
      * Get length of the period of activation record validity during activation in milliseconds.
@@ -97,7 +103,8 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
      * @return Period in milliseconds during which activation is valid before it expires.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType);
+    Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException;
 
 }
