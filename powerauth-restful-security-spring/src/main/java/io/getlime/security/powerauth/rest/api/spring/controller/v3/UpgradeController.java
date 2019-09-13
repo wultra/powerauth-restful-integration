@@ -88,7 +88,7 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException(ex.getMessage());
         }
 
-        if (!"3.0".equals(header.getVersion())) {
+        if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
             throw new PowerAuthUpgradeException();
         }
@@ -121,7 +121,7 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException(ex.getMessage());
         }
 
-        if (!"3.0".equals(header.getVersion())) {
+        if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
             throw new PowerAuthAuthenticationException();
         }
