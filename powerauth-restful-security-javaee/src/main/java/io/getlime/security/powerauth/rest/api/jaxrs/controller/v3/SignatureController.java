@@ -115,6 +115,7 @@ public class SignatureController {
                     "/pa/signature/validate",
                     authHeader,
                     Arrays.asList(
+                            PowerAuthSignatureTypes.POSSESSION,
                             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
                             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
                             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
