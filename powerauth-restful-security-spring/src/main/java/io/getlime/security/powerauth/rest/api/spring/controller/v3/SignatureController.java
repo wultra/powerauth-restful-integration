@@ -55,6 +55,7 @@ public class SignatureController {
      */
     @RequestMapping(value = "validate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
     @PowerAuth(resourceId = "/pa/signature/validate", signatureType = {
+            PowerAuthSignatureTypes.POSSESSION,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
