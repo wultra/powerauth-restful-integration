@@ -91,6 +91,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             soapRequest.setApplicationKey(authentication.getApplicationKey());
             soapRequest.setSignature(authentication.getSignature());
             soapRequest.setSignatureType(signatureType);
+            soapRequest.setSignatureVersion(authentication.getVersion());
             soapRequest.setData(PowerAuthHttpBody.getSignatureBaseString(
                     authentication.getHttpMethod(),
                     authentication.getRequestUri(),

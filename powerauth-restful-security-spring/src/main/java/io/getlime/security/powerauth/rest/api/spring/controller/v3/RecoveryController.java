@@ -79,7 +79,7 @@ public class RecoveryController {
             throw new PowerAuthAuthenticationException();
         }
         if (authentication != null && authentication.getActivationId() != null) {
-            if (!"3.0".equals(authentication.getVersion())) {
+            if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
                 throw new PowerAuthAuthenticationException();
             }

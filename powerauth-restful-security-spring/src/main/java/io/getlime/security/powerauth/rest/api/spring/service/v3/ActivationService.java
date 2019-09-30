@@ -255,10 +255,12 @@ public class ActivationService {
     public ActivationStatusResponse getActivationStatus(ActivationStatusRequest request) throws PowerAuthActivationException {
         try {
             String activationId = request.getActivationId();
-            GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
+            String challenge = request.getChallenge();
+            GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatusWithEncryptedStatusBlob(activationId, challenge);
             ActivationStatusResponse response = new ActivationStatusResponse();
             response.setActivationId(soapResponse.getActivationId());
             response.setEncryptedStatusBlob(soapResponse.getEncryptedStatusBlob());
+            response.setNonce(soapResponse.getEncryptedStatusBlobNonce());
             if (applicationConfiguration != null) {
                 response.setCustomObject(applicationConfiguration.statusServiceCustomObject());
             }

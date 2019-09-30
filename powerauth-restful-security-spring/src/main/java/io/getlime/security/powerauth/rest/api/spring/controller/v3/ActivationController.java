@@ -128,7 +128,7 @@ public class ActivationController {
         if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
             throw new PowerAuthAuthenticationException("Signature validation failed");
         }
-        if (!"3.0".equals(apiAuthentication.getVersion())) {
+        if (!"3.0".equals(apiAuthentication.getVersion()) && !"3.1".equals(apiAuthentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
             throw new PowerAuthAuthenticationException();
         }
