@@ -95,6 +95,9 @@ public abstract class PowerAuthEncryptionProviderBase {
         try {
             // Parse ECIES cryptogram from request body
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
+            if (requestBody == null) {
+                throw new PowerAuthEncryptionException("The X-PowerAuth-Request-Body request attribute is missing, register the PowerAuthRequestFilter to fix this error");
+            }
             byte[] requestBodyBytes = requestBody.getRequestBytes();
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 throw new PowerAuthEncryptionException("Invalid HTTP request");
