@@ -241,6 +241,11 @@ public class ActivationService {
             }
             logger.warn("Creating PowerAuth activation failed", ex);
             throw new PowerAuthActivationException();
+        } catch (PowerAuthActivationException ex) {
+            // Do not swallow PowerAuthActivationException for custom activations.
+            // See: https://github.com/wultra/powerauth-restful-integration/issues/199
+            logger.warn("Creating PowerAuth activation failed", ex);
+            throw ex;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth activation failed", ex);
             throw new PowerAuthActivationException();
