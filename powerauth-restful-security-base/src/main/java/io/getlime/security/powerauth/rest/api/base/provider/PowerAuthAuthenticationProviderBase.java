@@ -146,6 +146,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * Extract request body bytes from HTTP servlet request. In case the data was transparently decrypted, use the decrypted request data.
      * @param servletRequest HTTP servlet request.
      * @return Request body bytes.
+     * @throws PowerAuthAuthenticationException In case request body is invalid.
      */
     public byte[] extractRequestBodyBytes(HttpServletRequest servletRequest) throws PowerAuthAuthenticationException {
         if (servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT) != null) {
