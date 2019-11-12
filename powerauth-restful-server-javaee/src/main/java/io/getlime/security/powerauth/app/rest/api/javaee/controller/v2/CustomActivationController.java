@@ -34,6 +34,8 @@ import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateC
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -59,6 +61,8 @@ import java.util.Map;
 @Path("/pa/activation/direct")
 @Produces(MediaType.APPLICATION_JSON)
 public class CustomActivationController {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomActivationController.class);
 
     @Inject
     private PowerAuthServiceClient powerAuthClient;
@@ -134,6 +138,7 @@ public class CustomActivationController {
             return powerAuthApiResponse;
 
         } catch (IOException | GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+            logger.warn(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
 

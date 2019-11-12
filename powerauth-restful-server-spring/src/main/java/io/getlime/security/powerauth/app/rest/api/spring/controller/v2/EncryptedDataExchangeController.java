@@ -27,6 +27,8 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPerson
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptorFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -48,6 +50,8 @@ import java.security.InvalidKeyException;
  */
 @RestController("encryptedDataExchangeControllerV2")
 public class EncryptedDataExchangeController {
+
+    private static final Logger logger = LoggerFactory.getLogger(EncryptedDataExchangeController.class);
 
     private EncryptorFactory encryptorFactory;
 
@@ -80,6 +84,7 @@ public class EncryptedDataExchangeController {
         try {
             requestDataBytes = encryptor.decrypt(request);
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+            logger.warn(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
 
@@ -97,6 +102,7 @@ public class EncryptedDataExchangeController {
         try {
             encryptedResponse = encryptor.encrypt(responseData.getBytes());
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+            logger.warn(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
 

@@ -34,6 +34,8 @@ import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateR
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptorFactory;
 import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -58,6 +60,8 @@ import java.util.Map;
 @RestController("customActivationControllerV2")
 @RequestMapping(value = "/pa/activation/direct")
 public class CustomActivationController {
+
+    private static final Logger logger = LoggerFactory.getLogger(CustomActivationController.class);
 
     private PowerAuthServiceClient powerAuthClient;
 
@@ -158,6 +162,7 @@ public class CustomActivationController {
             return powerAuthApiResponse;
 
         } catch (IOException | GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+            logger.warn(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
 

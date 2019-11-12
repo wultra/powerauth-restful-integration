@@ -27,6 +27,8 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPerson
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.jaxrs.encryption.EncryptorFactory;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -52,6 +54,8 @@ import java.security.InvalidKeyException;
  */
 @Produces(MediaType.APPLICATION_JSON)
 public class EncryptedDataExchangeController {
+
+    private static final Logger logger = LoggerFactory.getLogger(EncryptedDataExchangeController.class);
 
     @Context
     private HttpServletRequest httpServletRequest;
@@ -88,6 +92,7 @@ public class EncryptedDataExchangeController {
         try {
             requestDataBytes = encryptor.decrypt(request);
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+            logger.warn(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
 
@@ -105,6 +110,7 @@ public class EncryptedDataExchangeController {
         try {
             encryptedResponse = encryptor.encrypt(responseData.getBytes());
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+            logger.warn(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
 
