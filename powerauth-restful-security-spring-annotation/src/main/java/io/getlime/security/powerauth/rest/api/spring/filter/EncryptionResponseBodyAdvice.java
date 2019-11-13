@@ -125,10 +125,10 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
                 return encryptedResponse;
             } else if (converterClass.isAssignableFrom(StringHttpMessageConverter.class)) {
                 // Conversion to byte[] is done using String HTTP message converter, corresponding String is returned
-                return new String(convertEncryptedResponse(encryptedResponse, mediaType, converterClass), StandardCharsets.UTF_8);
+                return new String(convertEncryptedResponse(encryptedResponse, mediaType), StandardCharsets.UTF_8);
             } else {
                 // Conversion to byte[] is done using byte[] HTTP message converter
-                return convertEncryptedResponse(encryptedResponse, mediaType, converterClass);
+                return convertEncryptedResponse(encryptedResponse, mediaType);
             }
         } catch (Exception ex) {
             return null;
@@ -159,16 +159,15 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      *
      * @param encryptedResponse Encrypted response to convert.
      * @param mediaType Selected HTTP response media type.
-     * @param converterClass HTTP message converter class.
      * @return Converted encrypted response.
      * @throws IOException In case serialization fails.
      */
     @SuppressWarnings("unchecked")
-    private byte[] convertEncryptedResponse(EciesEncryptedResponse encryptedResponse, MediaType mediaType, Class<? extends HttpMessageConverter<?>> converterClass) throws IOException {
+    private byte[] convertEncryptedResponse(EciesEncryptedResponse encryptedResponse, MediaType mediaType) throws IOException {
         List<HttpMessageConverter<?>> httpMessageConverters = requestMappingHandlerAdapter.getMessageConverters();
         // Find the first applicable HTTP message converter for conversion
         for (HttpMessageConverter<?> converter: httpMessageConverters) {
-            if (converter.getClass().equals(converterClass)) {
+            if (converter.canWrite(encryptedResponse.getClass(), mediaType)) {
                 BasicHttpOutputMessage httpOutputMessage = new BasicHttpOutputMessage();
                 ((HttpMessageConverter<EciesEncryptedResponse>) converter).write(encryptedResponse, mediaType, httpOutputMessage);
                 return httpOutputMessage.getBodyBytes();
