@@ -124,10 +124,10 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
                 // Object conversion is done automatically using MappingJackson2HttpMessageConverter
                 return encryptedResponse;
             } else if (converterClass.isAssignableFrom(StringHttpMessageConverter.class)) {
-                // Conversion to byte[] is done using String HTTP message converter, corresponding String is returned
+                // Conversion to byte[] is done using first applicable configured HTTP message converter, corresponding String is returned
                 return new String(convertEncryptedResponse(encryptedResponse, mediaType), StandardCharsets.UTF_8);
             } else {
-                // Conversion to byte[] is done using byte[] HTTP message converter
+                // Conversion to byte[] is done using first applicable configured HTTP message converter
                 return convertEncryptedResponse(encryptedResponse, mediaType);
             }
         } catch (Exception ex) {
