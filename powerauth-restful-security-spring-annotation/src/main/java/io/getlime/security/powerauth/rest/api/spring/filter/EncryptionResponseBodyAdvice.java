@@ -27,7 +27,7 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncr
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
-import org.springframework.beans.factory.config.BeanPostProcessor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
@@ -57,10 +57,17 @@ import java.util.List;
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 @ControllerAdvice
-public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object>, BeanPostProcessor {
+public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private List<HttpMessageConverter<?>> httpMessageConverters;
+
+    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
+
+    // Autowiring in constructor cannot be used due to circular dependency
+    @Autowired
+    public void setRequestMappingHandlerAdapter(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
+        this.requestMappingHandlerAdapter = requestMappingHandlerAdapter;
+    }
 
     /**
      * Whether method supports encryption. Standard implementation supports conversion to JSON, String or byte[].
@@ -148,21 +155,6 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object>,
     }
 
     /**
-     * Save HTTP message converters created in RequestMappingHandlerAdapter bean. This bean cannot be used directly
-     * because of circular dependence when autowired in this class.
-     * @param bean Bean instance.
-     * @param beanName Bean name.
-     * @return Unmodified bean.
-     */
-    @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) {
-        if (bean instanceof RequestMappingHandlerAdapter) {
-            httpMessageConverters = ((RequestMappingHandlerAdapter)bean).getMessageConverters();
-        }
-        return bean;
-    }
-
-    /**
      * Convert encrypted response to byte[] using first applicable HTTP message converter.
      *
      * @param encryptedResponse Encrypted response to convert.
@@ -172,9 +164,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object>,
      */
     @SuppressWarnings("unchecked")
     private byte[] convertEncryptedResponse(EciesEncryptedResponse encryptedResponse, MediaType mediaType) throws IOException {
-        if (httpMessageConverters == null) {
-            throw new IOException("Response message conversion failed, HTTP message converters have not been initialized");
-        }
+        List<HttpMessageConverter<?>> httpMessageConverters = requestMappingHandlerAdapter.getMessageConverters();
         // Find the first applicable HTTP message converter for conversion
         for (HttpMessageConverter<?> converter: httpMessageConverters) {
             if (converter.canWrite(encryptedResponse.getClass(), mediaType)) {
