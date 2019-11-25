@@ -149,10 +149,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         soapRequest.setNonce(authentication.getNonce());
         soapRequest.setTimestamp(Long.valueOf(authentication.getTimestamp()));
 
-        final ValidateTokenResponse soapResponse;
-
         try {
-            soapResponse = powerAuthClient.validateToken(soapRequest);
+            final ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
             if (soapResponse.isTokenValid()) {
                 return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
                         soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()),

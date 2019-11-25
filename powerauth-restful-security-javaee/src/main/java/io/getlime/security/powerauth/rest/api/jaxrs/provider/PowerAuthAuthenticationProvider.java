@@ -144,9 +144,10 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         try {
             final PowerAuthPortV3ServiceStub.ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
-
             if (soapResponse.getTokenValid()) {
-                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(), soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()), authentication.getVersion(), authentication.getHttpHeader());
+                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
+                        soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
+                        authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
             }
