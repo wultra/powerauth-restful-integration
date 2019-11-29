@@ -77,13 +77,14 @@ public class UpgradeService {
             final String ephemeralPublicKey = request.getEphemeralPublicKey();
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
+            final String nonce = request.getNonce();
 
             // Get ECIES headers
             final String activationId = header.getActivationId();
             final String applicationKey = header.getApplicationKey();
 
             // Start upgrade on PowerAuth server
-            PowerAuthPortV3ServiceStub.StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(activationId, applicationKey, ephemeralPublicKey, encryptedData, mac);
+            PowerAuthPortV3ServiceStub.StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(activationId, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
