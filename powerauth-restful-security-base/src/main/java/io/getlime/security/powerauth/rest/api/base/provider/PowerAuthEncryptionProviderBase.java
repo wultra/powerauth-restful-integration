@@ -45,7 +45,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
- * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic.
+ * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic. The class is available for
+ * protocol version 3.0 and newer.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
@@ -111,15 +112,20 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String ephemeralPublicKey = eciesRequest.getEphemeralPublicKey();
             final String encryptedData = eciesRequest.getEncryptedData();
             final String mac = eciesRequest.getMac();
+            final String nonce = eciesRequest.getNonce();
 
-            // Verify ECIES request data
+            // Verify ECIES request data. Nonce is required for protocol 3.1+
             if (ephemeralPublicKey == null || encryptedData == null || mac == null) {
                 throw new PowerAuthEncryptionException("Invalid ECIES request data");
+            }
+            if (nonce == null && !"3.0".equals(encryptionContext.getVersion())) {
+                throw new PowerAuthEncryptionException("Missing nonce in ECIES request data");
             }
 
             final byte[] ephemeralPublicKeyBytes = BaseEncoding.base64().decode(ephemeralPublicKey);
             final byte[] encryptedDataBytes = BaseEncoding.base64().decode(encryptedData);
             final byte[] macBytes = BaseEncoding.base64().decode(mac);
+            final byte[] nonceBytes = nonce != null ? BaseEncoding.base64().decode(nonce) : null;
 
             final String applicationKey = eciesEncryption.getContext().getApplicationKey();
             final PowerAuthEciesDecryptorParameters decryptorParameters;
@@ -149,7 +155,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             eciesEncryption.setEciesDecryptor(eciesDecryptor);
 
             // Decrypt request data
-            EciesCryptogram cryptogram = new EciesCryptogram(ephemeralPublicKeyBytes, macBytes, encryptedDataBytes);
+            EciesCryptogram cryptogram = new EciesCryptogram(ephemeralPublicKeyBytes, macBytes, encryptedDataBytes, nonceBytes);
             byte[] decryptedData = eciesDecryptor.decryptRequest(cryptogram);
             eciesEncryption.setEncryptedRequest(encryptedDataBytes);
             eciesEncryption.setDecryptedRequest(decryptedData);

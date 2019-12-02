@@ -87,6 +87,10 @@ public class TokenController {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
                 throw new PowerAuthAuthenticationException();
             }
+            if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
+                logger.warn("Missing nonce in ECIES request data");
+                throw new PowerAuthAuthenticationException();
+            }
             return tokenServiceV3.createToken(request, authentication);
         } else {
             throw new PowerAuthAuthenticationException();

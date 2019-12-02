@@ -101,8 +101,14 @@ public class ActivationService {
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
             final String encryptedData = activationData.getEncryptedData();
             final String mac = activationData.getMac();
+            final String nonce = activationData.getNonce();
             final Map<String, Object> customAttributes = request.getCustomAttributes();
             final Map<String, String> identity = request.getIdentityAttributes();
+
+            // Validate inner encryption
+            if (nonce == null && !"3.0".equals(eciesContext.getVersion())) {
+                throw new PowerAuthActivationException();
+            }
 
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute
@@ -111,7 +117,7 @@ public class ActivationService {
                     String activationCode = request.getIdentityAttributes().get("code");
 
                     // Call PrepareActivation SOAP method on PA server
-                    PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac);
+                    PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes
@@ -157,7 +163,8 @@ public class ActivationService {
                             applicationKey,
                             ephemeralPublicKey,
                             encryptedData,
-                            mac
+                            mac,
+                            nonce
                     );
 
                     // Process custom attributes using a custom logic
@@ -210,7 +217,7 @@ public class ActivationService {
                     }
 
                     // Call RecoveryCodeActivation SOAP method on PA server
-                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac);
+                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes

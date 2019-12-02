@@ -97,6 +97,11 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
+        if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
+            logger.warn("Missing nonce in ECIES request data");
+            throw new PowerAuthUpgradeException();
+        }
+
         return upgradeService.upgradeStart(request, header);
     }
 
