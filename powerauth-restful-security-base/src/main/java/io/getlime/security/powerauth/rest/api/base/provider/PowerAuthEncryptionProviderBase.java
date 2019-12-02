@@ -45,7 +45,8 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
 /**
- * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic.
+ * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic. The class is available for
+ * protocol version 3.0 and newer.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
