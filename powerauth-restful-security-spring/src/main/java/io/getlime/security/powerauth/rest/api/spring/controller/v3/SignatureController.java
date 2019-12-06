@@ -55,6 +55,7 @@ public class SignatureController {
      */
     @RequestMapping(value = "validate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
     @PowerAuth(resourceId = "/pa/signature/validate", signatureType = {
+            PowerAuthSignatureTypes.POSSESSION,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
@@ -62,7 +63,7 @@ public class SignatureController {
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
         if (auth != null && auth.getActivationId() != null) {
-            if (!"3.0".equals(auth.getVersion())) {
+            if (!"3.0".equals(auth.getVersion()) && !"3.1".equals(auth.getVersion())) {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", auth.getVersion());
                 throw new PowerAuthAuthenticationException();
             }

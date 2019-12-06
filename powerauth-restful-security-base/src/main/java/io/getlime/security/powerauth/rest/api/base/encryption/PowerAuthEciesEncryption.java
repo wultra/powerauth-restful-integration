@@ -31,7 +31,7 @@ import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
  */
 public class PowerAuthEciesEncryption<T> {
 
-    private EciesEncryptionContext context;
+    private final EciesEncryptionContext context;
     private EciesDecryptor eciesDecryptor;
     private byte[] encryptedRequest;
     private byte[] decryptedRequest;

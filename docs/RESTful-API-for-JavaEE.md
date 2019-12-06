@@ -28,7 +28,7 @@ This step is technically required only in case your server uses end-to-end encry
 <dependency>
     <groupId>org.bouncycastle</groupId>
     <artifactId>bcprov-ext-jdk15on</artifactId>
-    <version>1.60</version>
+    <version>${bouncycastle.version}</version>
 </dependency>
 ```
 

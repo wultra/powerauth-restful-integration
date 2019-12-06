@@ -31,7 +31,6 @@ import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import io.getlime.security.powerauth.http.validator.PowerAuthTokenHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticationProviderBase;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthenticationImpl;
@@ -59,7 +58,7 @@ import java.util.List;
 @Component
 public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProviderBase implements AuthenticationProvider {
 
-    private static final Logger logger = LoggerFactory.getLogger(PowerAuthAuthentication.class);
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthAuthenticationProvider.class);
 
     private PowerAuthServiceClient powerAuthClient;
 
@@ -107,6 +106,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             soapRequest.setApplicationKey(authentication.getApplicationKey());
             soapRequest.setSignature(authentication.getSignature());
             soapRequest.setSignatureType(signatureType);
+            soapRequest.setSignatureVersion(authentication.getVersion());
             soapRequest.setData(PowerAuthHttpBody.getSignatureBaseString(
                     authentication.getHttpMethod(),
                     authentication.getRequestUri(),
@@ -149,13 +149,17 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         soapRequest.setNonce(authentication.getNonce());
         soapRequest.setTimestamp(Long.valueOf(authentication.getTimestamp()));
 
-        final ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
-
-        if (soapResponse.isTokenValid()) {
-            return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
-                    soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()),
-                    authentication.getVersion(), authentication.getHttpHeader());
-        } else {
+        try {
+            final ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
+            if (soapResponse.isTokenValid()) {
+                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
+                        soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()),
+                        authentication.getVersion(), authentication.getHttpHeader());
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            logger.warn("Token validation failed", e);
             return null;
         }
     }
@@ -276,7 +280,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         try {
             PowerAuthTokenHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException e) {
-            logger.error(e.getMessage(), e);
+            logger.warn(e.getMessage(), e);
             throw new PowerAuthAuthenticationException(e.getMessage());
         }
 

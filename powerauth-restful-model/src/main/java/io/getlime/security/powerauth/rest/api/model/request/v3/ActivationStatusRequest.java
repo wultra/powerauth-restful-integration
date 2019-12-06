@@ -28,6 +28,7 @@ package io.getlime.security.powerauth.rest.api.model.request.v3;
 public class ActivationStatusRequest {
 
     private String activationId;
+    private String challenge;
 
     /**
      * Get activation ID
@@ -45,4 +46,19 @@ public class ActivationStatusRequest {
         this.activationId = activationId;
     }
 
+    /**
+     * Get challenge for activation status blob encryption.
+     * @return Challenge for activation status blob encryption.
+     */
+    public String getChallenge() {
+        return challenge;
+    }
+
+    /**
+     * Set challenge for activation status blob encryption.
+     * @param challenge Challenge for activation status blob encryption. Exactly 16 bytes encoded in Base64 is expected.
+     */
+    public void setChallenge(String challenge) {
+        this.challenge = challenge;
+    }
 }

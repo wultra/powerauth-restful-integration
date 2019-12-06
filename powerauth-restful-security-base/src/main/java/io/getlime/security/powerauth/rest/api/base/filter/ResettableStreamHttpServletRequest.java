@@ -53,7 +53,7 @@ public class ResettableStreamHttpServletRequest extends HttpServletRequestWrappe
     /**
      * Get request body.
      * @return Bytes with the request body contents.
-     * @throws IOException In case stream reqding fails.
+     * @throws IOException In case stream reading fails.
      */
     public byte[] getRequestBody() throws IOException {
 
@@ -63,6 +63,7 @@ public class ResettableStreamHttpServletRequest extends HttpServletRequestWrappe
 
         InputStream inputStream = super.getInputStream();
 
+        //TODO: Replace by Java 9 InputStream.readAllBytes() method when relevant.
         requestBody = ByteStreams.toByteArray(inputStream);
 
         bufferFilled = true;

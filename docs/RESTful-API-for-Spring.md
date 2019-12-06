@@ -141,7 +141,7 @@ public class WebApplicationConfig implements WebMvcConfigurer {
     public PowerAuthWebArgumentResolver powerAuthWebArgumentResolver() {
         return new PowerAuthWebArgumentResolver();
     }
-    
+
     @Bean
     public PowerAuthEncryptionArgumentResolver powerAuthEncryptionArgumentResolver() {
         return new PowerAuthEncryptionArgumentResolver();
@@ -153,7 +153,7 @@ public class WebApplicationConfig implements WebMvcConfigurer {
     }
 
     @Bean
-    public FilterRegistrationBean powerAuthFilterRegistration () {
+    public FilterRegistrationBean powerAuthFilterRegistration() {
         FilterRegistrationBean<PowerAuthRequestFilter> registrationBean = new FilterRegistrationBean<>();
         registrationBean.setFilter(new PowerAuthRequestFilter());
         registrationBean.setMatchAfter(true);
@@ -341,7 +341,7 @@ End-to-end encryption provided by PowerAuth uses `POST` method for all data tran
 ### Encryption in Application Scope
 
 You can encrypt data in `application` scope (non-personalized) using following pattern:
- 
+
 ```java
 @RestController
 @RequestMapping(value = "/exchange")
@@ -369,7 +369,7 @@ The response data is automatically encrypted using the previously created ECIES 
 ### Encryption in Activation Scope
 
 You can encrypt data in `activation` scope (personalized) using following pattern:
- 
+
 ```java
 @RestController
 @RequestMapping(value = "/exchange")
@@ -388,7 +388,7 @@ public class EncryptedDataExchangeController {
         return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
     }
 }
-``` 
+```
 
 The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using ECIES decryptor initialized in `activation` scope.
 

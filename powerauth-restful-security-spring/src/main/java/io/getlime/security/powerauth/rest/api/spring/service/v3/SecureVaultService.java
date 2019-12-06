@@ -87,12 +87,14 @@ public class SecureVaultService {
             String applicationKey = header.getApplicationKey();
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            String signatureVersion = header.getVersion();
             String nonce = header.getNonce();
 
             // Fetch data from the request
             final String ephemeralPublicKey = request.getEphemeralPublicKey();
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
+            final String eciesNonce = request.getNonce();
 
             // Prepare data for signature to allow signature verification on PowerAuth server
             byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
@@ -100,7 +102,7 @@ public class SecureVaultService {
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server
             VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
-                    signatureType, data, ephemeralPublicKey, encryptedData, mac);
+                    signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
 
             if (!soapResponse.isSignatureValid()) {
                 throw new PowerAuthAuthenticationException();

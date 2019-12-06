@@ -31,6 +31,7 @@ public class ActivationStatusResponse {
 
     private String activationId;
     private String encryptedStatusBlob;
+    private String nonce;
     private Map<String, Object> customObject;
 
     /**
@@ -63,6 +64,22 @@ public class ActivationStatusResponse {
      */
     public void setEncryptedStatusBlob(String cStatusBlob) {
         this.encryptedStatusBlob = cStatusBlob;
+    }
+
+    /**
+     * Get nonce for activation status blob encryption.
+     * @return Nonce for activation status blob encryption.
+     */
+    public String getNonce() {
+        return nonce;
+    }
+
+    /**
+     * Set nonce for activation status blob encryption.
+     * @param nonce Nonce for activation status blob encryption. Exactly 16 bytes encoded in Base64 is expected.
+     */
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
     }
 
     /**

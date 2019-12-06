@@ -61,10 +61,11 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    private final RequestMappingHandlerAdapter requestMappingHandlerAdapter;
+    private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
+    // Autowiring in constructor cannot be used due to circular dependency
     @Autowired
-    public EncryptionResponseBodyAdvice(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
+    public void setRequestMappingHandlerAdapter(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
         this.requestMappingHandlerAdapter = requestMappingHandlerAdapter;
     }
 
@@ -178,10 +179,11 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
     private class BasicHttpOutputMessage implements HttpOutputMessage {
 
-        private ByteArrayOutputStream os = new ByteArrayOutputStream();
-        private HttpHeaders httpHeaders = new HttpHeaders();
+        private final ByteArrayOutputStream os = new ByteArrayOutputStream();
+        private final HttpHeaders httpHeaders = new HttpHeaders();
 
         @Override
+        @NonNull
         public OutputStream getBody() {
             return os;
         }
@@ -191,6 +193,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         }
 
         @Override
+        @NonNull
         public HttpHeaders getHeaders() {
             return httpHeaders;
         }

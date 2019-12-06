@@ -76,6 +76,7 @@ public class TokenService {
             final String ephemeralPublicKey = request.getEphemeralPublicKey();
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
+            final String nonce = request.getNonce();
 
             // Prepare a signature type converter
             SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -87,7 +88,7 @@ public class TokenService {
 
             // Create a token
             final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                    encryptedData, mac, converter.convertFrom(signatureFactors));
+                    encryptedData, mac, nonce, converter.convertFrom(signatureFactors));
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();

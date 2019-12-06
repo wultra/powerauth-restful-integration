@@ -85,11 +85,14 @@ public class SecureVaultController {
             throw new PowerAuthAuthenticationException(ex.getMessage());
         }
 
-        if (!"3.0".equals(header.getVersion())) {
+        if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
             throw new PowerAuthAuthenticationException();
         }
-
+        if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
+            logger.warn("Missing nonce in ECIES request data");
+            throw new PowerAuthAuthenticationException();
+        }
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }
 

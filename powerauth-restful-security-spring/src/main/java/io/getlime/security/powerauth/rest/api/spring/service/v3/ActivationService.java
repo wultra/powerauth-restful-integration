@@ -101,8 +101,14 @@ public class ActivationService {
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
             final String encryptedData = activationData.getEncryptedData();
             final String mac = activationData.getMac();
+            final String nonce = activationData.getNonce();
             final Map<String, Object> customAttributes = request.getCustomAttributes();
             final Map<String, String> identity = request.getIdentityAttributes();
+
+            // Validate inner encryption
+            if (nonce == null && !"3.0".equals(eciesContext.getVersion())) {
+                throw new PowerAuthActivationException();
+            }
 
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute
@@ -111,7 +117,7 @@ public class ActivationService {
                     String activationCode = request.getIdentityAttributes().get("code");
 
                     // Call PrepareActivation SOAP method on PA server
-                    PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac);
+                    PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes
@@ -119,16 +125,8 @@ public class ActivationService {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
                     }
 
-                    // Prepare encrypted response object for layer 2
-                    EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
-                    encryptedResponseL2.setEncryptedData(response.getEncryptedData());
-                    encryptedResponseL2.setMac(response.getMac());
-
-                    // The response is encrypted once more before sent to client using ResponseBodyAdvice
-                    ActivationLayer1Response responseL1 = new ActivationLayer1Response();
-                    responseL1.setCustomAttributes(processedCustomAttributes);
-                    responseL1.setActivationData(encryptedResponseL2);
-                    return responseL1;
+                    // Prepare and return encrypted response
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes);
                 }
 
                 // Custom activation
@@ -165,7 +163,8 @@ public class ActivationService {
                             applicationKey,
                             ephemeralPublicKey,
                             encryptedData,
-                            mac
+                            mac,
+                            nonce
                     );
 
                     // Process custom attributes using a custom logic
@@ -218,7 +217,7 @@ public class ActivationService {
                     }
 
                     // Call RecoveryCodeActivation SOAP method on PA server
-                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac);
+                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes
@@ -234,16 +233,8 @@ public class ActivationService {
                         }
                     }
 
-                    // Prepare encrypted response object for layer 2
-                    EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
-                    encryptedResponseL2.setEncryptedData(response.getEncryptedData());
-                    encryptedResponseL2.setMac(response.getMac());
-
-                    // The response is encrypted once more before sent to client using ResponseBodyAdvice
-                    ActivationLayer1Response responseL1 = new ActivationLayer1Response();
-                    responseL1.setCustomAttributes(processedCustomAttributes);
-                    responseL1.setActivationData(encryptedResponseL2);
-                    return responseL1;
+                    // Prepare and return encrypted response
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes);
                 }
 
                 default:
@@ -255,6 +246,11 @@ public class ActivationService {
             }
             logger.warn("Creating PowerAuth activation failed", ex);
             throw new PowerAuthActivationException();
+        } catch (PowerAuthActivationException ex) {
+            // Do not swallow PowerAuthActivationException for custom activations.
+            // See: https://github.com/wultra/powerauth-restful-integration/issues/199
+            logger.warn("Creating PowerAuth activation failed", ex);
+            throw ex;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth activation failed", ex);
             throw new PowerAuthActivationException();
@@ -271,10 +267,12 @@ public class ActivationService {
     public ActivationStatusResponse getActivationStatus(ActivationStatusRequest request) throws PowerAuthActivationException {
         try {
             String activationId = request.getActivationId();
-            GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatus(activationId);
+            String challenge = request.getChallenge();
+            GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatusWithEncryptedStatusBlob(activationId, challenge);
             ActivationStatusResponse response = new ActivationStatusResponse();
             response.setActivationId(soapResponse.getActivationId());
             response.setEncryptedStatusBlob(soapResponse.getEncryptedStatusBlob());
+            response.setNonce(soapResponse.getEncryptedStatusBlobNonce());
             if (applicationConfiguration != null) {
                 response.setCustomObject(applicationConfiguration.statusServiceCustomObject());
             }
@@ -339,4 +337,27 @@ public class ActivationService {
             throw new PowerAuthRecoveryException(errorMessage, "INVALID_RECOVERY_CODE", currentRecoveryPukIndex);
         }
     }
+
+
+    /**
+     * Prepare payload for the encrypted response.
+     *
+     * @param encryptedData Encrypted data.
+     * @param mac MAC code of the encrypted data.
+     * @param processedCustomAttributes Custom attributes to be returned.
+     * @return Encrypted response object.
+     */
+    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, Map<String, Object> processedCustomAttributes) {
+        // Prepare encrypted response object for layer 2
+        EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
+        encryptedResponseL2.setEncryptedData(encryptedData);
+        encryptedResponseL2.setMac(mac);
+
+        // The response is encrypted once more before sent to client using ResponseBodyAdvice
+        ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+        responseL1.setCustomAttributes(processedCustomAttributes);
+        responseL1.setActivationData(encryptedResponseL2);
+        return responseL1;
+    }
+
 }

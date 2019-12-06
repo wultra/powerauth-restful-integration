@@ -146,8 +146,9 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * Extract request body bytes from HTTP servlet request. In case the data was transparently decrypted, use the decrypted request data.
      * @param servletRequest HTTP servlet request.
      * @return Request body bytes.
+     * @throws PowerAuthAuthenticationException In case request body is invalid.
      */
-    public byte[] extractRequestBodyBytes(HttpServletRequest servletRequest) {
+    public byte[] extractRequestBodyBytes(HttpServletRequest servletRequest) throws PowerAuthAuthenticationException {
         if (servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT) != null) {
             // Implementation of sign-then-encrypt - in case the encryption object is present and signature is validate, use decrypted request data
             PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
@@ -155,6 +156,9 @@ public abstract class PowerAuthAuthenticationProviderBase {
         } else {
             // Request data was not encrypted - use regular PowerAuth request body for signature validation
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
+            if (requestBody == null) {
+                throw new PowerAuthAuthenticationException("The X-PowerAuth-Request-Body request attribute is missing, register the PowerAuthRequestFilter to fix this error");
+            }
             return requestBody.getRequestBytes();
         }
     }
