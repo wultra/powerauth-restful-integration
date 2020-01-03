@@ -41,7 +41,6 @@ import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -56,7 +55,7 @@ import java.util.List;
  *
  */
 @Component
-public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProviderBase implements AuthenticationProvider {
+public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProviderBase {
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthAuthenticationProvider.class);
 
@@ -74,7 +73,6 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         this.applicationConfiguration = applicationConfiguration;
     }
 
-    @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // Handle signature based authentications
         if (authentication instanceof PowerAuthSignatureAuthenticationImpl) {
@@ -182,12 +180,6 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         apiAuthentication.setVersion(version);
         apiAuthentication.setHttpHeader(httpHeader);
         return apiAuthentication;
-    }
-
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication == PowerAuthSignatureAuthenticationImpl.class
-                || authentication == PowerAuthTokenAuthenticationImpl.class;
     }
 
     /**
