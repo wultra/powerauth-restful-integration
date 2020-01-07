@@ -22,8 +22,6 @@ package io.getlime.security.powerauth.app.rest.api.javaee;
 import io.getlime.security.powerauth.app.rest.api.javaee.configuration.DefaultJacksonJsonProvider;
 import io.getlime.security.powerauth.app.rest.api.javaee.controller.AuthenticationController;
 import io.getlime.security.powerauth.app.rest.api.javaee.controller.TokenController;
-import io.getlime.security.powerauth.crypto.lib.config.PowerAuthConfiguration;
-import io.getlime.security.powerauth.provider.CryptoProviderUtilFactory;
 import io.getlime.security.powerauth.rest.api.jaxrs.exception.*;
 import io.getlime.security.powerauth.rest.api.jaxrs.filter.PowerAuthRequestFilter;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
@@ -45,7 +43,6 @@ public class JavaEEApplication extends Application {
     public JavaEEApplication() {
         super();
         Security.addProvider(new BouncyCastleProvider());
-        PowerAuthConfiguration.INSTANCE.setKeyConvertor(CryptoProviderUtilFactory.getCryptoProviderUtils());
     }
 
     @Override
