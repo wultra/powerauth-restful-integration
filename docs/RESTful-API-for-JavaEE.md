@@ -43,9 +43,6 @@ public class JavaEEApplication extends Application {
 
         // Register BC provider
         Security.addProvider(new BouncyCastleProvider());
-
-        // Tell PowerAuth components to use BC provider
-        PowerAuthConfiguration.INSTANCE.setKeyConvertor(CryptoProviderUtilFactory.getCryptoProviderUtils());
     }
 
     @Override

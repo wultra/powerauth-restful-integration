@@ -26,7 +26,7 @@
     <name>powerauth-restful-server-spring</name>
     <description>PowerAuth Standard RESTful API</description>
     <artifactId>powerauth-restful-server-spring</artifactId>
-    <version>0.23.0</version>
+    <version>0.24.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <parent>
@@ -72,7 +72,7 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-restful-security-spring</artifactId>
-            <version>0.23.0</version>
+            <version>0.24.0-SNAPSHOT</version>
         </dependency>
 
         <!-- Other Dependencies -->
