@@ -34,11 +34,6 @@ public class DefaultApplicationConfiguration implements PowerAuthApplicationConf
     }
 
     @Override
-    public boolean isAllowedApplicationKey(String applicationKey) {
-        return true;
-    }
-
-    @Override
     public Map<String, Object> statusServiceCustomObject() {
         return null;
     }

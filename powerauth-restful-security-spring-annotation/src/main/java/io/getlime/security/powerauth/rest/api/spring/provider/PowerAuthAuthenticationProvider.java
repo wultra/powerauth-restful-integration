@@ -219,14 +219,6 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             throw new PowerAuthAuthenticationException(e.getMessage());
         }
 
-        // Check if the application is allowed, "true" is the default behavior
-        if (applicationConfiguration != null) {
-            boolean isApplicationAllowed = applicationConfiguration.isAllowedApplicationKey(header.getApplicationKey());
-            if (!isApplicationAllowed) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_APPLICATION_ID");
-            }
-        }
-
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
         if (!allowedSignatureTypes.contains(expectedSignatureType)) {

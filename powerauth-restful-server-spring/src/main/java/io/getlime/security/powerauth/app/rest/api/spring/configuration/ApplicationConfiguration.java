@@ -33,11 +33,6 @@ import java.util.Map;
 public class ApplicationConfiguration implements PowerAuthApplicationConfiguration {
 
     @Override
-    public boolean isAllowedApplicationKey(String applicationKey) {
-        return true;
-    }
-
-    @Override
     public Map<String, Object> statusServiceCustomObject() {
         return null;
     }
