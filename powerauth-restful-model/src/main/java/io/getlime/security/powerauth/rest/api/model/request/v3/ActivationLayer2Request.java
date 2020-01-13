@@ -20,7 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.request.v3;
 
 /**
- * Request object for activation layer 2.
+ * Request object for activation layer 2 request.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
@@ -30,6 +30,26 @@ public class ActivationLayer2Request {
     private String devicePublicKey;
     private String activationName;
     private String extras;
+    private String platform;
+    private String deviceInfo;
+
+    /**
+     * Default constructor.
+     */
+    public ActivationLayer2Request() {
+    }
+
+    /**
+     * Parameterized constructor.
+     * @param devicePublicKey Device public key.
+     * @param activationName Activation name.
+     * @param extras Activation extras.
+     */
+    public ActivationLayer2Request(String devicePublicKey, String activationName, String extras) {
+        this.devicePublicKey = devicePublicKey;
+        this.activationName = activationName;
+        this.extras = extras;
+    }
 
     /**
      * Get Base64 encoded device public key.
@@ -77,5 +97,37 @@ public class ActivationLayer2Request {
      */
     public void setExtras(String extras) {
         this.extras = extras;
+    }
+
+    /**
+     * Get user device platform.
+     * @return User device platform.
+     */
+    public String getPlatform() {
+        return platform;
+    }
+
+    /**
+     * Set user device platform.
+     * @param platform User device platform.
+     */
+    public void setPlatform(String platform) {
+        this.platform = platform;
+    }
+
+    /**
+     * Get information about user device.
+     * @return Information about user device.
+     */
+    public String getDeviceInfo() {
+        return deviceInfo;
+    }
+
+    /**
+     * Set information about user device.
+     * @param deviceInfo Information about user device.
+     */
+    public void setDeviceInfo(String deviceInfo) {
+        this.deviceInfo = deviceInfo;
     }
 }
