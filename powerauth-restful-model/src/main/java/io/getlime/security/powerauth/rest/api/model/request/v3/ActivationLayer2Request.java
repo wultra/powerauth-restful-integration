@@ -28,6 +28,7 @@ package io.getlime.security.powerauth.rest.api.model.request.v3;
 public class ActivationLayer2Request {
 
     private String devicePublicKey;
+    private String activationOtp;
     private String activationName;
     private String extras;
     private String platform;
@@ -65,6 +66,22 @@ public class ActivationLayer2Request {
      */
     public void setDevicePublicKey(String devicePublicKey) {
         this.devicePublicKey = devicePublicKey;
+    }
+
+    /**
+     * Get additional activation OTP.
+     * @return Additional activation OTP.
+     */
+    public String getActivationOtp() {
+        return activationOtp;
+    }
+
+    /**
+     * Set additional activation OTP.
+     * @param activationOtp Additional activation OTP.
+     */
+    public void setActivationOtp(String activationOtp) {
+        this.activationOtp = activationOtp;
     }
 
     /**
