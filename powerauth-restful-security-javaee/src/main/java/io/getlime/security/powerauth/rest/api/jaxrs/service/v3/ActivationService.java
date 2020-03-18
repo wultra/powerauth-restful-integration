@@ -285,7 +285,15 @@ public class ActivationService {
      */
     public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException {
         try {
+            // Remove the activation
             PowerAuthPortV3ServiceStub.RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId(), null);
+
+            // Call other application specific cleanup logic
+            if (activationProvider != null) {
+                activationProvider.activationWasRemoved(apiAuthentication.getActivationId(), apiAuthentication.getUserId());
+            }
+
+            // Prepare and return the response
             ActivationRemoveResponse response = new ActivationRemoveResponse();
             response.setActivationId(soapResponse.getActivationId());
             return response;
