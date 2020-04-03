@@ -117,13 +117,13 @@ public class ActivationService {
                         notifyActivationCommit = true;
                     } else {
                         // Otherwise check if activation should be committed instantly and if yes, perform commit.
-                        if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE)) {
+                        if (activationProvider != null && activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE)) {
                             PowerAuthPortV3ServiceStub.CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
                             notifyActivationCommit = commitResponse.getActivated();
                         }
                     }
                     // Notify activation provider about an activation commit.
-                    if (notifyActivationCommit) {
+                    if (activationProvider != null && notifyActivationCommit) {
                         activationProvider.activationWasCommitted(identity, customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
                     }
 
