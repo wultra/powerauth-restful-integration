@@ -111,6 +111,22 @@ public class ActivationService {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
                     }
 
+                    boolean notifyActivationCommit = false;
+                    if (response.getActivationStatus() == PowerAuthPortV3ServiceStub.ActivationStatus.ACTIVE) {
+                        // Activation was committed instantly due to presence of Activation OTP.
+                        notifyActivationCommit = true;
+                    } else {
+                        // Otherwise check if activation should be committed instantly and if yes, perform commit.
+                        if (activationProvider != null && activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE)) {
+                            PowerAuthPortV3ServiceStub.CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
+                            notifyActivationCommit = commitResponse.getActivated();
+                        }
+                    }
+                    // Notify activation provider about an activation commit.
+                    if (activationProvider != null && notifyActivationCommit) {
+                        activationProvider.activationWasCommitted(identity, customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
+                    }
+
                     // Prepare and return encrypted response
                     return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes);
                 }
