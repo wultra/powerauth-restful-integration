@@ -292,12 +292,20 @@ public class ActivationService {
      */
     public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException {
         try {
-            // Remove the activation
-            RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId(), null);
+
+            // Fetch context information
+            final String activationId = apiAuthentication.getActivationId();
+            final String userId = apiAuthentication.getUserId();
+            final Long applicationId = apiAuthentication.getApplicationId();
 
             // Call other application specific cleanup logic
+            final RemoveActivationResponse soapResponse;
             if (activationProvider != null) {
-                activationProvider.activationWasRemoved(apiAuthentication.getActivationId(), apiAuthentication.getUserId());
+                final boolean revokeCodes = activationProvider.shouldRevokeRecoveryCodeOnRemove(activationId, userId, applicationId);
+                soapResponse = powerAuthClient.removeActivation(activationId, null, revokeCodes);
+                activationProvider.activationWasRemoved(activationId, userId, applicationId);
+            } else {
+                soapResponse = powerAuthClient.removeActivation(activationId, null); // do not revoke recovery codes
             }
 
             // Prepare and return the response
