@@ -99,15 +99,28 @@ public interface CustomActivationProvider {
     default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException {};
 
     /**
+     * Method that indicates if the recovery codes should be revoked when an activation is removed.
+     *
+     * @param activationId Activation ID.
+     * @param userId User ID.
+     * @param appId Application ID.
+     * @return True in case the recovery codes should be revoked on remove, false otherwise.
+     */
+    default boolean shouldRevokeRecoveryCodeOnRemove(String activationId, String userId, Long appId) {
+        return false;
+    }
+
+    /**
      * Method is called after activation was just removed using the standard removal endpoint.
      * <br><br>
      * This method is called for all activations. Default implementation is no-op.
      *
-     * @param activationId Activation ID of created activation.
-     * @param userId User ID of user who created the activation.
+     * @param activationId Activation ID.
+     * @param userId User ID.
+     * @param appId Application ID.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasRemoved(String activationId, String userId) throws PowerAuthActivationException {};
+    default void activationWasRemoved(String activationId, String userId, Long appId) throws PowerAuthActivationException {};
 
     /**
      * Get maximum failed attempt count for activations.
