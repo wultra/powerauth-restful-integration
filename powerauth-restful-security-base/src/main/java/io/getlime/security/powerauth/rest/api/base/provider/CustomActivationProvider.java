@@ -64,7 +64,7 @@ public interface CustomActivationProvider {
     /**
      * Variable that specifies if the activation should be automatically committed based on provided attributes.
      * Return true in case you would like to create an activation that is ready to be used for signing (ACTIVE),
-     * and false for the cases when you need activation to remain in OTP_USED state.
+     * and false for the cases when you need activation to remain in PENDING_COMMIT state.
      * <br><br>
      * Note that this setting only affects CUSTOM or RECOVERY activation types. On CODE activation type, auto-commit
      * is always disabled. Default implementation returns false.
