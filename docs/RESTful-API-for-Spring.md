@@ -43,9 +43,6 @@ public class ServletInitializer extends SpringBootServletInitializer {
         // Register BC provider
         Security.addProvider(new BouncyCastleProvider());
 
-        // Tell PowerAuth components to use BC provider
-        PowerAuthConfiguration.INSTANCE.setKeyConvertor(CryptoProviderUtilFactory.getCryptoProviderUtils());
-
         return application.sources(PowerAuthApiJavaApplication.class);
     }
 
@@ -191,11 +188,6 @@ PowerAuth uses the concept of `application ID` and `application secret`. While `
 ```java
 @Configuration
 public class ApplicationConfiguration implements PowerAuthApplicationConfiguration {
-
-    @Override
-    public boolean isAllowedApplicationKey(String applicationKey) {
-        return true; // suggested default implementation
-    }
 
     @Override
     public Map<String, Object> statusServiceCustomObject() {

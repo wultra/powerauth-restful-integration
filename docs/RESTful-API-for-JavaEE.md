@@ -43,9 +43,6 @@ public class JavaEEApplication extends Application {
 
         // Register BC provider
         Security.addProvider(new BouncyCastleProvider());
-
-        // Tell PowerAuth components to use BC provider
-        PowerAuthConfiguration.INSTANCE.setKeyConvertor(CryptoProviderUtilFactory.getCryptoProviderUtils());
     }
 
     @Override
@@ -147,11 +144,6 @@ PowerAuth uses the concept of `application ID` and `application secret`. While `
 
 ```java
 public class ApplicationConfiguration implements PowerAuthApplicationConfiguration {
-
-  @Override
-  public boolean isAllowedApplicationKey(String applicationKey) {
-    return true; // default implementation
-  }
 
   @Override
   public Map<String, Object> statusServiceCustomObject() {

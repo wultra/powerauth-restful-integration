@@ -41,7 +41,6 @@ import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
@@ -56,7 +55,7 @@ import java.util.List;
  *
  */
 @Component
-public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProviderBase implements AuthenticationProvider {
+public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProviderBase {
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthAuthenticationProvider.class);
 
@@ -74,7 +73,6 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         this.applicationConfiguration = applicationConfiguration;
     }
 
-    @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // Handle signature based authentications
         if (authentication instanceof PowerAuthSignatureAuthenticationImpl) {
@@ -184,12 +182,6 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         return apiAuthentication;
     }
 
-    @Override
-    public boolean supports(Class<?> authentication) {
-        return authentication == PowerAuthSignatureAuthenticationImpl.class
-                || authentication == PowerAuthTokenAuthenticationImpl.class;
-    }
-
     /**
      * Validate the signature from the PowerAuth HTTP header against the provided HTTP method, request body and URI identifier.
      * Make sure to accept only allowed signatures.
@@ -225,14 +217,6 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         } catch (InvalidPowerAuthHttpHeaderException e) {
             logger.error(e.getMessage(), e);
             throw new PowerAuthAuthenticationException(e.getMessage());
-        }
-
-        // Check if the application is allowed, "true" is the default behavior
-        if (applicationConfiguration != null) {
-            boolean isApplicationAllowed = applicationConfiguration.isAllowedApplicationKey(header.getApplicationKey());
-            if (!isApplicationAllowed) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_APPLICATION_ID");
-            }
         }
 
         // Check if the signature type is allowed

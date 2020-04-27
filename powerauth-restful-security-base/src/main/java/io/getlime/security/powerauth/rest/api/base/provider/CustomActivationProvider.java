@@ -48,7 +48,7 @@ public interface CustomActivationProvider {
     /**
      * Process custom attributes, in any way that is suitable for the purpose of your application.
      * <br><br>
-     * This method is called for all activation types.
+     * This method is called for all activation types. Default implementation returns unmodified attributes.
      *
      * @param customAttributes Custom attributes (not related to identity) to be processed.
      * @param activationId Activation ID of created activation.
@@ -57,15 +57,17 @@ public interface CustomActivationProvider {
      * @return Custom attributes after processing.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException;
+    default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException {
+        return customAttributes;
+    };
 
     /**
      * Variable that specifies if the activation should be automatically committed based on provided attributes.
      * Return true in case you would like to create an activation that is ready to be used for signing (ACTIVE),
-     * and false for the cases when you need activation to remain in OTP_USED state.
+     * and false for the cases when you need activation to remain in PENDING_COMMIT state.
      * <br><br>
      * Note that this setting only affects CUSTOM or RECOVERY activation types. On CODE activation type, auto-commit
-     * is always disabled.
+     * is always disabled. Default implementation returns false.
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
@@ -75,14 +77,17 @@ public interface CustomActivationProvider {
      * @return True in case activation should be committed, false otherwise.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException;
+    default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException {
+        return false;
+    };
 
     /**
      * Method is called when activation commit succeeds.
      * <br><br>
      * Note that this method is only called for CUSTOM or RECOVERY activation types, and only in the case activation
      * was successfully committed on the server side. Method is not called in case commit fails on server. On CODE
-     * activation type, auto-commit is always disabled and hence this method is not called.
+     * activation type, auto-commit is always disabled and hence this method is not called. Default implementation
+     * is no-op.
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
@@ -91,14 +96,39 @@ public interface CustomActivationProvider {
      * @param activationType Activation type.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException;
+    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException {};
+
+    /**
+     * Method that indicates if the recovery codes should be revoked when an activation is removed.
+     *
+     * @param activationId Activation ID.
+     * @param userId User ID.
+     * @param appId Application ID.
+     * @return True in case the recovery codes should be revoked on remove, false otherwise.
+     **/
+    default boolean shouldRevokeRecoveryCodeOnRemove(String activationId, String userId, Long appId) {
+        return false;
+    }
+
+    /**
+     * Method is called after activation was just removed using the standard removal endpoint.
+     * <br><br>
+     * This method is called for all activations. Default implementation is no-op.
+     *
+     * @param activationId Activation ID.
+     * @param userId User ID.
+     * @param appId Application ID.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
+     */
+    default void activationWasRemoved(String activationId, String userId, Long appId) throws PowerAuthActivationException {};
 
     /**
      * Get maximum failed attempt count for activations.
      * Use null value for using value which is configured on PowerAuth server.
      * <br><br>
      * Note that this method is only called for CUSTOM or RECOVERY activation types, since for CODE activation,
-     * the number of max. failed attempts is set earlier while creating the activation code.
+     * the number of max. failed attempts is set earlier while creating the activation code. Default implementation returns
+     * null (use the server configured value).
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
@@ -107,14 +137,17 @@ public interface CustomActivationProvider {
      * @return Maximum failed attempt count for activations.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException;
+    default Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
+        return null;
+    };
 
     /**
      * Get length of the period of activation record validity during activation in milliseconds.
      * Use null value for using value which is configured on PowerAuth server.
      * <br><br>
      * Note that this method is only called for CUSTOM or RECOVERY activation types, since for CODE activation,
-     * the expiration period for activation is set earlier while creating the activation code.
+     * the expiration period for activation is set earlier while creating the activation code. Default implementation returns
+     * null (use the server configured value).
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
@@ -123,6 +156,8 @@ public interface CustomActivationProvider {
      * @return Period in milliseconds during which activation is valid before it expires.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException;
+    default Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
+        return null;
+    };
 
 }

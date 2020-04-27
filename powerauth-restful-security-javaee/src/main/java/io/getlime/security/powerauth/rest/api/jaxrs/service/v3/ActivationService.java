@@ -111,6 +111,22 @@ public class ActivationService {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
                     }
 
+                    boolean notifyActivationCommit = false;
+                    if (response.getActivationStatus() == PowerAuthPortV3ServiceStub.ActivationStatus.ACTIVE) {
+                        // Activation was committed instantly due to presence of Activation OTP.
+                        notifyActivationCommit = true;
+                    } else {
+                        // Otherwise check if activation should be committed instantly and if yes, perform commit.
+                        if (activationProvider != null && activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE)) {
+                            PowerAuthPortV3ServiceStub.CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
+                            notifyActivationCommit = commitResponse.getActivated();
+                        }
+                    }
+                    // Notify activation provider about an activation commit.
+                    if (activationProvider != null && notifyActivationCommit) {
+                        activationProvider.activationWasCommitted(identity, customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
+                    }
+
                     // Prepare and return encrypted response
                     return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes);
                 }
@@ -278,7 +294,23 @@ public class ActivationService {
      */
     public ActivationRemoveResponse removeActivation(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthActivationException {
         try {
-            PowerAuthPortV3ServiceStub.RemoveActivationResponse soapResponse = powerAuthClient.removeActivation(apiAuthentication.getActivationId(), null);
+
+            // Fetch context information
+            final String activationId = apiAuthentication.getActivationId();
+            final String userId = apiAuthentication.getUserId();
+            final Long applicationId = apiAuthentication.getApplicationId();
+
+            // Call other application specific cleanup logic
+            final PowerAuthPortV3ServiceStub.RemoveActivationResponse soapResponse;
+            if (activationProvider != null) {
+                final boolean revokeCodes = activationProvider.shouldRevokeRecoveryCodeOnRemove(activationId, userId, applicationId);
+                soapResponse = powerAuthClient.removeActivation(activationId, null, revokeCodes);
+                activationProvider.activationWasRemoved(activationId, userId, applicationId);
+            } else {
+                soapResponse = powerAuthClient.removeActivation(activationId, null); // do not revoke recovery codes
+            }
+
+            // Prepare and return the response
             ActivationRemoveResponse response = new ActivationRemoveResponse();
             response.setActivationId(soapResponse.getActivationId());
             return response;
