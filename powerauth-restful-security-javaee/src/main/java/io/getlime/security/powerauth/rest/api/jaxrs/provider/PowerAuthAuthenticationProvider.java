@@ -216,7 +216,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
-        if (!allowedSignatureTypes.contains(expectedSignatureType)) {
+        if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
             throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
         }
 
@@ -293,7 +293,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = auth.getSignatureFactors();
-        if (!allowedSignatureTypes.contains(expectedSignatureType)) {
+        if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
             throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SIGNATURE_TYPE_INVALID");
         }
 
