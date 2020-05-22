@@ -78,6 +78,10 @@ public class SecureVaultService {
             String applicationKey = header.getApplicationKey();
             String signature = header.getSignature();
             PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            if (signatureType == null) {
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+            }
+
             String signatureVersion = header.getVersion();
             String nonce = header.getNonce();
 

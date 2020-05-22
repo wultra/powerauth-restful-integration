@@ -76,7 +76,7 @@ public class SignatureTypeConverter {
             case POSSESSION_BIOMETRY:
                 return PowerAuthPortV2ServiceStub.SignatureType.POSSESSION_BIOMETRY;
             default:
-                return PowerAuthPortV2ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+                return null;
         }
     }
 

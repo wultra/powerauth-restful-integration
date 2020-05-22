@@ -72,8 +72,14 @@ public class TokenService {
             // Prepare a signature type converter
             SignatureTypeConverter converter = new SignatureTypeConverter();
 
+            // Convert signature type
+            PowerAuthPortV2ServiceStub.SignatureType signatureType = converter.convertFrom(signatureFactors);
+            if (signatureType == null) {
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+            }
+
             // Create a token
-            final PowerAuthPortV2ServiceStub.CreateTokenResponse token = powerAuthClient.v2().createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
+            final PowerAuthPortV2ServiceStub.CreateTokenResponse token = powerAuthClient.v2().createToken(activationId, ephemeralPublicKey, signatureType);
 
             // Prepare a response
             final TokenCreateResponse response = new TokenCreateResponse();
