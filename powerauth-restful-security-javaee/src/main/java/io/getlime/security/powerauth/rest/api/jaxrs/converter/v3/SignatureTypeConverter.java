@@ -38,9 +38,9 @@ public class SignatureTypeConverter {
      */
     public PowerAuthPortV3ServiceStub.SignatureType convertFrom(String signatureTypeString) {
 
-        // Default to strongest signature type on null value
+        // Return null value which represents an unknown signature type
         if (signatureTypeString == null) {
-            return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            return null;
         }
 
         // Try to convert signature type
@@ -48,7 +48,8 @@ public class SignatureTypeConverter {
             signatureTypeString = signatureTypeString.toUpperCase();
             return PowerAuthPortV3ServiceStub.SignatureType.Factory.fromValue(signatureTypeString);
         } catch (IllegalArgumentException e) {
-            return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            // Return null value which represents an unknown signature type
+            return null;
         }
 
     }
@@ -60,6 +61,9 @@ public class SignatureTypeConverter {
      * @return Signature type.
      */
     public PowerAuthPortV3ServiceStub.SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
+        if (powerAuthSignatureTypes == null) {
+            return null;
+        }
         switch (powerAuthSignatureTypes) {
             case POSSESSION:
                 return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION;
@@ -72,7 +76,7 @@ public class SignatureTypeConverter {
             case POSSESSION_BIOMETRY:
                 return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_BIOMETRY;
             default:
-                return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+                return null;
         }
     }
 

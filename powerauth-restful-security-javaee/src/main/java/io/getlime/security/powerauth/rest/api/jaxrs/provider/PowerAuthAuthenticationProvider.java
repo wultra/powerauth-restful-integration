@@ -65,7 +65,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     public PowerAuthAuthenticationProvider() {
     }
 
-    public PowerAuthApiAuthentication authenticate(PowerAuthAuthentication authentication) throws RemoteException {
+    public PowerAuthApiAuthentication authenticate(PowerAuthAuthentication authentication) throws PowerAuthAuthenticationException, RemoteException {
         // Handle signature based authentications
         if (authentication instanceof PowerAuthSignatureAuthentication) {
             return validateSignatureAuthentication((PowerAuthSignatureAuthentication) authentication);
@@ -83,12 +83,17 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      *
      * @param authentication Signature based authentication object.
      * @return API authentication object in case of successful authentication, null otherwise.
+     * @throws PowerAuthAuthenticationException In case signature type is invalid.
+     * @throws RemoteException In case remote communication fails.
      */
-    private PowerAuthApiAuthentication validateSignatureAuthentication(PowerAuthSignatureAuthentication authentication) throws RemoteException {
+    private PowerAuthApiAuthentication validateSignatureAuthentication(PowerAuthSignatureAuthentication authentication) throws PowerAuthAuthenticationException, RemoteException {
         if (authentication.getSignatureType() != null) {
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
             final PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
+            if (signatureType == null) {
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+            }
 
             PowerAuthPortV3ServiceStub.VerifySignatureRequest soapRequest = new PowerAuthPortV3ServiceStub.VerifySignatureRequest();
             soapRequest.setActivationId(authentication.getActivationId());
@@ -216,7 +221,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
-        if (!allowedSignatureTypes.contains(expectedSignatureType)) {
+        if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
             throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
         }
 
@@ -293,7 +298,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = auth.getSignatureFactors();
-        if (!allowedSignatureTypes.contains(expectedSignatureType)) {
+        if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
             throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SIGNATURE_TYPE_INVALID");
         }
 

@@ -78,6 +78,12 @@ public class TokenService {
             // Prepare a signature type converter
             SignatureTypeConverter converter = new SignatureTypeConverter();
 
+            // Convert signature type
+            PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(signatureFactors);
+            if (signatureType == null) {
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+            }
+
             // Get ECIES headers
             String activationId = authentication.getActivationId();
             PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
@@ -85,7 +91,7 @@ public class TokenService {
 
             // Create a token
             final PowerAuthPortV3ServiceStub.CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                    encryptedData, mac, nonce, converter.convertFrom(signatureFactors));
+                    encryptedData, mac, nonce, signatureType);
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
