@@ -40,6 +40,8 @@ import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -52,6 +54,8 @@ import java.io.IOException;
  *
  */
 public abstract class PowerAuthEncryptionProviderBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProviderBase.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final EciesFactory eciesFactory = new EciesFactory();
@@ -167,6 +171,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Set encryption object in HTTP servlet request
             request.setAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT, eciesEncryption);
         } catch (Exception ex) {
+            logger.debug("Request decryption failed, error: " + ex.getMessage(), ex);
             throw new PowerAuthEncryptionException("Invalid request");
         }
         return eciesEncryption;
@@ -188,6 +193,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
+            logger.debug("Request encryption failed, error: " + ex.getMessage(), ex);
             return null;
         }
     }
