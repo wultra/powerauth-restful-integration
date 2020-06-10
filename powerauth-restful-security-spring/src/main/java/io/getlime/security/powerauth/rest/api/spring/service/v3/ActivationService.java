@@ -120,9 +120,13 @@ public class ActivationService {
                     PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
-                    // In case a custom activation provider is enabled, process custom attributes
+                    // In case a custom activation provider is enabled, process custom attributes and save any flags
                     if (activationProvider != null) {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
+                        List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), response.getUserId(), ActivationType.CODE);
+                        if (activationFlags != null && !activationFlags.isEmpty()) {
+                            powerAuthClient.createActivationFlags(response.getActivationId(), activationFlags);
+                        }
                     }
 
                     boolean notifyActivationCommit = false;
@@ -186,6 +190,12 @@ public class ActivationService {
                     // Process custom attributes using a custom logic
                     final Map<String, Object> processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
 
+                    // Save activation flags in case the provider specified any flags
+                    List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
+                    if (activationFlags != null && !activationFlags.isEmpty()) {
+                        powerAuthClient.createActivationFlags(response.getActivationId(), activationFlags);
+                    }
+
                     // Check if activation should be committed instantly and if yes, perform commit
                     if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
                         CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
@@ -236,9 +246,13 @@ public class ActivationService {
                     RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
-                    // In case a custom activation provider is enabled, process custom attributes
+                    // In case a custom activation provider is enabled, process custom attributes and save any flags
                     if (activationProvider != null) {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), ActivationType.RECOVERY);
+                        List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), response.getUserId(), ActivationType.RECOVERY);
+                        if (activationFlags != null && !activationFlags.isEmpty()) {
+                            powerAuthClient.createActivationFlags(response.getActivationId(), activationFlags);
+                        }
                     }
 
                     // Automatically commit activation by default, the optional activation provider can override automatic commit

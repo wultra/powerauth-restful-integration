@@ -22,6 +22,8 @@ package io.getlime.security.powerauth.rest.api.base.provider;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -79,7 +81,7 @@ public interface CustomActivationProvider {
      */
     default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) throws PowerAuthActivationException {
         return false;
-    };
+    }
 
     /**
      * Method is called when activation commit succeeds.
@@ -139,7 +141,7 @@ public interface CustomActivationProvider {
      */
     default Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
         return null;
-    };
+    }
 
     /**
      * Get length of the period of activation record validity during activation in milliseconds.
@@ -158,6 +160,18 @@ public interface CustomActivationProvider {
      */
     default Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
         return null;
-    };
+    }
+
+    /**
+     * Get activation flags which should be saved for the created activation.
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param userId User ID of user who created the activation.
+     * @param activationType Activation type.
+     * @return List of activation flags.
+     */
+    default List<String> getActivationFlags(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, ActivationType activationType) {
+        return Collections.emptyList();
+    }
 
 }
