@@ -166,6 +166,7 @@ public interface CustomActivationProvider {
      * Get activation flags which should be saved for the created activation.
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
+     * @param activationId Activation ID.
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
      * @return List of activation flags.
