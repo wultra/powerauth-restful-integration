@@ -382,7 +382,7 @@ public class ActivationService {
             throw new PowerAuthRecoveryException(errorMessage, "INVALID_RECOVERY_CODE", currentRecoveryPukIndex);
         }
     }
-    
+
     /**
      * Prepare payload for the encrypted response.
      *
