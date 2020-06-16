@@ -22,6 +22,8 @@ package io.getlime.security.powerauth.rest.api.base.authentication;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 
+import java.util.List;
+
 /**
  * Interface for PowerAuth API authentication object used between intermediate server
  * application (such as mobile banking API) and core systems (such as banking core).
@@ -66,6 +68,18 @@ public interface PowerAuthApiAuthentication {
      * @param id Application ID.
      */
     void setApplicationId(Long id);
+
+    /**
+     * Get application roles.
+     * @return Application roles.
+     */
+    List<String> getApplicationRoles();
+
+    /**
+     * Set application roles.
+     * @param applicationRoles Application roles.
+     */
+    void setApplicationRoles(List<String> applicationRoles);
 
     /**
      * Return authentication factors related to the signature that was used to produce
