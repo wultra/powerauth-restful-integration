@@ -19,8 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.encryption;
 
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;

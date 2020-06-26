@@ -19,11 +19,11 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v2;
 
-import io.getlime.powerauth.soap.v2.PrepareActivationResponse;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v2.PrepareActivationResponse;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,12 +44,12 @@ import org.springframework.stereotype.Service;
 @Service("activationServiceV2")
 public class ActivationService {
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -70,7 +70,7 @@ public class ActivationService {
             String applicationSignature = request.getApplicationSignature();
             String clientEphemeralKey = request.getEphemeralPublicKey();
 
-            PrepareActivationResponse soapResponse = powerAuthClient.v2().prepareActivation(
+            PrepareActivationResponse paResponse = powerAuthClient.v2().prepareActivation(
                     activationIDShort,
                     activationName,
                     activationNonce,
@@ -82,11 +82,11 @@ public class ActivationService {
             );
 
             ActivationCreateResponse response = new ActivationCreateResponse();
-            response.setActivationId(soapResponse.getActivationId());
-            response.setActivationNonce(soapResponse.getActivationNonce());
-            response.setEncryptedServerPublicKey(soapResponse.getEncryptedServerPublicKey());
-            response.setEncryptedServerPublicKeySignature(soapResponse.getEncryptedServerPublicKeySignature());
-            response.setEphemeralPublicKey(soapResponse.getEphemeralPublicKey());
+            response.setActivationId(paResponse.getActivationId());
+            response.setActivationNonce(paResponse.getActivationNonce());
+            response.setEncryptedServerPublicKey(paResponse.getEncryptedServerPublicKey());
+            response.setEncryptedServerPublicKeySignature(paResponse.getEncryptedServerPublicKeySignature());
+            response.setEphemeralPublicKey(paResponse.getEphemeralPublicKey());
 
             return response;
         } catch (Exception ex) {

@@ -20,7 +20,7 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.service.v2;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;

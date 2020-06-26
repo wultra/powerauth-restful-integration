@@ -19,13 +19,13 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
-import io.getlime.powerauth.soap.v3.ConfirmRecoveryCodeResponse;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.ConfirmRecoveryCodeResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,14 +46,14 @@ public class RecoveryService {
 
     private static final Logger logger = LoggerFactory.getLogger(RecoveryService.class);
 
-    private final PowerAuthServiceClient powerAuthClient;
+    private final PowerAuthClient powerAuthClient;
 
     /**
      * Controller constructor.
      * @param powerAuthClient PowerAuth client.
      */
     @Autowired
-    public RecoveryService(PowerAuthServiceClient powerAuthClient) {
+    public RecoveryService(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 

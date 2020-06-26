@@ -19,7 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.service.v2;
 
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;

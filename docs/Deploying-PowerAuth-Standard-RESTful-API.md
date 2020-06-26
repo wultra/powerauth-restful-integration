@@ -14,15 +14,15 @@ You can download the latest `powerauth-restful-server.war` at the releases page:
 
 ## Configuring PowerAuth Standard RESTful API
 
-The default implementation of a PowerAuth Standard RESTful API has only one compulsory configuration parameter `powerauth.service.url` that configures the SOAP endpoint location of a PowerAuth Server. The default value for this property points to `localhost`:
+The default implementation of a PowerAuth Standard RESTful API has only one compulsory configuration parameter `powerauth.service.url` that configures the REST endpoint location of a PowerAuth Server. The default value for this property points to `localhost`:
 
 ```bash
-powerauth.service.url=http://localhost:8080/powerauth-java-server/soap
+powerauth.service.url=http://localhost:8080/powerauth-java-server/rest
 ```
 
 ## Setting Up Credentials
 
-_(optional)_ In case PowerAuth Server uses a [restricted access flag in the server configuration](https://github.com/wultra/powerauth-server/blob/develop/docs/Deploying-PowerAuth-Server.md#enabling-powerauth-server-security), you need to configure credentials for the PowerAuth Standard RESTful API so that it can connect to the SOAP service:
+_(optional)_ In case PowerAuth Server uses a [restricted access flag in the server configuration](https://github.com/wultra/powerauth-server/blob/develop/docs/Deploying-PowerAuth-Server.md#enabling-powerauth-server-security), you need to configure credentials for the PowerAuth Standard RESTful API so that it can connect to the service:
 
 ```sh
 powerauth.service.security.clientToken=
@@ -31,7 +31,7 @@ powerauth.service.security.clientSecret=
 
 The credentials are stored in the `pa_integration` table.
 
-_Note: For SOAP interface, PowerAuth Server uses WS-Security, `UsernameToken` validation (plain text password). The RESTful interface is secured using Basic HTTP Authentication (pre-emptive)._
+_Note: The RESTful interface is secured using Basic HTTP Authentication (pre-emptive). For SOAP interface used in the Java EE integration, PowerAuth Server uses WS-Security, `UsernameToken` validation (plain text password)._ 
 
 ## Deploying PowerAuth Standard RESTful API
 

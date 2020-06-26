@@ -4,9 +4,9 @@ This tutorial shows the way mobile API developers who build their applications o
 
 ## Prerequisites for the tutorial
 
-- Running PowerAuth Server with available SOAP interface.
-- Knowledge of Java EE applications based on Spring Framework.
-- Software: IDE - Spring Tool Suite, Java EE Application Server (Pivotal Server, Tomcat, ...)
+- Running PowerAuth Server with available REST interface.
+- Knowledge of web applications based on Spring Framework.
+- Software: IDE, Application Server (Tomcat, Wildfly, ...)
 
 ## Add a Maven dependency
 
@@ -49,46 +49,29 @@ public class ServletInitializer extends SpringBootServletInitializer {
 }
 ```
 
-## Configure PowerAuth SOAP Service
+## Configure PowerAuth REST Client
 
 In order to connect to the correct PowerAuth Server, you need to add following configuration:
 
 ```java
 @Configuration
-@ComponentScan(basePackages = {"io.getlime.security.powerauth"})
+@ComponentScan(basePackages = {"com.wultra.security.powerauth"})
 public class PowerAuthWebServiceConfiguration {
 
-    @Value("${powerauth.service.url}")
-    private String powerAuthServiceUrl;
+    @Value("${powerauth.rest.url}")
+    private String powerAuthRestUrl;
 
     @Bean
-    public Jaxb2Marshaller marshaller() {
-        Jaxb2Marshaller marshaller = new Jaxb2Marshaller();
-        marshaller.setContextPath("io.getlime.powerauth.soap.v3");
-        return marshaller;
-    }
-
-    @Bean
-    public PowerAuthServiceClient powerAuthClient(Jaxb2Marshaller marshaller) {
-        PowerAuthServiceClient client = new PowerAuthServiceClient();
-        client.setDefaultUri(powerAuthServiceUrl);
-        client.setMarshaller(marshaller);
-        client.setUnmarshaller(marshaller);
-        return client;
+    public PowerAuthClient powerAuthClient() {
+        return new PowerAuthRestClient(powerAuthRestUrl);
     }
 
 }
 ```
 
-_Note: The `v3` endpoints provide the most current implementation of PowerAuth cryptography protocol. If you still need to use the `v2` endpoints, include the `v2` context path for the Marshaller:_
-
-```
-marshaller.setContextPaths("io.getlime.powerauth.soap.v2", "io.getlime.powerauth.soap.v3");
-```
-
 ## Setting Up Credentials
 
-_(optional)_ In case PowerAuth Server uses a [restricted access flag in the server configuration](https://github.com/wultra/powerauth-server/blob/develop/docs/Deploying-PowerAuth-Server.md#enabling-powerauth-server-security), you need to configure credentials for the WS-Security so that your client can connect to the SOAP service - modify your `PowerAuthWebServiceConfiguration` to include `Wss4jSecurityInterceptor` bean, like so:
+_(optional)_ In case PowerAuth Server uses a [restricted access flag in the server configuration](https://github.com/wultra/powerauth-server/blob/develop/docs/Deploying-PowerAuth-Server.md#enabling-powerauth-server-security), you need to configure credentials for REST client:
 
 ```java
 @Value("${powerauth.service.security.clientToken}")
@@ -97,34 +80,30 @@ private String clientToken;
 @Value("${powerauth.service.security.clientSecret}")
 private String clientSecret;
 
-@Bean
-public Wss4jSecurityInterceptor securityInterceptor() {
-    Wss4jSecurityInterceptor wss4jSecurityInterceptor = new Wss4jSecurityInterceptor();
-    wss4jSecurityInterceptor.setSecurementActions("UsernameToken");
-    wss4jSecurityInterceptor.setSecurementUsername(clientToken);
-    wss4jSecurityInterceptor.setSecurementPassword(clientSecret);
-    wss4jSecurityInterceptor.setSecurementPasswordType(WSConstants.PW_TEXT);
-    return wss4jSecurityInterceptor;
-}
-
 // ...
 
 @Bean
-public PowerAuthServiceClient powerAuthClient(Jaxb2Marshaller marshaller) {
-    PowerAuthServiceClient client = new PowerAuthServiceClient();
-    client.setDefaultUri(powerAuthServiceUrl);
-    client.setMarshaller(marshaller);
-    client.setUnmarshaller(marshaller);
-    // ****
-    // HERE ==> Add interceptors for the security
-    // ****
-    ClientInterceptor interceptor = securityInterceptor();
-    client.setInterceptors(new ClientInterceptor[] { interceptor });
-    return client;
+public PowerAuthClient powerAuthClient() {
+    PowerAuthRestClientConfiguration config = new PowerAuthRestClientConfiguration();
+    config.setPowerAuthClientToken(clientToken);
+    config.setPowerAuthClientSecret(clientSecret);
+    return new PowerAuthRestClient(powerAuthRestUrl, config);
 }
 ```
 
-_Note: For SOAP interface, PowerAuth Server uses WS-Security, `UsernameToken` validation (plain text password). The RESTful interface is secured using Basic HTTP Authentication (pre-emptive)._
+## Advanced PowerAuth REST Client Configuration
+
+The following REST client options are available:
+- `maxMemorySize` - configures maximum memory size per request, default 1 MB
+- `connectTimeout` - configures connection timeout, default 5000 ms
+- `proxyEnabled` - enables proxy, disabled by default
+- `proxyHost` - proxy hostname or IP address
+- `proxyPort` - proxy server port
+- `proxyUsername` - proxy username in case proxy authentication is required
+- `proxyPassword` - proxy password in case proxy authentication is required
+- `powerAuthClientToken` - client token for PowerAuth server authentication, used in case authentication is enabled on PowerAuth server
+- `powerAuthClientSecret` - client secret for PowerAuth server authentication, used in case authentication is enabled on PowerAuth server
+- `skipSslCertificateValidation` - whether SSL certificates should be validated, used during development
 
 ## Register PowerAuth Components
 
