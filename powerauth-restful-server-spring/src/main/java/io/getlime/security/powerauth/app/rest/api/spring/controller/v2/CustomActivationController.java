@@ -23,8 +23,6 @@ import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v2.CreateActivationResponse;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.security.powerauth.crypto.lib.model.exception.CryptoProviderException;
-import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
@@ -42,8 +40,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
 import java.util.Map;
 
 /**
@@ -161,7 +157,7 @@ public class CustomActivationController {
             // Return response
             return powerAuthApiResponse;
 
-        } catch (IOException | GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+        } catch (Exception ex) {
             logger.warn(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }

@@ -20,6 +20,8 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
+import com.wultra.security.powerauth.client.model.error.PowerAuthErrorRecovery;
 import com.wultra.security.powerauth.client.v3.*;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
@@ -40,12 +42,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ws.soap.SoapFaultDetail;
-import org.springframework.ws.soap.SoapFaultDetailElement;
-import org.springframework.ws.soap.client.SoapFaultClientException;
-import org.w3c.dom.Node;
 
-import javax.xml.transform.dom.DOMSource;
 import java.util.*;
 
 /**
@@ -270,9 +267,10 @@ public class ActivationService {
                 default:
                     throw new PowerAuthAuthenticationException("Unsupported activation type: " + request.getType());
             }
-        } catch (SoapFaultClientException ex) {
-            if (ex.getSoapFault() != null && ex.getSoapFault().getFaultDetail() != null) {
-                handleInvalidRecoveryError(ex.getSoapFault().getFaultDetail());
+        } catch (PowerAuthClientException ex) {
+            if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {
+                PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
+                throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
             logger.warn("Creating PowerAuth activation failed", ex);
             throw new PowerAuthActivationException();
@@ -347,43 +345,6 @@ public class ActivationService {
             throw new PowerAuthActivationException();
         }
     }
-
-
-    /**
-     * Handle SOAP fault for recovery error which may contain additional details about current recovery PUK index.
-     * @param faultDetail SOAP fault detail.
-     * @throws PowerAuthRecoveryException Thrown in case recovery error is handled using this method.
-     */
-    private void handleInvalidRecoveryError(SoapFaultDetail faultDetail) throws PowerAuthRecoveryException {
-        String errorCode = null;
-        String errorMessage = null;
-        Integer currentRecoveryPukIndex = null;
-        Iterator<SoapFaultDetailElement> iter = faultDetail.getDetailEntries();
-        while (iter.hasNext()) {
-            SoapFaultDetailElement detail = iter.next();
-            Node node = ((DOMSource) detail.getSource()).getNode();
-            switch (node.getLocalName()) {
-                case "errorCode":
-                    errorCode = node.getTextContent();
-                    break;
-                case "localizedMessage":
-                    errorMessage = node.getTextContent();
-                    break;
-                case "currentRecoveryPukIndex":
-                    try {
-                        currentRecoveryPukIndex = Integer.parseInt(node.getTextContent());
-                    } catch (NumberFormatException ex) {
-                        // Ignore invalid index
-                    }
-                    break;
-            }
-        }
-        // Handle error ERR0028 - Invalid recovery code, other errors are handled as regular activation errors
-        if ("ERR0028".equals(errorCode)) {
-            throw new PowerAuthRecoveryException(errorMessage, "INVALID_RECOVERY_CODE", currentRecoveryPukIndex);
-        }
-    }
-
 
     /**
      * Prepare payload for the encrypted response.

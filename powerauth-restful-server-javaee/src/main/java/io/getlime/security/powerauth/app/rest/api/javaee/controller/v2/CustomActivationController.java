@@ -137,7 +137,7 @@ public class CustomActivationController {
 
             return powerAuthApiResponse;
 
-        } catch (IOException | GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+        } catch (Exception ex) {
             logger.warn(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }

@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import com.google.common.io.BaseEncoding;
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.v3.*;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
@@ -118,7 +119,12 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                 request.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
             }
 
-            VerifySignatureResponse response = powerAuthClient.verifySignature(request);
+            VerifySignatureResponse response;
+            try {
+                response = powerAuthClient.verifySignature(request);
+            } catch (PowerAuthClientException ex) {
+                return null;
+            }
 
             if (response.isSignatureValid()) {
                 return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
