@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -116,14 +117,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthPortV3ServiceStub.VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
 
             if (soapResponse.getSignatureValid()) {
-                PowerAuthApiAuthentication apiAuthentication = new PowerAuthApiAuthenticationImpl();
-                apiAuthentication.setActivationId(soapResponse.getActivationId());
-                apiAuthentication.setUserId(soapResponse.getUserId());
-                apiAuthentication.setApplicationId(soapResponse.getApplicationId());
-                apiAuthentication.setSignatureFactors(PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()));
-                apiAuthentication.setVersion(authentication.getVersion());
-                apiAuthentication.setHttpHeader(authentication.getHttpHeader());
-                return apiAuthentication;
+                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
+                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
+                        authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
             }
@@ -151,7 +147,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final PowerAuthPortV3ServiceStub.ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
             if (soapResponse.getTokenValid()) {
                 return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
-                        soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
+                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
                         authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
@@ -168,14 +164,18 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param activationId Activation ID.
      * @param userId User ID.
      * @param applicationId Application ID.
+     * @param applicationRoles Application roles.
      * @param signatureType Signature Type.
+     * @param version PowerAuth protocol version.
+     * @param httpHeader Raw PowerAuth HTTP header.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthApiAuthentication copyAuthenticationAttributes(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes signatureType, String version, PowerAuthHttpHeader httpHeader) {
+    private PowerAuthApiAuthentication copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles, PowerAuthSignatureTypes signatureType, String version, PowerAuthHttpHeader httpHeader) {
         PowerAuthApiAuthentication apiAuthentication = new PowerAuthApiAuthenticationImpl();
         apiAuthentication.setActivationId(activationId);
         apiAuthentication.setUserId(userId);
         apiAuthentication.setApplicationId(applicationId);
+        apiAuthentication.setApplicationRoles(applicationRoles);
         apiAuthentication.setSignatureFactors(signatureType);
         apiAuthentication.setVersion(version);
         apiAuthentication.setHttpHeader(httpHeader);

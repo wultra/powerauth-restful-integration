@@ -125,7 +125,7 @@ public class ActivationService {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.CODE);
                         List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.CODE);
                         if (activationFlags != null && !activationFlags.isEmpty()) {
-                            powerAuthClient.createActivationFlags(response.getActivationId(), activationFlags);
+                            powerAuthClient.addActivationFlags(response.getActivationId(), activationFlags);
                         }
                     }
 
@@ -193,7 +193,7 @@ public class ActivationService {
                     // Save activation flags in case the provider specified any flags
                     List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), userId, response.getApplicationId(), ActivationType.CUSTOM);
                     if (activationFlags != null && !activationFlags.isEmpty()) {
-                        powerAuthClient.createActivationFlags(response.getActivationId(), activationFlags);
+                        powerAuthClient.addActivationFlags(response.getActivationId(), activationFlags);
                     }
 
                     // Check if activation should be committed instantly and if yes, perform commit
@@ -251,7 +251,7 @@ public class ActivationService {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY);
                         List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY);
                         if (activationFlags != null && !activationFlags.isEmpty()) {
-                            powerAuthClient.createActivationFlags(response.getActivationId(), activationFlags);
+                            powerAuthClient.addActivationFlags(response.getActivationId(), activationFlags);
                         }
                     }
 
