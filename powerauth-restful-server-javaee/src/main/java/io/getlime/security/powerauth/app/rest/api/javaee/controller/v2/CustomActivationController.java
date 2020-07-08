@@ -19,9 +19,9 @@
  */
 package io.getlime.security.powerauth.app.rest.api.javaee.controller.v2;
 
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.model.exception.CryptoProviderException;
 import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
@@ -137,7 +137,7 @@ public class CustomActivationController {
 
             return powerAuthApiResponse;
 
-        } catch (IOException | GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
+        } catch (Exception ex) {
             logger.warn(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }

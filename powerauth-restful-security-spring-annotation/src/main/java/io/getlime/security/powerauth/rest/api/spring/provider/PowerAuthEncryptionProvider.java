@@ -19,12 +19,12 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
-import io.getlime.powerauth.soap.v3.GetEciesDecryptorRequest;
-import io.getlime.powerauth.soap.v3.GetEciesDecryptorResponse;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.GetEciesDecryptorRequest;
+import com.wultra.security.powerauth.client.v3.GetEciesDecryptorResponse;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthEncryptionProviderBase;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +41,10 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 

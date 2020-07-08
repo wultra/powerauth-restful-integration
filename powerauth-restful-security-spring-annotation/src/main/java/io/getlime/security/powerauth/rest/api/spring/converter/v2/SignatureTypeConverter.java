@@ -19,19 +19,19 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.converter.v2;
 
-import io.getlime.powerauth.soap.v2.SignatureType;
+import com.wultra.security.powerauth.client.v2.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
 /**
  * Helper class to convert from and to
- * {@link io.getlime.powerauth.soap.v2.SignatureType} class.
+ * {@link com.wultra.security.powerauth.client.v2.SignatureType} class.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
 public class SignatureTypeConverter {
 
     /**
-     * Convert {@link io.getlime.powerauth.soap.v2.SignatureType}
+     * Convert {@link com.wultra.security.powerauth.client.v2.SignatureType}
      * from a {@link String} value.
      * @param signatureTypeString String value representing signature type.
      * @return Signature type.

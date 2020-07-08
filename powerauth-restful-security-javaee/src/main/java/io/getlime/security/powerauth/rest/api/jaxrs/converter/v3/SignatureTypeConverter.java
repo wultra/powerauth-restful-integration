@@ -19,7 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.converter.v3;
 
-import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
+import com.wultra.security.powerauth.client.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 
 /**

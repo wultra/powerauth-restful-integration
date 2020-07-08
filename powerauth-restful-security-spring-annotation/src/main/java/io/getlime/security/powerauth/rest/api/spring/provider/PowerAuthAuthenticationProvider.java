@@ -20,7 +20,9 @@
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v3.*;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
+import com.wultra.security.powerauth.client.v3.*;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
@@ -37,7 +39,6 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthSignatureAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthTokenAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,12 +60,12 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthAuthenticationProvider.class);
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -99,30 +100,34 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             SignatureTypeConverter converter = new SignatureTypeConverter();
             final SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
 
-            VerifySignatureRequest soapRequest = new VerifySignatureRequest();
-            soapRequest.setActivationId(authentication.getActivationId());
-            soapRequest.setApplicationKey(authentication.getApplicationKey());
-            soapRequest.setSignature(authentication.getSignature());
-            soapRequest.setSignatureType(signatureType);
-            soapRequest.setSignatureVersion(authentication.getVersion());
-            soapRequest.setData(PowerAuthHttpBody.getSignatureBaseString(
+            VerifySignatureRequest request = new VerifySignatureRequest();
+            request.setActivationId(authentication.getActivationId());
+            request.setApplicationKey(authentication.getApplicationKey());
+            request.setSignature(authentication.getSignature());
+            request.setSignatureType(signatureType);
+            request.setSignatureVersion(authentication.getVersion());
+            request.setData(PowerAuthHttpBody.getSignatureBaseString(
                     authentication.getHttpMethod(),
                     authentication.getRequestUri(),
                     authentication.getNonce(),
                     authentication.getData()
             ));
 
-            // In case forced signature version is specified, use it in the SOAP request.
+            // In case forced signature version is specified, use it in the request.
             // This occurs when verifying signature during upgrade before upgrade is committed.
             if (authentication.getForcedSignatureVersion() != null) {
-                soapRequest.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
+                request.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
             }
 
-            VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
-
-            if (soapResponse.isSignatureValid()) {
-                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
-                        soapResponse.getApplicationId(), soapResponse.getApplicationRoles(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().value()),
+            VerifySignatureResponse response;
+            try {
+                response = powerAuthClient.verifySignature(request);
+            } catch (PowerAuthClientException ex) {
+                return null;
+            }
+            if (response.isSignatureValid()) {
+                return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
+                        response.getApplicationId(), response.getApplicationRoles(), PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()),
                         authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;

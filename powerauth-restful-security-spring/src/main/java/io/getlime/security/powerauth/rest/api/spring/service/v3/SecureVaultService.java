@@ -20,8 +20,9 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v3.SignatureType;
-import io.getlime.powerauth.soap.v3.VaultUnlockResponse;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.SignatureType;
+import com.wultra.security.powerauth.client.v3.VaultUnlockResponse;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
@@ -30,7 +31,6 @@ import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedReq
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,14 +52,14 @@ import javax.servlet.http.HttpServletRequest;
 @Service("secureVaultServiceV3")
 public class SecureVaultService {
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     private PowerAuthAuthenticationProvider authenticationProvider;
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -101,14 +101,14 @@ public class SecureVaultService {
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server
-            VaultUnlockResponse soapResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
+            VaultUnlockResponse paResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
                     signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
 
-            if (!soapResponse.isSignatureValid()) {
+            if (!paResponse.isSignatureValid()) {
                 throw new PowerAuthAuthenticationException();
             }
 
-            return new EciesEncryptedResponse(soapResponse.getEncryptedData(), soapResponse.getMac());
+            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {

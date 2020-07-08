@@ -19,11 +19,15 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.encryption;
 
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
+import com.wultra.security.powerauth.client.v2.GetNonPersonalizedEncryptionKeyResponse;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
-import io.getlime.powerauth.soap.v2.GetNonPersonalizedEncryptionKeyResponse;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -35,13 +39,14 @@ import org.springframework.stereotype.Component;
 @Component
 public class EncryptorFactory {
 
-    private PowerAuthServiceClient powerAuthClient;
+    private static final Logger logger = LoggerFactory.getLogger(EncryptorFactory.class);
+    private PowerAuthClient powerAuthClient;
 
     public EncryptorFactory() {
     }
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -49,8 +54,9 @@ public class EncryptorFactory {
      * Return a new instance of a non-personalized encryptor.
      * @param object Request object to be used to initialize a new encryptor.
      * @return New instance of a non-personalized encryptor.
+     * @throws PowerAuthEncryptionException Thrown in case encryptor could not be built.
      */
-    public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(ObjectRequest<NonPersonalizedEncryptedPayloadModel> object) {
+    public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(ObjectRequest<NonPersonalizedEncryptedPayloadModel> object) throws PowerAuthEncryptionException {
         return this.buildNonPersonalizedEncryptor(
                 object.getRequestObject().getApplicationKey(),
                 object.getRequestObject().getSessionIndex(),
@@ -64,18 +70,24 @@ public class EncryptorFactory {
      * @param sessionIndexBase64 Session index.
      * @param ephemeralPublicKeyBase64 Ephemeral public key.
      * @return New instance of a non-personalized encryptor.
+     * @throws PowerAuthEncryptionException Thrown in case encryptor could not be built.
      */
-    public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(String applicationKeyBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) {
-        final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.v2().generateNonPersonalizedE2EEncryptionKey(
-                applicationKeyBase64,
-                ephemeralPublicKeyBase64,
-                sessionIndexBase64
-        );
-        return new PowerAuthNonPersonalizedEncryptor(
-                encryptionKeyResponse.getApplicationKey(),
-                encryptionKeyResponse.getEncryptionKey(), encryptionKeyResponse.getEncryptionKeyIndex(),
-                encryptionKeyResponse.getEphemeralPublicKey()
-        );
+    public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(String applicationKeyBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) throws PowerAuthEncryptionException {
+        try {
+            final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.v2().generateNonPersonalizedE2EEncryptionKey(
+                    applicationKeyBase64,
+                    ephemeralPublicKeyBase64,
+                    sessionIndexBase64
+            );
+            return new PowerAuthNonPersonalizedEncryptor(
+                    encryptionKeyResponse.getApplicationKey(),
+                    encryptionKeyResponse.getEncryptionKey(), encryptionKeyResponse.getEncryptionKeyIndex(),
+                    encryptionKeyResponse.getEphemeralPublicKey()
+            );
+        } catch (PowerAuthClientException ex) {
+            logger.warn(ex.getMessage(), ex);
+            throw new PowerAuthEncryptionException(ex.getMessage());
+        }
     }
 
 }

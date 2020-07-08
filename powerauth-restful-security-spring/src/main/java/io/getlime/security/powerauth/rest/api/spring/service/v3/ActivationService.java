@@ -19,7 +19,10 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
-import io.getlime.powerauth.soap.v3.*;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
+import com.wultra.security.powerauth.client.model.error.PowerAuthErrorRecovery;
+import com.wultra.security.powerauth.client.v3.*;
 import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
@@ -35,17 +38,11 @@ import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ws.soap.SoapFaultDetail;
-import org.springframework.ws.soap.SoapFaultDetailElement;
-import org.springframework.ws.soap.client.SoapFaultClientException;
-import org.w3c.dom.Node;
 
-import javax.xml.transform.dom.DOMSource;
 import java.util.*;
 
 /**
@@ -61,7 +58,7 @@ import java.util.*;
 @Service("activationServiceV3")
 public class ActivationService {
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
 
@@ -70,7 +67,7 @@ public class ActivationService {
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -116,7 +113,7 @@ public class ActivationService {
                     // Extract data from request and encryption object
                     String activationCode = request.getIdentityAttributes().get("code");
 
-                    // Call PrepareActivation SOAP method on PA server
+                    // Call PrepareActivation method on PA server
                     PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
@@ -242,7 +239,7 @@ public class ActivationService {
                         maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
                     }
 
-                    // Call RecoveryCodeActivation SOAP method on PA server
+                    // Call RecoveryCodeActivation method on PA server
                     RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
@@ -270,9 +267,10 @@ public class ActivationService {
                 default:
                     throw new PowerAuthAuthenticationException("Unsupported activation type: " + request.getType());
             }
-        } catch (SoapFaultClientException ex) {
-            if (ex.getSoapFault() != null && ex.getSoapFault().getFaultDetail() != null) {
-                handleInvalidRecoveryError(ex.getSoapFault().getFaultDetail());
+        } catch (PowerAuthClientException ex) {
+            if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {
+                PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
+                throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
             logger.warn("Creating PowerAuth activation failed", ex);
             throw new PowerAuthActivationException();
@@ -298,11 +296,11 @@ public class ActivationService {
         try {
             String activationId = request.getActivationId();
             String challenge = request.getChallenge();
-            GetActivationStatusResponse soapResponse = powerAuthClient.getActivationStatusWithEncryptedStatusBlob(activationId, challenge);
+            GetActivationStatusResponse paResponse = powerAuthClient.getActivationStatusWithEncryptedStatusBlob(activationId, challenge);
             ActivationStatusResponse response = new ActivationStatusResponse();
-            response.setActivationId(soapResponse.getActivationId());
-            response.setEncryptedStatusBlob(soapResponse.getEncryptedStatusBlob());
-            response.setNonce(soapResponse.getEncryptedStatusBlobNonce());
+            response.setActivationId(paResponse.getActivationId());
+            response.setEncryptedStatusBlob(paResponse.getEncryptedStatusBlob());
+            response.setNonce(paResponse.getEncryptedStatusBlobNonce());
             if (applicationConfiguration != null) {
                 response.setCustomObject(applicationConfiguration.statusServiceCustomObject());
             }
@@ -329,57 +327,22 @@ public class ActivationService {
             final Long applicationId = apiAuthentication.getApplicationId();
 
             // Call other application specific cleanup logic
-            final RemoveActivationResponse soapResponse;
+            final RemoveActivationResponse paResponse;
             if (activationProvider != null) {
                 final boolean revokeCodes = activationProvider.shouldRevokeRecoveryCodeOnRemove(activationId, userId, applicationId);
-                soapResponse = powerAuthClient.removeActivation(activationId, null, revokeCodes);
+                paResponse = powerAuthClient.removeActivation(activationId, null, revokeCodes);
                 activationProvider.activationWasRemoved(activationId, userId, applicationId);
             } else {
-                soapResponse = powerAuthClient.removeActivation(activationId, null); // do not revoke recovery codes
+                paResponse = powerAuthClient.removeActivation(activationId, null); // do not revoke recovery codes
             }
 
             // Prepare and return the response
             ActivationRemoveResponse response = new ActivationRemoveResponse();
-            response.setActivationId(soapResponse.getActivationId());
+            response.setActivationId(paResponse.getActivationId());
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth activation removal failed", ex);
             throw new PowerAuthActivationException();
-        }
-    }
-
-    /**
-     * Handle SOAP fault for recovery error which may contain additional details about current recovery PUK index.
-     * @param faultDetail SOAP fault detail.
-     * @throws PowerAuthRecoveryException Thrown in case recovery error is handled using this method.
-     */
-    private void handleInvalidRecoveryError(SoapFaultDetail faultDetail) throws PowerAuthRecoveryException {
-        String errorCode = null;
-        String errorMessage = null;
-        Integer currentRecoveryPukIndex = null;
-        Iterator<SoapFaultDetailElement> iter = faultDetail.getDetailEntries();
-        while (iter.hasNext()) {
-            SoapFaultDetailElement detail = iter.next();
-            Node node = ((DOMSource) detail.getSource()).getNode();
-            switch (node.getLocalName()) {
-                case "errorCode":
-                    errorCode = node.getTextContent();
-                    break;
-                case "localizedMessage":
-                    errorMessage = node.getTextContent();
-                    break;
-                case "currentRecoveryPukIndex":
-                    try {
-                        currentRecoveryPukIndex = Integer.parseInt(node.getTextContent());
-                    } catch (NumberFormatException ex) {
-                        // Ignore invalid index
-                    }
-                    break;
-            }
-        }
-        // Handle error ERR0028 - Invalid recovery code, other errors are handled as regular activation errors
-        if ("ERR0028".equals(errorCode)) {
-            throw new PowerAuthRecoveryException(errorMessage, "INVALID_RECOVERY_CODE", currentRecoveryPukIndex);
         }
     }
 
