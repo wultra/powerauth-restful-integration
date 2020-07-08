@@ -136,7 +136,7 @@ public class CustomActivationController {
 
             // Process custom attributes using a custom logic
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM);
 
             // Prepare the created activation response data
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
@@ -150,7 +150,7 @@ public class CustomActivationController {
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
             // Check if activation should be committed instantly and if yes, perform commit
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM)) {
                 powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 
