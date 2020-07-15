@@ -260,7 +260,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             try {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
-                logger.warn("PowerAuth signature HTTP header is invalid, error: {}", ex.getMessage());
+                logger.warn("Signature validation failed, error: {}", ex.getMessage());
                 throw new PowerAuthEncryptionException();
             }
 
@@ -277,7 +277,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             try {
                 PowerAuthEncryptionHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
-                logger.warn("PowerAuth encryption HTTP header is invalid, error: {}", ex.getMessage());
+                logger.warn("Encryption validation failed, error: {}", ex.getMessage());
                 throw new PowerAuthEncryptionException();
             }
 

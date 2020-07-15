@@ -85,7 +85,7 @@ public class UpgradeController {
         try {
             PowerAuthEncryptionHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
-            logger.warn("Signature validation failed, error: {}", ex.getMessage());
+            logger.warn("Encryption validation failed, error: {}", ex.getMessage());
             throw new PowerAuthUpgradeException();
         }
 
