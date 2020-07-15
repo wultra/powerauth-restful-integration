@@ -88,7 +88,7 @@ public class SecureVaultService {
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             if (signatureType == null) {
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
             }
             String signatureVersion = header.getVersion();
             String nonce = header.getNonce();
@@ -108,7 +108,7 @@ public class SecureVaultService {
                     signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
 
             if (!paResponse.isSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
             }
 
             return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());

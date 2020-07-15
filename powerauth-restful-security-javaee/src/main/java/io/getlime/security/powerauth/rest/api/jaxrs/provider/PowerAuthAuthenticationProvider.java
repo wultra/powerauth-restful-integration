@@ -245,7 +245,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             auth = this.authenticate(powerAuthAuthentication);
         } catch (RemoteException ex) {
             logger.warn("Remote communication failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_SOAP_ERROR");
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_REMOTE_ERROR");
         }
 
         // In case authentication is null, throw PowerAuth exception
@@ -272,7 +272,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthTokenHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Token validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID");
         }
 
         // Prepare authentication object
@@ -290,7 +290,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             auth = this.authenticate(powerAuthTokenAuthentication);
         } catch (RemoteException ex) {
             logger.warn("Remote communication failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SOAP_ERROR");
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_REMOTE_ERROR");
         }
 
         // In case authentication is null, throw PowerAuth exception

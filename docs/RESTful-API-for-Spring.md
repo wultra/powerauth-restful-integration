@@ -266,7 +266,7 @@ public class AuthenticationController {
             SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
             return new PowerAuthAPIResponse<String>("OK", "User " + userId);
         } else {
-            throw new PowerAuthAuthenticationException("USER_NOT_AUTHENTICATED");
+            throw new PowerAuthAuthenticationException();
         }
 
     }
@@ -382,11 +382,11 @@ public class EncryptedDataExchangeController {
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+            throw new PowerAuthAuthenticationException();
         }
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response

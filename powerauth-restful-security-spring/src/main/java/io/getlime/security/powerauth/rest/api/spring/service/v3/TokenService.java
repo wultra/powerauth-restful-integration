@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v3.CreateTokenResponse;
+import com.wultra.security.powerauth.client.v3.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
@@ -80,6 +81,10 @@ public class TokenService {
 
             // Prepare a signature type converter
             SignatureTypeConverter converter = new SignatureTypeConverter();
+            SignatureType signatureType = converter.convertFrom(signatureFactors);
+            if (signatureType == null) {
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+            }
 
             // Get ECIES headers
             String activationId = authentication.getActivationId();
@@ -88,7 +93,7 @@ public class TokenService {
 
             // Create a token
             final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                    encryptedData, mac, nonce, converter.convertFrom(signatureFactors));
+                    encryptedData, mac, nonce, signatureType);
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();

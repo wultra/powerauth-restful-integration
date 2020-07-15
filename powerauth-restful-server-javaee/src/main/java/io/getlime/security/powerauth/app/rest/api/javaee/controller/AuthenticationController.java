@@ -71,7 +71,7 @@ public class AuthenticationController {
                     + " using factor: " + auth.getSignatureFactors()
             );
         } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+            throw new PowerAuthAuthenticationException();
         }
 
     }

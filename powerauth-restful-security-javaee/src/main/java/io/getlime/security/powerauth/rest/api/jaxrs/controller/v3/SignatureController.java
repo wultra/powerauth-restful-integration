@@ -128,7 +128,7 @@ public class SignatureController {
                 }
                 return new Response();
             } else {
-                throw new PowerAuthAuthenticationException("Signature validation failed");
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
             }
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;

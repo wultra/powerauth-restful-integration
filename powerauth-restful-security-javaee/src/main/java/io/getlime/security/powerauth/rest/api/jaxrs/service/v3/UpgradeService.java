@@ -123,7 +123,7 @@ public class UpgradeService {
 
             // In case signature verification fails, upgrade fails, too
             if (authentication == null || authentication.getActivationId() == null) {
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
             }
 
             // Get signature HTTP headers

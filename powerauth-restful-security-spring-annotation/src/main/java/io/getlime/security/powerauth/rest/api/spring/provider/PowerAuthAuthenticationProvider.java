@@ -279,7 +279,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthTokenHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Token validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID");
         }
 
         // Prepare authentication object

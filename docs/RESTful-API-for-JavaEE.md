@@ -365,7 +365,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+            throw new PowerAuthAuthenticationException();
         }
     }
 }

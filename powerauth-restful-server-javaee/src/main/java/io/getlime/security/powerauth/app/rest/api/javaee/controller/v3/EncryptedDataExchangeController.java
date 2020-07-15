@@ -154,7 +154,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+            throw new PowerAuthAuthenticationException();
         }
     }
 
@@ -194,7 +194,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+            throw new PowerAuthAuthenticationException();
         }
     }
 
@@ -231,7 +231,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response - return the same data as in request
             return encryptionProvider.encryptResponse(requestData, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+            throw new PowerAuthAuthenticationException();
         }
     }
 

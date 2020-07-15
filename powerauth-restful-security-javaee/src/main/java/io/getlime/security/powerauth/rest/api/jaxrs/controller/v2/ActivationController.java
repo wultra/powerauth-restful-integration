@@ -111,7 +111,7 @@ public class ActivationController {
         // Request body needs to be set to null because the SDK uses null for the signature, although {} is sent as request body
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);
         if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
         if (!"2.0".equals(apiAuthentication.getVersion()) && !"2.1".equals(apiAuthentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());

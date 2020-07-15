@@ -100,7 +100,7 @@ public class SecureVaultService {
                     signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
 
             if (!soapResponse.getSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
             }
 
             return new EciesEncryptedResponse(soapResponse.getEncryptedData(), soapResponse.getMac());

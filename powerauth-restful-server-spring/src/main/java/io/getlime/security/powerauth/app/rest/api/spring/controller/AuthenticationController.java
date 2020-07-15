@@ -60,7 +60,7 @@ public class AuthenticationController {
                     + " using factor: " + auth.getSignatureFactors()
             );
         } else {
-            throw new PowerAuthAuthenticationException("Login failed");
+            throw new PowerAuthAuthenticationException();
         }
 
     }
@@ -83,7 +83,7 @@ public class AuthenticationController {
         if (auth != null && auth.getUserId() != null) {
             return new ObjectResponse<>("Hooray! User: " + auth.getUserId());
         } else {
-            throw new PowerAuthAuthenticationException("Login failed");
+            throw new PowerAuthAuthenticationException();
         }
 
     }

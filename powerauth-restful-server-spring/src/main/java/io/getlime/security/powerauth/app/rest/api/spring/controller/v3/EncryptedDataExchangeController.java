@@ -107,11 +107,11 @@ public class EncryptedDataExchangeController {
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response
@@ -136,11 +136,11 @@ public class EncryptedDataExchangeController {
                                                                        PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response
@@ -165,11 +165,11 @@ public class EncryptedDataExchangeController {
                                                                PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return data back for verification

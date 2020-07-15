@@ -157,7 +157,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
             // Request data was not encrypted - use regular PowerAuth request body for signature validation
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
             if (requestBody == null) {
-                throw new PowerAuthAuthenticationException("The X-PowerAuth-Request-Body request attribute is missing, register the PowerAuthRequestFilter to fix this error");
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_FILTER_MISSING");
             }
             return requestBody.getRequestBytes();
         }
