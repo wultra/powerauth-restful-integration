@@ -77,7 +77,7 @@ public class TokenController {
 
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in create token");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         // Verify request signature before creating token
         PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
@@ -91,11 +91,11 @@ public class TokenController {
         if (authentication != null && authentication.getActivationId() != null) {
             if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
             return new ObjectResponse<>(tokenServiceV2.createToken(request.getRequestObject(), authentication));
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 
@@ -108,7 +108,7 @@ public class TokenController {
                                                            @HeaderParam(PowerAuthSignatureHttpHeader.HEADER_NAME) String authHeader) throws PowerAuthAuthenticationException {
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in create token");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         // Verify request signature before removing token
         PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
@@ -122,11 +122,11 @@ public class TokenController {
         if (authentication != null && authentication.getActivationId() != null) {
             if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
             return new ObjectResponse<>(tokenServiceV3.removeToken(request.getRequestObject(), authentication));
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 

@@ -50,7 +50,7 @@ public class TokenController {
         if (auth != null && auth.getUserId() != null) {
             return new Response();
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID");
         }
     }
 

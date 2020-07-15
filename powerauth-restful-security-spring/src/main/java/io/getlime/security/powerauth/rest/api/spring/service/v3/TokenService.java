@@ -102,7 +102,7 @@ public class TokenService {
             return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_ERROR");
         }
     }
 
@@ -131,7 +131,7 @@ public class TokenService {
             return response;
         } catch (Exception ex) {
             logger.warn("Removing PowerAuth token failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_ERROR");
         }
     }
 }

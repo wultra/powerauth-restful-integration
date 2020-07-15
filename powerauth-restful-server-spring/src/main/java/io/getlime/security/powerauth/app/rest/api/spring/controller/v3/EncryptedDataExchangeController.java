@@ -61,7 +61,7 @@ public class EncryptedDataExchangeController {
                                              EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response
@@ -82,7 +82,7 @@ public class EncryptedDataExchangeController {
                                             EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response

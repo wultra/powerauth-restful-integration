@@ -76,20 +76,20 @@ public class RecoveryController {
                                                       PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         if (request == null) {
             logger.warn("Invalid request object in confirm recovery");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         if (authentication != null && authentication.getActivationId() != null) {
             if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
             if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
                 logger.warn("Missing nonce in ECIES request data");
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
             return recoveryService.confirmRecoveryCode(request, authentication);
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 

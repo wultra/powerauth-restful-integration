@@ -130,7 +130,7 @@ public class UpgradeController {
 
         if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
 
         return upgradeService.upgradeCommit(signatureHeader, httpServletRequest);

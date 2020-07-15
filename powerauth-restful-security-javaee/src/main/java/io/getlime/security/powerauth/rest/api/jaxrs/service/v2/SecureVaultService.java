@@ -124,7 +124,7 @@ public class SecureVaultService {
             PowerAuthPortV2ServiceStub.VaultUnlockResponse soapResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!soapResponse.getSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
             }
 
             VaultUnlockResponse response = new VaultUnlockResponse();

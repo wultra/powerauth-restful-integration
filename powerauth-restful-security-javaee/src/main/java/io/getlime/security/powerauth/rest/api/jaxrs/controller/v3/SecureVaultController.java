@@ -72,7 +72,7 @@ public class SecureVaultController {
                                               @Context HttpServletRequest httpServletRequest) throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
         if (request == null) {
             logger.warn("Invalid request object in vault unlock");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
 
         // Parse the header
@@ -83,16 +83,16 @@ public class SecureVaultController {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Signature validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
             logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }

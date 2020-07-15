@@ -79,7 +79,7 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Prepare response object
@@ -108,7 +108,7 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Prepare response object
@@ -137,7 +137,7 @@ public class EncryptedDataExchangeController {
         DataExchangeRequest request = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Verify PowerAuth signature
@@ -154,7 +154,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 
@@ -177,7 +177,7 @@ public class EncryptedDataExchangeController {
         String requestData = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Verify PowerAuth signature
@@ -194,7 +194,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 
@@ -217,7 +217,7 @@ public class EncryptedDataExchangeController {
         byte[] requestData = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Verify PowerAuth signature
@@ -231,7 +231,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response - return the same data as in request
             return encryptionProvider.encryptResponse(requestData, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 

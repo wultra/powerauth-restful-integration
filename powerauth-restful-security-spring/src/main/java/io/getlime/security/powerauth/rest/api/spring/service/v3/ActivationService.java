@@ -265,7 +265,7 @@ public class ActivationService {
                 }
 
                 default:
-                    throw new PowerAuthAuthenticationException();
+                    throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
         } catch (PowerAuthClientException ex) {
             if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {

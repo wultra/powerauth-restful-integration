@@ -114,7 +114,7 @@ public class UpgradeService {
             byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
 
             // Verify signature, force signature version during upgrade to version 3

@@ -254,7 +254,7 @@ public class ActivationService {
                 }
 
                 default:
-                    throw new PowerAuthAuthenticationException();
+                    throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
         } catch (AxisFault ex) {
             if (ex.getFaultDetailElement() != null) {

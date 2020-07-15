@@ -120,11 +120,11 @@ public class ActivationController {
         byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
         if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         if (!"3.0".equals(apiAuthentication.getVersion()) && !"3.1".equals(apiAuthentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         return new ObjectResponse<>(activationServiceV3.removeActivation(apiAuthentication));
     }

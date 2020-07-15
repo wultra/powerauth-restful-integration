@@ -233,7 +233,7 @@ public class AuthenticationController {
             return new MyApiResponse(Status.OK, userId);
         } else {
             // handle authentication failure
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 
@@ -266,7 +266,7 @@ public class AuthenticationController {
             SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
             return new PowerAuthAPIResponse<String>("OK", "User " + userId);
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
     }
@@ -292,7 +292,7 @@ public class AuthenticationController {
     @PowerAuthToken
     public @ResponseBody PowerAuthAPIResponse<String> getBalance(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthAuthenticationException {
         if (apiAuthentication == null) {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID");
         } else {
             String userId = apiAuthentication.getUserId();
             String balance = service.getBalanceForUser(userId);
@@ -382,7 +382,7 @@ public class EncryptedDataExchangeController {
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         if (eciesContext == null) {

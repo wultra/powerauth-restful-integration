@@ -65,7 +65,7 @@ public class SignatureController {
         if (auth != null && auth.getActivationId() != null) {
             if (!"3.0".equals(auth.getVersion()) && !"3.1".equals(auth.getVersion())) {
                 logger.warn("Endpoint does not support PowerAuth protocol version {}", auth.getVersion());
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
             return new Response();
         } else {

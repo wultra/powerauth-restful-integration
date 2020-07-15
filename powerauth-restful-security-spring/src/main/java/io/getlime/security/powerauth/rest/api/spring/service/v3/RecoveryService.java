@@ -73,18 +73,18 @@ public class RecoveryService {
             if (activationId == null || applicationKey == null || request.getEphemeralPublicKey() == null
                     || request.getEncryptedData() == null || request.getMac() == null) {
                 logger.warn("PowerAuth confirm recovery failed because of invalid request");
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
             ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(activationId, applicationKey,
                     request.getEphemeralPublicKey(), request.getEncryptedData(), request.getMac(), request.getNonce());
             if (!paResponse.getActivationId().equals(activationId)) {
                 logger.warn("PowerAuth confirm recovery failed because of invalid activation ID in response");
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
             }
             return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
         } catch (Exception ex) {
             logger.warn("PowerAuth confirm recovery failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_RECOVERY_ERROR");
         }
     }
 }

@@ -91,7 +91,7 @@ public class SecureVaultService {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
                 logger.warn("Signature validation failed, error: {}", ex.getMessage());
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
             }
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -101,7 +101,7 @@ public class SecureVaultService {
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             if (signatureType == null) {
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
             }
             String nonce = header.getNonce();
 
@@ -131,7 +131,7 @@ public class SecureVaultService {
             com.wultra.security.powerauth.client.v2.VaultUnlockResponse paResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!paResponse.isSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
+                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
             }
 
             VaultUnlockResponse response = new VaultUnlockResponse();

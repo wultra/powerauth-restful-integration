@@ -230,7 +230,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Signature validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         // Check if the signature type is allowed

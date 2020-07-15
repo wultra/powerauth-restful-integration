@@ -229,7 +229,7 @@ public class AuthenticationController {
     public PowerAuthApiResponse<String> getBalance(@HeaderParam(value = PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
         PowerAuthApiAuthentication auth = authenticationProvider.validateToken(tokenHeader);
         if (apiAuthentication == null) {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID");
         } else {
             String userId = apiAuthentication.getUserId();
             String balance = service.getBalanceForUser(userId);
@@ -365,7 +365,7 @@ public class EncryptedDataExchangeController {
             // Encrypt response
             return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
         } else {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
     }
 }

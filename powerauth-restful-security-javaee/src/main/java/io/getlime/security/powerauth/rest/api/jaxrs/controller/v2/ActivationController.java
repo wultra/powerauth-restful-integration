@@ -115,7 +115,7 @@ public class ActivationController {
         }
         if (!"2.0".equals(apiAuthentication.getVersion()) && !"2.1".equals(apiAuthentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
         }
         return new ObjectResponse<>(activationServiceV3.removeActivation(apiAuthentication));
     }
