@@ -44,7 +44,7 @@ public class PowerAuthBeanFactory {
         try {
             return new PowerAuthServiceClient("http://localhost:8080/powerauth-java-server/soap");
         } catch (AxisFault ex) {
-            logger.warn("Failes to build client, error: {}", ex.getMessage());
+            logger.warn("Failed to build client, error: {}", ex.getMessage());
             return null;
         }
     }
