@@ -21,6 +21,8 @@ package io.getlime.security.powerauth.rest.api.jaxrs.converter.v2;
 
 import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class to convert from and to
@@ -29,6 +31,8 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
  * @author Petr Dvorak, petr@wultra.com
  */
 public class SignatureTypeConverter {
+
+    private static final Logger logger = LoggerFactory.getLogger(SignatureTypeConverter.class);
 
     /**
      * Convert {@link com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub.SignatureType}
@@ -47,7 +51,8 @@ public class SignatureTypeConverter {
         try {
             signatureTypeString = signatureTypeString.toUpperCase();
             return PowerAuthPortV2ServiceStub.SignatureType.Factory.fromValue(signatureTypeString);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException ex) {
+            logger.warn("Invalid signature type, error: {}", ex.getMessage());
             // Return null value which represents an unknown signature type
             return null;
         }

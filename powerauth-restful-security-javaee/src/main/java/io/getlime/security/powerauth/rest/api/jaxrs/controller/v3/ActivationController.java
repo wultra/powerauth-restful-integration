@@ -82,6 +82,7 @@ public class ActivationController {
             ActivationLayer1Response layer1Response = activationServiceV3.createActivation(layer1Request, eciesEncryption);
             return encryptionProvider.encryptResponse(layer1Response, eciesEncryption);
         } catch (PowerAuthEncryptionException ex) {
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
             throw new PowerAuthActivationException();
         }
     }
@@ -119,7 +120,7 @@ public class ActivationController {
         byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
         if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+            throw new PowerAuthAuthenticationException();
         }
         if (!"3.0".equals(apiAuthentication.getVersion()) && !"3.1".equals(apiAuthentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());

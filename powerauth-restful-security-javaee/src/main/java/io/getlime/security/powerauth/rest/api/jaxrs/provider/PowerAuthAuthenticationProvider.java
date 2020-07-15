@@ -152,8 +152,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             } else {
                 return null;
             }
-        } catch (Exception e) {
-            logger.warn("Token validation failed", e);
+        } catch (Exception ex) {
+            logger.warn("Token validation failed, error: {}", ex.getMessage());
             return null;
         }
     }
@@ -214,9 +214,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         // Validate the header
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            logger.warn(e.getMessage(), e);
-            throw new PowerAuthAuthenticationException(e.getMessage());
+        } catch (InvalidPowerAuthHttpHeaderException ex) {
+            logger.warn("Signature validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         // Check if the signature type is allowed
@@ -243,7 +243,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         PowerAuthApiAuthentication auth;
         try {
             auth = this.authenticate(powerAuthAuthentication);
-        } catch (RemoteException e) {
+        } catch (RemoteException ex) {
+            logger.warn("Remote communication failed, error: {}", ex.getMessage());
             throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_SOAP_ERROR");
         }
 
@@ -269,9 +270,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         // Validate the header
         try {
             PowerAuthTokenHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            logger.warn(e.getMessage(), e);
-            throw new PowerAuthAuthenticationException(e.getMessage());
+        } catch (InvalidPowerAuthHttpHeaderException ex) {
+            logger.warn("Signature validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
         }
 
         // Prepare authentication object
@@ -287,7 +288,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         final PowerAuthApiAuthentication auth;
         try {
             auth = this.authenticate(powerAuthTokenAuthentication);
-        } catch (RemoteException e) {
+        } catch (RemoteException ex) {
+            logger.warn("Remote communication failed, error: {}", ex.getMessage());
             throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SOAP_ERROR");
         }
 

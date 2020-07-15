@@ -171,8 +171,8 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Set encryption object in HTTP servlet request
             request.setAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT, eciesEncryption);
         } catch (Exception ex) {
-            logger.debug("Request decryption failed, error: " + ex.getMessage(), ex);
-            throw new PowerAuthEncryptionException("Invalid request");
+            logger.debug("Request decryption failed, error: {}", ex.getMessage());
+            throw new PowerAuthEncryptionException();
         }
         return eciesEncryption;
     }
@@ -193,7 +193,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
-            logger.debug("Request encryption failed, error: " + ex.getMessage(), ex);
+            logger.debug("Response encryption failed, error: {}", ex.getMessage());
             return null;
         }
     }
@@ -259,8 +259,9 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Validate the signature HTTP header
             try {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
-            } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthEncryptionException(e.getMessage());
+            } catch (InvalidPowerAuthHttpHeaderException ex) {
+                logger.warn("PowerAuth signature HTTP header is invalid, error: {}", ex.getMessage());
+                throw new PowerAuthEncryptionException();
             }
 
             // Construct encryption parameters object
@@ -275,8 +276,9 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Validate the encryption HTTP header
             try {
                 PowerAuthEncryptionHttpHeaderValidator.validate(header);
-            } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthEncryptionException(e.getMessage());
+            } catch (InvalidPowerAuthHttpHeaderException ex) {
+                logger.warn("PowerAuth encryption HTTP header is invalid, error: {}", ex.getMessage());
+                throw new PowerAuthEncryptionException();
             }
 
             // Construct encryption parameters object

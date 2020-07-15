@@ -107,7 +107,7 @@ public class SecureVaultService {
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth vault unlock failed", ex);
+            logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
             throw new PowerAuthSecureVaultException();
         }
     }

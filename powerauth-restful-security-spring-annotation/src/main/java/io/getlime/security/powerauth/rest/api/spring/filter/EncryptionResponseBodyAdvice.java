@@ -27,6 +27,8 @@ import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncr
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
@@ -58,6 +60,8 @@ import java.util.List;
  */
 @ControllerAdvice
 public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> {
+
+    private static final Logger logger = LoggerFactory.getLogger(EncryptionResponseBodyAdvice.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -131,6 +135,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
                 return convertEncryptedResponse(encryptedResponse, mediaType);
             }
         } catch (Exception ex) {
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
             return null;
         }
     }

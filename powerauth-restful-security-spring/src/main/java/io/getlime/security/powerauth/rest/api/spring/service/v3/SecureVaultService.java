@@ -87,6 +87,9 @@ public class SecureVaultService {
             String applicationKey = header.getApplicationKey();
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            if (signatureType == null) {
+                throw new PowerAuthAuthenticationException();
+            }
             String signatureVersion = header.getVersion();
             String nonce = header.getNonce();
 
@@ -112,7 +115,7 @@ public class SecureVaultService {
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth vault unlock failed", ex);
+            logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
             throw new PowerAuthSecureVaultException();
         }
     }

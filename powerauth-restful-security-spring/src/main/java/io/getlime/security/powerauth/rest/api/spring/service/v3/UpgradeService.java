@@ -100,7 +100,7 @@ public class UpgradeService {
             response.setEncryptedData(upgradeResponse.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("PowerAuth upgrade start failed", ex);
+            logger.warn("PowerAuth upgrade start failed, error: {}", ex.getMessage());
             throw new PowerAuthUpgradeException();
         }
     }
@@ -150,7 +150,7 @@ public class UpgradeService {
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth upgrade commit failed", ex);
+            logger.warn("PowerAuth upgrade commit failed, error: {}", ex.getMessage());
             throw new PowerAuthUpgradeException();
         }
     }

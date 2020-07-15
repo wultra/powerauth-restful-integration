@@ -99,8 +99,8 @@ public class TokenService {
             response.setEncryptedData(token.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException();
         }
     }
 
@@ -128,8 +128,8 @@ public class TokenService {
             response.setTokenId(tokenId);
             return response;
         } catch (Exception ex) {
-            logger.warn("Removing PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Removing PowerAuth token failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException();
         }
     }
 }

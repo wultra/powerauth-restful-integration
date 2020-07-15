@@ -21,6 +21,8 @@ package io.getlime.security.powerauth.rest.api.spring.converter.v2;
 
 import com.wultra.security.powerauth.client.v2.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class to convert from and to
@@ -30,6 +32,8 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
  */
 public class SignatureTypeConverter {
 
+    private static final Logger logger = LoggerFactory.getLogger(SignatureTypeConverter.class);
+
     /**
      * Convert {@link com.wultra.security.powerauth.client.v2.SignatureType}
      * from a {@link String} value.
@@ -38,17 +42,17 @@ public class SignatureTypeConverter {
      */
     public SignatureType convertFrom(String signatureTypeString) {
 
-        // Default to strongest signature type on null value
         if (signatureTypeString == null) {
-            return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            return null;
         }
 
         // Try to convert signature type
         try {
             signatureTypeString = signatureTypeString.toUpperCase();
             return SignatureType.fromValue(signatureTypeString);
-        } catch (IllegalArgumentException e) {
-            return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+        } catch (IllegalArgumentException ex) {
+            logger.warn("Invalid signature type, error: {}", ex.getMessage());
+            return null;
         }
 
     }
@@ -71,7 +75,7 @@ public class SignatureTypeConverter {
             case POSSESSION_BIOMETRY:
                 return SignatureType.POSSESSION_BIOMETRY;
             default:
-                return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+                return null;
         }
     }
 

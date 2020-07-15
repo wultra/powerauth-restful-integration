@@ -54,7 +54,7 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
     public @ResponseBody ErrorResponse handleUnauthorizedException(Exception ex) {
         PowerAuthAuthenticationException paex = (PowerAuthAuthenticationException)ex;
-        logger.error(paex.getMessage(), paex);
+        logger.warn(paex.getMessage(), paex);
         return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
@@ -67,7 +67,7 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleActivationException(Exception ex) {
         PowerAuthActivationException paex = (PowerAuthActivationException)ex;
-        logger.error(paex.getMessage(), paex);
+        logger.warn(paex.getMessage(), paex);
         return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
@@ -81,7 +81,7 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody RecoveryErrorResponse handleRecoveryException(Exception ex) {
         PowerAuthRecoveryException paex = (PowerAuthRecoveryException)ex;
-        logger.error(paex.getMessage(), paex);
+        logger.warn(paex.getMessage(), paex);
         return new RecoveryErrorResponse(paex.getErrorCode(), paex, paex.getCurrentRecoveryPukIndex());
     }
 
@@ -94,7 +94,7 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleSecureVaultException(Exception ex) {
         PowerAuthSecureVaultException paex = (PowerAuthSecureVaultException)ex;
-        logger.error(paex.getMessage(), paex);
+        logger.warn(paex.getMessage(), paex);
         return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
@@ -107,7 +107,7 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handlePowerAuthEncryptionException(Exception ex) {
         PowerAuthEncryptionException paex = (PowerAuthEncryptionException)ex;
-        logger.error(paex.getMessage(), paex);
+        logger.warn(paex.getMessage(), paex);
         return new ErrorResponse(paex.getDefaultCode(), paex);
     }
 
@@ -120,7 +120,7 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handlePowerAuthUpgradeException(Exception ex) {
         PowerAuthUpgradeException pamx = (PowerAuthUpgradeException)ex;
-        logger.error(pamx.getMessage(), pamx);
+        logger.warn(pamx.getMessage(), pamx);
         return new ErrorResponse(pamx.getDefaultCode(), pamx);
     }
 

@@ -84,8 +84,8 @@ public class TokenService {
             response.setEncryptedData(token.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException();
         }
     }
 

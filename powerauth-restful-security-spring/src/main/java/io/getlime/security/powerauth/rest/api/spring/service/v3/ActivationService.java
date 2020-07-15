@@ -265,22 +265,22 @@ public class ActivationService {
                 }
 
                 default:
-                    throw new PowerAuthAuthenticationException("Unsupported activation type: " + request.getType());
+                    throw new PowerAuthAuthenticationException();
             }
         } catch (PowerAuthClientException ex) {
             if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {
                 PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
                 throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
-            logger.warn("Creating PowerAuth activation failed", ex);
+            logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
             throw new PowerAuthActivationException();
         } catch (PowerAuthActivationException ex) {
             // Do not swallow PowerAuthActivationException for custom activations.
             // See: https://github.com/wultra/powerauth-restful-integration/issues/199
-            logger.warn("Creating PowerAuth activation failed", ex);
+            logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
             throw ex;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth activation failed", ex);
+            logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
             throw new PowerAuthActivationException();
         }
     }
@@ -306,7 +306,7 @@ public class ActivationService {
             }
             return response;
         } catch (Exception ex) {
-            logger.warn("PowerAuth activation status check failed", ex);
+            logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());
             throw new PowerAuthActivationException();
         }
     }
@@ -341,7 +341,7 @@ public class ActivationService {
             response.setActivationId(paResponse.getActivationId());
             return response;
         } catch (Exception ex) {
-            logger.warn("PowerAuth activation removal failed", ex);
+            logger.warn("PowerAuth activation removal failed, error: {}", ex.getMessage());
             throw new PowerAuthActivationException();
         }
     }

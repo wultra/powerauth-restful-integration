@@ -99,6 +99,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
             final SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
+            if (signatureType == null) {
+                return null;
+            }
 
             VerifySignatureRequest request = new VerifySignatureRequest();
             request.setActivationId(authentication.getActivationId());
@@ -123,6 +126,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             try {
                 response = powerAuthClient.verifySignature(request);
             } catch (PowerAuthClientException ex) {
+                logger.error("Signature validation failed, error: {}", ex.getMessage());
                 return null;
             }
             if (response.isSignatureValid()) {
@@ -161,8 +165,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             } else {
                 return null;
             }
-        } catch (Exception e) {
-            logger.warn("Token validation failed", e);
+        } catch (Exception ex) {
+            logger.warn("Token validation failed, error: {}", ex.getMessage());
             return null;
         }
     }
@@ -224,9 +228,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         // Validate the header
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            logger.error(e.getMessage(), e);
-            throw new PowerAuthAuthenticationException(e.getMessage());
+        } catch (InvalidPowerAuthHttpHeaderException ex) {
+            logger.warn("Signature validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException();
         }
 
         // Check if the signature type is allowed
@@ -273,9 +277,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         // Validate the header
         try {
             PowerAuthTokenHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            logger.warn(e.getMessage(), e);
-            throw new PowerAuthAuthenticationException(e.getMessage());
+        } catch (InvalidPowerAuthHttpHeaderException ex) {
+            logger.warn("Signature validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException();
         }
 
         // Prepare authentication object

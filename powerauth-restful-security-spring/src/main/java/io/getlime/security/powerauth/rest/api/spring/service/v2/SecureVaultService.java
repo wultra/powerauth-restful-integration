@@ -89,8 +89,9 @@ public class SecureVaultService {
             // Validate the header
             try {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
-            } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthAuthenticationException(e.getMessage());
+            } catch (InvalidPowerAuthHttpHeaderException ex) {
+                logger.warn("Signature validation failed, error: {}", ex.getMessage());
+                throw new PowerAuthAuthenticationException();
             }
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -99,6 +100,9 @@ public class SecureVaultService {
             String applicationId = header.getApplicationKey();
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            if (signatureType == null) {
+                throw new PowerAuthAuthenticationException();
+            }
             String nonce = header.getNonce();
 
             String reason = null;
@@ -138,7 +142,7 @@ public class SecureVaultService {
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth vault unlock failed", ex);
+            logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
             throw new PowerAuthSecureVaultException();
         }
     }

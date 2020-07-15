@@ -85,8 +85,8 @@ public class EncryptorFactory {
                     encryptionKeyResponse.getEphemeralPublicKey()
             );
         } catch (PowerAuthClientException ex) {
-            logger.warn(ex.getMessage(), ex);
-            throw new PowerAuthEncryptionException(ex.getMessage());
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
+            throw new PowerAuthEncryptionException();
         }
     }
 

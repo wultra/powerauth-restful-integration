@@ -86,7 +86,8 @@ public class SecureVaultController {
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Signature validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthAuthenticationException();
         }
 
         if (!"2.0".equals(header.getVersion()) && !"2.1".equals(header.getVersion())) {

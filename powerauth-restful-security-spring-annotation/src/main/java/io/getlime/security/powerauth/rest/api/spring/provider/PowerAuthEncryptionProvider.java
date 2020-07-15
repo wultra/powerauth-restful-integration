@@ -57,8 +57,8 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
             eciesDecryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
             GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(eciesDecryptorRequest);
             return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
-        } catch (Exception e) {
-            logger.warn("Get Ecies decryptor parameters call failed", e);
+        } catch (Exception ex) {
+            logger.warn("Get ECIES decryptor call failed, error: {}", ex.getMessage());
             throw new PowerAuthEncryptionException();
         }
     }

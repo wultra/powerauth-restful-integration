@@ -158,7 +158,7 @@ public class CustomActivationController {
             return powerAuthApiResponse;
 
         } catch (Exception ex) {
-            logger.warn(ex.getMessage(), ex);
+            logger.warn("Create activation failed, error: {}", ex.getMessage());
             throw new PowerAuthActivationException();
         }
 

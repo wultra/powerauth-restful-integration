@@ -23,6 +23,8 @@ import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicat
 import io.getlime.security.powerauth.rest.api.jaxrs.application.DefaultApplicationConfiguration;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
 import org.apache.axis2.AxisFault;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.enterprise.context.Dependent;
 import javax.enterprise.inject.Produces;
@@ -35,11 +37,14 @@ import javax.enterprise.inject.Produces;
 @Dependent
 public class PowerAuthBeanFactory {
 
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthBeanFactory.class);
+
     @Produces
     public PowerAuthServiceClient buildClient() {
         try {
             return new PowerAuthServiceClient("http://localhost:8080/powerauth-java-server/soap");
-        } catch (AxisFault axisFault) {
+        } catch (AxisFault ex) {
+            logger.warn("Failes to build client, error: {}", ex.getMessage());
             return null;
         }
     }
