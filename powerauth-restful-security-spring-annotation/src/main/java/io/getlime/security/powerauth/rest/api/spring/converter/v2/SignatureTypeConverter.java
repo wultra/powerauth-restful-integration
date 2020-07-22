@@ -53,6 +53,7 @@ public class SignatureTypeConverter {
         } catch (IllegalArgumentException ex) {
             logger.warn("Invalid signature type, error: {}", ex.getMessage());
             logger.debug("Error details", ex);
+            // Return null value which represents an unknown signature type
             return null;
         }
 
