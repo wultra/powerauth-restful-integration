@@ -23,8 +23,11 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthRequestFilterException;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +41,8 @@ import java.util.List;
  *
  */
 public abstract class PowerAuthAuthenticationProviderBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthAuthenticationProviderBase.class);
 
     /**
      * Validate the signature from the PowerAuth HTTP header against the provided HTTP method, request body and URI identifier.
@@ -157,7 +162,8 @@ public abstract class PowerAuthAuthenticationProviderBase {
             // Request data was not encrypted - use regular PowerAuth request body for signature validation
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
             if (requestBody == null) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_FILTER_MISSING");
+                logger.warn("The X-PowerAuth-Request-Body request attribute is missing. Register the PowerAuthRequestFilter to fix this error.");
+                throw new PowerAuthRequestFilterException();
             }
             return requestBody.getRequestBytes();
         }

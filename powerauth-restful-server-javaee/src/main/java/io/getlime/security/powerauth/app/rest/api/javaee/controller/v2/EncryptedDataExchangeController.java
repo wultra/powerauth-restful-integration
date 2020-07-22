@@ -76,6 +76,7 @@ public class EncryptedDataExchangeController {
     @Produces(MediaType.APPLICATION_JSON)
     public ObjectResponse<NonPersonalizedEncryptedPayloadModel> exchange(ObjectRequest<NonPersonalizedEncryptedPayloadModel> request) throws PowerAuthEncryptionException {
         if (request == null) {
+            logger.warn("Invalid request in exchange method");
             throw new PowerAuthEncryptionException();
         }
 
@@ -85,7 +86,7 @@ public class EncryptedDataExchangeController {
              encryptor = encryptorFactory.buildNonPersonalizedEncryptor(request);
         } catch (RemoteException ex) {
             logger.warn("Remote communication failed, error: {}", ex.getMessage());
-            throw new PowerAuthEncryptionException();
+            throw new PowerAuthEncryptionException(ex);
         }
 
         // Decrypt the request object
@@ -94,10 +95,11 @@ public class EncryptedDataExchangeController {
             requestDataBytes = encryptor.decrypt(request);
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());
-            throw new PowerAuthEncryptionException();
+            throw new PowerAuthEncryptionException(ex);
         }
 
         if (requestDataBytes == null) {
+            logger.warn("Invalid request data in exchange method");
             throw new PowerAuthEncryptionException();
         }
 
@@ -112,7 +114,7 @@ public class EncryptedDataExchangeController {
             encryptedResponse = encryptor.encrypt(responseData.getBytes());
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());
-            throw new PowerAuthEncryptionException();
+            throw new PowerAuthEncryptionException(ex);
         }
 
         return encryptedResponse;

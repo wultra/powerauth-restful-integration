@@ -24,6 +24,7 @@ import com.wultra.security.powerauth.client.v2.CreateTokenResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
@@ -85,7 +86,7 @@ public class TokenService {
             return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_ERROR");
+            throw new PowerAuthTokenErrorException(ex);
         }
     }
 

@@ -28,6 +28,8 @@ import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
@@ -90,8 +92,8 @@ public class SecureVaultService {
             try {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
-                logger.warn("Signature validation failed, error: {}", ex.getMessage());
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+                logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+                throw new PowerAuthSignatureTypeInvalidException(ex);
             }
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -101,7 +103,8 @@ public class SecureVaultService {
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             if (signatureType == null) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+                logger.warn("Invalid signature type: {}", header.getSignatureType());
+                throw new PowerAuthSignatureTypeInvalidException();
             }
             String nonce = header.getNonce();
 
@@ -123,6 +126,7 @@ public class SecureVaultService {
                 // Use POST request body as data for signature.
                 requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             } else {
+                logger.warn("Invalid protocol version in secure vault: {}", header.getVersion());
                 throw new PowerAuthSecureVaultException();
             }
 
@@ -131,7 +135,8 @@ public class SecureVaultService {
             com.wultra.security.powerauth.client.v2.VaultUnlockResponse paResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!paResponse.isSignatureValid()) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+                logger.debug("Signature validation failed");
+                throw new PowerAuthSignatureInvalidException();
             }
 
             VaultUnlockResponse response = new VaultUnlockResponse();
@@ -143,7 +148,7 @@ public class SecureVaultService {
             throw ex;
         } catch (Exception ex) {
             logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
-            throw new PowerAuthSecureVaultException();
+            throw new PowerAuthSecureVaultException(ex);
         }
     }
 

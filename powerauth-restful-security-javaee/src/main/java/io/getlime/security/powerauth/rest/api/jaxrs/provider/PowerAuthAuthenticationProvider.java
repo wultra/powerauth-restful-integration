@@ -34,6 +34,7 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthAuthe
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthSignatureAuthentication;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthTokenAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.*;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticationProviderBase;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthSignatureAuthenticationImpl;
@@ -93,7 +94,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             SignatureTypeConverter converter = new SignatureTypeConverter();
             final PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
             if (signatureType == null) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+                logger.warn("Invalid signature type: {}", authentication.getSignatureType());
+                throw new PowerAuthSignatureTypeInvalidException();
             }
 
             PowerAuthPortV3ServiceStub.VerifySignatureRequest soapRequest = new PowerAuthPortV3ServiceStub.VerifySignatureRequest();
@@ -154,6 +156,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             }
         } catch (Exception ex) {
             logger.warn("Token validation failed, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
             return null;
         }
     }
@@ -205,7 +208,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check for HTTP PowerAuth signature header
         if (httpAuthorizationHeader == null || httpAuthorizationHeader.equals("undefined")) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_EMPTY");
+            logger.warn("Signature HTTP header is missing");
+            throw new PowerAuthHeaderMissingException();
         }
 
         // Parse HTTP header
@@ -215,14 +219,15 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
-            logger.warn("Signature validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthSignatureInvalidException(ex);
         }
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
         if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+            logger.warn("Invalid signature type: {}", expectedSignatureType);
+            throw new PowerAuthSignatureTypeInvalidException();
         }
 
         // Configure PowerAuth authentication object
@@ -245,12 +250,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             auth = this.authenticate(powerAuthAuthentication);
         } catch (RemoteException ex) {
             logger.warn("Remote communication failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_REMOTE_ERROR");
+            throw new PowerAuthSignatureErrorException();
         }
 
         // In case authentication is null, throw PowerAuth exception
         if (auth == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_VALUE");
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
 
         return auth;
@@ -261,7 +267,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check for HTTP PowerAuth signature header
         if (tokenHeader == null || tokenHeader.equals("undefined")) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID_EMPTY");
+            logger.warn("Token HTTP header is missing");
+            throw new PowerAuthHeaderMissingException();
         }
 
         // Parse HTTP header
@@ -272,7 +279,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthTokenHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Token validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID");
+            throw new PowerAuthTokenInvalidException(ex);
         }
 
         // Prepare authentication object
@@ -290,18 +297,20 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             auth = this.authenticate(powerAuthTokenAuthentication);
         } catch (RemoteException ex) {
             logger.warn("Remote communication failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_REMOTE_ERROR");
+            throw new PowerAuthTokenErrorException(ex);
         }
 
         // In case authentication is null, throw PowerAuth exception
         if (auth == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID_VALUE");
+            logger.debug("Invalid token value");
+            throw new PowerAuthTokenInvalidException();
         }
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = auth.getSignatureFactors();
         if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SIGNATURE_TYPE_INVALID");
+            logger.warn("Invalid signature type in token validation: {}", expectedSignatureType);
+            throw new PowerAuthSignatureTypeInvalidException();
         }
 
         return auth;

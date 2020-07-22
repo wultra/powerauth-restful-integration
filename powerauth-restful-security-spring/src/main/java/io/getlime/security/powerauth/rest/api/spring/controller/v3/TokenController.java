@@ -24,6 +24,8 @@ import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
@@ -80,21 +82,21 @@ public class TokenController {
             throws PowerAuthAuthenticationException {
         if (request == null) {
             logger.warn("Invalid request object in create token");
-            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
+            throw new PowerAuthInvalidRequestException();
         }
-        if (authentication != null && authentication.getActivationId() != null) {
-            if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
-            }
-            if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
-                logger.warn("Missing nonce in ECIES request data");
-                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
-            }
-            return tokenServiceV3.createToken(request, authentication);
-        } else {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+        if (authentication == null || authentication.getActivationId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
+        if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+            throw new PowerAuthInvalidRequestException();
+        }
+        if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
+            logger.warn("Missing nonce in ECIES request data");
+            throw new PowerAuthInvalidRequestException();
+        }
+        return tokenServiceV3.createToken(request, authentication);
     }
 
     /**
@@ -115,17 +117,17 @@ public class TokenController {
                                                            PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in remove token");
-            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
+            throw new PowerAuthInvalidRequestException();
         }
-        if (authentication != null && authentication.getActivationId() != null) {
-            if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
-            }
-            return new ObjectResponse<>(tokenServiceV3.removeToken(request.getRequestObject(), authentication));
-        } else {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+        if (authentication == null || authentication.getActivationId() == null) {
+            throw new PowerAuthSignatureInvalidException();
         }
+        if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+            throw new PowerAuthInvalidRequestException();
+        }
+        TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), authentication);
+        return new ObjectResponse<>(response);
     }
 
 }

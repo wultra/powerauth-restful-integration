@@ -86,19 +86,23 @@ public class CustomActivationController {
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(object);
 
             if (encryptor == null) {
+                logger.warn("Activation provider is missing");
                 throw new PowerAuthActivationException();
             }
 
             ActivationCreateCustomRequest request = encryptor.decrypt(object, ActivationCreateCustomRequest.class);
 
             if (request == null) {
+                logger.warn("Encryptor is not available");
                 throw new PowerAuthActivationException();
             }
 
             final Map<String, String> identity = request.getIdentity();
             String userId = activationProvider.lookupUserIdForAttributes(identity);
 
-            if (userId == null) {
+            // If no user was found or user ID is invalid, return error
+            if (userId == null || userId.equals("") || userId.length() > 255) {
+                logger.warn("User ID is invalid: {}", userId);
                 throw new PowerAuthActivationException();
             }
 
@@ -135,7 +139,7 @@ public class CustomActivationController {
 
         } catch (Exception ex) {
             logger.warn("Create activation failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException(ex);
         }
 
     }

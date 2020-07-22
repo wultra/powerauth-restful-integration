@@ -24,6 +24,8 @@ import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.service.v3.SecureVaultService;
@@ -77,7 +79,7 @@ public class SecureVaultController {
 
         if (request == null) {
             logger.warn("Invalid request object in vault unlock");
-            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
+            throw new PowerAuthInvalidRequestException();
         }
 
         // Parse the header
@@ -87,17 +89,17 @@ public class SecureVaultController {
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
-            logger.warn("Signature validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthSignatureInvalidException(ex);
         }
 
         if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
+            throw new PowerAuthInvalidRequestException();
         }
         if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
             logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
+            throw new PowerAuthInvalidRequestException();
         }
 
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);

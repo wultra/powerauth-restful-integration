@@ -86,7 +86,7 @@ public class EncryptorFactory {
             );
         } catch (PowerAuthClientException ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());
-            throw new PowerAuthEncryptionException();
+            throw new PowerAuthEncryptionException(ex);
         }
     }
 

@@ -95,12 +95,14 @@ public class CustomActivationController {
 
             // Check if there is any user provider to be autowired
             if (activationProvider == null) {
+                logger.warn("Activation provider is missing");
                 throw new PowerAuthActivationException();
             }
 
             // Prepare an encryptor
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(encryptedRequest);
             if (encryptor == null) {
+                logger.warn("Encryptor is not available");
                 throw new PowerAuthActivationException();
             }
 
@@ -108,6 +110,7 @@ public class CustomActivationController {
             ActivationCreateCustomRequest request = encryptor.decrypt(encryptedRequest, ActivationCreateCustomRequest.class);
 
             if (request == null) {
+                logger.warn("Invalid request in activation create");
                 throw new PowerAuthActivationException();
             }
 
@@ -117,6 +120,7 @@ public class CustomActivationController {
 
             // If no user was found or user ID is invalid, return error
             if (userId == null || userId.equals("") || userId.length() > 255) {
+                logger.warn("User ID is invalid: {}", userId);
                 throw new PowerAuthActivationException();
             }
 
@@ -159,7 +163,7 @@ public class CustomActivationController {
 
         } catch (Exception ex) {
             logger.warn("Create activation failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException(ex);
         }
 
     }

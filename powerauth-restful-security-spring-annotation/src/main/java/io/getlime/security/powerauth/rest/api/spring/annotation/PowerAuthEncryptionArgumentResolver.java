@@ -67,6 +67,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                     return objectMapper.readValue(eciesObject.getDecryptedRequest(), parameterType);
                 } catch (IOException ex) {
                     logger.warn("Invalid request, error: {}", ex.getMessage());
+                    logger.debug("Error details", ex);
                     return null;
                 }
             }

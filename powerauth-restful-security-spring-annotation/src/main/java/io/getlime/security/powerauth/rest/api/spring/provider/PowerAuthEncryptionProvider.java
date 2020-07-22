@@ -59,7 +59,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
             return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
         } catch (Exception ex) {
             logger.warn("Get ECIES decryptor call failed, error: {}", ex.getMessage());
-            throw new PowerAuthEncryptionException();
+            throw new PowerAuthEncryptionException(ex);
         }
     }
 

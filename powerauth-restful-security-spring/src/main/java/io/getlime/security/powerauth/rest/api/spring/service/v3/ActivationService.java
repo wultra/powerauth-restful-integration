@@ -27,8 +27,8 @@ import io.getlime.security.powerauth.rest.api.base.application.PowerAuthApplicat
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
@@ -104,6 +104,7 @@ public class ActivationService {
 
             // Validate inner encryption
             if (nonce == null && !"3.0".equals(eciesContext.getVersion())) {
+                logger.warn("Missing nonce for protocol version: {}", eciesContext.getVersion());
                 throw new PowerAuthActivationException();
             }
 
@@ -150,6 +151,7 @@ public class ActivationService {
                 case CUSTOM: {
                     // Check if there is a custom activation provider available, return an error in case it is not available
                     if (activationProvider == null) {
+                        logger.warn("Activation provider is not available");
                         throw new PowerAuthActivationException();
                     }
 
@@ -158,6 +160,7 @@ public class ActivationService {
 
                     // If no user was found or user ID is invalid, return an error
                     if (userId == null || userId.equals("") || userId.length() > 255) {
+                        logger.warn("Invalid user ID: {}", userId);
                         throw new PowerAuthActivationException();
                     }
 
@@ -217,6 +220,7 @@ public class ActivationService {
                 case RECOVERY: {
 
                     if (request.getIdentityAttributes() == null) {
+                        logger.warn("Identity attributes are missing");
                         throw new PowerAuthActivationException();
                     }
 
@@ -225,10 +229,12 @@ public class ActivationService {
                     String recoveryPuk = request.getIdentityAttributes().get("puk");
 
                     if (recoveryCode == null || recoveryCode.isEmpty()) {
+                        logger.warn("Recovery code is missing");
                         throw new PowerAuthActivationException();
                     }
 
                     if (recoveryPuk == null || recoveryPuk.isEmpty()) {
+                        logger.warn("Recovery PUK is missing");
                         throw new PowerAuthActivationException();
                     }
 
@@ -265,15 +271,17 @@ public class ActivationService {
                 }
 
                 default:
-                    throw new PowerAuthAuthenticationException("POWER_AUTH_REQUEST_INVALID");
+                    logger.warn("Invalid activation request");
+                    throw new PowerAuthInvalidRequestException();
             }
         } catch (PowerAuthClientException ex) {
             if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {
                 PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
+                logger.debug("Invalid recovery code, current PUK index: {}", errorRecovery.getCurrentRecoveryPukIndex());
                 throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
             logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException(ex);
         } catch (PowerAuthActivationException ex) {
             // Do not swallow PowerAuthActivationException for custom activations.
             // See: https://github.com/wultra/powerauth-restful-integration/issues/199
@@ -281,7 +289,7 @@ public class ActivationService {
             throw ex;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException(ex);
         }
     }
 
@@ -307,7 +315,7 @@ public class ActivationService {
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException(ex);
         }
     }
 
@@ -342,7 +350,7 @@ public class ActivationService {
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth activation removal failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException(ex);
         }
     }
 

@@ -136,6 +136,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             }
         } catch (Exception ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
             return null;
         }
     }

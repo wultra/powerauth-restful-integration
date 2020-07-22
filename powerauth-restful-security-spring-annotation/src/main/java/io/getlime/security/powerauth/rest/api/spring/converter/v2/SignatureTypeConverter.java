@@ -52,6 +52,7 @@ public class SignatureTypeConverter {
             return SignatureType.fromValue(signatureTypeString);
         } catch (IllegalArgumentException ex) {
             logger.warn("Invalid signature type, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
             return null;
         }
 

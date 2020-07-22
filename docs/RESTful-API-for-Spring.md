@@ -222,19 +222,18 @@ public class AuthenticationController {
     @PowerAuth(resourceId = "/session/login")
     @ResponseBody
     public MyApiResponse login(PowerAuthApiAuthentication auth) {
-        if (auth != null) {
-            // use userId if needed ...
-            String userId = auth.getUserId();
-
-            // create authenticated session
-            SecurityContextHolder.getContext().setAuthentication((Authentication) auth);
-
-            // return OK response, ... or
-            return new MyApiResponse(Status.OK, userId);
-        } else {
+        if (auth == null) {
             // handle authentication failure
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            throw new PowerAuthSignatureInvalidException();
         }
+        // use userId if needed ...
+        String userId = auth.getUserId();
+
+        // create authenticated session
+        SecurityContextHolder.getContext().setAuthentication((Authentication) auth);
+
+        // return OK response
+        return new MyApiResponse(Status.OK, userId);
     }
 
 }
@@ -262,13 +261,11 @@ public class AuthenticationController {
         signatureHeader
         );
 
-        if (apiAuthentication != null && apiAuthentication.getUserId() != null) {
-            SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
-            return new PowerAuthAPIResponse<String>("OK", "User " + userId);
-        } else {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+        if (apiAuthentication == null || apiAuthentication.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
         }
-
+        SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
+        return new PowerAuthAPIResponse<String>("OK", "User " + userId);
     }
 
 }
@@ -292,7 +289,7 @@ public class AuthenticationController {
     @PowerAuthToken
     public @ResponseBody PowerAuthAPIResponse<String> getBalance(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthAuthenticationException {
         if (apiAuthentication == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID");
+            throw new PowerAuthTokenInvalidException();
         } else {
             String userId = apiAuthentication.getUserId();
             String balance = service.getBalanceForUser(userId);
@@ -324,7 +321,7 @@ public class EncryptedDataExchangeController {
                                              EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response
@@ -352,7 +349,7 @@ public class EncryptedDataExchangeController {
                                             EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response
@@ -382,7 +379,7 @@ public class EncryptedDataExchangeController {
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            throw new PowerAuthSignatureInvalidException();
         }
 
         if (eciesContext == null) {
@@ -426,14 +423,14 @@ public class EncryptedController {
             // Prepare an encryptor
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(encryptedRequest);
             if (encryptor == null) {
-                throw new EncryptionException("Unable to initialize encryptor.");
+                throw new PowerAuthEncryptionException();
             }
 
             // Decrypt the request object
             OriginalRequest request = encryptor.decrypt(object, OriginalRequest.class);
 
             if (request == null) {
-                throw new EncryptionException("Unable to decrypt request object.");
+                throw new PowerAuthEncryptionException();
             }
 
             // ... do your business logic with OriginalRequest instance
@@ -448,14 +445,14 @@ public class EncryptedController {
             final PowerAuthApiResponse<NonPersonalizedEncryptedPayloadModel> encryptedResponse = encryptor.encrypt(response);
 
             if (encryptedResponse == null) {
-                throw new EncryptionException("Unable to encrypt response object.");
+                throw new PowerAuthEncryptionException();
             }
 
             // Return response
             return encryptedResponse;
 
         } catch (IOException ex) {
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException(ex);
         }
 
     }

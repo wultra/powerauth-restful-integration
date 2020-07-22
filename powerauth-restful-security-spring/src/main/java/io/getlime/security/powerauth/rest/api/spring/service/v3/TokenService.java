@@ -26,6 +26,8 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
@@ -83,7 +85,8 @@ public class TokenService {
             SignatureTypeConverter converter = new SignatureTypeConverter();
             SignatureType signatureType = converter.convertFrom(signatureFactors);
             if (signatureType == null) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+                logger.warn("Invalid signature type: {}", signatureFactors);
+                throw new PowerAuthSignatureTypeInvalidException();
             }
 
             // Get ECIES headers
@@ -102,7 +105,7 @@ public class TokenService {
             return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_ERROR");
+            throw new PowerAuthTokenErrorException(ex);
         }
     }
 
@@ -131,7 +134,7 @@ public class TokenService {
             return response;
         } catch (Exception ex) {
             logger.warn("Removing PowerAuth token failed, error: {}", ex.getMessage());
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_ERROR");
+            throw new PowerAuthTokenErrorException(ex);
         }
     }
 }

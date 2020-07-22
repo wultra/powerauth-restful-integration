@@ -26,9 +26,12 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAu
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,6 +50,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/exchange")
 public class EncryptedDataExchangeController {
 
+    private final static Logger logger = LoggerFactory.getLogger(EncryptedDataExchangeController.class);
+
     /**
      * Sample encrypted data exchange in application scope.
      *
@@ -61,6 +66,7 @@ public class EncryptedDataExchangeController {
                                              EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
         if (eciesContext == null) {
+            logger.debug("Encryption failed");
             throw new PowerAuthEncryptionException();
         }
 
@@ -82,6 +88,7 @@ public class EncryptedDataExchangeController {
                                             EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
 
         if (eciesContext == null) {
+            logger.debug("Encryption failed");
             throw new PowerAuthEncryptionException();
         }
 
@@ -107,10 +114,12 @@ public class EncryptedDataExchangeController {
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
 
         if (eciesContext == null) {
+            logger.debug("Encryption failed");
             throw new PowerAuthEncryptionException();
         }
 
@@ -136,10 +145,12 @@ public class EncryptedDataExchangeController {
                                                                        PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
 
         if (eciesContext == null) {
+            logger.debug("Encryption failed");
             throw new PowerAuthEncryptionException();
         }
 
@@ -165,10 +176,12 @@ public class EncryptedDataExchangeController {
                                                                PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID");
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
 
         if (eciesContext == null) {
+            logger.debug("Encryption failed");
             throw new PowerAuthEncryptionException();
         }
 
