@@ -90,6 +90,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for both Spring and Java EE
                 } catch (PowerAuthEncryptionException ex) {
                     logger.warn("Decryption failed, error: {}", ex.getMessage());
+                    logger.debug("Error details", ex);
                 }
             }
 

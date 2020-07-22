@@ -250,7 +250,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             auth = this.authenticate(powerAuthAuthentication);
         } catch (RemoteException ex) {
             logger.warn("Remote communication failed, error: {}", ex.getMessage());
-            throw new PowerAuthSignatureErrorException();
+            throw new PowerAuthSignatureErrorException(ex);
         }
 
         // In case authentication is null, throw PowerAuth exception
