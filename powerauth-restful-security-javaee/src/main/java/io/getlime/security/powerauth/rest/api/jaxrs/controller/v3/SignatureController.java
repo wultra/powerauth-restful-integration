@@ -24,6 +24,9 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureErrorException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,19 +124,20 @@ public class SignatureController {
                             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
                     )
             );
-            if (authentication != null && authentication.getActivationId() != null) {
-                if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
-                    logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                    throw new PowerAuthAuthenticationException();
-                }
-                return new Response();
-            } else {
-                throw new PowerAuthAuthenticationException("Signature validation failed");
+            if (authentication == null || authentication.getActivationId() == null) {
+                logger.debug("Signature validation failed");
+                throw new PowerAuthSignatureInvalidException();
             }
+            if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
+                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+                throw new PowerAuthInvalidRequestException();
+            }
+            return new Response();
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Signature validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthSignatureErrorException(ex);
         }
     }
 }

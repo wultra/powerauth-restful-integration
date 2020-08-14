@@ -29,6 +29,8 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivation
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthRecoveryException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthEncryptionProvider;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
@@ -82,7 +84,8 @@ public class ActivationController {
             ActivationLayer1Response layer1Response = activationServiceV3.createActivation(layer1Request, eciesEncryption);
             return encryptionProvider.encryptResponse(layer1Response, eciesEncryption);
         } catch (PowerAuthEncryptionException ex) {
-            throw new PowerAuthActivationException();
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
+            throw new PowerAuthActivationException(ex);
         }
     }
 
@@ -101,7 +104,8 @@ public class ActivationController {
             logger.warn("Invalid request object in activation status");
             throw new PowerAuthActivationException();
         }
-        return new ObjectResponse<>(activationServiceV3.getActivationStatus(request.getRequestObject()));
+        ActivationStatusResponse response = activationServiceV3.getActivationStatus(request.getRequestObject());
+        return new ObjectResponse<>(response);
     }
 
     /**
@@ -119,13 +123,15 @@ public class ActivationController {
         byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
         if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
         if (!"3.0".equals(apiAuthentication.getVersion()) && !"3.1".equals(apiAuthentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthInvalidRequestException();
         }
-        return new ObjectResponse<>(activationServiceV3.removeActivation(apiAuthentication));
+        ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
+        return new ObjectResponse<>(response);
     }
 
 

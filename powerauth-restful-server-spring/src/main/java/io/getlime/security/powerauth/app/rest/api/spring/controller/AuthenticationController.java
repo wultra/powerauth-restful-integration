@@ -22,6 +22,7 @@ package io.getlime.security.powerauth.app.rest.api.spring.controller;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,17 +53,15 @@ public class AuthenticationController {
         // ##EXAMPLE: ... or you can grab a user ID like this and use it for querying back-end:
         // ##EXAMPLE: String userId = apiAuthentication.getUserId();
 
-        if (auth != null && auth.getUserId() != null) {
-            return new ObjectResponse<>("Hooray! "
-                    + " User: " + auth.getUserId()
-                    + " (activation: " + auth.getActivationId() + ")"
-                    + " successfully verified via app with ID: " + auth.getApplicationId()
-                    + " using factor: " + auth.getSignatureFactors()
-            );
-        } else {
-            throw new PowerAuthAuthenticationException("Login failed");
+        if (auth == null || auth.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
         }
-
+        return new ObjectResponse<>("Hooray! "
+                + " User: " + auth.getUserId()
+                + " (activation: " + auth.getActivationId() + ")"
+                + " successfully verified via app with ID: " + auth.getApplicationId()
+                + " using factor: " + auth.getSignatureFactors()
+        );
     }
 
     /**
@@ -80,12 +79,10 @@ public class AuthenticationController {
         // ##EXAMPLE: ... or you can grab a user ID like this and use it for querying back-end:
         // ##EXAMPLE: String userId = apiAuthentication.getUserId();
 
-        if (auth != null && auth.getUserId() != null) {
-            return new ObjectResponse<>("Hooray! User: " + auth.getUserId());
-        } else {
-            throw new PowerAuthAuthenticationException("Login failed");
+        if (auth == null || auth.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
         }
-
+        return new ObjectResponse<>("Hooray! User: " + auth.getUserId());
     }
 
 }

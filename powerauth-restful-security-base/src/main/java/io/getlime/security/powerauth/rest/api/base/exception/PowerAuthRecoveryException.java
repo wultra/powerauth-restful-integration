@@ -20,7 +20,7 @@
 package io.getlime.security.powerauth.rest.api.base.exception;
 
 /**
- * Exception related to processes during a new activation process.
+ * Exception thrown in case PowerAuth recovery fails, with optional current PUK index.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */

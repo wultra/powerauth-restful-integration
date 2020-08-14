@@ -24,6 +24,8 @@ import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
@@ -85,17 +87,18 @@ public class TokenController {
             @RequestBody ObjectRequest<TokenCreateRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in create token");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthInvalidRequestException();
         }
-        if (authentication != null && authentication.getActivationId() != null) {
-            if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException();
-            }
-            return new ObjectResponse<>(tokenServiceV2.createToken(request.getRequestObject(), authentication));
-        } else {
-            throw new PowerAuthAuthenticationException();
+        if (authentication == null || authentication.getActivationId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
+        if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+            throw new PowerAuthInvalidRequestException();
+        }
+        TokenCreateResponse response = tokenServiceV2.createToken(request.getRequestObject(), authentication);
+        return new ObjectResponse<>(response);
     }
 
     /**
@@ -115,17 +118,18 @@ public class TokenController {
     public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in create token");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthInvalidRequestException();
         }
-        if (authentication != null && authentication.getActivationId() != null) {
-            if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException();
-            }
-            return new ObjectResponse<>(tokenServiceV3.removeToken(request.getRequestObject(), authentication));
-        } else {
-            throw new PowerAuthAuthenticationException();
+        if (authentication == null || authentication.getActivationId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
+        if (!"2.0".equals(authentication.getVersion()) && !"2.1".equals(authentication.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+            throw new PowerAuthInvalidRequestException();
+        }
+        TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), authentication);
+        return new ObjectResponse<>(response);
     }
 
 }

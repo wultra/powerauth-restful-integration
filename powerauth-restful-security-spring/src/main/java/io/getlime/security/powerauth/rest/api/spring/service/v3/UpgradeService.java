@@ -29,6 +29,8 @@ import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthUpgradeException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
@@ -100,8 +102,8 @@ public class UpgradeService {
             response.setEncryptedData(upgradeResponse.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("PowerAuth upgrade start failed", ex);
-            throw new PowerAuthUpgradeException();
+            logger.warn("PowerAuth upgrade start failed, error: {}", ex.getMessage());
+            throw new PowerAuthUpgradeException(ex);
         }
     }
 
@@ -122,7 +124,8 @@ public class UpgradeService {
             byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
-                throw new PowerAuthAuthenticationException();
+                logger.warn("Empty request body");
+                throw new PowerAuthInvalidRequestException();
             }
 
             // Verify signature, force signature version during upgrade to version 3
@@ -131,7 +134,8 @@ public class UpgradeService {
 
             // In case signature verification fails, upgrade fails, too
             if (authentication == null || authentication.getActivationId() == null) {
-                throw new PowerAuthAuthenticationException();
+                logger.debug("Signature validation failed");
+                throw new PowerAuthSignatureInvalidException();
             }
 
             // Get signature HTTP headers
@@ -145,13 +149,14 @@ public class UpgradeService {
             if (upgradeResponse.isCommitted()) {
                 return new Response();
             } else {
+                logger.debug("Upgrade commit failed");
                 throw new PowerAuthUpgradeException();
             }
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth upgrade commit failed", ex);
-            throw new PowerAuthUpgradeException();
+            logger.warn("PowerAuth upgrade commit failed, error: {}", ex.getMessage());
+            throw new PowerAuthUpgradeException(ex);
         }
     }
 }

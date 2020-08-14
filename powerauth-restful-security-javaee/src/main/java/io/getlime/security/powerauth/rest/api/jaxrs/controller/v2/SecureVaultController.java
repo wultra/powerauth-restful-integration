@@ -26,6 +26,8 @@ import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.jaxrs.service.v2.SecureVaultService;
 import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
@@ -78,15 +80,16 @@ public class SecureVaultController {
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+            throw new PowerAuthSignatureInvalidException(ex);
         }
 
         if (!"2.0".equals(header.getVersion()) && !"2.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthInvalidRequestException();
         }
-
-        return new ObjectResponse<>(secureVaultServiceV2.vaultUnlock(signatureHeader, request.getRequestObject(), httpServletRequest));
+        VaultUnlockResponse response = secureVaultServiceV2.vaultUnlock(signatureHeader, request.getRequestObject(), httpServletRequest);
+        return new ObjectResponse<>(response);
     }
 
 }

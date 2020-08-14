@@ -21,10 +21,13 @@ package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v3.CreateTokenResponse;
+import com.wultra.security.powerauth.client.v3.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
@@ -80,6 +83,11 @@ public class TokenService {
 
             // Prepare a signature type converter
             SignatureTypeConverter converter = new SignatureTypeConverter();
+            SignatureType signatureType = converter.convertFrom(signatureFactors);
+            if (signatureType == null) {
+                logger.warn("Invalid signature type: {}", signatureFactors);
+                throw new PowerAuthSignatureTypeInvalidException();
+            }
 
             // Get ECIES headers
             String activationId = authentication.getActivationId();
@@ -88,7 +96,7 @@ public class TokenService {
 
             // Create a token
             final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                    encryptedData, mac, nonce, converter.convertFrom(signatureFactors));
+                    encryptedData, mac, nonce, signatureType);
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
@@ -96,8 +104,8 @@ public class TokenService {
             response.setEncryptedData(token.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
+            throw new PowerAuthTokenErrorException(ex);
         }
     }
 
@@ -125,8 +133,8 @@ public class TokenService {
             response.setTokenId(tokenId);
             return response;
         } catch (Exception ex) {
-            logger.warn("Removing PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Removing PowerAuth token failed, error: {}", ex.getMessage());
+            throw new PowerAuthTokenErrorException(ex);
         }
     }
 }

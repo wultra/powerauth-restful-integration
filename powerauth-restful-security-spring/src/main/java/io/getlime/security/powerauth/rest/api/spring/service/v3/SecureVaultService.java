@@ -27,6 +27,8 @@ import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
@@ -87,6 +89,10 @@ public class SecureVaultService {
             String applicationKey = header.getApplicationKey();
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            if (signatureType == null) {
+                logger.warn("Invalid signature type: {}", header.getSignatureType());
+                throw new PowerAuthSignatureTypeInvalidException();
+            }
             String signatureVersion = header.getVersion();
             String nonce = header.getNonce();
 
@@ -105,15 +111,16 @@ public class SecureVaultService {
                     signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
 
             if (!paResponse.isSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
+                logger.debug("Signature validation failed");
+                throw new PowerAuthSignatureInvalidException();
             }
 
             return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth vault unlock failed", ex);
-            throw new PowerAuthSecureVaultException();
+            logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
+            throw new PowerAuthSecureVaultException(ex);
         }
     }
 }

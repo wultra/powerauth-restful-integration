@@ -76,6 +76,7 @@ public class EncryptedDataExchangeController {
     @Produces(MediaType.APPLICATION_JSON)
     public ObjectResponse<NonPersonalizedEncryptedPayloadModel> exchange(ObjectRequest<NonPersonalizedEncryptedPayloadModel> request) throws PowerAuthEncryptionException {
         if (request == null) {
+            logger.warn("Invalid request in exchange method");
             throw new PowerAuthEncryptionException();
         }
 
@@ -84,7 +85,8 @@ public class EncryptedDataExchangeController {
         try {
              encryptor = encryptorFactory.buildNonPersonalizedEncryptor(request);
         } catch (RemoteException ex) {
-            throw new PowerAuthEncryptionException();
+            logger.warn("Remote communication failed, error: {}", ex.getMessage());
+            throw new PowerAuthEncryptionException(ex);
         }
 
         // Decrypt the request object
@@ -92,11 +94,12 @@ public class EncryptedDataExchangeController {
         try {
             requestDataBytes = encryptor.decrypt(request);
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
-            logger.warn(ex.getMessage(), ex);
-            throw new PowerAuthEncryptionException();
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
+            throw new PowerAuthEncryptionException(ex);
         }
 
         if (requestDataBytes == null) {
+            logger.warn("Invalid request data in exchange method");
             throw new PowerAuthEncryptionException();
         }
 
@@ -110,8 +113,8 @@ public class EncryptedDataExchangeController {
         try {
             encryptedResponse = encryptor.encrypt(responseData.getBytes());
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
-            logger.warn(ex.getMessage(), ex);
-            throw new PowerAuthEncryptionException();
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
+            throw new PowerAuthEncryptionException(ex);
         }
 
         return encryptedResponse;

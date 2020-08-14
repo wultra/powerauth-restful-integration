@@ -28,9 +28,12 @@ import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionCon
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthEncryptionProvider;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
@@ -51,6 +54,8 @@ import javax.ws.rs.core.MediaType;
 @Path("/exchange")
 @Produces(MediaType.APPLICATION_JSON)
 public class EncryptedDataExchangeController {
+
+    private static final Logger logger = LoggerFactory.getLogger(EncryptedDataExchangeController.class);
 
     @Inject
     private PowerAuthEncryptionProvider encryptionProvider;
@@ -79,7 +84,8 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            logger.debug("Encryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Prepare response object
@@ -108,7 +114,8 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            logger.debug("Encryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Prepare response object
@@ -137,7 +144,8 @@ public class EncryptedDataExchangeController {
         DataExchangeRequest request = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            logger.debug("Encryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Verify PowerAuth signature
@@ -147,15 +155,15 @@ public class EncryptedDataExchangeController {
                 authHeader
         );
 
-        if (auth != null && auth.getUserId() != null) {
-            // Prepare response object
-            DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
-
-            // Encrypt response
-            return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
-        } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+        if (auth == null || auth.getUserId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
+        // Prepare response object
+        DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
+
+        // Encrypt response
+        return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
     }
 
     /**
@@ -177,7 +185,8 @@ public class EncryptedDataExchangeController {
         String requestData = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            logger.debug("Encryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Verify PowerAuth signature
@@ -187,15 +196,15 @@ public class EncryptedDataExchangeController {
                 authHeader
         );
 
-        if (auth != null && auth.getUserId() != null) {
-            // Prepare response String
-            String exchangeResponse = "Server successfully decrypted data and verified signature, request data: " + (requestData == null ? "''" : requestData) + ", user ID: " + auth.getUserId();
-
-            // Encrypt response
-            return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
-        } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+        if (auth == null || auth.getUserId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
+        // Prepare response String
+        String exchangeResponse = "Server successfully decrypted data and verified signature, request data: " + (requestData == null ? "''" : requestData) + ", user ID: " + auth.getUserId();
+
+        // Encrypt response
+        return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
     }
 
     /**
@@ -217,7 +226,8 @@ public class EncryptedDataExchangeController {
         byte[] requestData = eciesEncryption.getRequestObject();
 
         if (eciesEncryption.getContext() == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            logger.debug("Encryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Verify PowerAuth signature
@@ -227,12 +237,12 @@ public class EncryptedDataExchangeController {
                 authHeader
         );
 
-        if (auth != null && auth.getUserId() != null) {
-            // Encrypt response - return the same data as in request
-            return encryptionProvider.encryptResponse(requestData, eciesEncryption);
-        } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+        if (auth == null || auth.getUserId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
+        // Encrypt response - return the same data as in request
+        return encryptionProvider.encryptResponse(requestData, eciesEncryption);
     }
 
 }

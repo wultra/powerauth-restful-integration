@@ -195,12 +195,10 @@ public class AuthenticationController {
                 authHeader
         );
 
-        if (auth != null && auth.getUserId() != null) {
-            return new PowerAuthApiResponse<>("OK", "Hooray! User: " + auth.getUserId());
-        } else {
+        if (auth == null || auth.getUserId() == null) {
             return new PowerAuthApiResponse<>("ERROR", "Authentication failed.");
         }
-
+        return new PowerAuthApiResponse<>("OK", "Hooray! User: " + auth.getUserId());
     }
 }
 ```
@@ -229,7 +227,7 @@ public class AuthenticationController {
     public PowerAuthApiResponse<String> getBalance(@HeaderParam(value = PowerAuthTokenHttpHeader.HEADER_NAME) String tokenHeader) throws PowerAuthAuthenticationException {
         PowerAuthApiAuthentication auth = authenticationProvider.validateToken(tokenHeader);
         if (apiAuthentication == null) {
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthTokenInvalidException();
         } else {
             String userId = apiAuthentication.getUserId();
             String balance = service.getBalanceForUser(userId);
@@ -270,7 +268,7 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
 
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
 
         // Prepare response object
@@ -308,7 +306,7 @@ public class EncryptedDataExchangeController {
         EciesEncryptionContext eciesContext = eciesEncryption.getContext();
     
         if (eciesContext == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
     
         // Prepare response object
@@ -348,7 +346,7 @@ public class EncryptedDataExchangeController {
         DataExchangeRequest request = eciesEncryption.getRequestObject();
     
         if (eciesEncryption.getContext() == null) {
-            throw new PowerAuthEncryptionException("Decryption failed");
+            throw new PowerAuthEncryptionException();
         }
     
         // Verify PowerAuth signature
@@ -358,15 +356,14 @@ public class EncryptedDataExchangeController {
                     authHeader
         );
                 
-        if (auth != null && auth.getUserId() != null) {
-            // Prepare response object
-            DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
-    
-            // Encrypt response
-            return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
-        } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+        if (auth == null || auth.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
         }
+        // Prepare response object
+        DataExchangeResponse exchangeResponse = new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
+    
+        // Encrypt response
+        return encryptionProvider.encryptResponse(exchangeResponse, eciesEncryption);
     }
 }
 ```
@@ -398,14 +395,14 @@ public class EncryptedController {
             // Prepare an encryptor
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(encryptedRequest);
             if (encryptor == null) {
-                throw new EncryptionException("Unable to initialize encryptor.");
+                throw new PowerAuthEncryptionException();
             }
 
             // Decrypt the request object
             OriginalRequest request = encryptor.decrypt(object, OriginalRequest.class);
 
             if (request == null) {
-                throw new EncryptionException("Unable to decrypt request object.");
+                throw new PowerAuthEncryptionException();
             }
 
             // ... do your business logic with OriginalRequest instance
@@ -420,14 +417,14 @@ public class EncryptedController {
             final PowerAuthApiResponse<NonPersonalizedEncryptedPayloadModel> encryptedResponse = encryptor.encrypt(response);
 
             if (encryptedResponse == null) {
-                throw new EncryptionException("Unable to encrypt response object.");
+                throw new PowerAuthEncryptionException();
             }
 
             // Return response
             return encryptedResponse;
 
-        } catch (IOException e) {
-            throw new PowerAuthActivationException();
+        } catch (IOException ex) {
+            throw new PowerAuthActivationException(ex);
         }
 
     }

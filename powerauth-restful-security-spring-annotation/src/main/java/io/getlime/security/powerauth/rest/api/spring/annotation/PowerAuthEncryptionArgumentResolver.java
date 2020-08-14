@@ -65,7 +65,9 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
             } else {
                 try {
                     return objectMapper.readValue(eciesObject.getDecryptedRequest(), parameterType);
-                } catch (IOException e) {
+                } catch (IOException ex) {
+                    logger.warn("Invalid request, error: {}", ex.getMessage());
+                    logger.debug("Error details", ex);
                     return null;
                 }
             }
@@ -110,7 +112,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                 break;
 
             default:
-                logger.error("Unsupported ECIES scope: {}", eciesContext.getEciesScope());
+                logger.warn("Unsupported ECIES scope: {}", eciesContext.getEciesScope());
                 return false;
         }
         return true;

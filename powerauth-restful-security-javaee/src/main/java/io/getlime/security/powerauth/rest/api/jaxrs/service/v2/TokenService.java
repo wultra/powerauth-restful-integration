@@ -23,6 +23,8 @@ import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
@@ -75,7 +77,8 @@ public class TokenService {
             // Convert signature type
             PowerAuthPortV2ServiceStub.SignatureType signatureType = converter.convertFrom(signatureFactors);
             if (signatureType == null) {
-                throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+                logger.warn("Invalid signature type: {}", signatureFactors);
+                throw new PowerAuthSignatureTypeInvalidException();
             }
 
             // Create a token
@@ -87,8 +90,8 @@ public class TokenService {
             response.setEncryptedData(token.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
+            throw new PowerAuthTokenErrorException(ex);
         }
     }
 

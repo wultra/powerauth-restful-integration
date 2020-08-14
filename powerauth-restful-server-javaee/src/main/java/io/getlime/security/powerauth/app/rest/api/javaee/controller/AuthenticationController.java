@@ -23,6 +23,7 @@ import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 
 import javax.inject.Inject;
@@ -63,17 +64,15 @@ public class AuthenticationController {
                 authHeader
         );
 
-        if (auth != null && auth.getUserId() != null) {
-            return new ObjectResponse<>("Hooray! "
-                    + " User: " + auth.getUserId()
-                    + " (activation: " + auth.getActivationId() + ")"
-                    + " successfully verified via app with ID: " + auth.getApplicationId()
-                    + " using factor: " + auth.getSignatureFactors()
-            );
-        } else {
-            throw new PowerAuthAuthenticationException("Authentication failed.");
+        if (auth == null || auth.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
         }
-
+        return new ObjectResponse<>("Hooray! "
+                + " User: " + auth.getUserId()
+                + " (activation: " + auth.getActivationId() + ")"
+                + " successfully verified via app with ID: " + auth.getApplicationId()
+                + " using factor: " + auth.getSignatureFactors()
+        );
     }
 
 }

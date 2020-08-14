@@ -23,6 +23,8 @@ import com.wultra.security.powerauth.client.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthRecoveryConfirmationException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.soap.axis.client.PowerAuthServiceClient;
@@ -65,19 +67,19 @@ public class RecoveryService {
             final String applicationKey = httpHeader.getApplicationKey();
             if (activationId == null || applicationKey == null || request.getEphemeralPublicKey() == null
                     || request.getEncryptedData() == null || request.getMac() == null) {
-                logger.error("PowerAuth confirm recovery failed because of invalid request");
-                throw new PowerAuthAuthenticationException();
+                logger.warn("PowerAuth confirm recovery failed because of invalid request");
+                throw new PowerAuthInvalidRequestException();
             }
             PowerAuthPortV3ServiceStub.ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(activationId, applicationKey,
                     request.getEphemeralPublicKey(), request.getEncryptedData(), request.getMac(), request.getNonce());
             if (!paResponse.getActivationId().equals(activationId)) {
-                logger.error("PowerAuth confirm recovery failed because of invalid activation ID in response");
-                throw new PowerAuthAuthenticationException();
+                logger.warn("PowerAuth confirm recovery failed because of invalid activation ID in response");
+                throw new PowerAuthInvalidRequestException();
             }
             return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
         } catch (Exception ex) {
-            logger.warn("PowerAuth confirm recovery failed", ex);
-            throw new PowerAuthAuthenticationException();
+            logger.warn("PowerAuth confirm recovery failed, error: {}", ex.getMessage());
+            throw new PowerAuthRecoveryConfirmationException(ex);
         }
     }
 }

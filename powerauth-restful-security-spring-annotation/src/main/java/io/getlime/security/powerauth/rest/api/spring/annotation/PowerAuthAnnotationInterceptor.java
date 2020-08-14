@@ -76,7 +76,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
 
             // Check that either signature or token annotation is active
             if (powerAuthSignatureAnnotation != null && powerAuthTokenAnnotation != null) {
-                logger.error("You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
+                logger.warn("You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
                 powerAuthSignatureAnnotation = null;
                 powerAuthTokenAnnotation = null;
             }
@@ -89,7 +89,8 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope());
                     // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for both Spring and Java EE
                 } catch (PowerAuthEncryptionException ex) {
-                    // Silently ignore errors
+                    logger.warn("Decryption failed, error: {}", ex.getMessage());
+                    logger.debug("Error details", ex);
                 }
             }
 
@@ -105,7 +106,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     );
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
-                    // Silently ignore here and make sure authentication object is null
+                    logger.warn("Invalid request signature, authentication object was removed");
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
                 }
 
@@ -120,7 +121,7 @@ public class PowerAuthAnnotationInterceptor extends HandlerInterceptorAdapter {
                     );
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
-                    // Silently ignore here and make sure authentication object is null
+                    logger.warn("Invalid token, authentication object was removed");
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
                 }
             }
