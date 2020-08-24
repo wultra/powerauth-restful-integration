@@ -66,7 +66,7 @@ public class DefaultCustomActivationProvider implements CustomActivationProvider
     }
 
     @Override
-    public Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) {
+    public Long getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) {
         // Null value means use value configured on PowerAuth server
         return null;
     }
