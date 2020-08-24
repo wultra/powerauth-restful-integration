@@ -161,7 +161,7 @@ public interface CustomActivationProvider {
      * @return Period in milliseconds during which activation is valid before it expires.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default Integer getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
+    default Long getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
         return null;
     }
 
