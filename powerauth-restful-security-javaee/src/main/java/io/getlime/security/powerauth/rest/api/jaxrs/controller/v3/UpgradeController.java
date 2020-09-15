@@ -91,7 +91,8 @@ public class UpgradeController {
             PowerAuthEncryptionHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Encryption HTTP header validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthUpgradeException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthUpgradeException();
         }
 
         if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
@@ -129,7 +130,8 @@ public class UpgradeController {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthUpgradeException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthUpgradeException();
         }
 
         if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {

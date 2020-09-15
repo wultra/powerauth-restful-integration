@@ -85,7 +85,8 @@ public class ActivationController {
             return encryptionProvider.encryptResponse(layer1Response, eciesEncryption);
         } catch (PowerAuthEncryptionException ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
         }
     }
 

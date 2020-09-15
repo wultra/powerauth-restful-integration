@@ -180,7 +180,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             request.setAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT, eciesEncryption);
         } catch (Exception ex) {
             logger.debug("Request decryption failed, error: " + ex.getMessage(), ex);
-            throw new PowerAuthEncryptionException(ex);
+            throw new PowerAuthEncryptionException();
         }
         return eciesEncryption;
     }
@@ -270,7 +270,8 @@ public abstract class PowerAuthEncryptionProviderBase {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
                 logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
-                throw new PowerAuthEncryptionException(ex);
+                logger.debug(ex.getMessage(), ex);
+                throw new PowerAuthEncryptionException();
             }
 
             // Construct encryption parameters object
@@ -287,7 +288,8 @@ public abstract class PowerAuthEncryptionProviderBase {
                 PowerAuthEncryptionHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
                 logger.warn("Encryption validation failed, error: {}", ex.getMessage());
-                throw new PowerAuthEncryptionException(ex);
+                logger.debug(ex.getMessage(), ex);
+                throw new PowerAuthEncryptionException();
             }
 
             // Construct encryption parameters object

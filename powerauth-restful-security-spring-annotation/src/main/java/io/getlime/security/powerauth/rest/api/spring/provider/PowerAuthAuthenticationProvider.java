@@ -237,7 +237,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthSignatureInvalidException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthSignatureInvalidException();
         }
 
         // Check if the signature type is allowed
@@ -289,7 +290,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthTokenHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Token validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthTokenInvalidException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenInvalidException();
         }
 
         // Prepare authentication object

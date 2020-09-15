@@ -136,7 +136,8 @@ public class SignatureController {
             throw ex;
         } catch (Exception ex) {
             logger.warn("Signature validation failed, error: {}", ex.getMessage());
-            throw new PowerAuthSignatureErrorException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthSignatureErrorException();
         }
     }
 }

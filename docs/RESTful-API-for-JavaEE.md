@@ -424,7 +424,7 @@ public class EncryptedController {
             return encryptedResponse;
 
         } catch (IOException ex) {
-            throw new PowerAuthActivationException(ex);
+            throw new PowerAuthActivationException();
         }
 
     }

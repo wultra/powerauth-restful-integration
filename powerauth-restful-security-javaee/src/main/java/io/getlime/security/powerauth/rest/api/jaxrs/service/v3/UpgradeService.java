@@ -95,7 +95,8 @@ public class UpgradeService {
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth upgrade start failed, error: {}", ex.getMessage());
-            throw new PowerAuthUpgradeException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthUpgradeException();
         }
     }
 
@@ -148,7 +149,8 @@ public class UpgradeService {
             throw ex;
         } catch (Exception ex) {
             logger.warn("PowerAuth upgrade commit failed, error: {}", ex.getMessage());
-            throw new PowerAuthUpgradeException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthUpgradeException();
         }
     }
 }

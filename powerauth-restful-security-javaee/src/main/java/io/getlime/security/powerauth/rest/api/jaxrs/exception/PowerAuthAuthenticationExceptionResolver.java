@@ -39,7 +39,7 @@ public class PowerAuthAuthenticationExceptionResolver implements ExceptionMapper
         public Response toResponse(PowerAuthAuthenticationException ex) {
             return Response
                     .status(Response.Status.UNAUTHORIZED)
-                    .entity(new ErrorResponse(ex.getDefaultCode(), ex.getMessage()))
+                    .entity(new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError()))
                     .build();
         }
 
