@@ -87,7 +87,8 @@ public class EncryptedDataExchangeController {
             requestDataBytes = encryptor.decrypt(request);
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());
-            throw new PowerAuthEncryptionException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthEncryptionException();
         }
 
         if (requestDataBytes == null) {
@@ -106,7 +107,8 @@ public class EncryptedDataExchangeController {
             encryptedResponse = encryptor.encrypt(responseData.getBytes());
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());
-            throw new PowerAuthEncryptionException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthEncryptionException();
         }
 
         return encryptedResponse;

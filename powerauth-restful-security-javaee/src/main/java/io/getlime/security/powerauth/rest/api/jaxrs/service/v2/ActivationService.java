@@ -88,7 +88,8 @@ public class ActivationService {
             return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
         }
     }
 

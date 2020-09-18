@@ -37,7 +37,7 @@ public class PowerAuthActivationExceptionResolver implements ExceptionMapper<Pow
     public Response toResponse(PowerAuthActivationException ex) {
         return Response
                 .status(Response.Status.BAD_REQUEST)
-                .entity(new ErrorResponse(ex.getDefaultCode(), ex.getMessage()))
+                .entity(new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError()))
                 .build();
     }
 }

@@ -103,7 +103,8 @@ public class TokenService {
             return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
-            throw new PowerAuthTokenErrorException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenErrorException();
         }
     }
 
@@ -132,7 +133,8 @@ public class TokenService {
             return response;
         } catch (Exception ex) {
             logger.warn("Removing PowerAuth token failed, error: {}", ex.getMessage());
-            throw new PowerAuthTokenErrorException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenErrorException();
         }
     }
 }

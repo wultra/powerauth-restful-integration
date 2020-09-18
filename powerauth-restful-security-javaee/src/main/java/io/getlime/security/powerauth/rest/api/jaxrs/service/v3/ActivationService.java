@@ -272,7 +272,8 @@ public class ActivationService {
                 handleInvalidRecoveryError(ex.getFaultDetailElement());
             }
             logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
         } catch (PowerAuthActivationException ex) {
             // Do not swallow PowerAuthActivationException for custom activations.
             // See: https://github.com/wultra/powerauth-restful-integration/issues/199
@@ -280,7 +281,8 @@ public class ActivationService {
             throw ex;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
         }
     }
 
@@ -306,7 +308,8 @@ public class ActivationService {
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
         }
     }
 
@@ -341,7 +344,8 @@ public class ActivationService {
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth activation removal failed, error: {}", ex.getMessage());
-            throw new PowerAuthActivationException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
         }
     }
 

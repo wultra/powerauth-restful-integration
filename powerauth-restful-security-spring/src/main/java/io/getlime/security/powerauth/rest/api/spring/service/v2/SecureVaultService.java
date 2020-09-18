@@ -93,7 +93,8 @@ public class SecureVaultService {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
                 logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
-                throw new PowerAuthSignatureTypeInvalidException(ex);
+                logger.debug(ex.getMessage(), ex);
+                throw new PowerAuthSignatureTypeInvalidException();
             }
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -148,7 +149,8 @@ public class SecureVaultService {
             throw ex;
         } catch (Exception ex) {
             logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
-            throw new PowerAuthSecureVaultException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthSecureVaultException();
         }
     }
 

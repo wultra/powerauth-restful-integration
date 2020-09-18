@@ -79,7 +79,8 @@ public class RecoveryService {
             return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
         } catch (Exception ex) {
             logger.warn("PowerAuth confirm recovery failed, error: {}", ex.getMessage());
-            throw new PowerAuthRecoveryConfirmationException(ex);
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthRecoveryConfirmationException();
         }
     }
 }

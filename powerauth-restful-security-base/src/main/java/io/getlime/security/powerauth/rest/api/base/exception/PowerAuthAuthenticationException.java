@@ -62,4 +62,13 @@ public class PowerAuthAuthenticationException extends Exception {
     public String getDefaultCode() {
         return DEFAULT_CODE;
     }
+
+    /**
+     * Get default error message, used for example in the REST response.
+     * @return Default error message.
+     */
+    public String getDefaultError() {
+        return DEFAULT_ERROR;
+    }
+
 }

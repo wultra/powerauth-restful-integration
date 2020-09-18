@@ -83,6 +83,14 @@ public class PowerAuthRecoveryException extends Exception {
     }
 
     /**
+     * Get default error message, used for example in the REST response.
+     * @return Default error message.
+     */
+    public String getDefaultError() {
+        return DEFAULT_ERROR;
+    }
+
+    /**
      * Set error code.
      * @param errorCode Error code.
      */

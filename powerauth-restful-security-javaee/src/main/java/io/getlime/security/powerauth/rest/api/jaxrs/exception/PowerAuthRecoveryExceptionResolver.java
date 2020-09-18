@@ -37,7 +37,7 @@ public class PowerAuthRecoveryExceptionResolver implements ExceptionMapper<Power
     public Response toResponse(PowerAuthRecoveryException ex) {
         return Response
                 .status(Response.Status.BAD_REQUEST)
-                .entity(new RecoveryErrorResponse(ex.getErrorCode(), ex.getMessage(), ex.getCurrentRecoveryPukIndex()))
+                .entity(new RecoveryErrorResponse(ex.getErrorCode(), ex.getDefaultError(), ex.getCurrentRecoveryPukIndex()))
                 .build();
     }
 }
