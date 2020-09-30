@@ -40,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -114,9 +115,12 @@ public class CustomActivationController {
                 throw new PowerAuthActivationException();
             }
 
+            // Create context for passing parameters between activation provider calls
+            Map<String, Object> context = new LinkedHashMap<>();
+
             // Lookup user ID using a provided identity
             final Map<String, String> identity = request.getIdentity();
-            String userId = activationProvider.lookupUserIdForAttributes(identity);
+            String userId = activationProvider.lookupUserIdForAttributes(identity, context);
 
             // If no user was found or user ID is invalid, return error
             if (userId == null || userId.equals("") || userId.length() > 255) {
@@ -140,7 +144,7 @@ public class CustomActivationController {
 
             // Process custom attributes using a custom logic
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context);
 
             // Prepare the created activation response data
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
@@ -154,7 +158,7 @@ public class CustomActivationController {
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
             // Check if activation should be committed instantly and if yes, perform commit
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context)) {
                 powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 
