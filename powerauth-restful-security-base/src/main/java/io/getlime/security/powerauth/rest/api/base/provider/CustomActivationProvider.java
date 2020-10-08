@@ -42,10 +42,11 @@ public interface CustomActivationProvider {
      * This method is called for the CUSTOM activation type only.
      *
      * @param identityAttributes Attributes that uniquely identify user with given ID.
+     * @param context Context for passing parameters between activation provider calls.
      * @return User ID value.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    String lookupUserIdForAttributes(Map<String, String> identityAttributes) throws PowerAuthActivationException;
+    String lookupUserIdForAttributes(Map<String, String> identityAttributes, Map<String, Object> context) throws PowerAuthActivationException;
 
     /**
      * Process custom attributes, in any way that is suitable for the purpose of your application.
@@ -57,10 +58,11 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param appId Application ID of the application associated to the activation.
      * @param activationType Activation type.
+     * @param context Context for passing parameters between activation provider calls.
      * @return Custom attributes after processing.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType) throws PowerAuthActivationException {
+    default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return customAttributes;
     };
 
@@ -78,10 +80,11 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param appId Application ID of the application associated to the activation.
      * @param activationType Activation type.
+     * @param context Context for passing parameters between activation provider calls.
      * @return True in case activation should be committed, false otherwise.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType) throws PowerAuthActivationException {
+    default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return false;
     }
 
@@ -99,9 +102,10 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param appId Application ID of the application associated to the activation.
      * @param activationType Activation type.
+     * @param context Context for passing parameters between activation provider calls.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType) throws PowerAuthActivationException {};
+    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {};
 
     /**
      * Method that indicates if the recovery codes should be revoked when an activation is removed.
@@ -139,10 +143,11 @@ public interface CustomActivationProvider {
      * @param customAttributes Custom attributes, not related to identity.
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
+     * @param context Context for passing parameters between activation provider calls.
      * @return Maximum failed attempt count for activations.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
+    default Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return null;
     }
 
@@ -158,10 +163,11 @@ public interface CustomActivationProvider {
      * @param customAttributes Custom attributes, not related to identity.
      * @param userId User ID of user who created the activation.
      * @param activationType Activation type.
+     * @param context Context for passing parameters between activation provider calls.
      * @return Period in milliseconds during which activation is valid before it expires.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default Long getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) throws PowerAuthActivationException {
+    default Long getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return null;
     }
 
@@ -173,9 +179,10 @@ public interface CustomActivationProvider {
      * @param userId User ID of user who created the activation.
      * @param appId Application ID of the application associated to the activation.
      * @param activationType Activation type.
+     * @param context Context for passing parameters between activation provider calls.
      * @return List of activation flags.
      */
-    default List<String> getActivationFlags(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType) {
+    default List<String> getActivationFlags(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) {
         return Collections.emptyList();
     }
 

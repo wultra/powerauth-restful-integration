@@ -41,6 +41,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -97,8 +98,11 @@ public class CustomActivationController {
                 throw new PowerAuthActivationException();
             }
 
+            // Create context for passing parameters between activation provider calls
+            Map<String, Object> context = new LinkedHashMap<>();
+
             final Map<String, String> identity = request.getIdentity();
-            String userId = activationProvider.lookupUserIdForAttributes(identity);
+            String userId = activationProvider.lookupUserIdForAttributes(identity, context);
 
             // If no user was found or user ID is invalid, return error
             if (userId == null || userId.equals("") || userId.length() > 255) {
@@ -120,7 +124,7 @@ public class CustomActivationController {
             );
 
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context);
 
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
             createResponse.setActivationId(response.getActivationId());
@@ -131,7 +135,7 @@ public class CustomActivationController {
 
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context)) {
                 powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 

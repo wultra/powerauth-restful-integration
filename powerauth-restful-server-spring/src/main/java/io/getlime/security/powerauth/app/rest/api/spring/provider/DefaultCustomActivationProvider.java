@@ -36,12 +36,12 @@ import java.util.Map;
 public class DefaultCustomActivationProvider implements CustomActivationProvider {
 
     @Override
-    public String lookupUserIdForAttributes(Map<String, String> identityAttributes) {
+    public String lookupUserIdForAttributes(Map<String, String> identityAttributes, Map<String, Object> context) {
         return identityAttributes.get("username");
     }
 
     @Override
-    public Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, Long applId, ActivationType activationType) {
+    public Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, Long applId, ActivationType activationType, Map<String, Object> context) {
         if (customAttributes != null) {
             // Copy custom attributes
             return new HashMap<>(customAttributes);
@@ -51,22 +51,22 @@ public class DefaultCustomActivationProvider implements CustomActivationProvider
     }
 
     @Override
-    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long applId, ActivationType activationType) {
+    public boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long applId, ActivationType activationType, Map<String, Object> context) {
         return true;
     }
 
     @Override
-    public void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long applId, ActivationType activationType) {
+    public void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long applId, ActivationType activationType, Map<String, Object> context) {
     }
 
     @Override
-    public Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) {
+    public Integer getMaxFailedAttemptCount(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType, Map<String, Object> context) {
         // Null value means use value configured on PowerAuth server
         return null;
     }
 
     @Override
-    public Long getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType) {
+    public Long getValidityPeriodDuringActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String userId, ActivationType activationType, Map<String, Object> context) {
         // Null value means use value configured on PowerAuth server
         return null;
     }
