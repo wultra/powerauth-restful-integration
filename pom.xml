@@ -81,18 +81,18 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <maven-jar-plugin.version>3.1.2</maven-jar-plugin.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-        <maven-javadoc-plugin.version>3.1.1</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.1.0</maven-source-plugin.version>
-        <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
+        <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
+        <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
+        <maven-war-plugin.version>3.3.1</maven-war-plugin.version>
         <javaee-api.version>7.0</javaee-api.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-        <spring-boot.version>2.2.6.RELEASE</spring-boot.version>
-        <guava.version>29.2-jre</guava.version>
+        <spring-boot.version>2.2.9.RELEASE</spring-boot.version>
+        <guava.version>30.0-jre</guava.version>
         <slf4j-api.version>1.7.30</slf4j-api.version>
-        <jackson-databind.version>2.11.2</jackson-databind.version>
-        <bcprov.version>1.65</bcprov.version>
+        <jackson-databind.version>2.11.3</jackson-databind.version>
+        <bcprov.version>1.67</bcprov.version>
         <rest-model-base.version>1.1.0</rest-model-base.version>
     </properties>
 
