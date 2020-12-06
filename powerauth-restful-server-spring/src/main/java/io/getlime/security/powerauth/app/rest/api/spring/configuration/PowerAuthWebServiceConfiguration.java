@@ -20,8 +20,11 @@
 package io.getlime.security.powerauth.app.rest.api.spring.configuration;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.rest.client.PowerAuthRestClient;
 import com.wultra.security.powerauth.rest.client.PowerAuthRestClientConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -36,6 +39,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ComponentScan(basePackages = {"io.getlime.security.powerauth"})
 public class PowerAuthWebServiceConfiguration {
+
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthWebServiceConfiguration.class);
 
     @Value("${powerauth.service.url}")
     private String powerAuthRestUrl;
@@ -60,7 +65,13 @@ public class PowerAuthWebServiceConfiguration {
         PowerAuthRestClientConfiguration config = new PowerAuthRestClientConfiguration();
         config.setPowerAuthClientToken(clientToken);
         config.setPowerAuthClientSecret(clientSecret);
-        return new PowerAuthRestClient(powerAuthRestUrl, config);
+        try {
+            return new PowerAuthRestClient(powerAuthRestUrl, config);
+        } catch (PowerAuthClientException ex) {
+            // Log the error in case Rest client initialization failed
+            logger.error(ex.getMessage(), ex);
+            return null;
+        }
     }
 
     public String getApplicationName() {
