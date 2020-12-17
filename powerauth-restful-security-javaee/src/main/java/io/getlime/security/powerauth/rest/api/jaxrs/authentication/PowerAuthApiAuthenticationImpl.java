@@ -41,6 +41,7 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
     private String userId;
     private Long applicationId;
     private List<String> applicationRoles;
+    private List<String> activationFlags;
     private PowerAuthSignatureTypes factors;
     private String version;
     private PowerAuthHttpHeader httpHeader;
@@ -105,6 +106,16 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
     @Override
     public void setApplicationRoles(List<String> applicationRoles) {
         this.applicationRoles = applicationRoles;
+    }
+
+    @Override
+    public List<String> getActivationFlags() {
+        return activationFlags;
+    }
+
+    @Override
+    public void setActivationFlags(List<String> activationFlags) {
+        this.activationFlags = activationFlags;
     }
 
     @Override

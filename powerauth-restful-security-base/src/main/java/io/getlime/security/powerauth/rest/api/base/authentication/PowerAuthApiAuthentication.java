@@ -82,6 +82,18 @@ public interface PowerAuthApiAuthentication {
     void setApplicationRoles(List<String> applicationRoles);
 
     /**
+     * Get activation flags.
+     * @return Activation flags.
+     */
+    List<String> getActivationFlags();
+
+    /**
+     * Set activation flags.
+     * @param activationFlags Activation flags.
+     */
+    void setActivationFlags(List<String> activationFlags);
+
+    /**
      * Return authentication factors related to the signature that was used to produce
      * this authentication object.
      * @return Signature type (signature factors).

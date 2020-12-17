@@ -120,7 +120,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
             if (soapResponse.getSignatureValid()) {
                 return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
-                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
+                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), Arrays.asList(soapResponse.getActivationFlags()),
+                        PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
                         authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
@@ -149,7 +150,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final PowerAuthPortV3ServiceStub.ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
             if (soapResponse.getTokenValid()) {
                 return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
-                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
+                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), Arrays.asList(soapResponse.getActivationFlags()),
+                        PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
                         authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
@@ -168,17 +170,21 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param userId User ID.
      * @param applicationId Application ID.
      * @param applicationRoles Application roles.
+     * @param activationFlags Activation flags.
      * @param signatureType Signature Type.
      * @param version PowerAuth protocol version.
      * @param httpHeader Raw PowerAuth HTTP header.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthApiAuthentication copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles, PowerAuthSignatureTypes signatureType, String version, PowerAuthHttpHeader httpHeader) {
+    private PowerAuthApiAuthentication copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles,
+                                                                    List<String> activationFlags, PowerAuthSignatureTypes signatureType, String version,
+                                                                    PowerAuthHttpHeader httpHeader) {
         PowerAuthApiAuthentication apiAuthentication = new PowerAuthApiAuthenticationImpl();
         apiAuthentication.setActivationId(activationId);
         apiAuthentication.setUserId(userId);
         apiAuthentication.setApplicationId(applicationId);
         apiAuthentication.setApplicationRoles(applicationRoles);
+        apiAuthentication.setActivationFlags(activationFlags);
         apiAuthentication.setSignatureFactors(signatureType);
         apiAuthentication.setVersion(version);
         apiAuthentication.setHttpHeader(httpHeader);
