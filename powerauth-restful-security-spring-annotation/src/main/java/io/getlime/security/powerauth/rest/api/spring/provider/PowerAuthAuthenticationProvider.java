@@ -136,7 +136,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             }
             if (response.isSignatureValid()) {
                 return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
-                        response.getApplicationId(), response.getApplicationRoles(), soapResponse.getActivationFlags(), PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()),
+                        response.getApplicationId(), response.getApplicationRoles(), response.getActivationFlags(), PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()),
                         authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
