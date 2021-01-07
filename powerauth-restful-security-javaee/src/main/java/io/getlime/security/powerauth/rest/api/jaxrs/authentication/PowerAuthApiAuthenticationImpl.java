@@ -24,6 +24,7 @@ import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * PowerAuth API authentication object used between intermediate server application (such as mobile 
@@ -39,133 +40,109 @@ public class PowerAuthApiAuthenticationImpl implements PowerAuthApiAuthenticatio
     private String activationId;
     private String userId;
     private Long applicationId;
+    private List<String> applicationRoles;
+    private List<String> activationFlags;
     private PowerAuthSignatureTypes factors;
     private String version;
     private PowerAuthHttpHeader httpHeader;
 
     /**
-     * Default constructor
+     * Default constructor.
      */
     public PowerAuthApiAuthenticationImpl() {
     }
 
     /**
-     * Constructor for a new PowerAuthApiAuthenticationImpl
-     * @param activationId Activation ID
-     * @param userId User ID
-     * @param applicationId Application ID
-     * @param factors Authentication factors
+     * Constructor for a new PowerAuthApiAuthenticationImpl.
+     * @param activationId Activation ID.
+     * @param userId User ID.
+     * @param applicationId Application ID.
+     * @param applicationRoles Application roles.
+     * @param factors Authentication factors.
      */
-    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes factors) {
+    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, List<String> applicationRoles, PowerAuthSignatureTypes factors) {
         this.activationId = activationId;
         this.userId = userId;
         this.applicationId = applicationId;
+        this.applicationRoles = applicationRoles;
         this.factors = factors;
     }
 
-    /**
-     * Get user ID
-     * @return User ID
-     */
     @Override
     public String getUserId() {
         return userId;
     }
 
-    /**
-     * Set user ID
-     * @param userId User ID
-     */
     @Override
     public void setUserId(String userId) {
         this.userId = userId;
     }
 
-    /**
-     * Get activation ID
-     * @return Activation ID
-     */
     @Override
     public String getActivationId() {
         return activationId;
     }
 
-    /**
-     * Set activation ID
-     * @param activationId Activation ID
-     */
     @Override
     public void setActivationId(String activationId) {
         this.activationId = activationId;
     }
 
-    /**
-     * Get application ID.
-     * @return Application ID.
-     */
     @Override
     public Long getApplicationId() {
         return applicationId;
     }
 
-    /**
-     * Set application ID.
-     * @param id Application ID.
-     */
     @Override
     public void setApplicationId(Long id) {
         this.applicationId = id;
     }
 
-    /**
-     * Get authentication factors.
-     * @return Authentication factors.
-     */
+    @Override
+    public List<String> getApplicationRoles() {
+        return applicationRoles;
+    }
+
+    @Override
+    public void setApplicationRoles(List<String> applicationRoles) {
+        this.applicationRoles = applicationRoles;
+    }
+
+    @Override
+    public List<String> getActivationFlags() {
+        return activationFlags;
+    }
+
+    @Override
+    public void setActivationFlags(List<String> activationFlags) {
+        this.activationFlags = activationFlags;
+    }
+
     @Override
     public PowerAuthSignatureTypes getSignatureFactors() {
         return factors;
     }
 
-    /**
-     * Set authentication factors.
-     * @param factors Signature type (signature factors).
-     */
     @Override
     public void setSignatureFactors(PowerAuthSignatureTypes factors) {
         this.factors = factors;
     }
 
-    /**
-     * Get PowerAuth protocol version.
-     * @return PowerAuth protocol version.
-     */
     @Override
     public String getVersion() {
         return version;
     }
 
-    /**
-     * Set PowerAuth protocol version.
-     * @param version PowerAuth protocol version.
-     */
     @Override
     public void setVersion(String version) {
         this.version = version;
     }
 
-    /**
-     * Get parsed PowerAuth HTTP header.
-     * @return PowerAuth HTTP header.
-     */
     @Override
     public PowerAuthHttpHeader getHttpHeader() {
         return httpHeader;
     }
 
-    /**
-     * Set parsed PowerAuth HTTP header.
-     * @param httpHeader PowerAuth HTTP header.
-     */
     @Override
     public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
         this.httpHeader = httpHeader;

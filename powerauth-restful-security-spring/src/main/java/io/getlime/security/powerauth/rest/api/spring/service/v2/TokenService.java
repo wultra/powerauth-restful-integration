@@ -19,14 +19,15 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v2;
 
-import io.getlime.powerauth.soap.v2.CreateTokenResponse;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v2.CreateTokenResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,10 +50,10 @@ public class TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -84,8 +85,9 @@ public class TokenService {
             response.setEncryptedData(token.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenErrorException();
         }
     }
 

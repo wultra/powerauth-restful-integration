@@ -19,36 +19,42 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.converter.v2;
 
-import io.getlime.powerauth.soap.v2.SignatureType;
+import com.wultra.security.powerauth.client.v2.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class to convert from and to
- * {@link io.getlime.powerauth.soap.v2.SignatureType} class.
+ * {@link com.wultra.security.powerauth.client.v2.SignatureType} class.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
 public class SignatureTypeConverter {
 
+    private static final Logger logger = LoggerFactory.getLogger(SignatureTypeConverter.class);
+
     /**
-     * Convert {@link io.getlime.powerauth.soap.v2.SignatureType}
+     * Convert {@link com.wultra.security.powerauth.client.v2.SignatureType}
      * from a {@link String} value.
      * @param signatureTypeString String value representing signature type.
      * @return Signature type.
      */
     public SignatureType convertFrom(String signatureTypeString) {
 
-        // Default to strongest signature type on null value
         if (signatureTypeString == null) {
-            return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            return null;
         }
 
         // Try to convert signature type
         try {
             signatureTypeString = signatureTypeString.toUpperCase();
             return SignatureType.fromValue(signatureTypeString);
-        } catch (IllegalArgumentException e) {
-            return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+        } catch (IllegalArgumentException ex) {
+            logger.warn("Invalid signature type, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
+            // Return null value which represents an unknown signature type
+            return null;
         }
 
     }
@@ -71,7 +77,7 @@ public class SignatureTypeConverter {
             case POSSESSION_BIOMETRY:
                 return SignatureType.POSSESSION_BIOMETRY;
             default:
-                return SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+                return null;
         }
     }
 

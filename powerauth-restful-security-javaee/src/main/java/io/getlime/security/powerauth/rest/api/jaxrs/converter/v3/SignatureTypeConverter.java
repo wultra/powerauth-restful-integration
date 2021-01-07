@@ -19,8 +19,10 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.converter.v3;
 
-import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
+import com.wultra.security.powerauth.client.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class to convert from and to
@@ -30,6 +32,8 @@ import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
  */
 public class SignatureTypeConverter {
 
+    private static final Logger logger = LoggerFactory.getLogger(SignatureTypeConverter.class);
+
     /**
      * Convert {@link PowerAuthPortV3ServiceStub.SignatureType}
      * from a {@link String} value.
@@ -38,17 +42,20 @@ public class SignatureTypeConverter {
      */
     public PowerAuthPortV3ServiceStub.SignatureType convertFrom(String signatureTypeString) {
 
-        // Default to strongest signature type on null value
+        // Return null value which represents an unknown signature type
         if (signatureTypeString == null) {
-            return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            return null;
         }
 
         // Try to convert signature type
         try {
             signatureTypeString = signatureTypeString.toUpperCase();
             return PowerAuthPortV3ServiceStub.SignatureType.Factory.fromValue(signatureTypeString);
-        } catch (IllegalArgumentException e) {
-            return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+        } catch (IllegalArgumentException ex) {
+            logger.warn("Invalid signature type, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
+            // Return null value which represents an unknown signature type
+            return null;
         }
 
     }
@@ -60,6 +67,9 @@ public class SignatureTypeConverter {
      * @return Signature type.
      */
     public PowerAuthPortV3ServiceStub.SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
+        if (powerAuthSignatureTypes == null) {
+            return null;
+        }
         switch (powerAuthSignatureTypes) {
             case POSSESSION:
                 return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION;
@@ -72,7 +82,7 @@ public class SignatureTypeConverter {
             case POSSESSION_BIOMETRY:
                 return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_BIOMETRY;
             default:
-                return PowerAuthPortV3ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+                return null;
         }
     }
 

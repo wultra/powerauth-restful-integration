@@ -40,6 +40,8 @@ import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
@@ -52,6 +54,8 @@ import java.io.IOException;
  *
  */
 public abstract class PowerAuthEncryptionProviderBase {
+
+    private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProviderBase.class);
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final EciesFactory eciesFactory = new EciesFactory();
@@ -81,7 +85,8 @@ public abstract class PowerAuthEncryptionProviderBase {
     public <T> PowerAuthEciesEncryption<T> decryptRequest(HttpServletRequest request, Class<T> requestType, EciesScope eciesScope) throws PowerAuthEncryptionException {
         // Only POST HTTP method is supported for ECIES
         if (!"POST".equals(request.getMethod())) {
-            throw new PowerAuthEncryptionException("Invalid HTTP request");
+            logger.warn("Invalid HTTP method: {}", request.getMethod());
+            throw new PowerAuthEncryptionException();
         }
 
         // Resolve either signature or encryption HTTP header for ECIES
@@ -97,15 +102,18 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Parse ECIES cryptogram from request body
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
             if (requestBody == null) {
-                throw new PowerAuthEncryptionException("The X-PowerAuth-Request-Body request attribute is missing, register the PowerAuthRequestFilter to fix this error");
+                logger.warn("The X-PowerAuth-Request-Body request attribute is missing. Register the PowerAuthRequestFilter to fix this error.");
+                throw new PowerAuthEncryptionException();
             }
             byte[] requestBodyBytes = requestBody.getRequestBytes();
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
-                throw new PowerAuthEncryptionException("Invalid HTTP request");
+                logger.warn("Invalid HTTP request");
+                throw new PowerAuthEncryptionException();
             }
             final EciesEncryptedRequest eciesRequest = objectMapper.readValue(requestBodyBytes, EciesEncryptedRequest.class);
             if (eciesRequest == null) {
-                throw new PowerAuthEncryptionException("Invalid ECIES request data");
+                logger.warn("Invalid ECIES request data");
+                throw new PowerAuthEncryptionException();
             }
 
             // Prepare ephemeral public key
@@ -116,10 +124,12 @@ public abstract class PowerAuthEncryptionProviderBase {
 
             // Verify ECIES request data. Nonce is required for protocol 3.1+
             if (ephemeralPublicKey == null || encryptedData == null || mac == null) {
-                throw new PowerAuthEncryptionException("Invalid ECIES request data");
+                logger.warn("Invalid ECIES request data");
+                throw new PowerAuthEncryptionException();
             }
             if (nonce == null && !"3.0".equals(encryptionContext.getVersion())) {
-                throw new PowerAuthEncryptionException("Missing nonce in ECIES request data");
+                logger.warn("Missing nonce in ECIES request data");
+                throw new PowerAuthEncryptionException();
             }
 
             final byte[] ephemeralPublicKeyBytes = BaseEncoding.base64().decode(ephemeralPublicKey);
@@ -134,7 +144,8 @@ public abstract class PowerAuthEncryptionProviderBase {
                 case ACTIVATION_SCOPE:
                     final String activationId = eciesEncryption.getContext().getActivationId();
                     if (activationId == null) {
-                        throw new PowerAuthEncryptionException("Activation ID is required in ECIES activation scope");
+                        logger.warn("Activation ID is required in ECIES activation scope");
+                        throw new PowerAuthEncryptionException();
                     }
                     decryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey);
                     break;
@@ -142,7 +153,8 @@ public abstract class PowerAuthEncryptionProviderBase {
                     decryptorParameters = getEciesDecryptorParameters(null, applicationKey, ephemeralPublicKey);
                     break;
                 default:
-                    throw new PowerAuthEncryptionException("Unsupported ECIES scope: " + eciesScope);
+                    logger.warn("Unsupported ECIES scope: {}", eciesScope);
+                    throw new PowerAuthEncryptionException();
             }
 
             // Prepare envelope key and sharedInfo2 parameter for decryptor
@@ -167,7 +179,8 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Set encryption object in HTTP servlet request
             request.setAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT, eciesEncryption);
         } catch (Exception ex) {
-            throw new PowerAuthEncryptionException("Invalid request");
+            logger.debug("Request decryption failed, error: " + ex.getMessage(), ex);
+            throw new PowerAuthEncryptionException();
         }
         return eciesEncryption;
     }
@@ -188,6 +201,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
+            logger.debug("Response encryption failed, error: " + ex.getMessage(), ex);
             return null;
         }
     }
@@ -242,7 +256,8 @@ public abstract class PowerAuthEncryptionProviderBase {
 
         // Check that at least one PowerAuth HTTP header with parameters for ECIES is present
         if (encryptionHttpHeader == null && signatureHttpHeader == null) {
-            throw new PowerAuthEncryptionException("POWER_AUTH_ENCRYPTION_INVALID_HEADER");
+            logger.warn("Signature HTTP header is invalid");
+            throw new PowerAuthEncryptionException();
         }
 
         // In case the PowerAuth signature HTTP header is present, use it for ECIES
@@ -253,8 +268,10 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Validate the signature HTTP header
             try {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
-            } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthEncryptionException(e.getMessage());
+            } catch (InvalidPowerAuthHttpHeaderException ex) {
+                logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+                logger.debug(ex.getMessage(), ex);
+                throw new PowerAuthEncryptionException();
             }
 
             // Construct encryption parameters object
@@ -269,8 +286,10 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Validate the encryption HTTP header
             try {
                 PowerAuthEncryptionHttpHeaderValidator.validate(header);
-            } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthEncryptionException(e.getMessage());
+            } catch (InvalidPowerAuthHttpHeaderException ex) {
+                logger.warn("Encryption validation failed, error: {}", ex.getMessage());
+                logger.debug(ex.getMessage(), ex);
+                throw new PowerAuthEncryptionException();
             }
 
             // Construct encryption parameters object

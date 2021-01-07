@@ -19,7 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.service.v2;
 
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
@@ -87,7 +87,8 @@ public class ActivationService {
 
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth activation failed", ex);
+            logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
     }

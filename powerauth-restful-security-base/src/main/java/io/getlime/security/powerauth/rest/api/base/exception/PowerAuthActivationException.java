@@ -32,18 +32,26 @@ public class PowerAuthActivationException extends Exception {
     private static final String DEFAULT_ERROR = "POWER_AUTH_ACTIVATION_INVALID";
 
     /**
-     * Default constructor
+     * Default constructor.
      */
     public PowerAuthActivationException() {
         super(DEFAULT_ERROR);
     }
 
     /**
-     * Constructor with a custom error message
-     * @param message Error message
+     * Constructor with a custom error message.
+     * @param message Error message.
      */
     public PowerAuthActivationException(String message) {
         super(message);
+    }
+
+    /**
+     * Constructor with a cause.
+     * @param cause Error cause.
+     */
+    public PowerAuthActivationException(Throwable cause) {
+        super(cause);
     }
 
     /**
@@ -52,5 +60,13 @@ public class PowerAuthActivationException extends Exception {
      */
     public String getDefaultCode() {
         return DEFAULT_CODE;
+    }
+
+    /**
+     * Get default error message, used for example in the REST response.
+     * @return Default error message.
+     */
+    public String getDefaultError() {
+        return DEFAULT_ERROR;
     }
 }

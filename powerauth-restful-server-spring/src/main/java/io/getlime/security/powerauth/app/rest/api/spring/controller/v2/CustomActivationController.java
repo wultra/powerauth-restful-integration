@@ -19,11 +19,10 @@
  */
 package io.getlime.security.powerauth.app.rest.api.spring.controller.v2;
 
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v2.CreateActivationResponse;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.v2.CreateActivationResponse;
-import io.getlime.security.powerauth.crypto.lib.model.exception.CryptoProviderException;
-import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
@@ -33,7 +32,6 @@ import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateC
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptorFactory;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -42,8 +40,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -63,14 +60,14 @@ public class CustomActivationController {
 
     private static final Logger logger = LoggerFactory.getLogger(CustomActivationController.class);
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     private EncryptorFactory encryptorFactory;
 
     private CustomActivationProvider activationProvider;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -99,12 +96,14 @@ public class CustomActivationController {
 
             // Check if there is any user provider to be autowired
             if (activationProvider == null) {
+                logger.warn("Activation provider is missing");
                 throw new PowerAuthActivationException();
             }
 
             // Prepare an encryptor
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(encryptedRequest);
             if (encryptor == null) {
+                logger.warn("Encryptor is not available");
                 throw new PowerAuthActivationException();
             }
 
@@ -112,15 +111,20 @@ public class CustomActivationController {
             ActivationCreateCustomRequest request = encryptor.decrypt(encryptedRequest, ActivationCreateCustomRequest.class);
 
             if (request == null) {
+                logger.warn("Invalid request in activation create");
                 throw new PowerAuthActivationException();
             }
 
+            // Create context for passing parameters between activation provider calls
+            Map<String, Object> context = new LinkedHashMap<>();
+
             // Lookup user ID using a provided identity
             final Map<String, String> identity = request.getIdentity();
-            String userId = activationProvider.lookupUserIdForAttributes(identity);
+            String userId = activationProvider.lookupUserIdForAttributes(identity, context);
 
             // If no user was found or user ID is invalid, return error
             if (userId == null || userId.equals("") || userId.length() > 255) {
+                logger.warn("User ID is invalid: {}", userId);
                 throw new PowerAuthActivationException();
             }
 
@@ -140,7 +144,7 @@ public class CustomActivationController {
 
             // Process custom attributes using a custom logic
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context);
 
             // Prepare the created activation response data
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
@@ -154,15 +158,16 @@ public class CustomActivationController {
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
             // Check if activation should be committed instantly and if yes, perform commit
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context)) {
                 powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 
             // Return response
             return powerAuthApiResponse;
 
-        } catch (IOException | GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
-            logger.warn(ex.getMessage(), ex);
+        } catch (Exception ex) {
+            logger.warn("Create activation failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
 

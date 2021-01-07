@@ -19,10 +19,12 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.service.v2;
 
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
@@ -72,8 +74,15 @@ public class TokenService {
             // Prepare a signature type converter
             SignatureTypeConverter converter = new SignatureTypeConverter();
 
+            // Convert signature type
+            PowerAuthPortV2ServiceStub.SignatureType signatureType = converter.convertFrom(signatureFactors);
+            if (signatureType == null) {
+                logger.warn("Invalid signature type: {}", signatureFactors);
+                throw new PowerAuthSignatureTypeInvalidException();
+            }
+
             // Create a token
-            final PowerAuthPortV2ServiceStub.CreateTokenResponse token = powerAuthClient.v2().createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
+            final PowerAuthPortV2ServiceStub.CreateTokenResponse token = powerAuthClient.v2().createToken(activationId, ephemeralPublicKey, signatureType);
 
             // Prepare a response
             final TokenCreateResponse response = new TokenCreateResponse();
@@ -81,8 +90,9 @@ public class TokenService {
             response.setEncryptedData(token.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenErrorException();
         }
     }
 

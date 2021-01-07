@@ -23,6 +23,8 @@ import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,16 +64,15 @@ public class SignatureController {
     })
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
-        if (auth != null && auth.getActivationId() != null) {
-            if (!"2.0".equals(auth.getVersion()) && !"2.1".equals(auth.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", auth.getVersion());
-                throw new PowerAuthAuthenticationException();
-            }
-            return new Response();
-        } else {
-            throw new PowerAuthAuthenticationException("Signature validation failed");
+        if (auth == null || auth.getActivationId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
-
+        if (!"2.0".equals(auth.getVersion()) && !"2.1".equals(auth.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", auth.getVersion());
+            throw new PowerAuthInvalidRequestException();
+        }
+        return new Response();
     }
 
 }

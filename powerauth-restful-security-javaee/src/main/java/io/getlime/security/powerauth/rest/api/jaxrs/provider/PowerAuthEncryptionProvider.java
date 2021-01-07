@@ -19,7 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.provider;
 
-import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
+import com.wultra.security.powerauth.client.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthEncryptionProviderBase;
@@ -54,8 +54,9 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
             eciesDecryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
             PowerAuthPortV3ServiceStub.GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(eciesDecryptorRequest);
             return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
-        } catch (RemoteException e) {
-            logger.warn("Get Ecies decryptor parameters call failed", e);
+        } catch (RemoteException ex) {
+            logger.warn("Get ECIES decryptor call failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
     }

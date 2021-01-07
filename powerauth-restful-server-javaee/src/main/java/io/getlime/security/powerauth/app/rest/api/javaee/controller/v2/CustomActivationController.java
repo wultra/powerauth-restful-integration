@@ -19,11 +19,9 @@
  */
 package io.getlime.security.powerauth.app.rest.api.javaee.controller.v2;
 
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
-import io.getlime.security.powerauth.crypto.lib.model.exception.CryptoProviderException;
-import io.getlime.security.powerauth.crypto.lib.model.exception.GenericCryptoException;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthNonPersonalizedEncryptor;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.base.provider.CustomActivationProvider;
@@ -43,8 +41,7 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.security.InvalidKeyException;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 /**
@@ -90,19 +87,26 @@ public class CustomActivationController {
             final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(object);
 
             if (encryptor == null) {
+                logger.warn("Activation provider is missing");
                 throw new PowerAuthActivationException();
             }
 
             ActivationCreateCustomRequest request = encryptor.decrypt(object, ActivationCreateCustomRequest.class);
 
             if (request == null) {
+                logger.warn("Encryptor is not available");
                 throw new PowerAuthActivationException();
             }
 
-            final Map<String, String> identity = request.getIdentity();
-            String userId = activationProvider.lookupUserIdForAttributes(identity);
+            // Create context for passing parameters between activation provider calls
+            Map<String, Object> context = new LinkedHashMap<>();
 
-            if (userId == null) {
+            final Map<String, String> identity = request.getIdentity();
+            String userId = activationProvider.lookupUserIdForAttributes(identity, context);
+
+            // If no user was found or user ID is invalid, return error
+            if (userId == null || userId.equals("") || userId.length() > 255) {
+                logger.warn("User ID is invalid: {}", userId);
                 throw new PowerAuthActivationException();
             }
 
@@ -120,7 +124,7 @@ public class CustomActivationController {
             );
 
             final Map<String, Object> customAttributes = request.getCustomAttributes();
-            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM);
+            activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context);
 
             ActivationCreateResponse createResponse = new ActivationCreateResponse();
             createResponse.setActivationId(response.getActivationId());
@@ -131,14 +135,15 @@ public class CustomActivationController {
 
             final ObjectResponse<NonPersonalizedEncryptedPayloadModel> powerAuthApiResponse = encryptor.encrypt(createResponse);
 
-            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, ActivationType.CUSTOM)) {
+            if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, null, ActivationType.CUSTOM, context)) {
                 powerAuthClient.commitActivation(response.getActivationId(), null);
             }
 
             return powerAuthApiResponse;
 
-        } catch (IOException | GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
-            logger.warn(ex.getMessage(), ex);
+        } catch (Exception ex) {
+            logger.warn("Create activation failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
 

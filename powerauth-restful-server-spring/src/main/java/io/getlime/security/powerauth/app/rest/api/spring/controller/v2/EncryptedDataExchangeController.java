@@ -70,12 +70,14 @@ public class EncryptedDataExchangeController {
     @RequestMapping(value = "exchange", method = RequestMethod.POST)
     public ObjectResponse<NonPersonalizedEncryptedPayloadModel> exchange(@RequestBody ObjectRequest<NonPersonalizedEncryptedPayloadModel> request) throws PowerAuthEncryptionException {
         if (request == null) {
+            logger.warn("Invalid request in exchange method");
             throw new PowerAuthEncryptionException();
         }
 
         // Prepare an encryptor
         final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(request);
         if (encryptor == null) {
+            logger.warn("Encryptor is not available");
             throw new PowerAuthEncryptionException();
         }
 
@@ -84,11 +86,13 @@ public class EncryptedDataExchangeController {
         try {
             requestDataBytes = encryptor.decrypt(request);
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
-            logger.warn(ex.getMessage(), ex);
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
 
         if (requestDataBytes == null) {
+            logger.warn("Invalid request data in exchange method");
             throw new PowerAuthEncryptionException();
         }
 
@@ -102,7 +106,8 @@ public class EncryptedDataExchangeController {
         try {
             encryptedResponse = encryptor.encrypt(responseData.getBytes());
         } catch (GenericCryptoException | CryptoProviderException | InvalidKeyException ex) {
-            logger.warn(ex.getMessage(), ex);
+            logger.warn("Encryption failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
 

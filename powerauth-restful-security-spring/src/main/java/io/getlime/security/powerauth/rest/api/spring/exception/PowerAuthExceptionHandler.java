@@ -52,10 +52,9 @@ public class PowerAuthExceptionHandler {
      */
     @ExceptionHandler(value = PowerAuthAuthenticationException.class)
     @ResponseStatus(value = HttpStatus.UNAUTHORIZED)
-    public @ResponseBody ErrorResponse handleUnauthorizedException(Exception ex) {
-        PowerAuthAuthenticationException paex = (PowerAuthAuthenticationException)ex;
-        logger.error(paex.getMessage(), paex);
-        return new ErrorResponse(paex.getDefaultCode(), paex);
+    public @ResponseBody ErrorResponse handleUnauthorizedException(PowerAuthAuthenticationException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }
 
     /**
@@ -65,10 +64,9 @@ public class PowerAuthExceptionHandler {
      */
     @ExceptionHandler(value = PowerAuthActivationException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody ErrorResponse handleActivationException(Exception ex) {
-        PowerAuthActivationException paex = (PowerAuthActivationException)ex;
-        logger.error(paex.getMessage(), paex);
-        return new ErrorResponse(paex.getDefaultCode(), paex);
+    public @ResponseBody ErrorResponse handleActivationException(PowerAuthActivationException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }
 
 
@@ -79,10 +77,9 @@ public class PowerAuthExceptionHandler {
      */
     @ExceptionHandler(value = PowerAuthRecoveryException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody RecoveryErrorResponse handleRecoveryException(Exception ex) {
-        PowerAuthRecoveryException paex = (PowerAuthRecoveryException)ex;
-        logger.error(paex.getMessage(), paex);
-        return new RecoveryErrorResponse(paex.getErrorCode(), paex, paex.getCurrentRecoveryPukIndex());
+    public @ResponseBody RecoveryErrorResponse handleRecoveryException(PowerAuthRecoveryException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new RecoveryErrorResponse(ex.getErrorCode(), ex.getDefaultError(), ex.getCurrentRecoveryPukIndex());
     }
 
     /**
@@ -92,10 +89,9 @@ public class PowerAuthExceptionHandler {
      */
     @ExceptionHandler(value = PowerAuthSecureVaultException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody ErrorResponse handleSecureVaultException(Exception ex) {
-        PowerAuthSecureVaultException paex = (PowerAuthSecureVaultException)ex;
-        logger.error(paex.getMessage(), paex);
-        return new ErrorResponse(paex.getDefaultCode(), paex);
+    public @ResponseBody ErrorResponse handleSecureVaultException(PowerAuthSecureVaultException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }
 
     /**
@@ -105,10 +101,9 @@ public class PowerAuthExceptionHandler {
      */
     @ExceptionHandler(value = PowerAuthEncryptionException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody ErrorResponse handlePowerAuthEncryptionException(Exception ex) {
-        PowerAuthEncryptionException paex = (PowerAuthEncryptionException)ex;
-        logger.error(paex.getMessage(), paex);
-        return new ErrorResponse(paex.getDefaultCode(), paex);
+    public @ResponseBody ErrorResponse handlePowerAuthEncryptionException(PowerAuthEncryptionException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }
 
     /**
@@ -118,10 +113,9 @@ public class PowerAuthExceptionHandler {
      */
     @ExceptionHandler(value = PowerAuthUpgradeException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody ErrorResponse handlePowerAuthUpgradeException(Exception ex) {
-        PowerAuthUpgradeException pamx = (PowerAuthUpgradeException)ex;
-        logger.error(pamx.getMessage(), pamx);
-        return new ErrorResponse(pamx.getDefaultCode(), pamx);
+    public @ResponseBody ErrorResponse handlePowerAuthUpgradeException(PowerAuthUpgradeException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }
 
 }

@@ -48,7 +48,7 @@ public class DefaultExceptionHandler {
     @ExceptionHandler(value = Exception.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handleException(Exception exception) {
-        logger.error(exception.getMessage(), exception);
+        logger.warn(exception.getMessage(), exception);
         return new ErrorResponse(Error.Code.ERROR_GENERIC, exception);
     }
 

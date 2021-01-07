@@ -20,11 +20,13 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.service.v3;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
+import com.wultra.security.powerauth.client.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.jaxrs.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
@@ -78,6 +80,11 @@ public class SecureVaultService {
             String applicationKey = header.getApplicationKey();
             String signature = header.getSignature();
             PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            if (signatureType == null) {
+                logger.warn("Invalid signature type: {}", header.getSignatureType());
+                throw new PowerAuthSignatureTypeInvalidException();
+            }
+
             String signatureVersion = header.getVersion();
             String nonce = header.getNonce();
 
@@ -96,14 +103,16 @@ public class SecureVaultService {
                     signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
 
             if (!soapResponse.getSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
+                logger.debug("Signature validation failed");
+                throw new PowerAuthSignatureInvalidException();
             }
 
             return new EciesEncryptedResponse(soapResponse.getEncryptedData(), soapResponse.getMac());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth vault unlock failed", ex);
+            logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthSecureVaultException();
         }
     }

@@ -27,6 +27,7 @@ import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeade
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthUpgradeException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.service.v3.UpgradeService;
@@ -85,7 +86,9 @@ public class UpgradeController {
         try {
             PowerAuthEncryptionHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
-            throw new PowerAuthUpgradeException(ex.getMessage());
+            logger.warn("Encryption validation failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthUpgradeException();
         }
 
         if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
@@ -123,12 +126,14 @@ public class UpgradeController {
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
-            throw new PowerAuthUpgradeException(ex.getMessage());
+            logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthUpgradeException();
         }
 
         if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthInvalidRequestException();
         }
 
         return upgradeService.upgradeCommit(signatureHeader, httpServletRequest);

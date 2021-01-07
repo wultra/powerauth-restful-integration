@@ -19,47 +19,57 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.converter.v2;
 
-import io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub;
+import com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Helper class to convert from and to
- * {@link io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub.SignatureType} class.
+ * {@link com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub.SignatureType} class.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
 public class SignatureTypeConverter {
 
+    private static final Logger logger = LoggerFactory.getLogger(SignatureTypeConverter.class);
+
     /**
-     * Convert {@link io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub.SignatureType}
+     * Convert {@link com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub.SignatureType}
      * from a {@link String} value.
      * @param signatureTypeString String value representing signature type.
      * @return Signature type.
      */
     public PowerAuthPortV2ServiceStub.SignatureType convertFrom(String signatureTypeString) {
 
-        // Default to strongest signature type on null value
+        // Return null value which represents an unknown signature type
         if (signatureTypeString == null) {
-            return PowerAuthPortV2ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+            return null;
         }
 
         // Try to convert signature type
         try {
             signatureTypeString = signatureTypeString.toUpperCase();
             return PowerAuthPortV2ServiceStub.SignatureType.Factory.fromValue(signatureTypeString);
-        } catch (IllegalArgumentException e) {
-            return PowerAuthPortV2ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+        } catch (IllegalArgumentException ex) {
+            logger.warn("Invalid signature type, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
+            // Return null value which represents an unknown signature type
+            return null;
         }
 
     }
 
     /**
-     * Convert {@link io.getlime.powerauth.soap.v2.PowerAuthPortV2ServiceStub.SignatureType} from
+     * Convert {@link com.wultra.security.powerauth.client.v2.PowerAuthPortV2ServiceStub.SignatureType} from
      * {@link PowerAuthSignatureTypes}.
      * @param powerAuthSignatureTypes Signature type from crypto representation.
      * @return Signature type.
      */
     public PowerAuthPortV2ServiceStub.SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
+        if (powerAuthSignatureTypes == null) {
+            return null;
+        }
         switch (powerAuthSignatureTypes) {
             case POSSESSION:
                 return PowerAuthPortV2ServiceStub.SignatureType.POSSESSION;
@@ -72,7 +82,7 @@ public class SignatureTypeConverter {
             case POSSESSION_BIOMETRY:
                 return PowerAuthPortV2ServiceStub.SignatureType.POSSESSION_BIOMETRY;
             default:
-                return PowerAuthPortV2ServiceStub.SignatureType.POSSESSION_KNOWLEDGE_BIOMETRY;
+                return null;
         }
     }
 

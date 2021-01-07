@@ -18,7 +18,7 @@ public class PowerAuthUpgradeExceptionResolver implements ExceptionMapper<PowerA
     public Response toResponse(PowerAuthUpgradeException ex) {
         return Response
                 .status(Response.Status.BAD_REQUEST)
-                .entity(new ErrorResponse(ex.getDefaultCode(), ex.getMessage()))
+                .entity(new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError()))
                 .build();
     }
 }

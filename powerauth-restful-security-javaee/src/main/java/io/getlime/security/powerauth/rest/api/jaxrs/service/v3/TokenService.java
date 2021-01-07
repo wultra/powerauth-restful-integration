@@ -19,11 +19,13 @@
  */
 package io.getlime.security.powerauth.rest.api.jaxrs.service.v3;
 
-import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
+import com.wultra.security.powerauth.client.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.jaxrs.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
@@ -78,6 +80,13 @@ public class TokenService {
             // Prepare a signature type converter
             SignatureTypeConverter converter = new SignatureTypeConverter();
 
+            // Convert signature type
+            PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(signatureFactors);
+            if (signatureType == null) {
+                logger.warn("Invalid signature type: {}", signatureFactors);
+                throw new PowerAuthSignatureTypeInvalidException();
+            }
+
             // Get ECIES headers
             String activationId = authentication.getActivationId();
             PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
@@ -85,7 +94,7 @@ public class TokenService {
 
             // Create a token
             final PowerAuthPortV3ServiceStub.CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                    encryptedData, mac, nonce, converter.convertFrom(signatureFactors));
+                    encryptedData, mac, nonce, signatureType);
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
@@ -93,8 +102,9 @@ public class TokenService {
             response.setEncryptedData(token.getEncryptedData());
             return response;
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenErrorException();
         }
     }
 
@@ -122,8 +132,9 @@ public class TokenService {
             response.setTokenId(tokenId);
             return response;
         } catch (Exception ex) {
-            logger.warn("Removing PowerAuth token failed", ex);
-            throw new PowerAuthAuthenticationException(ex.getMessage());
+            logger.warn("Removing PowerAuth token failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenErrorException();
         }
     }
 }

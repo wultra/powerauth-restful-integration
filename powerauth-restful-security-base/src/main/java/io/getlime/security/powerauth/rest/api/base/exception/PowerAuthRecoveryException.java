@@ -20,7 +20,7 @@
 package io.getlime.security.powerauth.rest.api.base.exception;
 
 /**
- * Exception related to processes during a new activation process.
+ * Exception thrown in case PowerAuth recovery fails, with optional current PUK index.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
@@ -80,6 +80,14 @@ public class PowerAuthRecoveryException extends Exception {
             return DEFAULT_CODE;
         }
         return errorCode;
+    }
+
+    /**
+     * Get default error message, used for example in the REST response.
+     * @return Default error message.
+     */
+    public String getDefaultError() {
+        return DEFAULT_ERROR;
     }
 
     /**

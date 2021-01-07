@@ -22,6 +22,8 @@ package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
@@ -76,21 +78,20 @@ public class RecoveryController {
                                                       PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         if (request == null) {
             logger.warn("Invalid request object in confirm recovery");
-            throw new PowerAuthAuthenticationException();
+            throw new PowerAuthInvalidRequestException();
         }
-        if (authentication != null && authentication.getActivationId() != null) {
-            if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
-                logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-                throw new PowerAuthAuthenticationException();
-            }
-            if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
-                logger.warn("Missing nonce in ECIES request data");
-                throw new PowerAuthAuthenticationException();
-            }
-            return recoveryService.confirmRecoveryCode(request, authentication);
-        } else {
-            throw new PowerAuthAuthenticationException();
+        if (authentication == null || authentication.getActivationId() == null) {
+            throw new PowerAuthSignatureInvalidException();
         }
+        if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
+            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
+            throw new PowerAuthInvalidRequestException();
+        }
+        if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
+            logger.warn("Missing nonce in ECIES request data");
+            throw new PowerAuthInvalidRequestException();
+        }
+        return recoveryService.confirmRecoveryCode(request, authentication);
     }
 
 }

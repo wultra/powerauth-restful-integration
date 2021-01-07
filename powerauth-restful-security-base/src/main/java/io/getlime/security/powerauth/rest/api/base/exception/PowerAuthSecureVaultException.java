@@ -47,11 +47,27 @@ public class PowerAuthSecureVaultException extends Exception {
     }
 
     /**
+     * Constructor with a cause.
+     * @param cause Error cause.
+     */
+    public PowerAuthSecureVaultException(Throwable cause) {
+        super(cause);
+    }
+
+    /**
      * Get the default error code, used for example in REST response.
      * @return Default error code.
      */
     public String getDefaultCode() {
         return DEFAULT_CODE;
+    }
+
+    /**
+     * Get default error message, used for example in the REST response.
+     * @return Default error message.
+     */
+    public String getDefaultError() {
+        return DEFAULT_ERROR;
     }
 
 }

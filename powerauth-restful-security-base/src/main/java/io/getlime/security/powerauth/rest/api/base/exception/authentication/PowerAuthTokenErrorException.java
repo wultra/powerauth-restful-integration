@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2020 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,25 +17,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.base.exception;
+package io.getlime.security.powerauth.rest.api.base.exception.authentication;
+
+import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 
 /**
- * Exception raised in case encryption or decryption fails.
+ * Exception raised in case PowerAuth token validation fails with an error.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-public class PowerAuthEncryptionException extends Exception {
+public class PowerAuthTokenErrorException extends PowerAuthAuthenticationException {
 
-    private static final long serialVersionUID = -4247463135868495185L;
+    private static final long serialVersionUID = 3900547437080764802L;
 
-    private static final String DEFAULT_CODE = "ERR_ENCRYPTION";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_ENCRYPTION_FAILED";
+    private static final String DEFAULT_CODE = "ERR_AUTHENTICATION";
+    private static final String DEFAULT_ERROR = "POWER_AUTH_TOKEN_ERROR";
 
     /**
      * Default constructor
      */
-    public PowerAuthEncryptionException() {
+    public PowerAuthTokenErrorException() {
         super(DEFAULT_ERROR);
     }
 
@@ -43,7 +45,7 @@ public class PowerAuthEncryptionException extends Exception {
      * Constructor with a custom error message
      * @param message Error message
      */
-    public PowerAuthEncryptionException(String message) {
+    public PowerAuthTokenErrorException(String message) {
         super(message);
     }
 
@@ -51,7 +53,7 @@ public class PowerAuthEncryptionException extends Exception {
      * Constructor with a cause.
      * @param cause Error cause.
      */
-    public PowerAuthEncryptionException(Throwable cause) {
+    public PowerAuthTokenErrorException(Throwable cause) {
         super(cause);
     }
 
@@ -62,13 +64,4 @@ public class PowerAuthEncryptionException extends Exception {
     public String getDefaultCode() {
         return DEFAULT_CODE;
     }
-
-    /**
-     * Get default error message, used for example in the REST response.
-     * @return Default error message.
-     */
-    public String getDefaultError() {
-        return DEFAULT_ERROR;
-    }
-
 }

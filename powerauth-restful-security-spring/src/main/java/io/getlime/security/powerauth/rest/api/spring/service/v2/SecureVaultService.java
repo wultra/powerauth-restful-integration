@@ -20,18 +20,20 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v2;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v2.SignatureType;
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v2.SignatureType;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthSecureVaultException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
-import io.getlime.security.powerauth.soap.spring.client.PowerAuthServiceClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,12 +58,12 @@ public class SecureVaultService {
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);
 
-    private PowerAuthServiceClient powerAuthClient;
+    private PowerAuthClient powerAuthClient;
 
     private PowerAuthAuthenticationProvider authenticationProvider;
 
     @Autowired
-    public void setPowerAuthClient(PowerAuthServiceClient powerAuthClient) {
+    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
@@ -89,8 +91,10 @@ public class SecureVaultService {
             // Validate the header
             try {
                 PowerAuthSignatureHttpHeaderValidator.validate(header);
-            } catch (InvalidPowerAuthHttpHeaderException e) {
-                throw new PowerAuthAuthenticationException(e.getMessage());
+            } catch (InvalidPowerAuthHttpHeaderException ex) {
+                logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+                logger.debug(ex.getMessage(), ex);
+                throw new PowerAuthSignatureTypeInvalidException();
             }
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -99,6 +103,10 @@ public class SecureVaultService {
             String applicationId = header.getApplicationKey();
             String signature = header.getSignature();
             SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            if (signatureType == null) {
+                logger.warn("Invalid signature type: {}", header.getSignatureType());
+                throw new PowerAuthSignatureTypeInvalidException();
+            }
             String nonce = header.getNonce();
 
             String reason = null;
@@ -119,26 +127,29 @@ public class SecureVaultService {
                 // Use POST request body as data for signature.
                 requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             } else {
+                logger.warn("Invalid protocol version in secure vault: {}", header.getVersion());
                 throw new PowerAuthSecureVaultException();
             }
 
             String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
-            io.getlime.powerauth.soap.v2.VaultUnlockResponse soapResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
+            com.wultra.security.powerauth.client.v2.VaultUnlockResponse paResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
-            if (!soapResponse.isSignatureValid()) {
-                throw new PowerAuthAuthenticationException();
+            if (!paResponse.isSignatureValid()) {
+                logger.debug("Signature validation failed");
+                throw new PowerAuthSignatureInvalidException();
             }
 
             VaultUnlockResponse response = new VaultUnlockResponse();
-            response.setActivationId(soapResponse.getActivationId());
-            response.setEncryptedVaultEncryptionKey(soapResponse.getEncryptedVaultEncryptionKey());
+            response.setActivationId(paResponse.getActivationId());
+            response.setEncryptedVaultEncryptionKey(paResponse.getEncryptedVaultEncryptionKey());
 
             return response;
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth vault unlock failed", ex);
+            logger.warn("PowerAuth vault unlock failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
             throw new PowerAuthSecureVaultException();
         }
     }

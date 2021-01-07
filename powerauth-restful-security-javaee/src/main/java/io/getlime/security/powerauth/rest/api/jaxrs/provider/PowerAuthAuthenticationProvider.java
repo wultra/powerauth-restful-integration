@@ -20,7 +20,7 @@
 package io.getlime.security.powerauth.rest.api.jaxrs.provider;
 
 import com.google.common.io.BaseEncoding;
-import io.getlime.powerauth.soap.v3.PowerAuthPortV3ServiceStub;
+import com.wultra.security.powerauth.client.v3.PowerAuthPortV3ServiceStub;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
@@ -34,6 +34,7 @@ import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthAuthe
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthSignatureAuthentication;
 import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthTokenAuthentication;
 import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.base.exception.authentication.*;
 import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthAuthenticationProviderBase;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.jaxrs.authentication.PowerAuthSignatureAuthenticationImpl;
@@ -46,6 +47,7 @@ import org.slf4j.LoggerFactory;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.rmi.RemoteException;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -65,7 +67,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     public PowerAuthAuthenticationProvider() {
     }
 
-    public PowerAuthApiAuthentication authenticate(PowerAuthAuthentication authentication) throws RemoteException {
+    public PowerAuthApiAuthentication authenticate(PowerAuthAuthentication authentication) throws PowerAuthAuthenticationException, RemoteException {
         // Handle signature based authentications
         if (authentication instanceof PowerAuthSignatureAuthentication) {
             return validateSignatureAuthentication((PowerAuthSignatureAuthentication) authentication);
@@ -83,12 +85,18 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      *
      * @param authentication Signature based authentication object.
      * @return API authentication object in case of successful authentication, null otherwise.
+     * @throws PowerAuthAuthenticationException In case signature type is invalid.
+     * @throws RemoteException In case remote communication fails.
      */
-    private PowerAuthApiAuthentication validateSignatureAuthentication(PowerAuthSignatureAuthentication authentication) throws RemoteException {
+    private PowerAuthApiAuthentication validateSignatureAuthentication(PowerAuthSignatureAuthentication authentication) throws PowerAuthAuthenticationException, RemoteException {
         if (authentication.getSignatureType() != null) {
 
             SignatureTypeConverter converter = new SignatureTypeConverter();
             final PowerAuthPortV3ServiceStub.SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
+            if (signatureType == null) {
+                logger.warn("Invalid signature type: {}", authentication.getSignatureType());
+                throw new PowerAuthSignatureTypeInvalidException();
+            }
 
             PowerAuthPortV3ServiceStub.VerifySignatureRequest soapRequest = new PowerAuthPortV3ServiceStub.VerifySignatureRequest();
             soapRequest.setActivationId(authentication.getActivationId());
@@ -111,14 +119,10 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             PowerAuthPortV3ServiceStub.VerifySignatureResponse soapResponse = powerAuthClient.verifySignature(soapRequest);
 
             if (soapResponse.getSignatureValid()) {
-                PowerAuthApiAuthentication apiAuthentication = new PowerAuthApiAuthenticationImpl();
-                apiAuthentication.setActivationId(soapResponse.getActivationId());
-                apiAuthentication.setUserId(soapResponse.getUserId());
-                apiAuthentication.setApplicationId(soapResponse.getApplicationId());
-                apiAuthentication.setSignatureFactors(PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()));
-                apiAuthentication.setVersion(authentication.getVersion());
-                apiAuthentication.setHttpHeader(authentication.getHttpHeader());
-                return apiAuthentication;
+                return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
+                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), Arrays.asList(soapResponse.getActivationFlags()),
+                        PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
+                        authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
             }
@@ -146,13 +150,15 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final PowerAuthPortV3ServiceStub.ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
             if (soapResponse.getTokenValid()) {
                 return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
-                        soapResponse.getApplicationId(), PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
+                        soapResponse.getApplicationId(), Arrays.asList(soapResponse.getApplicationRoles()), Arrays.asList(soapResponse.getActivationFlags()),
+                        PowerAuthSignatureTypes.getEnumFromString(soapResponse.getSignatureType().getValue()),
                         authentication.getVersion(), authentication.getHttpHeader());
             } else {
                 return null;
             }
-        } catch (Exception e) {
-            logger.warn("Token validation failed", e);
+        } catch (Exception ex) {
+            logger.warn("Token validation failed, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
             return null;
         }
     }
@@ -163,14 +169,22 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param activationId Activation ID.
      * @param userId User ID.
      * @param applicationId Application ID.
+     * @param applicationRoles Application roles.
+     * @param activationFlags Activation flags.
      * @param signatureType Signature Type.
+     * @param version PowerAuth protocol version.
+     * @param httpHeader Raw PowerAuth HTTP header.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthApiAuthentication copyAuthenticationAttributes(String activationId, String userId, Long applicationId, PowerAuthSignatureTypes signatureType, String version, PowerAuthHttpHeader httpHeader) {
+    private PowerAuthApiAuthentication copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles,
+                                                                    List<String> activationFlags, PowerAuthSignatureTypes signatureType, String version,
+                                                                    PowerAuthHttpHeader httpHeader) {
         PowerAuthApiAuthentication apiAuthentication = new PowerAuthApiAuthenticationImpl();
         apiAuthentication.setActivationId(activationId);
         apiAuthentication.setUserId(userId);
         apiAuthentication.setApplicationId(applicationId);
+        apiAuthentication.setApplicationRoles(applicationRoles);
+        apiAuthentication.setActivationFlags(activationFlags);
         apiAuthentication.setSignatureFactors(signatureType);
         apiAuthentication.setVersion(version);
         apiAuthentication.setHttpHeader(httpHeader);
@@ -200,7 +214,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check for HTTP PowerAuth signature header
         if (httpAuthorizationHeader == null || httpAuthorizationHeader.equals("undefined")) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_EMPTY");
+            logger.warn("Signature HTTP header is missing");
+            throw new PowerAuthHeaderMissingException();
         }
 
         // Parse HTTP header
@@ -209,15 +224,17 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         // Validate the header
         try {
             PowerAuthSignatureHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            logger.warn(e.getMessage(), e);
-            throw new PowerAuthAuthenticationException(e.getMessage());
+        } catch (InvalidPowerAuthHttpHeaderException ex) {
+            logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthSignatureInvalidException();
         }
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
-        if (!allowedSignatureTypes.contains(expectedSignatureType)) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_TYPE_INVALID");
+        if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
+            logger.warn("Invalid signature type: {}", expectedSignatureType);
+            throw new PowerAuthSignatureTypeInvalidException();
         }
 
         // Configure PowerAuth authentication object
@@ -238,13 +255,16 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         PowerAuthApiAuthentication auth;
         try {
             auth = this.authenticate(powerAuthAuthentication);
-        } catch (RemoteException e) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_SOAP_ERROR");
+        } catch (RemoteException ex) {
+            logger.warn("Remote communication failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthSignatureErrorException();
         }
 
         // In case authentication is null, throw PowerAuth exception
         if (auth == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_SIGNATURE_INVALID_VALUE");
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
         }
 
         return auth;
@@ -255,7 +275,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         // Check for HTTP PowerAuth signature header
         if (tokenHeader == null || tokenHeader.equals("undefined")) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID_EMPTY");
+            logger.warn("Token HTTP header is missing");
+            throw new PowerAuthHeaderMissingException();
         }
 
         // Parse HTTP header
@@ -264,9 +285,10 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         // Validate the header
         try {
             PowerAuthTokenHttpHeaderValidator.validate(header);
-        } catch (InvalidPowerAuthHttpHeaderException e) {
-            logger.warn(e.getMessage(), e);
-            throw new PowerAuthAuthenticationException(e.getMessage());
+        } catch (InvalidPowerAuthHttpHeaderException ex) {
+            logger.warn("Token validation failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenInvalidException();
         }
 
         // Prepare authentication object
@@ -282,19 +304,23 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         final PowerAuthApiAuthentication auth;
         try {
             auth = this.authenticate(powerAuthTokenAuthentication);
-        } catch (RemoteException e) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SOAP_ERROR");
+        } catch (RemoteException ex) {
+            logger.warn("Remote communication failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthTokenErrorException();
         }
 
         // In case authentication is null, throw PowerAuth exception
         if (auth == null) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_INVALID_VALUE");
+            logger.debug("Invalid token value");
+            throw new PowerAuthTokenInvalidException();
         }
 
         // Check if the signature type is allowed
         PowerAuthSignatureTypes expectedSignatureType = auth.getSignatureFactors();
-        if (!allowedSignatureTypes.contains(expectedSignatureType)) {
-            throw new PowerAuthAuthenticationException("POWER_AUTH_TOKEN_SIGNATURE_TYPE_INVALID");
+        if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
+            logger.warn("Invalid signature type in token validation: {}", expectedSignatureType);
+            throw new PowerAuthSignatureTypeInvalidException();
         }
 
         return auth;
