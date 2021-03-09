@@ -102,8 +102,8 @@ public class ActivationService {
             final String encryptedData = activationData.getEncryptedData();
             final String mac = activationData.getMac();
             final String nonce = activationData.getNonce();
-            final Map<String, Object> customAttributes = request.getCustomAttributes();
             final Map<String, String> identity = request.getIdentityAttributes();
+            final Map<String, Object> customAttributes = (request.getCustomAttributes() != null) ? request.getCustomAttributes() : new HashMap<>();
 
             // Validate inner encryption
             if (nonce == null && !"3.0".equals(eciesContext.getVersion())) {
@@ -113,8 +113,20 @@ public class ActivationService {
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute
                 case CODE: {
+
+                    // Check if identity attributes are present
+                    if (identity == null || identity.isEmpty()) {
+                        logger.warn("Identity attributes are missing for code activation");
+                        throw new PowerAuthActivationException();
+                    }
+
                     // Extract data from request and encryption object
-                    String activationCode = request.getIdentityAttributes().get("code");
+                    String activationCode = identity.get("code");
+
+                    if (activationCode == null || activationCode.isEmpty()) {
+                        logger.warn("Activation code is missing");
+                        throw new PowerAuthActivationException();
+                    }
 
                     // Call PrepareActivation SOAP method on PA server
                     PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
@@ -152,11 +164,18 @@ public class ActivationService {
                         throw new PowerAuthActivationException();
                     }
 
+                    // Check if identity attributes are present
+                    if (identity == null || identity.isEmpty()) {
+                        logger.warn("Identity attributes are missing for custom activation");
+                        throw new PowerAuthActivationException();
+                    }
+
                     // Lookup user ID using a provided identity attributes
                     String userId = activationProvider.lookupUserIdForAttributes(identity);
 
                     // If no user was found or user ID is invalid, return an error
                     if (userId == null || userId.equals("") || userId.length() > 255) {
+                        logger.warn("Invalid user ID: {}", userId);
                         throw new PowerAuthActivationException();
                     }
 
@@ -209,13 +228,15 @@ public class ActivationService {
                 // Activation using recovery code
                 case RECOVERY: {
 
-                    if (request.getIdentityAttributes() == null) {
+                    // Check if identity attributes are present
+                    if (identity == null|| identity.isEmpty()) {
+                        logger.warn("Identity attributes are missing for activation recovery");
                         throw new PowerAuthActivationException();
                     }
 
                     // Extract data from request and encryption object
-                    String recoveryCode = request.getIdentityAttributes().get("recoveryCode");
-                    String recoveryPuk = request.getIdentityAttributes().get("puk");
+                    String recoveryCode = identity.get("recoveryCode");
+                    String recoveryPuk = identity.get("puk");
 
                     if (recoveryCode == null || recoveryCode.isEmpty()) {
                         throw new PowerAuthActivationException();
