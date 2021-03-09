@@ -72,7 +72,7 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-restful-security-spring</artifactId>
-            <version>0.24.0</version>
+            <version>0.24.1</version>
         </dependency>
 
         <!-- Other Dependencies -->

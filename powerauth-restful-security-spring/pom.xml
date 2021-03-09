@@ -24,14 +24,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>powerauth-restful-security-spring</artifactId>
-    <version>0.24.0</version>
+    <version>0.24.1</version>
     <name>powerauth-restful-security-spring</name>
     <description>PowerAuth RESTful API Security Additions for Spring</description>
 
     <parent>
         <groupId>io.getlime.security</groupId>
         <artifactId>powerauth-restful-integration-parent</artifactId>
-        <version>0.24.0</version>
+        <version>0.24.1</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -41,7 +41,7 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-restful-security-spring-annotation</artifactId>
-            <version>0.24.0</version>
+            <version>0.24.1</version>
         </dependency>
 
     </dependencies>
