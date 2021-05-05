@@ -64,7 +64,7 @@ public interface CustomActivationProvider {
      */
     default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return customAttributes;
-    };
+    }
 
     /**
      * Variable that specifies if the activation should be automatically committed based on provided attributes.
@@ -105,7 +105,7 @@ public interface CustomActivationProvider {
      * @param context Context for passing parameters between activation provider calls.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {};
+    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {}
 
     /**
      * Method that indicates if the recovery codes should be revoked when an activation is removed.
@@ -129,7 +129,7 @@ public interface CustomActivationProvider {
      * @param appId Application ID.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasRemoved(String activationId, String userId, Long appId) throws PowerAuthActivationException {};
+    default void activationWasRemoved(String activationId, String userId, Long appId) throws PowerAuthActivationException {}
 
     /**
      * Get maximum failed attempt count for activations.

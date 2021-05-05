@@ -192,7 +192,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param eciesEncryption PowerAuth encryption object.
      * @return ECIES encrypted response.
      */
-    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption eciesEncryption) {
+    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption<?> eciesEncryption) {
         try {
             byte[] responseData = serializeResponseData(responseObject);
             // Encrypt response using decryptor and return ECIES cryptogram
@@ -215,7 +215,6 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @return Request object.
      * @throws IOException In case request object could not be deserialized.
      */
-    @SuppressWarnings("unchecked")
     private <T> T deserializeRequestData(byte[] requestData, Class<T> requestType) throws IOException {
         if (requestType.equals(byte[].class)) {
             // Raw data without deserialization from JSON

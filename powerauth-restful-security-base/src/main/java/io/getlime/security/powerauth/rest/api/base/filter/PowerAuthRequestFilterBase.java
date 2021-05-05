@@ -45,7 +45,7 @@ public class PowerAuthRequestFilterBase {
      * @throws IOException In case request body extraction fails.
      */
     public static ResettableStreamHttpServletRequest filterRequest(HttpServletRequest httpRequest) throws IOException {
-        ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
+        final ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
 
         if (httpRequest.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME) == null && httpRequest.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME) == null) {
             // PowerAuth HTTP headers are not present, store empty request body in request attribute
@@ -56,7 +56,7 @@ public class PowerAuthRequestFilterBase {
             return resettableRequest;
         }
 
-        if (httpRequest.getMethod().toUpperCase().equals("GET")) {
+        if (httpRequest.getMethod().equalsIgnoreCase("GET")) {
             // Parse the query parameters
             String queryString = httpRequest.getQueryString();
 
@@ -66,7 +66,7 @@ public class PowerAuthRequestFilterBase {
                 queryString = URLDecoder.decode(queryString, "UTF-8");
 
                 // Get the canonized form
-                String signatureBaseStringData = PowerAuthRequestCanonizationUtils.canonizeGetParameters(queryString);
+                final String signatureBaseStringData = PowerAuthRequestCanonizationUtils.canonizeGetParameters(queryString);
 
                 // Pass the signature base string as the request attribute
                 if (signatureBaseStringData != null) {
@@ -92,7 +92,7 @@ public class PowerAuthRequestFilterBase {
         } else { // ... handle POST, PUT, DELETE, ... method
 
             // Get the request body and pass it as the signature base string as the request attribute
-            byte[] body = resettableRequest.getRequestBody();
+            final byte[] body = resettableRequest.getRequestBody();
             if (body != null) {
                 resettableRequest.setAttribute(
                         PowerAuthRequestObjects.REQUEST_BODY,

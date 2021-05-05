@@ -56,7 +56,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        final PowerAuthEciesEncryption eciesObject = (PowerAuthEciesEncryption) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        final PowerAuthEciesEncryption<?> eciesObject = (PowerAuthEciesEncryption<?>) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         // Decrypted object is inserted into parameter annotated by @EncryptedRequestBody annotation
         if (parameter.hasParameterAnnotation(EncryptedRequestBody.class) && eciesObject != null && eciesObject.getDecryptedRequest() != null) {
             final Class<?> parameterType = parameter.getParameterType();
