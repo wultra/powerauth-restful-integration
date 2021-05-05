@@ -28,7 +28,7 @@
 
     <groupId>io.getlime.security</groupId>
     <artifactId>powerauth-restful-integration-parent</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2017</inceptionYear>
@@ -70,10 +70,8 @@
     <modules>
         <module>powerauth-restful-model</module>
         <module>powerauth-restful-security-base</module>
-        <module>powerauth-restful-security-javaee</module>
         <module>powerauth-restful-security-spring</module>
         <module>powerauth-restful-security-spring-annotation</module>
-        <module>powerauth-restful-server-javaee</module>
         <module>powerauth-restful-server-spring</module>
     </modules>
 
@@ -86,13 +84,11 @@
         <maven-javadoc-plugin.version>3.2.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.3.1</maven-war-plugin.version>
-        <javaee-api.version>7.0</javaee-api.version>
         <javax.servlet-api.version>3.1.0</javax.servlet-api.version>
-        <spring-boot.version>2.3.7.RELEASE</spring-boot.version>
-        <guava.version>30.0-jre</guava.version>
-        <slf4j-api.version>1.7.30</slf4j-api.version>
-        <jackson-databind.version>2.11.3</jackson-databind.version>
-        <bcprov.version>1.67</bcprov.version>
+        <spring-boot.version>2.4.5</spring-boot.version>
+        <commons-text.version>1.9</commons-text.version>
+        <jackson-databind.version>2.12.3</jackson-databind.version>
+        <bcprov.version>1.68</bcprov.version>
         <rest-model-base.version>1.2.0</rest-model-base.version>
     </properties>
 

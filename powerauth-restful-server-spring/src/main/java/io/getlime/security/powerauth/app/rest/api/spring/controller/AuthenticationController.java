@@ -25,9 +25,10 @@ import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthentica
 import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Sample end-point demonstrating how PowerAuth signature validation works.
@@ -83,6 +84,35 @@ public class AuthenticationController {
             throw new PowerAuthSignatureInvalidException();
         }
         return new ObjectResponse<>("Hooray! User: " + auth.getUserId());
+    }
+
+    /**
+     * Validate any data sent to this end-point, uses substitutes in resource ID.
+     * @param id Identifier - testing object for @PathVariable annotation.
+     * @param value Value - testing object for @RequestParam annotation.
+     * @param auth Automatically injected PowerAuth authentication object.
+     * @return API response with success.
+     * @throws PowerAuthAuthenticationException In case any error occurs, including during signature validation.
+     */
+    @RequestMapping(value = "submit/{id}/test", method = RequestMethod.POST)
+    @PowerAuth(resourceId = "/submit/${id}/test?value=${value}")
+    public @ResponseBody ObjectResponse<?> dynamicResourceId(@PathVariable("id") String id, @RequestParam("value") String value, PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
+
+        // ##EXAMPLE: Here, we could store the authentication in the session like this:
+        // ##EXAMPLE: SecurityContextHolder.getContext().setAuthentication(apiAuthentication);
+        // ##EXAMPLE: ... or you can grab a user ID like this and use it for querying back-end:
+        // ##EXAMPLE: String userId = apiAuthentication.getUserId();
+
+        if (auth == null || auth.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
+        }
+
+        final Map<String, String> map = new HashMap<>();
+        map.put("user", auth.getUserId());
+        map.put("id", id);
+        map.put("value", value);
+
+        return new ObjectResponse<>(map);
     }
 
 }
