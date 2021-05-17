@@ -158,7 +158,14 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
      * The method substitutes placeholders (marked via "${placeholder}") in resourceID attribute value by
      * the actual parameters of the handler method. The implementation takes into account all method parameters
      * that are annotated via @RequestParam or @PathVariable annotations and extracts values from the request
-     * parameter map.
+     * parameter map.<br>
+     * <br>
+     * <b>
+     *     Note: In case both @RequestParam and @PathVariable with the same name exist, the value of @RequestParam
+     *     takes precedence. This is because @RequestParam usually maps to the HTTP GET query parameter that cannot
+     *     be easily changed in existing API, while @PathVariable is just a URL placeholder that can be renamed in
+     *     the code with no impact on functionality.
+     * </b>
      *
      * @param resourceId Resource ID with possible placeholders.
      * @param request HttpServletRequest for the current execution.
@@ -173,11 +180,15 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
         for (MethodParameter mp : methodParameters) {
             // Handle parameters annotated by @RequestParam annotation.
             // These are stored in the servlet request parameter map.
+            // Note: @RequestParam must be processed before @PathVariable since
+            //       in API, it cannot be renamed (the path variable is just
+            //       a placeholder and can have arbitrary name).
             final RequestParam requestParam = mp.getParameterAnnotation(RequestParam.class);
             if (requestParam != null) {
                 final String name = requestParam.name();
                 final String value = request.getParameter(name);
-                if (value != null) {
+                if (value != null) { // do not check "&& !parameters.containsKey(name)" because in the case of
+                                     // a name conflict, we want @RequestParam to overwrite @PathVariable value
                     parameters.put(name, value);
                 }
             } else {
@@ -189,7 +200,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                 if (pathVariable != null) {
                     final String name = pathVariable.name();
                     final Map<String, String> pathVariableMap = (Map<String, String>) request.getAttribute(HandlerMapping.URI_TEMPLATE_VARIABLES_ATTRIBUTE);
-                    if (pathVariableMap != null) {
+                    if (pathVariableMap != null && !parameters.containsKey(name)) { // prevent overwriting value that is already assigned
                         final String value = pathVariableMap.get(name);
                         if (value != null) {
                             parameters.put(name, value);
