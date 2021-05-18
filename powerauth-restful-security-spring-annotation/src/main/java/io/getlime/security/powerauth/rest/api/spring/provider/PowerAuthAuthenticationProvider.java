@@ -66,16 +66,9 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
     private PowerAuthClient powerAuthClient;
 
-    private PowerAuthApplicationConfiguration applicationConfiguration;
-
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
-    }
-
-    @Autowired(required=false)
-    public void setApplicationConfiguration(PowerAuthApplicationConfiguration applicationConfiguration) {
-        this.applicationConfiguration = applicationConfiguration;
     }
 
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
@@ -154,14 +147,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @return API authentication object in case of successful authentication, null otherwise.
      */
     private PowerAuthApiAuthenticationImpl validateTokenAuthentication(PowerAuthTokenAuthenticationImpl authentication) {
-
-        ValidateTokenRequest soapRequest = new ValidateTokenRequest();
-        soapRequest.setTokenId(authentication.getTokenId());
-        soapRequest.setTokenDigest(authentication.getTokenDigest());
-        soapRequest.setNonce(authentication.getNonce());
-        soapRequest.setTimestamp(Long.valueOf(authentication.getTimestamp()));
-
         try {
+            ValidateTokenRequest soapRequest = new ValidateTokenRequest();
+            soapRequest.setTokenId(authentication.getTokenId());
+            soapRequest.setTokenDigest(authentication.getTokenDigest());
+            soapRequest.setNonce(authentication.getNonce());
+            soapRequest.setTimestamp(Long.parseLong(authentication.getTimestamp()));
+
             final ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
             if (soapResponse.isTokenValid()) {
                 return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
@@ -170,6 +162,10 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             } else {
                 return null;
             }
+        } catch (NumberFormatException ex) {
+            logger.warn("Invalid timestamp format, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
+            return null;
         } catch (Exception ex) {
             logger.warn("Token validation failed, error: {}", ex.getMessage());
             logger.debug("Error details", ex);

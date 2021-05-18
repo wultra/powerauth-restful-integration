@@ -107,7 +107,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
         // Extract ECIES encryption object from HTTP request
         final HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
-        final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        final PowerAuthEciesEncryption<?> eciesEncryption = (PowerAuthEciesEncryption<?>) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         if (eciesEncryption == null) {
             return null;
         }
@@ -183,7 +183,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         throw new IOException("Response message conversion failed, no applicable HTTP message converter found");
     }
 
-    private class BasicHttpOutputMessage implements HttpOutputMessage {
+    private static class BasicHttpOutputMessage implements HttpOutputMessage {
 
         private final ByteArrayOutputStream os = new ByteArrayOutputStream();
         private final HttpHeaders httpHeaders = new HttpHeaders();
