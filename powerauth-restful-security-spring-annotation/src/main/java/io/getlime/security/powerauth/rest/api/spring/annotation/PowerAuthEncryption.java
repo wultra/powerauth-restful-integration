@@ -35,6 +35,11 @@ import java.lang.annotation.Target;
 @Target(ElementType.METHOD)
 public @interface PowerAuthEncryption {
 
+    /**
+     * Encryption scope, either EciesScope.ACTIVATION_SCOPE or EciesScope.APPLICATION_SCOPE.
+     * @see EciesScope
+     * @return Encryption scope.
+     */
     EciesScope scope() default EciesScope.ACTIVATION_SCOPE;
 
 }

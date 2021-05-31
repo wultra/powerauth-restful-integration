@@ -42,9 +42,16 @@ public class EncryptorFactory {
     private static final Logger logger = LoggerFactory.getLogger(EncryptorFactory.class);
     private PowerAuthClient powerAuthClient;
 
+    /**
+     * Default constructor.
+     */
     public EncryptorFactory() {
     }
 
+    /**
+     * Set PowerAuth client via the setter injection.
+     * @param powerAuthClient PowerAuth client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;

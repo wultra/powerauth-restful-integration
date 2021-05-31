@@ -77,7 +77,7 @@ public class RecoveryService {
                 logger.warn("PowerAuth confirm recovery failed because of invalid request");
                 throw new PowerAuthInvalidRequestException();
             }
-            ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(activationId, applicationKey,
+            final ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(activationId, applicationKey,
                     request.getEphemeralPublicKey(), request.getEncryptedData(), request.getMac(), request.getNonce());
             if (!paResponse.getActivationId().equals(activationId)) {
                 logger.warn("PowerAuth confirm recovery failed because of invalid activation ID in response");

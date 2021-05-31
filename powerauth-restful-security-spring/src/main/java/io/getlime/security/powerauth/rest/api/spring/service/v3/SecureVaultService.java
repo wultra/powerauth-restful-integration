@@ -60,11 +60,19 @@ public class SecureVaultService {
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);
 
+    /**
+     * Set PowerAuth service client via setter injection.
+     * @param powerAuthClient PowerAuth service client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
+    /**
+     * Set PowerAuth authentication provider via setter injection.
+     * @param authenticationProvider PowerAuth authentication provider.
+     */
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
@@ -83,18 +91,18 @@ public class SecureVaultService {
                                               EciesEncryptedRequest request,
                                               HttpServletRequest httpServletRequest) throws PowerAuthSecureVaultException, PowerAuthAuthenticationException {
         try {
-            SignatureTypeConverter converter = new SignatureTypeConverter();
+            final SignatureTypeConverter converter = new SignatureTypeConverter();
 
-            String activationId = header.getActivationId();
-            String applicationKey = header.getApplicationKey();
-            String signature = header.getSignature();
-            SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            final String activationId = header.getActivationId();
+            final String applicationKey = header.getApplicationKey();
+            final String signature = header.getSignature();
+            final SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             if (signatureType == null) {
                 logger.warn("Invalid signature type: {}", header.getSignatureType());
                 throw new PowerAuthSignatureTypeInvalidException();
             }
-            String signatureVersion = header.getVersion();
-            String nonce = header.getNonce();
+            final String signatureVersion = header.getVersion();
+            final String nonce = header.getNonce();
 
             // Fetch data from the request
             final String ephemeralPublicKey = request.getEphemeralPublicKey();
@@ -103,11 +111,11 @@ public class SecureVaultService {
             final String eciesNonce = request.getNonce();
 
             // Prepare data for signature to allow signature verification on PowerAuth server
-            byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-            String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
+            final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
+            final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server
-            VaultUnlockResponse paResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
+            final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
                     signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
 
             if (!paResponse.isSignatureValid()) {

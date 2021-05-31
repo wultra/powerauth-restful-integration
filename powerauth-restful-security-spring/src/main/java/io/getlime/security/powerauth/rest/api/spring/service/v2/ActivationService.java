@@ -48,6 +48,10 @@ public class ActivationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
+    /**
+     * Set PowerAuth service client via setter injection.
+     * @param powerAuthClient PowerAuth service client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
@@ -61,16 +65,16 @@ public class ActivationService {
      */
     public ActivationCreateResponse createActivation(ActivationCreateRequest request) throws PowerAuthActivationException {
         try {
-            String activationIDShort = request.getActivationIdShort();
-            String activationNonce = request.getActivationNonce();
-            String cDevicePublicKey = request.getEncryptedDevicePublicKey();
-            String activationName = request.getActivationName();
-            String extras = request.getExtras();
-            String applicationKey = request.getApplicationKey();
-            String applicationSignature = request.getApplicationSignature();
-            String clientEphemeralKey = request.getEphemeralPublicKey();
+            final String activationIDShort = request.getActivationIdShort();
+            final String activationNonce = request.getActivationNonce();
+            final String cDevicePublicKey = request.getEncryptedDevicePublicKey();
+            final String activationName = request.getActivationName();
+            final String extras = request.getExtras();
+            final String applicationKey = request.getApplicationKey();
+            final String applicationSignature = request.getApplicationSignature();
+            final String clientEphemeralKey = request.getEphemeralPublicKey();
 
-            PrepareActivationResponse paResponse = powerAuthClient.v2().prepareActivation(
+            final PrepareActivationResponse paResponse = powerAuthClient.v2().prepareActivation(
                     activationIDShort,
                     activationName,
                     activationNonce,
@@ -81,7 +85,7 @@ public class ActivationService {
                     applicationSignature
             );
 
-            ActivationCreateResponse response = new ActivationCreateResponse();
+            final ActivationCreateResponse response = new ActivationCreateResponse();
             response.setActivationId(paResponse.getActivationId());
             response.setActivationNonce(paResponse.getActivationNonce());
             response.setEncryptedServerPublicKey(paResponse.getEncryptedServerPublicKey());

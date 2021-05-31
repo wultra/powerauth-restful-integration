@@ -62,11 +62,19 @@ public class SecureVaultService {
 
     private PowerAuthAuthenticationProvider authenticationProvider;
 
+    /**
+     * Set PowerAuth service client via setter injection.
+     * @param powerAuthClient PowerAuth service client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
+    /**
+     * Set PowerAuth authentication provider via setter injection.
+     * @param authenticationProvider PowerAuth authentication provider.
+     */
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
@@ -86,7 +94,7 @@ public class SecureVaultService {
                                            HttpServletRequest httpServletRequest) throws PowerAuthSecureVaultException, PowerAuthAuthenticationException {
         try {
             // Parse the header
-            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
+            final PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
 
             // Validate the header
             try {
@@ -97,17 +105,17 @@ public class SecureVaultService {
                 throw new PowerAuthSignatureTypeInvalidException();
             }
 
-            SignatureTypeConverter converter = new SignatureTypeConverter();
+            final SignatureTypeConverter converter = new SignatureTypeConverter();
 
-            String activationId = header.getActivationId();
-            String applicationId = header.getApplicationKey();
-            String signature = header.getSignature();
-            SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            final String activationId = header.getActivationId();
+            final String applicationId = header.getApplicationKey();
+            final String signature = header.getSignature();
+            final SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             if (signatureType == null) {
                 logger.warn("Invalid signature type: {}", header.getSignatureType());
                 throw new PowerAuthSignatureTypeInvalidException();
             }
-            String nonce = header.getNonce();
+            final String nonce = header.getNonce();
 
             String reason = null;
             byte[] requestBodyBytes;
@@ -131,16 +139,16 @@ public class SecureVaultService {
                 throw new PowerAuthSecureVaultException();
             }
 
-            String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
+            final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
-            com.wultra.security.powerauth.client.v2.VaultUnlockResponse paResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
+            final com.wultra.security.powerauth.client.v2.VaultUnlockResponse paResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
 
             if (!paResponse.isSignatureValid()) {
                 logger.debug("Signature validation failed");
                 throw new PowerAuthSignatureInvalidException();
             }
 
-            VaultUnlockResponse response = new VaultUnlockResponse();
+            final VaultUnlockResponse response = new VaultUnlockResponse();
             response.setActivationId(paResponse.getActivationId());
             response.setEncryptedVaultEncryptionKey(paResponse.getEncryptedVaultEncryptionKey());
 

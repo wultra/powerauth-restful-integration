@@ -67,16 +67,28 @@ public class ActivationService {
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
+    /**
+     * Set PowerAuth service client via setter injection.
+     * @param powerAuthClient PowerAuth service client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
+    /**
+     * Set application configuration class via setter injection.
+     * @param applicationConfiguration Application configuration.
+     */
     @Autowired(required = false)
     public void setApplicationConfiguration(PowerAuthApplicationConfiguration applicationConfiguration) {
         this.applicationConfiguration = applicationConfiguration;
     }
 
+    /**
+     * Set PowerAuth activation provider via setter injection.
+     * @param activationProvider PowerAuth activation provider.
+     */
     @Autowired(required = false)
     public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
         this.activationProvider = activationProvider;
@@ -120,7 +132,7 @@ public class ActivationService {
                     }
 
                     // Extract data from request and encryption object
-                    String activationCode = identity.get("code");
+                    final String activationCode = identity.get("code");
 
                     if (activationCode == null || activationCode.isEmpty()) {
                         logger.warn("Activation code is missing");
@@ -128,10 +140,10 @@ public class ActivationService {
                     }
 
                     // Call PrepareActivation method on PA server
-                    PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
+                    final PrepareActivationResponse response = powerAuthClient.prepareActivation(activationCode, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     // Create context for passing parameters between activation provider calls
-                    Map<String, Object> context = new LinkedHashMap<>();
+                    final Map<String, Object> context = new LinkedHashMap<>();
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
@@ -178,10 +190,10 @@ public class ActivationService {
                     }
 
                     // Create context for passing parameters between activation provider calls
-                    Map<String, Object> context = new LinkedHashMap<>();
+                    final Map<String, Object> context = new LinkedHashMap<>();
 
                     // Lookup user ID using a provided identity attributes
-                    String userId = activationProvider.lookupUserIdForAttributes(identity, context);
+                    final String userId = activationProvider.lookupUserIdForAttributes(identity, context);
 
                     // If no user was found or user ID is invalid, return an error
                     if (userId == null || userId.equals("") || userId.length() > 255) {
@@ -201,7 +213,7 @@ public class ActivationService {
                     }
 
                     // Create activation for a looked up user and application related to the given application key
-                    CreateActivationResponse response = powerAuthClient.createActivation(
+                    final CreateActivationResponse response = powerAuthClient.createActivation(
                             userId,
                             activationExpireTimestamp,
                             maxFailedCount,
@@ -216,24 +228,24 @@ public class ActivationService {
                     final Map<String, Object> processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, response.getApplicationId(), ActivationType.CUSTOM, context);
 
                     // Save activation flags in case the provider specified any flags
-                    List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), userId, response.getApplicationId(), ActivationType.CUSTOM, context);
+                    final List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), userId, response.getApplicationId(), ActivationType.CUSTOM, context);
                     if (activationFlags != null && !activationFlags.isEmpty()) {
                         powerAuthClient.addActivationFlags(response.getActivationId(), activationFlags);
                     }
 
                     // Check if activation should be committed instantly and if yes, perform commit
                     if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), userId, response.getApplicationId(), ActivationType.CUSTOM, context)) {
-                        CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
+                        final CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
                         if (commitResponse.isActivated()) {
                             activationProvider.activationWasCommitted(identity, customAttributes, response.getActivationId(), userId, response.getApplicationId(), ActivationType.CUSTOM, context);
                         }
                     }
 
                     // Prepare encrypted activation data
-                    EciesEncryptedResponse encryptedActivationData = new EciesEncryptedResponse(response.getEncryptedData(), response.getMac());
+                    final EciesEncryptedResponse encryptedActivationData = new EciesEncryptedResponse(response.getEncryptedData(), response.getMac());
 
                     // Prepare the created activation response data
-                    ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+                    final ActivationLayer1Response responseL1 = new ActivationLayer1Response();
                     responseL1.setCustomAttributes(processedCustomAttributes);
                     responseL1.setActivationData(encryptedActivationData);
 
@@ -251,8 +263,8 @@ public class ActivationService {
                     }
 
                     // Extract data from request and encryption object
-                    String recoveryCode = identity.get("recoveryCode");
-                    String recoveryPuk = identity.get("puk");
+                    final String recoveryCode = identity.get("recoveryCode");
+                    final String recoveryPuk = identity.get("puk");
 
                     if (recoveryCode == null || recoveryCode.isEmpty()) {
                         logger.warn("Recovery code is missing");
@@ -265,7 +277,7 @@ public class ActivationService {
                     }
 
                     // Create context for passing parameters between activation provider calls
-                    Map<String, Object> context = new LinkedHashMap<>();
+                    final Map<String, Object> context = new LinkedHashMap<>();
 
                     // Resolve maxFailedCount, user ID is not known
                     Long maxFailedCount = null;
@@ -275,13 +287,13 @@ public class ActivationService {
                     }
 
                     // Call RecoveryCodeActivation method on PA server
-                    RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac, nonce);
+                    final RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(recoveryCode, recoveryPuk, applicationKey, maxFailedCount, ephemeralPublicKey, encryptedData, mac, nonce);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
                     if (activationProvider != null) {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context);
-                        List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context);
+                        final List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context);
                         if (activationFlags != null && !activationFlags.isEmpty()) {
                             powerAuthClient.addActivationFlags(response.getActivationId(), activationFlags);
                         }
@@ -289,7 +301,7 @@ public class ActivationService {
 
                     // Automatically commit activation by default, the optional activation provider can override automatic commit
                     if (activationProvider == null || activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context)) {
-                        CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
+                        final CommitActivationResponse commitResponse = powerAuthClient.commitActivation(response.getActivationId(), null);
                         if (activationProvider != null && commitResponse.isActivated()) {
                             activationProvider.activationWasCommitted(identity, customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context);
                         }
@@ -305,7 +317,7 @@ public class ActivationService {
             }
         } catch (PowerAuthClientException ex) {
             if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {
-                PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
+                final PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
                 logger.debug("Invalid recovery code, current PUK index: {}", errorRecovery.getCurrentRecoveryPukIndex());
                 throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
@@ -333,10 +345,10 @@ public class ActivationService {
      */
     public ActivationStatusResponse getActivationStatus(ActivationStatusRequest request) throws PowerAuthActivationException {
         try {
-            String activationId = request.getActivationId();
-            String challenge = request.getChallenge();
-            GetActivationStatusResponse paResponse = powerAuthClient.getActivationStatusWithEncryptedStatusBlob(activationId, challenge);
-            ActivationStatusResponse response = new ActivationStatusResponse();
+            final String activationId = request.getActivationId();
+            final String challenge = request.getChallenge();
+            final GetActivationStatusResponse paResponse = powerAuthClient.getActivationStatusWithEncryptedStatusBlob(activationId, challenge);
+            final ActivationStatusResponse response = new ActivationStatusResponse();
             response.setActivationId(paResponse.getActivationId());
             response.setEncryptedStatusBlob(paResponse.getEncryptedStatusBlob());
             response.setNonce(paResponse.getEncryptedStatusBlobNonce());
@@ -377,7 +389,7 @@ public class ActivationService {
             }
 
             // Prepare and return the response
-            ActivationRemoveResponse response = new ActivationRemoveResponse();
+            final ActivationRemoveResponse response = new ActivationRemoveResponse();
             response.setActivationId(paResponse.getActivationId());
             return response;
         } catch (Exception ex) {
@@ -397,12 +409,12 @@ public class ActivationService {
      */
     private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, Map<String, Object> processedCustomAttributes) {
         // Prepare encrypted response object for layer 2
-        EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
+        final EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
         encryptedResponseL2.setEncryptedData(encryptedData);
         encryptedResponseL2.setMac(mac);
 
         // The response is encrypted once more before sent to client using ResponseBodyAdvice
-        ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+        final ActivationLayer1Response responseL1 = new ActivationLayer1Response();
         responseL1.setCustomAttributes(processedCustomAttributes);
         responseL1.setActivationData(encryptedResponseL2);
         return responseL1;

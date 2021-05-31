@@ -35,26 +35,50 @@ public class ActivationCreateCustomRequest {
     private Map<String, Object> customAttributes;
     private ActivationCreateRequest powerauth;
 
+    /**
+     * Get identity attributes.
+     * @return Identity attributes.
+     */
     public Map<String, String> getIdentity() {
         return identity;
     }
 
+    /**
+     * Set identity attributes.
+     * @param identity Identity attributes.
+     */
     public void setIdentity(Map<String, String> identity) {
         this.identity = identity;
     }
 
+    /**
+     * Get custom attributes.
+     * @return Custom attributes.
+     */
     public Map<String, Object> getCustomAttributes() {
         return customAttributes;
     }
 
+    /**
+     * Set custom attributes.
+     * @param customAttributes Custom attributes.
+     */
     public void setCustomAttributes(Map<String, Object> customAttributes) {
         this.customAttributes = customAttributes;
     }
 
+    /**
+     * Get PowerAuth activation data.
+     * @return PowerAuth activation data.
+     */
     public ActivationCreateRequest getPowerauth() {
         return powerauth;
     }
 
+    /**
+     * Set PowerAuth activation data.
+     * @param powerauth PowerAuth activation data.
+     */
     public void setPowerauth(ActivationCreateRequest powerauth) {
         this.powerauth = powerauth;
     }

@@ -67,7 +67,11 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
     private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
-    // Autowiring in constructor cannot be used due to circular dependency
+    /**
+     * Set request mapping handler adapter via setter injection. Note: Autowiring in constructor cannot be
+     * used due to circular dependency.
+     * @param requestMappingHandlerAdapter Request mapping handler adapter.
+     */
     @Autowired
     public void setRequestMappingHandlerAdapter(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
         this.requestMappingHandlerAdapter = requestMappingHandlerAdapter;
@@ -118,12 +122,12 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
             // Encrypt response using decryptor and return ECIES cryptogram
             final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
-            EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
-            String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
-            String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
+            final EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
+            final String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
+            final String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
 
             // Return encrypted response with type given by converter class
-            EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64);
+            final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64);
             if (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)) {
                 // Object conversion is done automatically using MappingJackson2HttpMessageConverter
                 return encryptedResponse;
@@ -170,11 +174,11 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      */
     @SuppressWarnings("unchecked")
     private byte[] convertEncryptedResponse(EciesEncryptedResponse encryptedResponse, MediaType mediaType) throws IOException {
-        List<HttpMessageConverter<?>> httpMessageConverters = requestMappingHandlerAdapter.getMessageConverters();
+        final List<HttpMessageConverter<?>> httpMessageConverters = requestMappingHandlerAdapter.getMessageConverters();
         // Find the first applicable HTTP message converter for conversion
         for (HttpMessageConverter<?> converter: httpMessageConverters) {
             if (converter.canWrite(encryptedResponse.getClass(), mediaType)) {
-                BasicHttpOutputMessage httpOutputMessage = new BasicHttpOutputMessage();
+                final BasicHttpOutputMessage httpOutputMessage = new BasicHttpOutputMessage();
                 ((HttpMessageConverter<EciesEncryptedResponse>) converter).write(encryptedResponse, mediaType, httpOutputMessage);
                 return httpOutputMessage.getBodyBytes();
             }

@@ -31,7 +31,14 @@ public class PowerAuthRecoveryException extends Exception {
     private static final String DEFAULT_CODE = "ERR_RECOVERY";
     private static final String DEFAULT_ERROR = "POWER_AUTH_RECOVERY_INVALID";
 
+    /**
+     * Error code.
+     */
     private String errorCode;
+
+    /**
+     * Index of the recovery PUK index.
+     */
     private Integer currentRecoveryPukIndex;
 
     /**

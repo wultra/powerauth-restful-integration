@@ -68,11 +68,19 @@ public class ActivationController {
 
     private ActivationService activationServiceV3;
 
+    /**
+     * Set the activation service via setter injection.
+     * @param activationServiceV3 Activation service (v3).
+     */
     @Autowired
     public void setActivationServiceV3(ActivationService activationServiceV3) {
         this.activationServiceV3 = activationServiceV3;
     }
 
+    /**
+     * Set the authentication provider via setter injection.
+     * @param authenticationProvider Authentication provider.
+     */
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
