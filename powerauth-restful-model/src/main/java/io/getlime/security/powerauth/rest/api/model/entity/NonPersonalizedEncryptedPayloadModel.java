@@ -35,66 +35,130 @@ public class NonPersonalizedEncryptedPayloadModel {
     private String mac;
     private String encryptedData;
 
+    /**
+     * Get application key.
+     * @return Application key.
+     */
     public String getApplicationKey() {
         return applicationKey;
     }
 
+    /**
+     * Set application key.
+     * @param applicationKey Application key.
+     */
     public void setApplicationKey(String applicationKey) {
         this.applicationKey = applicationKey;
     }
 
+    /**
+     * Get session index.
+     * @return Session index.
+     */
     public String getSessionIndex() {
         return sessionIndex;
     }
 
+    /**
+     * Set session index.
+     * @param sessionIndex Session index.
+     */
     public void setSessionIndex(String sessionIndex) {
         this.sessionIndex = sessionIndex;
     }
 
+    /**
+     * Get ad-hoc index.
+     * @return Ad-hoc index.
+     */
     public String getAdHocIndex() {
         return adHocIndex;
     }
 
+    /**
+     * Set ad-hoc index.
+     * @param adHocIndex Ad-hoc index.
+     */
     public void setAdHocIndex(String adHocIndex) {
         this.adHocIndex = adHocIndex;
     }
 
+    /**
+     * Get MAC index.
+     * @return MAC index.
+     */
     public String getMacIndex() {
         return macIndex;
     }
 
+    /**
+     * Set MAC index.
+     * @param macIndex MAC index.
+     */
     public void setMacIndex(String macIndex) {
         this.macIndex = macIndex;
     }
 
+    /**
+     * Get nonce.
+     * @return Nonce.
+     */
     public String getNonce() {
         return nonce;
     }
 
+    /**
+     * Set nonce.
+     * @param nonce Nonce.
+     */
     public void setNonce(String nonce) {
         this.nonce = nonce;
     }
 
+    /**
+     * Get ephemeral public key.
+     * @return Ephemeral public key.
+     */
     public String getEphemeralPublicKey() {
         return ephemeralPublicKey;
     }
 
+    /**
+     * Set ephemeral public key.
+     * @param ephemeralPublicKey Ephemeral public key.
+     */
     public void setEphemeralPublicKey(String ephemeralPublicKey) {
         this.ephemeralPublicKey = ephemeralPublicKey;
     }
 
+    /**
+     * Get MAC.
+     * @return MAC.
+     */
     public String getMac() {
         return mac;
     }
 
+    /**
+     * Set MAC.
+     * @param mac MAC.
+     */
     public void setMac(String mac) {
         this.mac = mac;
     }
 
+    /**
+     * Get encrypted data.
+     * @return Encrypted data.
+     */
     public String getEncryptedData() {
         return encryptedData;
     }
 
+    /**
+     * Set encrypted data.
+     * @param encryptedData Encrypted data.
+     */
     public void setEncryptedData(String encryptedData) {
         this.encryptedData = encryptedData;
     }

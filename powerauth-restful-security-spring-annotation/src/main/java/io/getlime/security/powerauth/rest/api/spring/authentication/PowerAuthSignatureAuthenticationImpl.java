@@ -34,16 +34,60 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
 
     private static final long serialVersionUID = 6495166873663643144L;
 
+    /**
+     * Activation ID.
+     */
     private String activationId;
+
+    /**
+     * Application key.
+     */
     private String applicationKey;
+
+    /**
+     * Signature value.
+     */
     private String signature;
+
+    /**
+     * Signature type.
+     */
     private String signatureType;
+
+    /**
+     * Request URI identifier.
+     */
     private String requestUri;
+
+    /**
+     * Used HTTP method.
+     */
     private String httpMethod;
+
+    /**
+     * Cryptographic nonce.
+     */
     private byte[] nonce;
+
+    /**
+     * Signed data.
+     */
     private byte[] data;
+
+    /**
+     * Signature version.
+     */
     private String version;
+
+    /**
+     * Forced signature version. Used during scheme upgrade, when the element already uses new signature type but
+     * some parts of the process still need to work with the old one.
+     */
     private Integer forcedSignatureVersion;
+
+    /**
+     * Reference to the original HTTP header.
+     */
     private PowerAuthHttpHeader httpHeader;
 
     /**

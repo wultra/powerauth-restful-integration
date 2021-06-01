@@ -41,6 +41,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @Order(PowerAuthExceptionHandler.PRECEDENCE)
 public class PowerAuthExceptionHandler {
 
+    /**
+     * Precedence value that makes sure to apply the filters in the right order.
+     */
     public static final int PRECEDENCE = -100;
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthExceptionHandler.class);

@@ -55,6 +55,10 @@ public class TokenService {
 
     private PowerAuthClient powerAuthClient;
 
+    /**
+     * Set PowerAuth service client via setter injection.
+     * @param powerAuthClient PowerAuth service client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
@@ -82,17 +86,17 @@ public class TokenService {
             final String nonce = request.getNonce();
 
             // Prepare a signature type converter
-            SignatureTypeConverter converter = new SignatureTypeConverter();
-            SignatureType signatureType = converter.convertFrom(signatureFactors);
+            final SignatureTypeConverter converter = new SignatureTypeConverter();
+            final SignatureType signatureType = converter.convertFrom(signatureFactors);
             if (signatureType == null) {
                 logger.warn("Invalid signature type: {}", signatureFactors);
                 throw new PowerAuthSignatureTypeInvalidException();
             }
 
             // Get ECIES headers
-            String activationId = authentication.getActivationId();
-            PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
-            String applicationKey = httpHeader.getApplicationKey();
+            final String activationId = authentication.getActivationId();
+            final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
+            final String applicationKey = httpHeader.getApplicationKey();
 
             // Create a token
             final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,

@@ -43,6 +43,11 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
 
     private PowerAuthClient powerAuthClient;
 
+    /**
+     * Set PowerAuth client via setter injection.
+     *
+     * @param powerAuthClient PowerAuth client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;

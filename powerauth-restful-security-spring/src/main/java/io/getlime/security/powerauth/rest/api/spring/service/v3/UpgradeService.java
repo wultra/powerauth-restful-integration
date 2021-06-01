@@ -62,11 +62,19 @@ public class UpgradeService {
     private PowerAuthClient powerAuthClient;
     private PowerAuthAuthenticationProvider authenticationProvider;
 
+    /**
+     * Set PowerAuth service client via setter injection.
+     * @param powerAuthClient PowerAuth service client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
+    /**
+     * Set PowerAuth authentication provider via setter injection.
+     * @param authenticationProvider PowerAuth authentication provider.
+     */
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
@@ -94,7 +102,7 @@ public class UpgradeService {
             final String applicationKey = header.getApplicationKey();
 
             // Start upgrade on PowerAuth server
-            StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(activationId, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
+            final StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(activationId, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
@@ -122,7 +130,7 @@ public class UpgradeService {
 
         try {
             // Extract request body
-            byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
+            final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
                 logger.warn("Empty request body");
@@ -130,8 +138,8 @@ public class UpgradeService {
             }
 
             // Verify signature, force signature version during upgrade to version 3
-            List<PowerAuthSignatureTypes> allowedSignatureTypes = Collections.singletonList(PowerAuthSignatureTypes.POSSESSION);
-            PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
+            final List<PowerAuthSignatureTypes> allowedSignatureTypes = Collections.singletonList(PowerAuthSignatureTypes.POSSESSION);
+            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
 
             // In case signature verification fails, upgrade fails, too
             if (authentication == null || authentication.getActivationId() == null) {
@@ -145,7 +153,7 @@ public class UpgradeService {
             final String applicationKey = httpHeader.getApplicationKey();
 
             // Commit upgrade on PowerAuth server
-            CommitUpgradeResponse upgradeResponse = powerAuthClient.commitUpgrade(activationId, applicationKey);
+            final CommitUpgradeResponse upgradeResponse = powerAuthClient.commitUpgrade(activationId, applicationKey);
 
             if (upgradeResponse.isCommitted()) {
                 return new Response();

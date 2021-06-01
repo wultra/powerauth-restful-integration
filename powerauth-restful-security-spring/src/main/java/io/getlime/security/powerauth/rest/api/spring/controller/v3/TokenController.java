@@ -58,6 +58,10 @@ public class TokenController {
 
     private TokenService tokenServiceV3;
 
+    /**
+     * Set the token verification service via setter injection.
+     * @param tokenServiceV3 Token verification service.
+     */
     @Autowired
     public void setTokenServiceV3(TokenService tokenServiceV3) {
         this.tokenServiceV3 = tokenServiceV3;

@@ -48,6 +48,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+/**
+ * Interceptor class for the PowerAuth related annotations: @PowerAuth, @PowerAuthToken and @PowerAuthEncryption.
+ *
+ * @author Petr Dvorak, petr@wultra.com
+ */
 @Component
 public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
 
@@ -56,11 +61,19 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
     private PowerAuthAuthenticationProvider authenticationProvider;
     private PowerAuthEncryptionProvider encryptionProvider;
 
+    /**
+     * Set authentication provider via setter injection.
+     * @param authenticationProvider Authentication provider.
+     */
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
     }
 
+    /**
+     * Set encryption provider via setter injection.
+     * @param encryptionProvider Encryption provider.
+     */
     @Autowired
     public void setEncryptionProvider(PowerAuthEncryptionProvider encryptionProvider) {
         this.encryptionProvider = encryptionProvider;

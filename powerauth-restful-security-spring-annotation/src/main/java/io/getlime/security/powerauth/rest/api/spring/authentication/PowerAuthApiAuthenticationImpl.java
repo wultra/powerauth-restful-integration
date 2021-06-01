@@ -43,13 +43,44 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
 
     private static final long serialVersionUID = -3790516505615465445L;
 
+    /**
+     * Activation ID.
+     */
     private String activationId;
+
+    /**
+     * User ID.
+     */
     private String userId;
+
+    /**
+     * Application ID.
+     */
     private Long applicationId;
+
+    /**
+     * List of application roles.
+     */
     private List<String> applicationRoles;
+
+    /**
+     * List of activation flags.
+     */
     private List<String> activationFlags;
+
+    /**
+     * Signature type, representing used authentication factor.
+     */
     private PowerAuthSignatureTypes factors;
+
+    /**
+     * Signature version.
+     */
     private String version;
+
+    /**
+     * Reference to the original HTTP header.
+     */
     private PowerAuthHttpHeader httpHeader;
 
     /**
