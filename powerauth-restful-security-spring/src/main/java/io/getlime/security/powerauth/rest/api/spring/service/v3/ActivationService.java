@@ -29,6 +29,7 @@ import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionC
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
 import io.getlime.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
@@ -353,7 +354,23 @@ public class ActivationService {
             response.setEncryptedStatusBlob(paResponse.getEncryptedStatusBlob());
             response.setNonce(paResponse.getEncryptedStatusBlobNonce());
             if (applicationConfiguration != null) {
-                response.setCustomObject(applicationConfiguration.statusServiceCustomObject());
+                final ActivationContext activationContext = new ActivationContext();
+                activationContext.setActivationId(paResponse.getActivationId());
+                activationContext.setActivationName(paResponse.getActivationName());
+                activationContext.setActivationFlags(paResponse.getActivationFlags());
+                activationContext.setActivationStatus(paResponse.getActivationStatus());
+                activationContext.setBlockedReason(paResponse.getBlockedReason());
+                activationContext.setApplicationId(paResponse.getApplicationId());
+                activationContext.setUserId(paResponse.getUserId());
+                activationContext.setVersion(paResponse.getVersion());
+                activationContext.setTimestampCreated(paResponse.getTimestampCreated());
+                activationContext.setTimestampLastUsed(paResponse.getTimestampLastUsed());
+                activationContext.setTimestampLastChange(paResponse.getTimestampLastChange());
+                activationContext.setPlatform(paResponse.getPlatform());
+                activationContext.setDeviceInfo(paResponse.getDeviceInfo());
+                activationContext.setExtras(paResponse.getExtras());
+
+                response.setCustomObject(applicationConfiguration.statusServiceCustomObject(activationContext));
             }
             return response;
         } catch (Exception ex) {
