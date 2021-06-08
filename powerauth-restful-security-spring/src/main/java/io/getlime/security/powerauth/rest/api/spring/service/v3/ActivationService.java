@@ -25,6 +25,7 @@ import com.wultra.security.powerauth.client.model.error.PowerAuthErrorRecovery;
 import com.wultra.security.powerauth.client.v3.*;
 import io.getlime.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.converter.v3.ActivationContextConverter;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
@@ -66,6 +67,8 @@ public class ActivationService {
 
     private CustomActivationProvider activationProvider;
 
+    private ActivationContextConverter activationContextConverter;
+
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
     /**
@@ -93,6 +96,15 @@ public class ActivationService {
     @Autowired(required = false)
     public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
         this.activationProvider = activationProvider;
+    }
+
+    /**
+     * Set activation context converter via setter injection.
+     * @param activationContextConverter Activation context converter.
+     */
+    @Autowired
+    public void setActivationContextConverter(ActivationContextConverter activationContextConverter) {
+        this.activationContextConverter = activationContextConverter;
     }
 
     /**
@@ -354,22 +366,7 @@ public class ActivationService {
             response.setEncryptedStatusBlob(paResponse.getEncryptedStatusBlob());
             response.setNonce(paResponse.getEncryptedStatusBlobNonce());
             if (applicationConfiguration != null) {
-                final ActivationContext activationContext = new ActivationContext();
-                activationContext.setActivationId(paResponse.getActivationId());
-                activationContext.setActivationName(paResponse.getActivationName());
-                activationContext.setActivationFlags(paResponse.getActivationFlags());
-                activationContext.setActivationStatus(paResponse.getActivationStatus());
-                activationContext.setBlockedReason(paResponse.getBlockedReason());
-                activationContext.setApplicationId(paResponse.getApplicationId());
-                activationContext.setUserId(paResponse.getUserId());
-                activationContext.setVersion(paResponse.getVersion());
-                activationContext.setTimestampCreated(paResponse.getTimestampCreated());
-                activationContext.setTimestampLastUsed(paResponse.getTimestampLastUsed());
-                activationContext.setTimestampLastChange(paResponse.getTimestampLastChange());
-                activationContext.setPlatform(paResponse.getPlatform());
-                activationContext.setDeviceInfo(paResponse.getDeviceInfo());
-                activationContext.setExtras(paResponse.getExtras());
-
+                final ActivationContext activationContext = activationContextConverter.fromActivationDetailResponse(paResponse);
                 response.setCustomObject(applicationConfiguration.statusServiceCustomObject(activationContext));
             }
             return response;
