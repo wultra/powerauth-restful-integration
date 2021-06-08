@@ -1,8 +1,30 @@
+/*
+ * PowerAuth integration libraries for RESTful API applications, examples and
+ * related software components
+ *
+ * Copyright (C) 2021 Wultra s.r.o.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package io.getlime.security.powerauth.rest.api.spring.model;
 
 import com.wultra.security.powerauth.client.v3.ActivationStatus;
 
 import javax.xml.datatype.XMLGregorianCalendar;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -15,18 +37,22 @@ public class ActivationContext {
     
     private String activationId;
     private String activationName;
-    private List<String> activationFlags;
+    private final List<String> activationFlags;
     private ActivationStatus activationStatus;
     private String blockedReason;
     private long applicationId;
     private String userId;
     private long version;
-    private XMLGregorianCalendar timestampCreated;
-    private XMLGregorianCalendar timestampLastUsed;
-    private XMLGregorianCalendar timestampLastChange;
+    private Instant timestampCreated;
+    private Instant timestampLastUsed;
+    private Instant timestampLastChange;
     private String platform;
     private String deviceInfo;
     private String extras;
+
+    public ActivationContext() {
+        this.activationFlags = new ArrayList<>();
+    }
 
     /**
      * Set activation ID.
@@ -58,14 +84,6 @@ public class ActivationContext {
      */
     public String getActivationName() {
         return activationName;
-    }
-
-    /**
-     * Set activation flags.
-     * @param activationFlags Activation flags.
-     */
-    public void setActivationFlags(List<String> activationFlags) {
-        this.activationFlags = activationFlags;
     }
 
     /**
@@ -160,7 +178,7 @@ public class ActivationContext {
      * Set timestamp created.
      * @param timestampCreated Timestamp created.
      */
-    public void setTimestampCreated(XMLGregorianCalendar timestampCreated) {
+    public void setTimestampCreated(Instant timestampCreated) {
         this.timestampCreated = timestampCreated;
     }
 
@@ -168,7 +186,7 @@ public class ActivationContext {
      * Get timestamp created.
      * @return Timestamp created.
      */
-    public XMLGregorianCalendar getTimestampCreated() {
+    public Instant getTimestampCreated() {
         return timestampCreated;
     }
 
@@ -176,7 +194,7 @@ public class ActivationContext {
      * Set timestamp last used.
      * @param timestampLastUsed Timestamp last used.
      */
-    public void setTimestampLastUsed(XMLGregorianCalendar timestampLastUsed) {
+    public void setTimestampLastUsed(Instant timestampLastUsed) {
         this.timestampLastUsed = timestampLastUsed;
     }
 
@@ -184,7 +202,7 @@ public class ActivationContext {
      * Get timestamp last used.
      * @return Timestamp last used.
      */
-    public XMLGregorianCalendar getTimestampLastUsed() {
+    public Instant getTimestampLastUsed() {
         return timestampLastUsed;
     }
 
@@ -192,7 +210,7 @@ public class ActivationContext {
      * Set timestamp last change.
      * @param timestampLastChange Timestamp last change.
      */
-    public void setTimestampLastChange(XMLGregorianCalendar timestampLastChange) {
+    public void setTimestampLastChange(Instant timestampLastChange) {
         this.timestampLastChange = timestampLastChange;
     }
 
@@ -200,7 +218,7 @@ public class ActivationContext {
      * Get timestamp last change.
      * @return Timestamp last change.
      */
-    public XMLGregorianCalendar getTimestampLastChange() {
+    public Instant getTimestampLastChange() {
         return timestampLastChange;
     }
 
