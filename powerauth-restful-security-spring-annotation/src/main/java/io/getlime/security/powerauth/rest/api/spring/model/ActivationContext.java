@@ -21,10 +21,8 @@ package io.getlime.security.powerauth.rest.api.spring.model;
 
 import com.wultra.security.powerauth.client.v3.ActivationStatus;
 
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
