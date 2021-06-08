@@ -23,6 +23,9 @@ import com.wultra.security.powerauth.client.v3.GetActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
 import org.springframework.stereotype.Component;
 
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.List;
+
 /**
  * Converter class for conversions of activation context.
  *
@@ -41,18 +44,30 @@ public class ActivationContextConverter {
         final ActivationContext destination = new ActivationContext();
         destination.setActivationId(source.getActivationId());
         destination.setActivationName(source.getActivationName());
-        destination.getActivationFlags().addAll(source.getActivationFlags());
         destination.setActivationStatus(source.getActivationStatus());
         destination.setBlockedReason(source.getBlockedReason());
         destination.setApplicationId(source.getApplicationId());
         destination.setUserId(source.getUserId());
         destination.setVersion(source.getVersion());
-        destination.setTimestampCreated(source.getTimestampCreated().toGregorianCalendar().toInstant());
-        destination.setTimestampLastUsed(source.getTimestampLastUsed().toGregorianCalendar().toInstant());
-        destination.setTimestampLastChange(source.getTimestampLastChange().toGregorianCalendar().toInstant());
         destination.setPlatform(source.getPlatform());
         destination.setDeviceInfo(source.getDeviceInfo());
         destination.setExtras(source.getExtras());
+        final List<String> activationFlags = source.getActivationFlags();
+        if (activationFlags != null) {
+            destination.getActivationFlags().addAll(activationFlags);
+        }
+        final XMLGregorianCalendar timestampCreated = source.getTimestampCreated();
+        if (timestampCreated != null) {
+            destination.setTimestampCreated(timestampCreated.toGregorianCalendar().toInstant());
+        }
+        final XMLGregorianCalendar timestampLastUsed = source.getTimestampLastUsed();
+        if (timestampLastUsed != null) {
+            destination.setTimestampLastUsed(timestampLastUsed.toGregorianCalendar().toInstant());
+        }
+        final XMLGregorianCalendar timestampLastChange = source.getTimestampLastChange();
+        if (timestampLastChange != null) {
+            destination.setTimestampLastChange(timestampLastChange.toGregorianCalendar().toInstant());
+        }
         return destination;
     }
 
