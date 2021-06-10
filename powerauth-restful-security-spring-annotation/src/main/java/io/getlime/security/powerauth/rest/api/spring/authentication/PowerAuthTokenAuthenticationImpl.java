@@ -30,11 +30,34 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
  */
 public class PowerAuthTokenAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthTokenAuthentication {
 
+    /**
+     * Token ID.
+     */
     private String tokenId;
+
+    /**
+     * Token digest value.
+     */
     private String tokenDigest;
+
+    /**
+     * Cryptographic nonce.
+     */
     private String nonce;
+
+    /**
+     * Current timestamp.
+     */
     private String timestamp;
+
+    /**
+     * Signature version.
+     */
     private String version;
+
+    /**
+     * Reference to the original HTTP header.
+     */
     private PowerAuthHttpHeader httpHeader;
 
     /**

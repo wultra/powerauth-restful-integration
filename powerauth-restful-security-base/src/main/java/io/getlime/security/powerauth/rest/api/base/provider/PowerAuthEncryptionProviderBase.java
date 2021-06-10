@@ -90,7 +90,7 @@ public abstract class PowerAuthEncryptionProviderBase {
         }
 
         // Resolve either signature or encryption HTTP header for ECIES
-        EciesEncryptionContext encryptionContext = extractEciesEncryptionContext(request);
+        final EciesEncryptionContext encryptionContext = extractEciesEncryptionContext(request);
 
         // Construct ECIES encryption object from HTTP header
         final PowerAuthEciesEncryption<T> eciesEncryption = new PowerAuthEciesEncryption<>(encryptionContext);
@@ -100,12 +100,12 @@ public abstract class PowerAuthEncryptionProviderBase {
 
         try {
             // Parse ECIES cryptogram from request body
-            PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
+            final PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) request.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));
             if (requestBody == null) {
                 logger.warn("The X-PowerAuth-Request-Body request attribute is missing. Register the PowerAuthRequestFilter to fix this error.");
                 throw new PowerAuthEncryptionException();
             }
-            byte[] requestBodyBytes = requestBody.getRequestBytes();
+            final byte[] requestBodyBytes = requestBody.getRequestBytes();
             if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 logger.warn("Invalid HTTP request");
                 throw new PowerAuthEncryptionException();
@@ -167,8 +167,8 @@ public abstract class PowerAuthEncryptionProviderBase {
             eciesEncryption.setEciesDecryptor(eciesDecryptor);
 
             // Decrypt request data
-            EciesCryptogram cryptogram = new EciesCryptogram(ephemeralPublicKeyBytes, macBytes, encryptedDataBytes, nonceBytes);
-            byte[] decryptedData = eciesDecryptor.decryptRequest(cryptogram);
+            final EciesCryptogram cryptogram = new EciesCryptogram(ephemeralPublicKeyBytes, macBytes, encryptedDataBytes, nonceBytes);
+            final byte[] decryptedData = eciesDecryptor.decryptRequest(cryptogram);
             eciesEncryption.setEncryptedRequest(encryptedDataBytes);
             eciesEncryption.setDecryptedRequest(decryptedData);
             // Set the request object only in case when request data is sent
@@ -192,13 +192,13 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param eciesEncryption PowerAuth encryption object.
      * @return ECIES encrypted response.
      */
-    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption eciesEncryption) {
+    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption<?> eciesEncryption) {
         try {
-            byte[] responseData = serializeResponseData(responseObject);
+            final byte[] responseData = serializeResponseData(responseObject);
             // Encrypt response using decryptor and return ECIES cryptogram
-            EciesCryptogram cryptogram = eciesEncryption.getEciesDecryptor().encryptResponse(responseData);
-            String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
-            String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
+            final EciesCryptogram cryptogram = eciesEncryption.getEciesDecryptor().encryptResponse(responseData);
+            final String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
+            final String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
             logger.debug("Response encryption failed, error: " + ex.getMessage(), ex);
@@ -215,7 +215,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @return Request object.
      * @throws IOException In case request object could not be deserialized.
      */
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings("unchecked") // byte[] conversion to T is unchecked, detected when compiling with new Java
     private <T> T deserializeRequestData(byte[] requestData, Class<T> requestType) throws IOException {
         if (requestType.equals(byte[].class)) {
             // Raw data without deserialization from JSON
@@ -263,7 +263,7 @@ public abstract class PowerAuthEncryptionProviderBase {
         // In case the PowerAuth signature HTTP header is present, use it for ECIES
         if (signatureHttpHeader != null) {
             // Parse signature HTTP header
-            PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
+            final PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
 
             // Validate the signature HTTP header
             try {
@@ -275,13 +275,13 @@ public abstract class PowerAuthEncryptionProviderBase {
             }
 
             // Construct encryption parameters object
-            String applicationKey = header.getApplicationKey();
-            String activationId = header.getActivationId();
-            String version = header.getVersion();
+            final String applicationKey = header.getApplicationKey();
+            final String activationId = header.getActivationId();
+            final String version = header.getVersion();
             return new EciesEncryptionContext(applicationKey, activationId, version, header);
         } else {
             // Parse encryption HTTP header
-            PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
+            final PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
 
             // Validate the encryption HTTP header
             try {
@@ -293,9 +293,9 @@ public abstract class PowerAuthEncryptionProviderBase {
             }
 
             // Construct encryption parameters object
-            String applicationKey = header.getApplicationKey();
-            String activationId = header.getActivationId();
-            String version = header.getVersion();
+            final String applicationKey = header.getApplicationKey();
+            final String activationId = header.getActivationId();
+            final String version = header.getVersion();
             return new EciesEncryptionContext(applicationKey, activationId, version, header);
         }
     }

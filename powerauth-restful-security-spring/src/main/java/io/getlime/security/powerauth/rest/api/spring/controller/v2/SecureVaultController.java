@@ -58,6 +58,10 @@ public class SecureVaultController {
 
     private SecureVaultService secureVaultServiceV2;
 
+    /**
+     * Set the secure vault service via setter injection.
+     * @param secureVaultServiceV2 Secure vault service.
+     */
     @Autowired
     public void setSecureVaultServiceV2(SecureVaultService secureVaultServiceV2) {
         this.secureVaultServiceV2 = secureVaultServiceV2;

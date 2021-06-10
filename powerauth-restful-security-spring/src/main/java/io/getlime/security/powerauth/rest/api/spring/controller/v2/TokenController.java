@@ -59,11 +59,19 @@ public class TokenController {
     private io.getlime.security.powerauth.rest.api.spring.service.v2.TokenService tokenServiceV2;
     private io.getlime.security.powerauth.rest.api.spring.service.v3.TokenService tokenServiceV3;
 
+    /**
+     * Set the token verification service via setter injection.
+     * @param tokenServiceV2 Token verification service (v2).
+     */
     @Autowired
     public void setTokenServiceV2(io.getlime.security.powerauth.rest.api.spring.service.v2.TokenService tokenServiceV2) {
         this.tokenServiceV2 = tokenServiceV2;
     }
 
+    /**
+     * Set the token verification service via setter injection.
+     * @param tokenServiceV3 Token verification service (v3).
+     */
     @Autowired
     public void setTokenServiceV3(io.getlime.security.powerauth.rest.api.spring.service.v3.TokenService tokenServiceV3) {
         this.tokenServiceV3 = tokenServiceV3;

@@ -66,18 +66,23 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
     private PowerAuthClient powerAuthClient;
 
-    private PowerAuthApplicationConfiguration applicationConfiguration;
-
+    /**
+     * Set PowerAuth service client via setter injection.
+     *
+     * @param powerAuthClient PowerAuth service client.
+     */
     @Autowired
     public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;
     }
 
-    @Autowired(required=false)
-    public void setApplicationConfiguration(PowerAuthApplicationConfiguration applicationConfiguration) {
-        this.applicationConfiguration = applicationConfiguration;
-    }
-
+    /**
+     * Authenticate user using the provided authentication.
+     *
+     * @param authentication Authentication used to verify the user.
+     * @return Authentication with the authenticated user details.
+     * @throws AuthenticationException In case authentication fails.
+     */
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // Handle signature based authentications
         if (authentication instanceof PowerAuthSignatureAuthenticationImpl) {
@@ -101,13 +106,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
         if (authentication.getSignatureType() != null) {
 
-            SignatureTypeConverter converter = new SignatureTypeConverter();
+            final SignatureTypeConverter converter = new SignatureTypeConverter();
             final SignatureType signatureType = converter.convertFrom(authentication.getSignatureType());
             if (signatureType == null) {
                 return null;
             }
 
-            VerifySignatureRequest request = new VerifySignatureRequest();
+            final VerifySignatureRequest request = new VerifySignatureRequest();
             request.setActivationId(authentication.getActivationId());
             request.setApplicationKey(authentication.getApplicationKey());
             request.setSignature(authentication.getSignature());
@@ -126,7 +131,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                 request.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
             }
 
-            VerifySignatureResponse response;
+            final VerifySignatureResponse response;
             try {
                 response = powerAuthClient.verifySignature(request);
             } catch (PowerAuthClientException ex) {
@@ -154,14 +159,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @return API authentication object in case of successful authentication, null otherwise.
      */
     private PowerAuthApiAuthenticationImpl validateTokenAuthentication(PowerAuthTokenAuthenticationImpl authentication) {
-
-        ValidateTokenRequest soapRequest = new ValidateTokenRequest();
-        soapRequest.setTokenId(authentication.getTokenId());
-        soapRequest.setTokenDigest(authentication.getTokenDigest());
-        soapRequest.setNonce(authentication.getNonce());
-        soapRequest.setTimestamp(Long.valueOf(authentication.getTimestamp()));
-
         try {
+            final ValidateTokenRequest soapRequest = new ValidateTokenRequest();
+            soapRequest.setTokenId(authentication.getTokenId());
+            soapRequest.setTokenDigest(authentication.getTokenDigest());
+            soapRequest.setNonce(authentication.getNonce());
+            soapRequest.setTimestamp(Long.parseLong(authentication.getTimestamp()));
+
             final ValidateTokenResponse soapResponse = powerAuthClient.validateToken(soapRequest);
             if (soapResponse.isTokenValid()) {
                 return copyAuthenticationAttributes(soapResponse.getActivationId(), soapResponse.getUserId(),
@@ -170,6 +174,10 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             } else {
                 return null;
             }
+        } catch (NumberFormatException ex) {
+            logger.warn("Invalid timestamp format, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
+            return null;
         } catch (Exception ex) {
             logger.warn("Token validation failed, error: {}", ex.getMessage());
             logger.debug("Error details", ex);
@@ -192,7 +200,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles,
                                                                         List<String> activationFlags, PowerAuthSignatureTypes signatureType, String version,
                                                                         PowerAuthHttpHeader httpHeader) {
-        PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
+        final PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
         apiAuthentication.setActivationId(activationId);
         apiAuthentication.setUserId(userId);
         apiAuthentication.setApplicationId(applicationId);
@@ -233,7 +241,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Parse HTTP header
-        PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(httpAuthorizationHeader);
+        final PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(httpAuthorizationHeader);
 
         // Validate the header
         try {
@@ -245,14 +253,14 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Check if the signature type is allowed
-        PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
+        final PowerAuthSignatureTypes expectedSignatureType = PowerAuthSignatureTypes.getEnumFromString(header.getSignatureType());
         if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
             logger.warn("Invalid signature type: {}", expectedSignatureType);
             throw new PowerAuthSignatureTypeInvalidException();
         }
 
         // Configure PowerAuth authentication object
-        PowerAuthSignatureAuthenticationImpl powerAuthAuthentication = new PowerAuthSignatureAuthenticationImpl();
+        final PowerAuthSignatureAuthenticationImpl powerAuthAuthentication = new PowerAuthSignatureAuthenticationImpl();
         powerAuthAuthentication.setActivationId(header.getActivationId());
         powerAuthAuthentication.setApplicationKey(header.getApplicationKey());
         powerAuthAuthentication.setNonce(BaseEncoding.base64().decode(header.getNonce()));
@@ -266,7 +274,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         powerAuthAuthentication.setForcedSignatureVersion(forcedSignatureVersion);
 
         // Call the authentication based on signature authentication object
-        PowerAuthApiAuthentication auth = (PowerAuthApiAuthentication) this.authenticate(powerAuthAuthentication);
+        final PowerAuthApiAuthentication auth = (PowerAuthApiAuthentication) this.authenticate(powerAuthAuthentication);
 
         // In case authentication is null, throw PowerAuth exception
         if (auth == null) {
@@ -277,6 +285,14 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         return auth;
     }
 
+    /**
+     * Validate token header for simple token-based authentication.
+     *
+     * @param tokenHeader Token header.
+     * @param allowedSignatureTypes Allowed types of the signature.
+     * @return Authentication object in case authentication is correctly obtained.
+     * @throws PowerAuthAuthenticationException In case of authentication failure.
+     */
     public PowerAuthApiAuthentication validateToken(String tokenHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException {
 
         // Check for HTTP PowerAuth signature header
@@ -286,7 +302,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Parse HTTP header
-        PowerAuthTokenHttpHeader header = new PowerAuthTokenHttpHeader().fromValue(tokenHeader);
+        final PowerAuthTokenHttpHeader header = new PowerAuthTokenHttpHeader().fromValue(tokenHeader);
 
         // Validate the header
         try {
@@ -298,7 +314,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Prepare authentication object
-        PowerAuthTokenAuthenticationImpl powerAuthTokenAuthentication = new PowerAuthTokenAuthenticationImpl();
+        final PowerAuthTokenAuthenticationImpl powerAuthTokenAuthentication = new PowerAuthTokenAuthenticationImpl();
         powerAuthTokenAuthentication.setTokenId(header.getTokenId());
         powerAuthTokenAuthentication.setTokenDigest(header.getTokenDigest());
         powerAuthTokenAuthentication.setNonce(header.getNonce());
@@ -316,7 +332,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         // Check if the signature type is allowed
-        PowerAuthSignatureTypes expectedSignatureType = auth.getSignatureFactors();
+        final PowerAuthSignatureTypes expectedSignatureType = auth.getSignatureFactors();
         if (expectedSignatureType == null || !allowedSignatureTypes.contains(expectedSignatureType)) {
             logger.warn("Invalid signature type in token validation: {}", expectedSignatureType);
             throw new PowerAuthSignatureTypeInvalidException();

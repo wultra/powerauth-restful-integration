@@ -27,7 +27,7 @@ This step is technically required only in case your server uses end-to-end encry
 ```xml
 <dependency>
     <groupId>org.bouncycastle</groupId>
-    <artifactId>bcprov-ext-jdk15on</artifactId>
+    <artifactId>bcprov-jdk15on</artifactId>
     <version>${bouncycastle.version}</version>
 </dependency>
 ```
@@ -94,6 +94,7 @@ public PowerAuthClient powerAuthClient() {
 ## Advanced PowerAuth REST Client Configuration
 
 The following REST client options are available:
+
 - `maxMemorySize` - configures maximum memory size per request, default 1 MB
 - `connectTimeout` - configures connection timeout, default 5000 ms
 - `proxyEnabled` - enables proxy, disabled by default
@@ -156,13 +157,13 @@ public class WebApplicationConfig implements WebMvcConfigurer {
 
 `PowerAuthInterceptor` bean is responsible for the `@PowerAuth` annotation handling (see example in [Verify Signatures Chapter](#verify-signatures)). You need to add it to the interceptor registry.
 
-And finally, the `FilterRegistrationBean` (with the `PowerAuthRequestFilter` filter) is a technical component that passes the HTTP request body as an attribute of `HttpServletRequest`, so that it can be used for signature validation.
+Finally, the `FilterRegistrationBean` (with the `PowerAuthRequestFilter` filter) is a technical component that passes the HTTP request body as an attribute of `HttpServletRequest`, so that it can be used for signature validation.
 
 ### Register a PowerAuth Application Configuration
 
 _(optional)_
 
-PowerAuth uses the concept of `application ID` and `application secret`. While `applicationId` attribute is transmitted with requests in `X-PowerAuth-Authorization` header, `applicationSecret` is shared implicitly between client and server and is a part of the actual signature value. Applications are a first class citizen in PowerAuth protocol. Intermediate application, however, may influence which applications are accepted by implementing following configuration.
+PowerAuth uses the concept of `application ID` and `application secret`. While `applicationId` attribute is transmitted with requests in `X-PowerAuth-Authorization` header, `applicationSecret` is shared implicitly between the client and server and is a part of the actual signature value. Applications are a first class citizen in PowerAuth protocol. Intermediate application, however, may influence which applications are accepted by implementing following configuration.
 
 ```java
 @Configuration
@@ -211,7 +212,9 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
 This sample `@Controller` implementation illustrates how to use `@PowerAuth` annotation to verify that the request signature matches what is expected - in this case, to establish an authenticated session. In case the authentication is not successful, the `PowerAuthApiAuthentication` object is `null`. You may check for the `null` value and raise `PowerAuthAuthenticationException` that is handled alongside other application exceptions via default `@ControllerAdvice`.
 
-_Note: Controllers that establish a session must not be on a context that is protected by Spring Security (for example "/secured/", in our example), otherwise context could never be reached and session will never be established._
+<!-- begin box info -->
+Note: Controllers that establish a session must not be on a context that is protected by Spring Security (for example `/secured/`, in our example), otherwise context could never be reached and session will never be established.
+<!-- end -->
 
 ```java
 @Controller
@@ -227,13 +230,48 @@ public class AuthenticationController {
             throw new PowerAuthSignatureInvalidException();
         }
         // use userId if needed ...
-        String userId = auth.getUserId();
+        final String userId = auth.getUserId();
 
         // create authenticated session
         SecurityContextHolder.getContext().setAuthentication((Authentication) auth);
 
         // return OK response
         return new MyApiResponse(Status.OK, userId);
+    }
+
+}
+```
+
+The `resourceId` parameter of the `@PowerAuth` annotation can substitute placeholders (marked via "${placeholder}") with the actual parameters of the handler method. Mobile client can construct resource ID values in a dynamic way accordingly. The implementation takes into account all handler method parameters that are annotated via `@RequestParam` or `@PathVariable` annotations and extracts values from the request parameter map.
+
+<!-- begin box info -->
+In case both `@RequestParam` and `@PathVariable` with the same name exist, the value of `@RequestParam` takes precedence. This is because `@RequestParam` usually maps to the HTTP GET query parameter that cannot be easily changed in existing API, while `@PathVariable` is just a URL placeholder that can be renamed in the code with no impact on functionality.
+<!-- end -->
+
+Example of using dynamic resource ID:
+
+```java
+@Controller
+@RequestMapping(value = "secured")
+public class AuthenticationController {
+
+    @RequestMapping(value = "account/{id}", method = RequestMethod.POST)
+    @PowerAuth(resourceId = "/secured/account/${id}?filter=${filter}")
+    @ResponseBody
+    public MyAccountApiResponse changeAccountSettings(
+            @PathVariable("id") String accountId, @RequestParam("filter") String filter,  PowerAuthApiAuthentication auth) {
+        
+        if (auth == null) {
+            // handle authentication failure
+            throw new PowerAuthSignatureInvalidException();
+        }
+        
+        // use userId for business logic ...
+        final String userId = auth.getUserId();
+        final Account account = myService.updateAccount(accountId, userId, filter);
+        
+        // return OK response
+        return new MyAccountApiResponse(Status.OK, userId);
     }
 
 }
@@ -250,15 +288,16 @@ public class AuthenticationController {
     private PowerAuthAuthenticationProvider authenticationProvider;
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
-    public @ResponseBody PowerAuthAPIResponse<String> login(
-    @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, required = true) String signatureHeader,
-    HttpServletRequest servletRequest) throws Exception {
+    @ResponseBody
+    public PowerAuthAPIResponse<String> login(
+            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, required = true) String signatureHeader,
+            HttpServletRequest servletRequest) throws Exception {
 
-        PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature(
-        "POST",
-        "Any data".getBytes(StandardCharsets.UTF_8),
-        "/session/login",
-        signatureHeader
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature(
+            "POST",
+            "Any data".getBytes(StandardCharsets.UTF_8),
+            "/session/login",
+            signatureHeader
         );
 
         if (apiAuthentication == null || apiAuthentication.getUserId() == null) {
@@ -302,9 +341,9 @@ public class AuthenticationController {
 
 ## Use End-To-End Encryption
 
-You can use end-to-end encryption to add an additional encryption layer on top of the basic HTTPS encryption to protect the request body contents better.
+You can use end-to-end encryption to add additional encryption layer on top of the basic HTTPS encryption to protect the request body contents better.
 
-End-to-end encryption provided by PowerAuth uses `POST` method for all data transport and it requires predefined request / response structure.
+End-to-end encryption provided by PowerAuth uses `POST` method for all data transport, and it requires a predefined request / response structure.
 
 ### Encryption in Application Scope
 
@@ -330,9 +369,9 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using ECIES decryptor initialized in `application` scope.
+The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `application` scope.
 
-The response data is automatically encrypted using the previously created ECIES decryptor which was used for decrypting the request data.
+The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
 
 ### Encryption in Activation Scope
 
@@ -358,9 +397,9 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using ECIES decryptor initialized in `activation` scope.
+The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `activation` scope.
 
-The response data is automatically encrypted using the previously created ECIES decryptor which was used for decrypting the request data.
+The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
 
 ### Signed and Encrypted Requests
 
@@ -393,69 +432,10 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using ECIES decryptor initialized in `activation` scope. The signature received in PowerAuth HTTP signature header is verified.
+The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `activation` scope. The signature received in PowerAuth HTTP signature header is verified.
 
-The response data is automatically encrypted using the previously created ECIES decryptor which was used for decrypting the request data.
+The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
 
-_Note: You can also use `String` or `byte[]` data types instead of using request/response objects for encryption of raw data._
-
-### Non-Personalized End-To-End Encryption (v2 - legacy)
-
-To use the legacy non-personalized (application specific) encryption, use following pattern:
-
-```java
-@RestController
-@RequestMapping(value = "encrypted")
-public class EncryptedController {
-
-    private EncryptorFactory encryptorFactory;
-
-    @Autowired
-    public void setEncryptorFactory(EncryptorFactory encryptorFactory) {
-        this.encryptorFactory = encryptorFactory;
-    }
-
-
-    @RequestMapping(value = "hello", method = RequestMethod.POST)
-    public PowerAuthApiResponse<NonPersonalizedEncryptedPayloadModel> createNewActivation(@RequestBody PowerAuthApiRequest<NonPersonalizedEncryptedPayloadModel> encryptedRequest) throws PowerAuthActivationException {
-        try {
-
-            // Prepare an encryptor
-            final PowerAuthNonPersonalizedEncryptor encryptor = encryptorFactory.buildNonPersonalizedEncryptor(encryptedRequest);
-            if (encryptor == null) {
-                throw new PowerAuthEncryptionException();
-            }
-
-            // Decrypt the request object
-            OriginalRequest request = encryptor.decrypt(object, OriginalRequest.class);
-
-            if (request == null) {
-                throw new PowerAuthEncryptionException();
-            }
-
-            // ... do your business logic with OriginalRequest instance
-
-            // Create original response object
-            OriginalResponse response = new OriginalResponse();
-            response.setAttribute1("attribute1");
-            response.setAttribute2("attribute2");
-            response.setAttribute3("attribute3");
-
-            // Encrypt response object
-            final PowerAuthApiResponse<NonPersonalizedEncryptedPayloadModel> encryptedResponse = encryptor.encrypt(response);
-
-            if (encryptedResponse == null) {
-                throw new PowerAuthEncryptionException();
-            }
-
-            // Return response
-            return encryptedResponse;
-
-        } catch (IOException ex) {
-            throw new PowerAuthActivationException();
-        }
-
-    }
-
-}
-```
+<!-- begin box info -->
+Note: You can use `String` or `byte[]` data types instead of using request/response objects for encryption of raw data.
+<!-- end -->

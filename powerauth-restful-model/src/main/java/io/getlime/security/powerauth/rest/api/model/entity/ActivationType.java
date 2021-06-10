@@ -25,7 +25,19 @@ package io.getlime.security.powerauth.rest.api.model.entity;
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 public enum ActivationType {
+
+    /**
+     * Activation via activation code.
+     */
     CODE,
+
+    /**
+     * Activation via custom credentials.
+     */
     CUSTOM,
+
+    /**
+     * Activation via recovery code.
+     */
     RECOVERY
 }

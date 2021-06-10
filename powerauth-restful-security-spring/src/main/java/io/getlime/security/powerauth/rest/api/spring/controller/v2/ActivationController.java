@@ -62,16 +62,28 @@ public class ActivationController {
 
     private PowerAuthAuthenticationProvider authenticationProvider;
 
+    /**
+     * Set the activation service via setter injection.
+     * @param activationServiceV2 Activation service (v2).
+     */
     @Autowired
     public void setActivationServiceV2(io.getlime.security.powerauth.rest.api.spring.service.v2.ActivationService activationServiceV2) {
         this.activationServiceV2 = activationServiceV2;
     }
 
+    /**
+     * Set the activation service via setter injection.
+     * @param activationServiceV3 Activation service (v3).
+     */
     @Autowired
     public void setActivationServiceV3(io.getlime.security.powerauth.rest.api.spring.service.v3.ActivationService activationServiceV3) {
         this.activationServiceV3 = activationServiceV3;
     }
 
+    /**
+     * Set the authentication provider via setter injection.
+     * @param authenticationProvider Authentication provider.
+     */
     @Autowired
     public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;

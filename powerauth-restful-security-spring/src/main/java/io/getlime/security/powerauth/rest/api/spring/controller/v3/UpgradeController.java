@@ -56,6 +56,10 @@ public class UpgradeController {
 
     private UpgradeService upgradeService;
 
+    /**
+     * Set upgrade service via setter injection.
+     * @param upgradeService Upgrade service.
+     */
     @Autowired
     public void setUpgradeService(UpgradeService upgradeService) {
         this.upgradeService = upgradeService;
