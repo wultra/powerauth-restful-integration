@@ -116,7 +116,7 @@ public class EncryptedDataExchangeController {
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            logger.error("Signature validation failed");
+            logger.info("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
 
@@ -147,7 +147,7 @@ public class EncryptedDataExchangeController {
                                                                        PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            logger.error("Signature validation failed");
+            logger.info("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
 
@@ -178,7 +178,7 @@ public class EncryptedDataExchangeController {
                                                                PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            logger.error("Signature validation failed");
+            logger.info("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
 
@@ -208,7 +208,7 @@ public class EncryptedDataExchangeController {
                                                                                        EciesEncryptionContext eciesContext,
                                                                                        PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
         if (auth == null || auth.getUserId() == null) {
-            logger.error("Signature validation failed");
+            logger.info("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
 

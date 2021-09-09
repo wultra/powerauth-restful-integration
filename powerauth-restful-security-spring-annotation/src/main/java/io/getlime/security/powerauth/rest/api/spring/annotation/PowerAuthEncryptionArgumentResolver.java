@@ -68,8 +68,8 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
             } else {
                 try {
                     // Object is deserialized from JSON based on request type
-                    TypeFactory typeFactory = objectMapper.getTypeFactory();
-                    JavaType requestJavaType = typeFactory.constructType(requestType);
+                    final TypeFactory typeFactory = objectMapper.getTypeFactory();
+                    final JavaType requestJavaType = typeFactory.constructType(requestType);
                     return objectMapper.readValue(eciesObject.getDecryptedRequest(), requestJavaType);
                 } catch (IOException ex) {
                     logger.warn("Invalid request, error: {}", ex.getMessage());

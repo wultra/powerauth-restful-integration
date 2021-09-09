@@ -222,8 +222,8 @@ public abstract class PowerAuthEncryptionProviderBase {
             return requestData;
         }
         // Object is deserialized from JSON based on request type
-        TypeFactory typeFactory = objectMapper.getTypeFactory();
-        JavaType requestJavaType = typeFactory.constructType(requestType);
+        final TypeFactory typeFactory = objectMapper.getTypeFactory();
+        final JavaType requestJavaType = typeFactory.constructType(requestType);
         return objectMapper.readValue(requestData, requestJavaType);
     }
 
