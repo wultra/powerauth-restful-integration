@@ -20,7 +20,9 @@
 package io.getlime.security.powerauth.rest.api.base.provider;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEnvelopeKey;
@@ -45,6 +47,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic. The class is available for
@@ -75,14 +78,13 @@ public abstract class PowerAuthEncryptionProviderBase {
      * Decrypt HTTP request body and construct object with ECIES data. Use the requestType parameter to specify
      * the type of decrypted object.
      *
-     * @param <T> Generic request object type.
      * @param request HTTP request.
      * @param requestType Class of request object.
      * @param eciesScope ECIES scope.
      * @return Object with ECIES data.
      * @throws PowerAuthEncryptionException In case request decryption fails.
      */
-    public <T> PowerAuthEciesEncryption<T> decryptRequest(HttpServletRequest request, Class<T> requestType, EciesScope eciesScope) throws PowerAuthEncryptionException {
+    public PowerAuthEciesEncryption decryptRequest(HttpServletRequest request, Type requestType, EciesScope eciesScope) throws PowerAuthEncryptionException {
         // Only POST HTTP method is supported for ECIES
         if (!"POST".equals(request.getMethod())) {
             logger.warn("Invalid HTTP method: {}", request.getMethod());
@@ -93,7 +95,7 @@ public abstract class PowerAuthEncryptionProviderBase {
         final EciesEncryptionContext encryptionContext = extractEciesEncryptionContext(request);
 
         // Construct ECIES encryption object from HTTP header
-        final PowerAuthEciesEncryption<T> eciesEncryption = new PowerAuthEciesEncryption<>(encryptionContext);
+        final PowerAuthEciesEncryption eciesEncryption = new PowerAuthEciesEncryption(encryptionContext);
 
         // Save ECIES scope in context
         eciesEncryption.getContext().setEciesScope(eciesScope);
@@ -192,7 +194,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param eciesEncryption PowerAuth encryption object.
      * @return ECIES encrypted response.
      */
-    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption<?> eciesEncryption) {
+    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption eciesEncryption) {
         try {
             final byte[] responseData = serializeResponseData(responseObject);
             // Encrypt response using decryptor and return ECIES cryptogram
@@ -210,20 +212,19 @@ public abstract class PowerAuthEncryptionProviderBase {
      * Convert byte[] request data to Object with given type.
      *
      * @param requestData Raw request data.
-     * @param requestType Class specifying request type.
-     * @param <T> Type of request object.
+     * @param requestType Request type.
      * @return Request object.
      * @throws IOException In case request object could not be deserialized.
      */
-    @SuppressWarnings("unchecked") // byte[] conversion to T is unchecked, detected when compiling with new Java
-    private <T> T deserializeRequestData(byte[] requestData, Class<T> requestType) throws IOException {
+    private Object deserializeRequestData(byte[] requestData, Type requestType) throws IOException {
         if (requestType.equals(byte[].class)) {
-            // Raw data without deserialization from JSON
-            return (T) requestData;
-        } else {
-            // Object is deserialized from JSON based on request type
-            return objectMapper.readValue(requestData, requestType);
+            // Raw byte[] data without deserialization from JSON
+            return requestData;
         }
+        // Object is deserialized from JSON based on request type
+        final TypeFactory typeFactory = objectMapper.getTypeFactory();
+        final JavaType requestJavaType = typeFactory.constructType(requestType);
+        return objectMapper.readValue(requestData, requestJavaType);
     }
 
     /**

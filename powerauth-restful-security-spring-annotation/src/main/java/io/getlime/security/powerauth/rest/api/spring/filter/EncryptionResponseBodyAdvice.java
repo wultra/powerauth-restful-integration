@@ -111,7 +111,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
         // Extract ECIES encryption object from HTTP request
         final HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
-        final PowerAuthEciesEncryption<?> eciesEncryption = (PowerAuthEciesEncryption<?>) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         if (eciesEncryption == null) {
             return null;
         }

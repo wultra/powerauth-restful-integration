@@ -19,7 +19,9 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
+import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
@@ -34,6 +36,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.lang.reflect.Type;
 
 /**
  * Argument resolver for {@link PowerAuthEciesEncryption} objects. It enables automatic
@@ -56,15 +59,18 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        final PowerAuthEciesEncryption<?> eciesObject = (PowerAuthEciesEncryption<?>) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        final PowerAuthEciesEncryption eciesObject = (PowerAuthEciesEncryption) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         // Decrypted object is inserted into parameter annotated by @EncryptedRequestBody annotation
         if (parameter.hasParameterAnnotation(EncryptedRequestBody.class) && eciesObject != null && eciesObject.getDecryptedRequest() != null) {
-            final Class<?> parameterType = parameter.getParameterType();
-            if (parameterType.equals(byte[].class)) {
+            final Type requestType = parameter.getGenericParameterType();
+            if (requestType.equals(byte[].class)) {
                 return eciesObject.getDecryptedRequest();
             } else {
                 try {
-                    return objectMapper.readValue(eciesObject.getDecryptedRequest(), parameterType);
+                    // Object is deserialized from JSON based on request type
+                    final TypeFactory typeFactory = objectMapper.getTypeFactory();
+                    final JavaType requestJavaType = typeFactory.constructType(requestType);
+                    return objectMapper.readValue(eciesObject.getDecryptedRequest(), requestJavaType);
                 } catch (IOException ex) {
                     logger.warn("Invalid request, error: {}", ex.getMessage());
                     logger.debug("Error details", ex);
