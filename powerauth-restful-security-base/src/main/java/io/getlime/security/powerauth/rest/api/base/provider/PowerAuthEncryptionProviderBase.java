@@ -257,7 +257,7 @@ public abstract class PowerAuthEncryptionProviderBase {
 
         // Check that at least one PowerAuth HTTP header with parameters for ECIES is present
         if (encryptionHttpHeader == null && signatureHttpHeader == null) {
-            logger.warn("Signature HTTP header is invalid");
+            logger.warn("Neither signature nor encryption HTTP header is present");
             throw new PowerAuthEncryptionException();
         }
 
