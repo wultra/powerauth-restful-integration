@@ -29,13 +29,13 @@ import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class PowerAuthEciesEncryption<T> {
+public class PowerAuthEciesEncryption {
 
     private final EciesEncryptionContext context;
     private EciesDecryptor eciesDecryptor;
     private byte[] encryptedRequest;
     private byte[] decryptedRequest;
-    private T requestObject;
+    private Object requestObject;
 
     /**
      * Initialize ECIES encryption object from either encryption or signature HTTP header.
@@ -106,7 +106,7 @@ public class PowerAuthEciesEncryption<T> {
      * Get decrypted request object.
      * @return Decrypted request object.
      */
-    public T getRequestObject() {
+    public Object getRequestObject() {
         return requestObject;
     }
 
@@ -114,7 +114,7 @@ public class PowerAuthEciesEncryption<T> {
      * Set decrypted request object.
      * @param requestObject Decrypted request object.
      */
-    public void setRequestObject(T requestObject) {
+    public void setRequestObject(Object requestObject) {
         this.requestObject = requestObject;
     }
 

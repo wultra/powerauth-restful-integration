@@ -47,6 +47,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -109,10 +110,10 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
             // Resolve @PowerAuthEncryption annotation. The order of processing is important, PowerAuth expects
             // sign-then-encrypt sequence in case both authorization and encryption are used.
             if (powerAuthEncryptionAnnotation != null) {
-                final Class<?> requestType = resolveGenericParameterTypeForEcies(handlerMethod);
+                final Type requestType = resolveGenericParameterTypeForEcies(handlerMethod);
                 try {
                     encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope());
-                    // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for both Spring and Java EE
+                    // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for Spring
                 } catch (PowerAuthEncryptionException ex) {
                     logger.warn("Decryption failed, error: {}", ex.getMessage());
                     logger.debug("Error details", ex);
@@ -162,10 +163,10 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
      * @param handlerMethod Handler method.
      * @return Resolved type of request object.
      */
-    private Class<?> resolveGenericParameterTypeForEcies(HandlerMethod handlerMethod) {
+    private Type resolveGenericParameterTypeForEcies(HandlerMethod handlerMethod) {
         for (MethodParameter parameter: handlerMethod.getMethodParameters()) {
             if (parameter.hasParameterAnnotation(EncryptedRequestBody.class)) {
-                return parameter.getParameterType();
+                return parameter.getGenericParameterType();
             }
         }
         return Object.class;
