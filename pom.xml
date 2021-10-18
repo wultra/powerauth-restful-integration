@@ -72,7 +72,6 @@
         <module>powerauth-restful-security-base</module>
         <module>powerauth-restful-security-spring</module>
         <module>powerauth-restful-security-spring-annotation</module>
-        <module>powerauth-restful-server-spring</module>
     </modules>
 
     <properties>
