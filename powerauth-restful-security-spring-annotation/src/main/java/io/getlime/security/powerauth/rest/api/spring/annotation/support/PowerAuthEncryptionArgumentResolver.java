@@ -17,14 +17,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.annotation;
+package io.getlime.security.powerauth.rest.api.spring.annotation.support;
 
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import io.getlime.security.powerauth.rest.api.base.encryption.EciesEncryptionContext;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesEncryption;
-import io.getlime.security.powerauth.rest.api.base.model.PowerAuthRequestObjects;
+import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;

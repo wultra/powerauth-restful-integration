@@ -19,7 +19,7 @@
  */
 package io.getlime.security.powerauth.app.rest.api.spring.configuration;
 
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryptionArgumentResolver;
+import io.getlime.security.powerauth.rest.api.spring.annotation.support.PowerAuthEncryptionArgumentResolver;
 import io.getlime.security.powerauth.rest.api.spring.annotation.support.PowerAuthAnnotationInterceptor;
 import io.getlime.security.powerauth.rest.api.spring.annotation.support.PowerAuthWebArgumentResolver;
 import io.getlime.security.powerauth.rest.api.spring.filter.PowerAuthRequestFilter;
