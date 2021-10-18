@@ -174,7 +174,7 @@ PowerAuth uses the concept of `application ID` and `application secret`. While `
 public class ApplicationConfiguration implements PowerAuthApplicationConfiguration {
 
     @Override
-    public Map<String, Object> statusServiceCustomObject() {
+    public Map<String, Object> statusServiceCustomObject(ActivationContext context) {
         return null; // suggested default implementation
     }
 

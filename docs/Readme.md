@@ -6,7 +6,6 @@ In order to easily secure your RESTful APIs with PowerAuth, you can use our easy
 
 - [Introduction](./Introduction.md)
 - [Build Secure RESTful API (Spring)](./RESTful-API-for-Spring.md)
-- [Build Secure RESTful API (JAX-RS)](./RESTful-API-for-JavaEE.md)
 
 **Deployment Tutorials**
 
