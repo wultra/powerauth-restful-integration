@@ -69,7 +69,7 @@ public class RecoveryService {
     public EciesEncryptedResponse confirmRecoveryCode(EciesEncryptedRequest request,
                                                       PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
-            final String activationId = authentication.getActivationId();
+            final String activationId = authentication.getActivationObject().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
             if (activationId == null || applicationKey == null || request.getEphemeralPublicKey() == null

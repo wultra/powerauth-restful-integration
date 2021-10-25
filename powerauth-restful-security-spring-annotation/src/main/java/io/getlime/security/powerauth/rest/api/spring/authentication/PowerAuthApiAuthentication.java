@@ -35,8 +35,8 @@ import java.util.List;
 public interface PowerAuthApiAuthentication {
 
     /**
-     * Get user ID
-     * @return User ID
+     * Get user ID.
+     * @return User ID.
      */
     String getUserId();
 
@@ -47,15 +47,19 @@ public interface PowerAuthApiAuthentication {
     void setUserId(String userId);
 
     /**
-     * Get activation ID
-     * @return Activation ID
+     * Get activation ID.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationObject()} instead.
+     * @return Activation ID.
      */
+    @Deprecated
     String getActivationId();
 
     /**
-     * Set activation ID
-     * @param activationId Activation ID
+     * Set activation ID.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationObject()} instead.
+     * @param activationId Activation ID.
      */
+    @Deprecated
     void setActivationId(String activationId);
 
     /**
@@ -84,14 +88,18 @@ public interface PowerAuthApiAuthentication {
 
     /**
      * Get activation flags.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationObject()} instead.
      * @return Activation flags.
      */
+    @Deprecated
     List<String> getActivationFlags();
 
     /**
      * Set activation flags.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationObject()} instead.
      * @param activationFlags Activation flags.
      */
+    @Deprecated
     void setActivationFlags(List<String> activationFlags);
 
     /**
