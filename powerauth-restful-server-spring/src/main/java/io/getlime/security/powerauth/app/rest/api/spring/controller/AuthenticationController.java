@@ -61,7 +61,7 @@ public class AuthenticationController {
                 + " User: " + auth.getUserId()
                 + " (activation: " + auth.getActivationId() + ")"
                 + " successfully verified via app with ID: " + auth.getApplicationId()
-                + " using factor: " + auth.getSignatureFactors()
+                + " using factor: " + auth.getAuthenticationContext().getSignatureType()
         );
     }
 

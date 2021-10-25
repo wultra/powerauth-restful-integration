@@ -77,7 +77,7 @@ public class TokenService {
             throws PowerAuthAuthenticationException {
         try {
             // Fetch activation ID and signature type
-            final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
+            final PowerAuthSignatureTypes signatureFactors = authentication.getAuthenticationContext().getSignatureType();
 
             // Fetch data from the request
             final String ephemeralPublicKey = request.getEphemeralPublicKey();

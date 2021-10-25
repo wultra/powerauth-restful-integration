@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.annotation.support;
 
+import io.getlime.security.powerauth.rest.api.spring.activation.PowerAuthActivation;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
@@ -41,13 +42,21 @@ public class PowerAuthWebArgumentResolver implements HandlerMethodArgumentResolv
 
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
-        return PowerAuthApiAuthentication.class.isAssignableFrom(parameter.getParameterType());
+        return PowerAuthApiAuthentication.class.isAssignableFrom(parameter.getParameterType())
+                || PowerAuthActivation.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        return request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
+        if (parameter.getParameterType().isAssignableFrom(PowerAuthApiAuthentication.class)) {
+            HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+            return request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
+        }
+        if (parameter.getParameterType().isAssignableFrom(PowerAuthActivation.class)) {
+            HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+            return request.getAttribute(PowerAuthRequestObjects.ACTIVATION_OBJECT);
+        }
+        return null;
     }
 
 }

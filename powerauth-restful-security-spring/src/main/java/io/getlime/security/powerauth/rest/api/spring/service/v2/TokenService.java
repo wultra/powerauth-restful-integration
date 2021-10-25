@@ -72,7 +72,7 @@ public class TokenService {
         try {
             // Fetch activation ID and signature type
             final String activationId = authentication.getActivationId();
-            final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
+            final PowerAuthSignatureTypes signatureFactors = authentication.getAuthenticationContext().getSignatureType();
 
             // Fetch data from the request
             final String ephemeralPublicKey = request.getEphemeralPublicKey();

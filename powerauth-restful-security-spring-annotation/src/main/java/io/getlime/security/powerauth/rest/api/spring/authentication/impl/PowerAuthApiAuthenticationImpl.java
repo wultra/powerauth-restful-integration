@@ -21,7 +21,9 @@ package io.getlime.security.powerauth.rest.api.spring.authentication.impl;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.rest.api.spring.activation.PowerAuthActivation;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -69,6 +71,11 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     private List<String> activationFlags;
 
     /**
+     * PowerAuth authentication context,.
+     */
+    private AuthenticationContext authenticationContext;
+
+    /**
      * Signature type, representing used authentication factor.
      */
     private PowerAuthSignatureTypes factors;
@@ -82,6 +89,11 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Reference to the original HTTP header.
      */
     private PowerAuthHttpHeader httpHeader;
+
+    /**
+     * Activation object representing activation detail.
+     */
+    private PowerAuthActivation activationObject;
 
     /**
      * Default constructor
@@ -178,15 +190,14 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
         this.activationFlags = activationFlags;
     }
 
-
     @Override
-    public PowerAuthSignatureTypes getSignatureFactors() {
-        return factors;
+    public AuthenticationContext getAuthenticationContext() {
+        return authenticationContext;
     }
 
     @Override
-    public void setSignatureFactors(PowerAuthSignatureTypes factors) {
-        this.factors = factors;
+    public void setAuthenticationContext(AuthenticationContext authenticationContext) {
+        this.authenticationContext = authenticationContext;
     }
 
     @Override
@@ -208,4 +219,15 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
         this.httpHeader = httpHeader;
     }
+
+    @Override
+    public PowerAuthActivation getActivationObject() {
+        return activationObject;
+    }
+
+    @Override
+    public void setActivationObject(PowerAuthActivation activationObject) {
+        this.activationObject = activationObject;
+    }
+
 }
