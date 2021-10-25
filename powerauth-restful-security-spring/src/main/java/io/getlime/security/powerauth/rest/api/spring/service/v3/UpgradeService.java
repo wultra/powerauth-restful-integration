@@ -142,7 +142,7 @@ public class UpgradeService {
             final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
 
             // In case signature verification fails, upgrade fails, too
-            if (authentication == null || authentication.getActivationObject() == null) {
+            if (authentication == null || !authentication.getAuthenticationContext().isValid() || authentication.getActivationObject() == null) {
                 logger.debug("Signature validation failed");
                 throw new PowerAuthSignatureInvalidException();
             }

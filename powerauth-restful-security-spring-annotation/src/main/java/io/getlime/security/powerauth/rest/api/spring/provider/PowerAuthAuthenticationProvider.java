@@ -147,7 +147,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isSignatureValid());
             authenticationContext.setRemainingAttempts(response.getRemainingAttempts() != null ? response.getRemainingAttempts().intValue() : null);
-            authenticationContext.setSignatureType(PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()));
+            authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
             final PowerAuthActivation activationObject = copyActivationAttributes(response.getActivationId(), response.getUserId(),
                     activationStatusConverter.convertFrom(response.getActivationStatus()), response.getBlockedReason(),
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
@@ -185,7 +185,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isTokenValid());
             authenticationContext.setRemainingAttempts(null);
-            authenticationContext.setSignatureType(PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()));
+            authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
             final PowerAuthActivation activationObject = copyActivationAttributes(response.getActivationId(), response.getUserId(),
                     activationStatus, null,
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
