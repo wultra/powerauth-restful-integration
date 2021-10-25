@@ -63,22 +63,17 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     /**
      * List of application roles.
      */
-    private List<String> applicationRoles;
+    private List<String> applicationRoles = new ArrayList<>();
 
     /**
      * List of activation flags.
      */
-    private List<String> activationFlags;
+    private List<String> activationFlags = new ArrayList<>();
 
     /**
-     * PowerAuth authentication context,.
+     * PowerAuth authentication context.
      */
     private AuthenticationContext authenticationContext;
-
-    /**
-     * Signature type, representing used authentication factor.
-     */
-    private PowerAuthSignatureTypes factors;
 
     /**
      * Signature version.
@@ -108,14 +103,22 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * @param userId User ID.
      * @param applicationId Application ID.
      * @param applicationRoles Application roles.
-     * @param factors Authentication factors.
+     * @param activationFlags Activation flags.
+     * @param authenticationContext Authentication context.
      */
-    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, List<String> applicationRoles, PowerAuthSignatureTypes factors) {
+    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, List<String> applicationRoles,
+                                          List<String> activationFlags, AuthenticationContext authenticationContext) {
         super(null);
         this.activationId = activationId;
         this.userId = userId;
         this.applicationId = applicationId;
-        this.factors = factors;
+        if (applicationRoles != null) {
+            this.applicationRoles = new ArrayList<>(applicationRoles);
+        }
+        if (activationFlags != null) {
+            this.activationFlags = new ArrayList<>(activationFlags);
+        }
+        this.authenticationContext = authenticationContext;
     }
 
     @Override
@@ -177,7 +180,11 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
 
     @Override
     public void setApplicationRoles(List<String> applicationRoles) {
-        this.applicationRoles = applicationRoles;
+        if (applicationRoles == null) {
+            this.applicationRoles = Collections.emptyList();
+        } else {
+            this.applicationRoles = new ArrayList<>(applicationRoles);
+        }
     }
 
     @Override
@@ -187,7 +194,11 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
 
     @Override
     public void setActivationFlags(List<String> activationFlags) {
-        this.activationFlags = activationFlags;
+        if (activationFlags == null) {
+            this.activationFlags = Collections.emptyList();
+        } else {
+            this.activationFlags = new ArrayList<>(activationFlags);
+        }
     }
 
     @Override
