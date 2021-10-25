@@ -304,7 +304,7 @@ public class AuthenticationController {
             signatureHeader
         );
 
-        if (apiAuthentication == null || apiAuthentication.getUserId() == null) {
+        if (!apiAuthentication.getAuthenticationContext().isValid() || apiAuthentication.getUserId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
         SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
