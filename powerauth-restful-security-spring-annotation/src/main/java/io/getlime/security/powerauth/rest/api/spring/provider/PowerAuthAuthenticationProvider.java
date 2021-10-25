@@ -175,7 +175,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             request.setTimestamp(Long.parseLong(authentication.getTimestamp()));
 
             final ValidateTokenResponse response = powerAuthClient.validateToken(request);
-            ActivationStatus activationStatus;
+            final ActivationStatus activationStatus;
             if (response.isTokenValid()) {
                 activationStatus = ActivationStatus.ACTIVE;
             } else {

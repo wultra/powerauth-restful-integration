@@ -27,8 +27,7 @@ import java.util.List;
 /**
  * Interface for obtaining PowerAuth activation detail during signature verification.
  *
- * @author Petr Dvorak, petr@wultra.com
- *
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 public interface PowerAuthActivation {
 
