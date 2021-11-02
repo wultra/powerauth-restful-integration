@@ -131,7 +131,7 @@ public class UpgradeService {
         try {
             // Extract request body
             final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-            if (requestBodyBytes.length == 0) {
+            if (requestBodyBytes == null || requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
                 logger.warn("Empty request body");
                 throw new PowerAuthInvalidRequestException();
