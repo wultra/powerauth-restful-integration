@@ -71,7 +71,7 @@ public class TokenService {
     public TokenCreateResponse createToken(TokenCreateRequest request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
             // Fetch activation ID and signature type
-            final String activationId = authentication.getActivationObject().getActivationId();
+            final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureTypes signatureFactors = authentication.getAuthenticationContext().getSignatureType();
 
             // Fetch data from the request

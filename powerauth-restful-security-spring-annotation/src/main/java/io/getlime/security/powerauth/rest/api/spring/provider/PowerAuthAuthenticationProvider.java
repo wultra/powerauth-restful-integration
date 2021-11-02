@@ -53,6 +53,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.List;
 
@@ -148,13 +149,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             authenticationContext.setValid(response.isSignatureValid());
             authenticationContext.setRemainingAttempts(response.getRemainingAttempts() != null ? response.getRemainingAttempts().intValue() : null);
             authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
-            final PowerAuthActivation activationObject = copyActivationAttributes(response.getActivationId(), response.getUserId(),
+            final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
                     activationStatusConverter.convertFrom(response.getActivationStatus()), response.getBlockedReason(),
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
             return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
                     response.getApplicationId(), response.getApplicationRoles(), response.getActivationFlags(),
                     authenticationContext, authentication.getVersion(), authentication.getHttpHeader(),
-                    activationObject);
+                    activationContext);
         } else {
             return null;
         }
@@ -186,13 +187,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             authenticationContext.setValid(response.isTokenValid());
             authenticationContext.setRemainingAttempts(null);
             authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
-            final PowerAuthActivation activationObject = copyActivationAttributes(response.getActivationId(), response.getUserId(),
+            final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
                     activationStatus, null,
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
             return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
                     response.getApplicationId(), response.getApplicationRoles(), response.getActivationFlags(),
                     authenticationContext, authentication.getVersion(), authentication.getHttpHeader(),
-                    activationObject);
+                    activationContext);
         } catch (NumberFormatException ex) {
             logger.warn("Invalid timestamp format, error: {}", ex.getMessage());
             logger.debug("Error details", ex);
@@ -214,12 +215,12 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param authenticationContext Authentication context.
      * @param version PowerAuth protocol version.
      * @param httpHeader Raw PowerAuth http header.
-     * @param activationObject PowerAuth activation object.
+     * @param activationContext PowerAuth activation context.
      * @return Initialized instance of API authentication.
      */
     private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles,
                                                                         List<String> activationFlags, AuthenticationContext authenticationContext,
-                                                                        String version, PowerAuthHttpHeader httpHeader, PowerAuthActivation activationObject) {
+                                                                        String version, PowerAuthHttpHeader httpHeader, PowerAuthActivation activationContext) {
         final PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
         apiAuthentication.setActivationId(activationId);
         apiAuthentication.setUserId(userId);
@@ -230,7 +231,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         apiAuthentication.setAuthenticated(true);
         apiAuthentication.setVersion(version);
         apiAuthentication.setHttpHeader(httpHeader);
-        apiAuthentication.setActivationObject(activationObject);
+        apiAuthentication.setActivationContext(activationContext);
         return apiAuthentication;
     }
 
@@ -271,16 +272,25 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
     public PowerAuthApiAuthentication validateRequestSignature(
-            String httpMethod,
-            byte[] httpBody,
-            String requestUriIdentifier,
-            String httpAuthorizationHeader,
-            List<PowerAuthSignatureTypes> allowedSignatureTypes,
+            @Nonnull String httpMethod,
+            @Nullable byte[] httpBody,
+            @Nonnull String requestUriIdentifier,
+            @Nonnull String httpAuthorizationHeader,
+            @Nonnull List<PowerAuthSignatureTypes> allowedSignatureTypes,
             @Nullable Integer forcedSignatureVersion
     ) throws PowerAuthAuthenticationException {
+        final PowerAuthApiAuthentication apiAuthentication = validateRequestSignatureWithActivationDetails(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, allowedSignatureTypes, forcedSignatureVersion);
+        if (!apiAuthentication.getAuthenticationContext().isValid()) {
+            // Traditionally, failed signature validation returns null value for PowerAuthApiAuthentication
+            return null;
+        }
+       return apiAuthentication;
+    }
 
+    @Override
+    public @Nonnull PowerAuthApiAuthentication validateRequestSignatureWithActivationDetails(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthSignatureTypes> allowedSignatureTypes, @Nullable Integer forcedSignatureVersion) throws PowerAuthAuthenticationException {
         // Check for HTTP PowerAuth signature header
-        if (httpAuthorizationHeader == null || httpAuthorizationHeader.equals("undefined")) {
+        if (httpAuthorizationHeader.equals("undefined")) {
             logger.warn("Signature HTTP header is missing");
             throw new PowerAuthHeaderMissingException();
         }
@@ -338,10 +348,20 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @return Authentication object in case authentication is correctly obtained.
      * @throws PowerAuthAuthenticationException In case of authentication failure.
      */
-    public PowerAuthApiAuthentication validateToken(String tokenHeader, List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException {
+    public @Nullable PowerAuthApiAuthentication validateToken(@Nonnull String tokenHeader, @Nonnull List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException {
+        final PowerAuthApiAuthentication apiAuthentication = validateTokenWithActivationDetails(tokenHeader, allowedSignatureTypes);
+        if (!apiAuthentication.getAuthenticationContext().isValid()) {
+            // Traditionally, failed token validation returns null value for PowerAuthApiAuthentication
+            return null;
+        }
+        return apiAuthentication;
+    }
 
+    @Nonnull
+    @Override
+    public PowerAuthApiAuthentication validateTokenWithActivationDetails(@Nonnull String tokenHeader, @Nonnull List<PowerAuthSignatureTypes> allowedSignatureTypes) throws PowerAuthAuthenticationException {
         // Check for HTTP PowerAuth signature header
-        if (tokenHeader == null || tokenHeader.equals("undefined")) {
+        if (tokenHeader.equals("undefined")) {
             logger.warn("Token HTTP header is missing");
             throw new PowerAuthHeaderMissingException();
         }
@@ -384,7 +404,6 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
 
         return auth;
-
     }
 
 }

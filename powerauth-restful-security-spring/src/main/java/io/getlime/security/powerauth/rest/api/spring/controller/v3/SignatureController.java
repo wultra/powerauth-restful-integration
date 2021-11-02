@@ -64,7 +64,7 @@ public class SignatureController {
     })
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
-        if (auth == null || auth.getActivationObject() == null) {
+        if (auth == null || auth.getActivationContext() == null) {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }

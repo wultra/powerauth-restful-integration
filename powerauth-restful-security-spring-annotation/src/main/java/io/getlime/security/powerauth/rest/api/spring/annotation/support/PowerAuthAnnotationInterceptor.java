@@ -126,13 +126,13 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                     final String resourceId = expandResourceId(powerAuthSignatureAnnotation.resourceId(), request, handlerMethod);
                     final String header = request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME);
                     final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthSignatureAnnotation.signatureType());
-                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
                             request, resourceId, header, signatureTypes
                     );
                     if (authentication.getAuthenticationContext().isValid()) {
                         request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                     }
-                    request.setAttribute(PowerAuthRequestObjects.ACTIVATION_OBJECT, authentication.getActivationObject());
+                    request.setAttribute(PowerAuthRequestObjects.ACTIVATION_OBJECT, authentication.getActivationContext());
                 } catch (PowerAuthAuthenticationException ex) {
                     logger.warn("Invalid request signature, authentication object was removed");
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
@@ -144,13 +144,13 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                 try {
                     final String header = request.getHeader(PowerAuthTokenHttpHeader.HEADER_NAME);
                     final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthTokenAnnotation.signatureType());
-                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(
+                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateTokenWithActivationDetails(
                             header, signatureTypes
                     );
                     if (authentication.getAuthenticationContext().isValid()) {
                         request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                     }
-                    request.setAttribute(PowerAuthRequestObjects.ACTIVATION_OBJECT, authentication.getActivationObject());
+                    request.setAttribute(PowerAuthRequestObjects.ACTIVATION_OBJECT, authentication.getActivationContext());
                 } catch (PowerAuthAuthenticationException ex) {
                     logger.warn("Invalid token, authentication object was removed");
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);

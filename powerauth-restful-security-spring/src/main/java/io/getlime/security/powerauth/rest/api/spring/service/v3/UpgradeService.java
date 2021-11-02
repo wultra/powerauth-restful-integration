@@ -131,7 +131,7 @@ public class UpgradeService {
         try {
             // Extract request body
             final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-            if (requestBodyBytes == null || requestBodyBytes.length == 0) {
+            if (requestBodyBytes.length == 0) {
                 // Expected request body is {}, do not accept empty body
                 logger.warn("Empty request body");
                 throw new PowerAuthInvalidRequestException();
@@ -139,16 +139,16 @@ public class UpgradeService {
 
             // Verify signature, force signature version during upgrade to version 3
             final List<PowerAuthSignatureTypes> allowedSignatureTypes = Collections.singletonList(PowerAuthSignatureTypes.POSSESSION);
-            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
+            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
 
             // In case signature verification fails, upgrade fails, too
-            if (!authentication.getAuthenticationContext().isValid() || authentication.getActivationObject() == null) {
+            if (!authentication.getAuthenticationContext().isValid() || authentication.getActivationContext() == null) {
                 logger.debug("Signature validation failed");
                 throw new PowerAuthSignatureInvalidException();
             }
 
             // Get signature HTTP headers
-            final String activationId = authentication.getActivationObject().getActivationId();
+            final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
 

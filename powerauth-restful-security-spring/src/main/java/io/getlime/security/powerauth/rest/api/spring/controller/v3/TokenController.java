@@ -88,7 +88,7 @@ public class TokenController {
             logger.warn("Invalid request object in create token");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationObject() == null) {
+        if (authentication == null || authentication.getActivationContext() == null) {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
@@ -123,7 +123,7 @@ public class TokenController {
             logger.warn("Invalid request object in remove token");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationObject() == null) {
+        if (authentication == null || authentication.getActivationContext() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
         if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {

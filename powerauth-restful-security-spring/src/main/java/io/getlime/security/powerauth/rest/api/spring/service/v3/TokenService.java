@@ -94,7 +94,7 @@ public class TokenService {
             }
 
             // Get ECIES headers
-            final String activationId = authentication.getActivationObject().getActivationId();
+            final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
 
@@ -125,7 +125,7 @@ public class TokenService {
     public TokenRemoveResponse removeToken(TokenRemoveRequest request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
             // Fetch activation ID
-            final String activationId = authentication.getActivationObject().getActivationId();
+            final String activationId = authentication.getActivationContext().getActivationId();
 
             // Fetch token ID from the request
             final String tokenId = request.getTokenId();

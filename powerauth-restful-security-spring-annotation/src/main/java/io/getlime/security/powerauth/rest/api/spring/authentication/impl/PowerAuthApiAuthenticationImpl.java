@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.authentication.impl;
 
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.spring.activation.PowerAuthActivation;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
@@ -70,6 +71,11 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     private List<String> activationFlags = new ArrayList<>();
 
     /**
+     * Signature type, representing used authentication factor.
+     */
+    private PowerAuthSignatureTypes factors;
+
+    /**
      * PowerAuth authentication context.
      */
     private AuthenticationContext authenticationContext;
@@ -85,9 +91,9 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     private PowerAuthHttpHeader httpHeader;
 
     /**
-     * Activation object representing activation detail.
+     * PowerAuth activation instance representing activation context.
      */
-    private PowerAuthActivation activationObject;
+    private PowerAuthActivation activationContext;
 
     /**
      * Default constructor
@@ -118,6 +124,9 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
             this.activationFlags = new ArrayList<>(activationFlags);
         }
         this.authenticationContext = authenticationContext;
+        if (authenticationContext != null) {
+            this.factors = authenticationContext.getSignatureType();
+        }
     }
 
     @Override
@@ -201,6 +210,16 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     }
 
     @Override
+    public PowerAuthSignatureTypes getSignatureFactors() {
+        return factors;
+    }
+
+    @Override
+    public void setSignatureFactors(PowerAuthSignatureTypes factors) {
+        this.factors = factors;
+    }
+
+    @Override
     public AuthenticationContext getAuthenticationContext() {
         return authenticationContext;
     }
@@ -208,6 +227,10 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     @Override
     public void setAuthenticationContext(AuthenticationContext authenticationContext) {
         this.authenticationContext = authenticationContext;
+        // Update deprecated signatureFactors to ensure compatibility
+        if (authenticationContext != null) {
+            setSignatureFactors(authenticationContext.getSignatureType());
+        }
     }
 
     @Override
@@ -231,13 +254,18 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     }
 
     @Override
-    public PowerAuthActivation getActivationObject() {
-        return activationObject;
+    public PowerAuthActivation getActivationContext() {
+        return activationContext;
     }
 
     @Override
-    public void setActivationObject(PowerAuthActivation activationObject) {
-        this.activationObject = activationObject;
+    public void setActivationContext(PowerAuthActivation activationContext) {
+        this.activationContext = activationContext;
+        // Update deprecated activationId and activationFlags to ensure compatibility
+        if (activationContext != null) {
+            setActivationId(activationContext.getActivationId());
+            setActivationFlags(activationContext.getActivationFlags());
+        }
     }
 
 }

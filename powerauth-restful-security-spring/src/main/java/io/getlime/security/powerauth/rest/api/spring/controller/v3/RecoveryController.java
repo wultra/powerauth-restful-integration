@@ -80,7 +80,7 @@ public class RecoveryController {
             logger.warn("Invalid request object in confirm recovery");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationObject() == null) {
+        if (authentication == null || authentication.getActivationContext() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
         if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
