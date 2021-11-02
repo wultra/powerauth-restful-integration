@@ -137,7 +137,7 @@ public class ActivationController {
             throws PowerAuthActivationException, PowerAuthAuthenticationException {
         byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
-        if (apiAuthentication == null || apiAuthentication.getActivationContext() == null) {
+        if (apiAuthentication == null || apiAuthentication.getActivationContext().getActivationId() == null) {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }

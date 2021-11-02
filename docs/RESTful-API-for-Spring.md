@@ -306,7 +306,7 @@ public class AuthenticationController {
             signatureHeader
         );
 
-        if (apiAuthentication == null || apiAuthentication.getActivationContext() == null) {
+        if (apiAuthentication == null || apiAuthentication.getUserId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
         SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
@@ -329,7 +329,7 @@ In case you want to process the failed signature verification results and obtain
         final AuthenticationContext auth = apiAuthentication.getAuthenticationContext();
         final PowerAuthActivation activation = apiAuthentication.getActivationContext();
         
-        if (!auth.isValid() || activation == null) {
+        if (!auth.isValid() || auth.getUserId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
         
