@@ -129,10 +129,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                     final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
                             request, resourceId, header, signatureTypes
                     );
-                    if (authentication.getAuthenticationContext().isValid()) {
-                        request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
-                    }
-                    request.setAttribute(PowerAuthRequestObjects.ACTIVATION_OBJECT, authentication.getActivationContext());
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
                     logger.warn("Invalid request signature, authentication object was removed");
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
@@ -147,10 +144,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                     final PowerAuthApiAuthentication authentication = authenticationProvider.validateTokenWithActivationDetails(
                             header, signatureTypes
                     );
-                    if (authentication.getAuthenticationContext().isValid()) {
-                        request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
-                    }
-                    request.setAttribute(PowerAuthRequestObjects.ACTIVATION_OBJECT, authentication.getActivationContext());
+                    request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
                     logger.warn("Invalid token, authentication object was removed");
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);

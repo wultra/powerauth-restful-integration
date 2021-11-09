@@ -31,19 +31,19 @@ import io.getlime.security.powerauth.http.PowerAuthTokenHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
 import io.getlime.security.powerauth.http.validator.PowerAuthTokenHttpHeaderValidator;
-import io.getlime.security.powerauth.rest.api.spring.activation.PowerAuthActivation;
-import io.getlime.security.powerauth.rest.api.spring.activation.impl.PowerAuthActivationImpl;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthActivation;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthActivationImpl;
+import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthApiAuthenticationImpl;
+import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthSignatureAuthenticationImpl;
+import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthTokenAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.ActivationStatusConverter;
+import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthHeaderMissingException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureTypeInvalidException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthTokenInvalidException;
-import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthApiAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthSignatureAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthTokenAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationStatus;
 import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
 import org.slf4j.Logger;
@@ -248,15 +248,15 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      */
     private PowerAuthActivationImpl copyActivationAttributes(String activationId, String userId, ActivationStatus activationStatus, String blockedReason,
                                                              List<String> activationFlags, AuthenticationContext authenticationContext, String version) {
-        final PowerAuthActivationImpl activationDetail = new PowerAuthActivationImpl();
-        activationDetail.setActivationId(activationId);
-        activationDetail.setUserId(userId);
-        activationDetail.setActivationStatus(activationStatus);
-        activationDetail.setBlockedReason(blockedReason);
-        activationDetail.setActivationFlags(activationFlags);
-        activationDetail.setAuthenticationContext(authenticationContext);
-        activationDetail.setVersion(version);
-        return activationDetail;
+        final PowerAuthActivationImpl activationContext = new PowerAuthActivationImpl();
+        activationContext.setActivationId(activationId);
+        activationContext.setUserId(userId);
+        activationContext.setActivationStatus(activationStatus);
+        activationContext.setBlockedReason(blockedReason);
+        activationContext.setActivationFlags(activationFlags);
+        activationContext.setAuthenticationContext(authenticationContext);
+        activationContext.setVersion(version);
+        return activationContext;
     }
 
     /**

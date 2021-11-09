@@ -18,11 +18,6 @@ public class PowerAuthRequestObjects {
     public static final String AUTHENTICATION_OBJECT = "X-PowerAuth-Authentication-Object";
 
     /**
-     * Constant for the request attribute name "X-PowerAuth-Activation-Object".
-     */
-    public static final String ACTIVATION_OBJECT = "X-PowerAuth-Activation-Object";
-
-    /**
      * Constant for the request attribute name "X-PowerAuth-Encryption-Object".
      */
     public static final String ENCRYPTION_OBJECT = "X-PowerAuth-Encryption-Object";

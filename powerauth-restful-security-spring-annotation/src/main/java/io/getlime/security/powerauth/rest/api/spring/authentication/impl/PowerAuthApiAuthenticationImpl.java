@@ -21,7 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.authentication.impl;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
-import io.getlime.security.powerauth.rest.api.spring.activation.PowerAuthActivation;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthActivation;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -114,6 +114,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, List<String> applicationRoles,
                                           List<String> activationFlags, AuthenticationContext authenticationContext) {
         super(null);
+        // Deprecated field, updated for compatibility reason
         this.activationId = activationId;
         this.userId = userId;
         this.applicationId = applicationId;
@@ -121,12 +122,20 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
             this.applicationRoles = new ArrayList<>(applicationRoles);
         }
         if (activationFlags != null) {
+            // Deprecated field, updated for compatibility reason
             this.activationFlags = new ArrayList<>(activationFlags);
         }
         this.authenticationContext = authenticationContext;
         if (authenticationContext != null) {
+            // Deprecated field, updated for compatibility reason
             this.factors = authenticationContext.getSignatureType();
         }
+        this.activationContext = new PowerAuthActivationImpl();
+        activationContext.setActivationId(activationId);
+        activationContext.setUserId(userId);
+        activationContext.setActivationFlags(activationFlags);
+        activationContext.setAuthenticationContext(authenticationContext);
+        activationContext.setVersion(version);
     }
 
     @Override
@@ -227,8 +236,8 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     @Override
     public void setAuthenticationContext(AuthenticationContext authenticationContext) {
         this.authenticationContext = authenticationContext;
-        // Update deprecated signatureFactors to ensure compatibility
         if (authenticationContext != null) {
+            // Update deprecated signatureFactors to ensure compatibility
             setSignatureFactors(authenticationContext.getSignatureType());
         }
     }
