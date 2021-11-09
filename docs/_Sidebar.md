@@ -6,4 +6,3 @@
 
 - [Introduction](./Introduction.md)
 - [RESTful API (Spring)](./RESTful-API-for-Spring.md)
-- [RESTful API (JAX-RS)](./RESTful-API-for-JavaEE.md)

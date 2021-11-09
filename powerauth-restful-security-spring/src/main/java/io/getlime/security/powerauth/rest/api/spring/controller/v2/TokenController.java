@@ -22,10 +22,10 @@ package io.getlime.security.powerauth.rest.api.spring.controller.v2;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
-import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
@@ -97,7 +97,7 @@ public class TokenController {
             logger.warn("Invalid request object in create token");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationId() == null) {
+        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
@@ -128,7 +128,7 @@ public class TokenController {
             logger.warn("Invalid request object in create token");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationId() == null) {
+        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }

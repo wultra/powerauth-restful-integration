@@ -24,10 +24,10 @@ import com.wultra.security.powerauth.client.v3.CreateTokenResponse;
 import com.wultra.security.powerauth.client.v3.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
-import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureTypeInvalidException;
-import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthTokenErrorException;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthTokenErrorException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
@@ -77,7 +77,7 @@ public class TokenService {
             throws PowerAuthAuthenticationException {
         try {
             // Fetch activation ID and signature type
-            final PowerAuthSignatureTypes signatureFactors = authentication.getSignatureFactors();
+            final PowerAuthSignatureTypes signatureFactors = authentication.getAuthenticationContext().getSignatureType();
 
             // Fetch data from the request
             final String ephemeralPublicKey = request.getEphemeralPublicKey();
@@ -94,7 +94,7 @@ public class TokenService {
             }
 
             // Get ECIES headers
-            final String activationId = authentication.getActivationId();
+            final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
 
@@ -125,7 +125,7 @@ public class TokenService {
     public TokenRemoveResponse removeToken(TokenRemoveRequest request, PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
         try {
             // Fetch activation ID
-            final String activationId = authentication.getActivationId();
+            final String activationId = authentication.getActivationContext().getActivationId();
 
             // Fetch token ID from the request
             final String tokenId = request.getTokenId();
