@@ -126,7 +126,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                     final String resourceId = expandResourceId(powerAuthSignatureAnnotation.resourceId(), request, handlerMethod);
                     final String header = request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME);
                     final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthSignatureAnnotation.signatureType());
-                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature(
+                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
                             request, resourceId, header, signatureTypes
                     );
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
@@ -141,7 +141,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                 try {
                     final String header = request.getHeader(PowerAuthTokenHttpHeader.HEADER_NAME);
                     final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthTokenAnnotation.signatureType());
-                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateToken(
+                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateTokenWithActivationDetails(
                             header, signatureTypes
                     );
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);

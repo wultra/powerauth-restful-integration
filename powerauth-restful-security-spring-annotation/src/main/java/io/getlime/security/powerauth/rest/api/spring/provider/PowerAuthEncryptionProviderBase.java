@@ -45,6 +45,8 @@ import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedRe
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -72,7 +74,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @return ECIES decryptor parameters.
      * @throws PowerAuthEncryptionException In case PowerAuth server call fails.
      */
-    public abstract PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(String activationId, String applicationKey, String ephemeralPublicKey) throws PowerAuthEncryptionException;
+    public abstract @Nonnull PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey) throws PowerAuthEncryptionException;
 
     /**
      * Decrypt HTTP request body and construct object with ECIES data. Use the requestType parameter to specify
@@ -84,7 +86,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @return Object with ECIES data.
      * @throws PowerAuthEncryptionException In case request decryption fails.
      */
-    public PowerAuthEciesEncryption decryptRequest(HttpServletRequest request, Type requestType, EciesScope eciesScope) throws PowerAuthEncryptionException {
+    public @Nonnull PowerAuthEciesEncryption decryptRequest(@Nonnull HttpServletRequest request, @Nonnull Type requestType, @Nonnull EciesScope eciesScope) throws PowerAuthEncryptionException {
         // Only POST HTTP method is supported for ECIES
         if (!"POST".equals(request.getMethod())) {
             logger.warn("Invalid HTTP method: {}", request.getMethod());
@@ -194,7 +196,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param eciesEncryption PowerAuth encryption object.
      * @return ECIES encrypted response.
      */
-    public EciesEncryptedResponse encryptResponse(Object responseObject, PowerAuthEciesEncryption eciesEncryption) {
+    public @Nullable EciesEncryptedResponse encryptResponse(@Nonnull Object responseObject, @Nonnull PowerAuthEciesEncryption eciesEncryption) {
         try {
             final byte[] responseData = serializeResponseData(responseObject);
             // Encrypt response using decryptor and return ECIES cryptogram

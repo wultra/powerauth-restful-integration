@@ -21,7 +21,9 @@ package io.getlime.security.powerauth.rest.api.spring.authentication.impl;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthActivation;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -61,17 +63,22 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     /**
      * List of application roles.
      */
-    private List<String> applicationRoles;
+    private List<String> applicationRoles = new ArrayList<>();
 
     /**
      * List of activation flags.
      */
-    private List<String> activationFlags;
+    private List<String> activationFlags = new ArrayList<>();
 
     /**
      * Signature type, representing used authentication factor.
      */
     private PowerAuthSignatureTypes factors;
+
+    /**
+     * PowerAuth authentication context.
+     */
+    private AuthenticationContext authenticationContext;
 
     /**
      * Signature version.
@@ -82,6 +89,11 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Reference to the original HTTP header.
      */
     private PowerAuthHttpHeader httpHeader;
+
+    /**
+     * PowerAuth activation instance representing activation context.
+     */
+    private PowerAuthActivation activationContext;
 
     /**
      * Default constructor
@@ -96,14 +108,34 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * @param userId User ID.
      * @param applicationId Application ID.
      * @param applicationRoles Application roles.
-     * @param factors Authentication factors.
+     * @param activationFlags Activation flags.
+     * @param authenticationContext Authentication context.
      */
-    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, List<String> applicationRoles, PowerAuthSignatureTypes factors) {
+    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, List<String> applicationRoles,
+                                          List<String> activationFlags, AuthenticationContext authenticationContext) {
         super(null);
+        // Deprecated field, updated for compatibility reason
         this.activationId = activationId;
         this.userId = userId;
         this.applicationId = applicationId;
-        this.factors = factors;
+        if (applicationRoles != null) {
+            this.applicationRoles = new ArrayList<>(applicationRoles);
+        }
+        if (activationFlags != null) {
+            // Deprecated field, updated for compatibility reason
+            this.activationFlags = new ArrayList<>(activationFlags);
+        }
+        this.authenticationContext = authenticationContext;
+        if (authenticationContext != null) {
+            // Deprecated field, updated for compatibility reason
+            this.factors = authenticationContext.getSignatureType();
+        }
+        this.activationContext = new PowerAuthActivationImpl();
+        activationContext.setActivationId(activationId);
+        activationContext.setUserId(userId);
+        activationContext.setActivationFlags(activationFlags);
+        activationContext.setAuthenticationContext(authenticationContext);
+        activationContext.setVersion(version);
     }
 
     @Override
@@ -165,7 +197,11 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
 
     @Override
     public void setApplicationRoles(List<String> applicationRoles) {
-        this.applicationRoles = applicationRoles;
+        if (applicationRoles == null) {
+            this.applicationRoles = Collections.emptyList();
+        } else {
+            this.applicationRoles = new ArrayList<>(applicationRoles);
+        }
     }
 
     @Override
@@ -175,9 +211,12 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
 
     @Override
     public void setActivationFlags(List<String> activationFlags) {
-        this.activationFlags = activationFlags;
+        if (activationFlags == null) {
+            this.activationFlags = Collections.emptyList();
+        } else {
+            this.activationFlags = new ArrayList<>(activationFlags);
+        }
     }
-
 
     @Override
     public PowerAuthSignatureTypes getSignatureFactors() {
@@ -187,6 +226,20 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     @Override
     public void setSignatureFactors(PowerAuthSignatureTypes factors) {
         this.factors = factors;
+    }
+
+    @Override
+    public AuthenticationContext getAuthenticationContext() {
+        return authenticationContext;
+    }
+
+    @Override
+    public void setAuthenticationContext(AuthenticationContext authenticationContext) {
+        this.authenticationContext = authenticationContext;
+        if (authenticationContext != null) {
+            // Update deprecated signatureFactors to ensure compatibility
+            setSignatureFactors(authenticationContext.getSignatureType());
+        }
     }
 
     @Override
@@ -208,4 +261,20 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
         this.httpHeader = httpHeader;
     }
+
+    @Override
+    public PowerAuthActivation getActivationContext() {
+        return activationContext;
+    }
+
+    @Override
+    public void setActivationContext(PowerAuthActivation activationContext) {
+        this.activationContext = activationContext;
+        // Update deprecated activationId and activationFlags to ensure compatibility
+        if (activationContext != null) {
+            setActivationId(activationContext.getActivationId());
+            setActivationFlags(activationContext.getActivationFlags());
+        }
+    }
+
 }

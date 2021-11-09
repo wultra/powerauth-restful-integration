@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.authentication;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
 
 import java.util.List;
 
@@ -34,8 +35,8 @@ import java.util.List;
 public interface PowerAuthApiAuthentication {
 
     /**
-     * Get user ID
-     * @return User ID
+     * Get user ID.
+     * @return User ID.
      */
     String getUserId();
 
@@ -46,15 +47,19 @@ public interface PowerAuthApiAuthentication {
     void setUserId(String userId);
 
     /**
-     * Get activation ID
-     * @return Activation ID
+     * Get activation ID.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationContext()} instead.
+     * @return Activation ID.
      */
+    @Deprecated
     String getActivationId();
 
     /**
-     * Set activation ID
-     * @param activationId Activation ID
+     * Set activation ID.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationContext()} instead.
+     * @param activationId Activation ID.
      */
+    @Deprecated
     void setActivationId(String activationId);
 
     /**
@@ -83,29 +88,49 @@ public interface PowerAuthApiAuthentication {
 
     /**
      * Get activation flags.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationContext()} instead.
      * @return Activation flags.
      */
+    @Deprecated
     List<String> getActivationFlags();
 
     /**
      * Set activation flags.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getActivationContext()} instead.
      * @param activationFlags Activation flags.
      */
+    @Deprecated
     void setActivationFlags(List<String> activationFlags);
 
     /**
      * Return authentication factors related to the signature that was used to produce
      * this authentication object.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getAuthenticationContext()} ()} instead.
      * @return Signature type (signature factors).
      */
+    @Deprecated
     PowerAuthSignatureTypes getSignatureFactors();
 
     /**
      * Set authentication factors related to the signature that was used to produce
      * this authentication object.
+     * This method is deprecated, use {@link PowerAuthApiAuthentication#getAuthenticationContext()} ()} instead.
      * @param factors Signature type (signature factors).
      */
+    @Deprecated
     void setSignatureFactors(PowerAuthSignatureTypes factors);
+
+    /**
+     * Get PowerAuth authentication context.
+     * @return PowerAuth authentication context.
+     */
+    AuthenticationContext getAuthenticationContext();
+
+    /**
+     * Set PowerAuth authentication context.
+     * @param authenticationContext PowerAuth authentication context.
+     */
+    void setAuthenticationContext(AuthenticationContext authenticationContext);
 
     /**
      * Get PowerAuth protocol version.
@@ -130,4 +155,17 @@ public interface PowerAuthApiAuthentication {
      * @param httpHeader PowerAuth HTTP header.
      */
     void setHttpHeader(PowerAuthHttpHeader httpHeader);
+
+    /**
+     * Get the activation context.
+     * @return Activation context.
+     */
+    PowerAuthActivation getActivationContext();
+
+    /**
+     * Set the activation context.
+     * @param activationContext Activation context.
+     */
+    void setActivationContext(PowerAuthActivation activationContext);
+
 }

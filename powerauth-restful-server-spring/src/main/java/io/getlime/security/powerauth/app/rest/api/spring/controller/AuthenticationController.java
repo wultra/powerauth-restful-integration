@@ -59,9 +59,9 @@ public class AuthenticationController {
         }
         return new ObjectResponse<>("Hooray! "
                 + " User: " + auth.getUserId()
-                + " (activation: " + auth.getActivationId() + ")"
+                + " (activation: " + auth.getActivationContext().getActivationId() + ")"
                 + " successfully verified via app with ID: " + auth.getApplicationId()
-                + " using factor: " + auth.getSignatureFactors()
+                + " using factor: " + auth.getAuthenticationContext().getSignatureType()
         );
     }
 

@@ -388,7 +388,7 @@ public class ActivationService {
         try {
 
             // Fetch context information
-            final String activationId = apiAuthentication.getActivationId();
+            final String activationId = apiAuthentication.getActivationContext().getActivationId();
             final String userId = apiAuthentication.getUserId();
             final Long applicationId = apiAuthentication.getApplicationId();
 

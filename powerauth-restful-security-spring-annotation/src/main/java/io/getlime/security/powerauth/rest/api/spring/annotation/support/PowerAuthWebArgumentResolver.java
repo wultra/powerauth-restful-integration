@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.annotation.support;
 
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthActivation;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import org.springframework.core.MethodParameter;
@@ -41,13 +42,27 @@ public class PowerAuthWebArgumentResolver implements HandlerMethodArgumentResolv
 
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
-        return PowerAuthApiAuthentication.class.isAssignableFrom(parameter.getParameterType());
+        return PowerAuthApiAuthentication.class.isAssignableFrom(parameter.getParameterType())
+                || PowerAuthActivation.class.isAssignableFrom(parameter.getParameterType());
     }
 
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
-        HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        return request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
+        if (parameter.getParameterType().isAssignableFrom(PowerAuthApiAuthentication.class)) {
+            HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+            PowerAuthApiAuthentication apiAuthentication = (PowerAuthApiAuthentication) request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
+            if (apiAuthentication.getAuthenticationContext().isValid()) {
+                // Return PowerAuthApiAuthentication instance only for successful authentication due to compatibility reasons
+                return apiAuthentication;
+            }
+        }
+        if (parameter.getParameterType().isAssignableFrom(PowerAuthActivation.class)) {
+            HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
+            PowerAuthApiAuthentication apiAuthentication = (PowerAuthApiAuthentication) request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
+            // Activation context is returned for both successful and failed authentication
+            return apiAuthentication.getActivationContext();
+        }
+        return null;
     }
 
 }

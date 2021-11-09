@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 /**
  * Implementation of PowerAuth encryption provider.
  *
@@ -53,7 +56,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
     }
 
     @Override
-    public PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(String activationId, String applicationKey, String ephemeralPublicKey) throws PowerAuthEncryptionException {
+    public @Nonnull PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey) throws PowerAuthEncryptionException {
         try {
             GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);

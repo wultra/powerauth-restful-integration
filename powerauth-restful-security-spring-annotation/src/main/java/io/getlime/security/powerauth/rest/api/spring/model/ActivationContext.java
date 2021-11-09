@@ -19,8 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.model;
 
-import com.wultra.security.powerauth.client.v3.ActivationStatus;
-
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;

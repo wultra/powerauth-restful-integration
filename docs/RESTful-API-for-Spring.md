@@ -263,7 +263,7 @@ public class AuthenticationController {
     @PowerAuth(resourceId = "/secured/account/${id}?filter=${filter}")
     @ResponseBody
     public MyAccountApiResponse changeAccountSettings(
-            @PathVariable("id") String accountId, @RequestParam("filter") String filter,  PowerAuthApiAuthentication auth) {
+            @PathVariable("id") String accountId, @RequestParam("filter") String filter,  PowerAuthApiAuthentication auth, PowerAuthActivation activation) {
         
         if (auth == null) {
             // handle authentication failure
@@ -272,7 +272,9 @@ public class AuthenticationController {
         
         // use userId for business logic ...
         final String userId = auth.getUserId();
-        final Account account = myService.updateAccount(accountId, userId, filter);
+        final String activationId = activation.getActivationId();
+        final List<String> activationFlags = activation.getActivationFlags();
+        final Account account = myService.updateAccount(accountId, userId, filter, activationId, activationFlags);
         
         // return OK response
         return new MyAccountApiResponse(Status.OK, userId);
@@ -312,6 +314,30 @@ public class AuthenticationController {
     }
 
 }
+```
+
+In case you want to process the failed signature verification results and obtain additional information about the activation, you can use the `authenticationProvider.validateRequestSignatureWithActivationDetails()` method:
+
+```java
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
+            "POST",
+            "Any data".getBytes(StandardCharsets.UTF_8),
+            "/session/login",
+            signatureHeader
+        );
+
+        final AuthenticationContext auth = apiAuthentication.getAuthenticationContext();
+        final PowerAuthActivation activation = apiAuthentication.getActivationContext();
+        
+        if (!auth.isValid() || auth.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
+        }
+        
+        Integer remainingAttempts = auth.getRemainingAttempts();
+        String activationId = activation.getActivationId();
+        ActivationStatus activationStatus = activation.getActivationStatus();
+        ...
+
 ```
 
 ### Use Token Based Authentication

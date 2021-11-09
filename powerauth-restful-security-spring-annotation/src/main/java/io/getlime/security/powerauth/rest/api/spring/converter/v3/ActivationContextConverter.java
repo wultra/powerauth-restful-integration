@@ -34,6 +34,16 @@ import java.util.List;
 @Component
 public class ActivationContextConverter {
 
+    private final ActivationStatusConverter activationStatusConverter;
+
+    /**
+     * Converter constructor.
+     * @param activationStatusConverter Activation status converter.
+     */
+    public ActivationContextConverter(ActivationStatusConverter activationStatusConverter) {
+        this.activationStatusConverter = activationStatusConverter;
+    }
+
     /**
      * Convert new activation context from activation status response.
      *
@@ -44,7 +54,7 @@ public class ActivationContextConverter {
         final ActivationContext destination = new ActivationContext();
         destination.setActivationId(source.getActivationId());
         destination.setActivationName(source.getActivationName());
-        destination.setActivationStatus(source.getActivationStatus());
+        destination.setActivationStatus(activationStatusConverter.convertFrom(source.getActivationStatus()));
         destination.setBlockedReason(source.getBlockedReason());
         destination.setApplicationId(source.getApplicationId());
         destination.setUserId(source.getUserId());

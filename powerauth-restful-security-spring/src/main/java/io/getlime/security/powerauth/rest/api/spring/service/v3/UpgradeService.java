@@ -139,16 +139,16 @@ public class UpgradeService {
 
             // Verify signature, force signature version during upgrade to version 3
             final List<PowerAuthSignatureTypes> allowedSignatureTypes = Collections.singletonList(PowerAuthSignatureTypes.POSSESSION);
-            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
+            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
 
             // In case signature verification fails, upgrade fails, too
-            if (authentication == null || authentication.getActivationId() == null) {
+            if (!authentication.getAuthenticationContext().isValid() || authentication.getActivationContext().getActivationId() == null) {
                 logger.debug("Signature validation failed");
                 throw new PowerAuthSignatureInvalidException();
             }
 
             // Get signature HTTP headers
-            final String activationId = authentication.getActivationId();
+            final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
 

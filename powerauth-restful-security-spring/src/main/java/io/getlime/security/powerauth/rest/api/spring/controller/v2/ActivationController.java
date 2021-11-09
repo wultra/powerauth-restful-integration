@@ -138,7 +138,7 @@ public class ActivationController {
     ) throws PowerAuthActivationException, PowerAuthAuthenticationException {
         // Request body needs to be set to null because the SDK uses null for the signature, although {} is sent as request body
         PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", null, "/pa/activation/remove", signatureHeader);
-        if (apiAuthentication == null || apiAuthentication.getActivationId() == null) {
+        if (apiAuthentication == null || apiAuthentication.getActivationContext().getActivationId() == null) {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
