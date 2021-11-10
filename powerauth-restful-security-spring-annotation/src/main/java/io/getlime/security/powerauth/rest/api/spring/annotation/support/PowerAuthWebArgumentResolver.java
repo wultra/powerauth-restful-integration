@@ -51,6 +51,9 @@ public class PowerAuthWebArgumentResolver implements HandlerMethodArgumentResolv
         if (parameter.getParameterType().isAssignableFrom(PowerAuthApiAuthentication.class)) {
             HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
             PowerAuthApiAuthentication apiAuthentication = (PowerAuthApiAuthentication) request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
+            if (apiAuthentication == null) {
+                return null;
+            }
             if (apiAuthentication.getAuthenticationContext().isValid()) {
                 // Return PowerAuthApiAuthentication instance only for successful authentication due to compatibility reasons
                 return apiAuthentication;
@@ -59,6 +62,9 @@ public class PowerAuthWebArgumentResolver implements HandlerMethodArgumentResolv
         if (parameter.getParameterType().isAssignableFrom(PowerAuthActivation.class)) {
             HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
             PowerAuthApiAuthentication apiAuthentication = (PowerAuthApiAuthentication) request.getAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT);
+            if (apiAuthentication == null) {
+                return null;
+            }
             // Activation context is returned for both successful and failed authentication
             return apiAuthentication.getActivationContext();
         }
