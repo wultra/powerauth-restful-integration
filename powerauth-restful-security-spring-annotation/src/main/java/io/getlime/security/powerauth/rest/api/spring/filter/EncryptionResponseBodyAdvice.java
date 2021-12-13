@@ -30,6 +30,7 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncrypt
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpOutputMessage;
@@ -73,7 +74,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @param requestMappingHandlerAdapter Request mapping handler adapter.
      */
     @Autowired
-    public void setRequestMappingHandlerAdapter(RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
+    public void setRequestMappingHandlerAdapter(@Lazy RequestMappingHandlerAdapter requestMappingHandlerAdapter) {
         this.requestMappingHandlerAdapter = requestMappingHandlerAdapter;
     }
 
