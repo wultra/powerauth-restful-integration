@@ -28,7 +28,7 @@
 
     <groupId>io.getlime.security</groupId>
     <artifactId>powerauth-restful-integration-parent</artifactId>
-    <version>1.2.0-SNAPSHOT</version>
+    <version>1.2.0</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2017</inceptionYear>
@@ -79,9 +79,9 @@
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <maven-deploy-plugin.version>3.0.0-M1</maven-deploy-plugin.version>
-        <maven-javadoc-plugin.version>3.3.0</maven-javadoc-plugin.version>
+        <maven-javadoc-plugin.version>3.3.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
-        <maven-war-plugin.version>3.3.1</maven-war-plugin.version>
+        <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <spring-boot.version>2.6.1</spring-boot.version>
         <commons-text.version>1.9</commons-text.version>
