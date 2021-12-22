@@ -22,13 +22,15 @@ package io.getlime.security.powerauth.rest.api.spring.provider;
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v3.GetEciesDecryptorRequest;
 import com.wultra.security.powerauth.client.v3.GetEciesDecryptorResponse;
-import io.getlime.security.powerauth.rest.api.base.encryption.PowerAuthEciesDecryptorParameters;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthEncryptionException;
-import io.getlime.security.powerauth.rest.api.base.provider.PowerAuthEncryptionProviderBase;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesDecryptorParameters;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * Implementation of PowerAuth encryption provider.
@@ -54,7 +56,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
     }
 
     @Override
-    public PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(String activationId, String applicationKey, String ephemeralPublicKey) throws PowerAuthEncryptionException {
+    public @Nonnull PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey) throws PowerAuthEncryptionException {
         try {
             GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);

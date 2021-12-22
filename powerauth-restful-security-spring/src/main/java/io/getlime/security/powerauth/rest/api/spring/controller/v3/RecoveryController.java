@@ -20,10 +20,10 @@
 package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import io.getlime.security.powerauth.rest.api.base.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.base.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthInvalidRequestException;
-import io.getlime.security.powerauth.rest.api.base.exception.authentication.PowerAuthSignatureInvalidException;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
@@ -80,7 +80,7 @@ public class RecoveryController {
             logger.warn("Invalid request object in confirm recovery");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationId() == null) {
+        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
         if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {

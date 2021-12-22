@@ -51,11 +51,15 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
 ## Configure PowerAuth REST Client
 
+<!-- begin box warning -->
+Make sure to add both `io.getlime.security.powerauth` and `com.wultra.security.powerauth` packages in the `@ComponentScan` annotation. At this moment, both packages need to be scanned. We are already the process of package name migration. In the future library versions, we will only use the `com.wultra.security.powerauth`.
+<!-- end -->
+
 In order to connect to the correct PowerAuth Server, you need to add following configuration:
 
 ```java
 @Configuration
-@ComponentScan(basePackages = {"com.wultra.security.powerauth"})
+@ComponentScan(basePackages = {"io.getlime.security.powerauth","com.wultra.security.powerauth"})
 public class PowerAuthWebServiceConfiguration {
 
     @Value("${powerauth.rest.url}")
@@ -163,14 +167,14 @@ Finally, the `FilterRegistrationBean` (with the `PowerAuthRequestFilter` filter)
 
 _(optional)_
 
-PowerAuth uses the concept of `application ID` and `application secret`. While `applicationId` attribute is transmitted with requests in `X-PowerAuth-Authorization` header, `applicationSecret` is shared implicitly between the client and server and is a part of the actual signature value. Applications are a first class citizen in PowerAuth protocol. Intermediate application, however, may influence which applications are accepted by implementing following configuration.
+PowerAuth application configuration can be used to customize additional data returned in activation status calls. Attributes obtained from activation detail are available in the activation context for additional processing. These attributes can be used to return any custom attributes to the mobile application using the `customObject` map. Note that such processing of activation attributes can have impact on performance because it is executed during each activation status call.
 
 ```java
 @Configuration
 public class ApplicationConfiguration implements PowerAuthApplicationConfiguration {
 
     @Override
-    public Map<String, Object> statusServiceCustomObject() {
+    public Map<String, Object> statusServiceCustomObject(ActivationContext context) {
         return null; // suggested default implementation
     }
 
@@ -259,7 +263,7 @@ public class AuthenticationController {
     @PowerAuth(resourceId = "/secured/account/${id}?filter=${filter}")
     @ResponseBody
     public MyAccountApiResponse changeAccountSettings(
-            @PathVariable("id") String accountId, @RequestParam("filter") String filter,  PowerAuthApiAuthentication auth) {
+            @PathVariable("id") String accountId, @RequestParam("filter") String filter,  PowerAuthApiAuthentication auth, PowerAuthActivation activation) {
         
         if (auth == null) {
             // handle authentication failure
@@ -268,7 +272,9 @@ public class AuthenticationController {
         
         // use userId for business logic ...
         final String userId = auth.getUserId();
-        final Account account = myService.updateAccount(accountId, userId, filter);
+        final String activationId = activation.getActivationId();
+        final List<String> activationFlags = activation.getActivationFlags();
+        final Account account = myService.updateAccount(accountId, userId, filter, activationId, activationFlags);
         
         // return OK response
         return new MyAccountApiResponse(Status.OK, userId);
@@ -308,6 +314,30 @@ public class AuthenticationController {
     }
 
 }
+```
+
+In case you want to process the failed signature verification results and obtain additional information about the activation, you can use the `authenticationProvider.validateRequestSignatureWithActivationDetails()` method:
+
+```java
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
+            "POST",
+            "Any data".getBytes(StandardCharsets.UTF_8),
+            "/session/login",
+            signatureHeader
+        );
+
+        final AuthenticationContext auth = apiAuthentication.getAuthenticationContext();
+        final PowerAuthActivation activation = apiAuthentication.getActivationContext();
+        
+        if (!auth.isValid() || auth.getUserId() == null) {
+            throw new PowerAuthSignatureInvalidException();
+        }
+        
+        Integer remainingAttempts = auth.getRemainingAttempts();
+        String activationId = activation.getActivationId();
+        ActivationStatus activationStatus = activation.getActivationStatus();
+        ...
+
 ```
 
 ### Use Token Based Authentication
