@@ -114,15 +114,12 @@ public abstract class PowerAuthEncryptionProviderBase {
                 logger.warn("Invalid HTTP request");
                 throw new PowerAuthEncryptionException();
             }
-            EciesEncryptedRequest eciesRequest = null;
+            final EciesEncryptedRequest eciesRequest;
             try {
                 eciesRequest = objectMapper.readValue(requestBodyBytes, EciesEncryptedRequest.class);
             } catch (IOException ex) {
                 logger.warn("Request deserialization failed, error: {}", ex.getMessage());
                 logger.debug(ex.getMessage(), ex);
-            }
-            if (eciesRequest == null) {
-                logger.warn("Invalid ECIES request data");
                 throw new PowerAuthEncryptionException();
             }
 
