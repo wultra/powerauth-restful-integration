@@ -28,7 +28,7 @@
 
     <groupId>io.getlime.security</groupId>
     <artifactId>powerauth-restful-integration-parent</artifactId>
-    <version>1.3.0-SNAPSHOT</version>
+    <version>1.2.5-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2017</inceptionYear>
@@ -88,11 +88,11 @@
         <jackson-databind.version>2.13.2.1</jackson-databind.version>
         <bcprov.version>1.70</bcprov.version>
         <rest-model-base.version>1.4.1</rest-model-base.version>
-        <powerauth-java-crypto.version>1.3.0-SNAPSHOT</powerauth-java-crypto.version>
-        <powerauth-java-http.version>1.3.0-SNAPSHOT</powerauth-java-http.version>
-        <powerauth-restful-model.version>1.3.0-SNAPSHOT</powerauth-restful-model.version>
-        <powerauth-rest-client-spring.version>1.3.0-SNAPSHOT</powerauth-rest-client-spring.version>
-        <powerauth-restful-security-spring-annotation.version>1.3.0-SNAPSHOT</powerauth-restful-security-spring-annotation.version>
+        <powerauth-java-crypto.version>1.2.0</powerauth-java-crypto.version>
+        <powerauth-java-http.version>1.2.0</powerauth-java-http.version>
+        <powerauth-restful-model.version>1.2.5-SNAPSHOT</powerauth-restful-model.version>
+        <powerauth-rest-client-spring.version>1.2.5-SNAPSHOT</powerauth-rest-client-spring.version>
+        <powerauth-restful-security-spring-annotation.version>1.2.5-SNAPSHOT</powerauth-restful-security-spring-annotation.version>
     </properties>
 
     <build>
