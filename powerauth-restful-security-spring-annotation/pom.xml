@@ -24,14 +24,14 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>powerauth-restful-security-spring-annotation</artifactId>
-    <version>1.2.5-SNAPSHOT</version>
+    <version>1.2.5</version>
     <name>powerauth-restful-security-spring-annotation</name>
     <description>PowerAuth RESTful API Security Annotations for Spring</description>
 
     <parent>
         <groupId>io.getlime.security</groupId>
         <artifactId>powerauth-restful-integration-parent</artifactId>
-        <version>1.2.5-SNAPSHOT</version>
+        <version>1.2.5</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
