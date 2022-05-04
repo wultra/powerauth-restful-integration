@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.service.v2;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v2.CreateTokenResponse;
+import com.wultra.security.powerauth.client.v2.CreateTokenRequest;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
@@ -28,6 +29,7 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.model.request.v2.TokenCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.TokenCreateResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,15 +52,18 @@ public class TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
-    private PowerAuthClient powerAuthClient;
+    private final PowerAuthClient powerAuthClient;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Set PowerAuth service client via setter injection.
-     * @param powerAuthClient PowerAuth service client.
+     * Service constructor.
+     * @param powerAuthClient PowerAuth client.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
+    public TokenService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -81,7 +86,15 @@ public class TokenService {
             SignatureTypeConverter converter = new SignatureTypeConverter();
 
             // Create a token
-            final CreateTokenResponse token = powerAuthClient.v2().createToken(activationId, ephemeralPublicKey, converter.convertFrom(signatureFactors));
+            final CreateTokenRequest tokenRequest = new CreateTokenRequest();
+            tokenRequest.setActivationId(activationId);
+            tokenRequest.setEphemeralPublicKey(ephemeralPublicKey);
+            tokenRequest.setSignatureType(converter.convertFrom(signatureFactors));
+            final CreateTokenResponse token = powerAuthClient.v2().createToken(
+                    tokenRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
 
             // Prepare a response
             final TokenCreateResponse response = new TokenCreateResponse();

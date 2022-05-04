@@ -24,6 +24,7 @@ import com.wultra.security.powerauth.client.v3.GetEciesDecryptorRequest;
 import com.wultra.security.powerauth.client.v3.GetEciesDecryptorResponse;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,26 +44,33 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);
 
-    private PowerAuthClient powerAuthClient;
+    private final PowerAuthClient powerAuthClient;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Set PowerAuth client via setter injection.
-     *
+     * Provide constructor.
      * @param powerAuthClient PowerAuth client.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
+    public PowerAuthEncryptionProvider(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     @Override
     public @Nonnull PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey) throws PowerAuthEncryptionException {
         try {
-            GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
+            final GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);
             eciesDecryptorRequest.setApplicationKey(applicationKey);
             eciesDecryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
-            GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(eciesDecryptorRequest);
+            final GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(
+                    eciesDecryptorRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
+
             return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
         } catch (Exception ex) {
             logger.warn("Get ECIES decryptor call failed, error: {}", ex.getMessage());

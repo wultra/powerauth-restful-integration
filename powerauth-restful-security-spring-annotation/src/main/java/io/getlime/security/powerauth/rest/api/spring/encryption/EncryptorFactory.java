@@ -21,10 +21,12 @@ package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
+import com.wultra.security.powerauth.client.v2.GetNonPersonalizedEncryptionKeyRequest;
 import com.wultra.security.powerauth.client.v2.GetNonPersonalizedEncryptionKeyResponse;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryptedPayloadModel;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,21 +41,19 @@ import org.springframework.stereotype.Component;
 public class EncryptorFactory {
 
     private static final Logger logger = LoggerFactory.getLogger(EncryptorFactory.class);
-    private PowerAuthClient powerAuthClient;
+
+    private final PowerAuthClient powerAuthClient;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Default constructor.
-     */
-    public EncryptorFactory() {
-    }
-
-    /**
-     * Set PowerAuth client via the setter injection.
+     * Factory constructor.
      * @param powerAuthClient PowerAuth client.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
+    public EncryptorFactory(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -80,11 +80,16 @@ public class EncryptorFactory {
      */
     public PowerAuthNonPersonalizedEncryptor buildNonPersonalizedEncryptor(String applicationKeyBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) throws PowerAuthEncryptionException {
         try {
+            final GetNonPersonalizedEncryptionKeyRequest encryptRequest = new GetNonPersonalizedEncryptionKeyRequest();
+            encryptRequest.setApplicationKey(applicationKeyBase64);
+            encryptRequest.setEphemeralPublicKey(ephemeralPublicKeyBase64);
+            encryptRequest.setSessionIndex(sessionIndexBase64);
             final GetNonPersonalizedEncryptionKeyResponse encryptionKeyResponse = powerAuthClient.v2().generateNonPersonalizedE2EEncryptionKey(
-                    applicationKeyBase64,
-                    ephemeralPublicKeyBase64,
-                    sessionIndexBase64
+                    encryptRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
             );
+
             return new PowerAuthNonPersonalizedEncryptor(
                     encryptionKeyResponse.getApplicationKey(),
                     encryptionKeyResponse.getEncryptionKey(), encryptionKeyResponse.getEncryptionKeyIndex(),
