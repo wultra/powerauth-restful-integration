@@ -22,6 +22,7 @@ package io.getlime.security.powerauth.rest.api.spring.service.v3;
 import com.google.common.io.BaseEncoding;
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v3.SignatureType;
+import com.wultra.security.powerauth.client.v3.VaultUnlockRequest;
 import com.wultra.security.powerauth.client.v3.VaultUnlockResponse;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
@@ -33,6 +34,7 @@ import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedReq
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,28 +56,23 @@ import javax.servlet.http.HttpServletRequest;
 @Service("secureVaultServiceV3")
 public class SecureVaultService {
 
-    private PowerAuthClient powerAuthClient;
-
-    private PowerAuthAuthenticationProvider authenticationProvider;
-
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);
 
-    /**
-     * Set PowerAuth service client via setter injection.
-     * @param powerAuthClient PowerAuth service client.
-     */
-    @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
-        this.powerAuthClient = powerAuthClient;
-    }
+    private final PowerAuthClient powerAuthClient;
+    private final PowerAuthAuthenticationProvider authenticationProvider;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Set PowerAuth authentication provider via setter injection.
-     * @param authenticationProvider PowerAuth authentication provider.
+     * Service constructor.
+     * @param powerAuthClient PowerAuth client.
+     * @param authenticationProvider Authentication provider.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
+    public SecureVaultService(PowerAuthClient powerAuthClient, PowerAuthAuthenticationProvider authenticationProvider, HttpCustomizationService httpCustomizationService) {
+        this.powerAuthClient = powerAuthClient;
         this.authenticationProvider = authenticationProvider;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -115,8 +112,22 @@ public class SecureVaultService {
             final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server
-            final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(activationId, applicationKey, signature,
-                    signatureType, signatureVersion, data, ephemeralPublicKey, encryptedData, mac, eciesNonce);
+            final VaultUnlockRequest unlockRequest = new VaultUnlockRequest();
+            unlockRequest.setActivationId(activationId);
+            unlockRequest.setApplicationKey(applicationKey);
+            unlockRequest.setSignature(signature);
+            unlockRequest.setSignatureType(signatureType);
+            unlockRequest.setSignatureVersion(signatureVersion);
+            unlockRequest.setSignedData(data);
+            unlockRequest.setEphemeralPublicKey(ephemeralPublicKey);
+            unlockRequest.setEncryptedData(encryptedData);
+            unlockRequest.setMac(mac);
+            unlockRequest.setNonce(eciesNonce);
+            final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(
+                    unlockRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
 
             if (!paResponse.isSignatureValid()) {
                 logger.debug("Signature validation failed");

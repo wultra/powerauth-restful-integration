@@ -20,8 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
-import com.wultra.security.powerauth.client.v3.CommitUpgradeResponse;
-import com.wultra.security.powerauth.client.v3.StartUpgradeResponse;
+import com.wultra.security.powerauth.client.v3.*;
 import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
@@ -34,6 +33,7 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,25 +59,21 @@ public class UpgradeService {
 
     private static final Logger logger = LoggerFactory.getLogger(UpgradeService.class);
 
-    private PowerAuthClient powerAuthClient;
-    private PowerAuthAuthenticationProvider authenticationProvider;
+    private final PowerAuthClient powerAuthClient;
+    private final PowerAuthAuthenticationProvider authenticationProvider;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Set PowerAuth service client via setter injection.
-     * @param powerAuthClient PowerAuth service client.
+     * Service constructor.
+     * @param powerAuthClient PowerAuth client.
+     * @param authenticationProvider Authentication provider.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
+    public UpgradeService(PowerAuthClient powerAuthClient, PowerAuthAuthenticationProvider authenticationProvider, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
-    }
-
-    /**
-     * Set PowerAuth authentication provider via setter injection.
-     * @param authenticationProvider PowerAuth authentication provider.
-     */
-    @Autowired
-    public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -102,7 +98,18 @@ public class UpgradeService {
             final String applicationKey = header.getApplicationKey();
 
             // Start upgrade on PowerAuth server
-            final StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(activationId, applicationKey, ephemeralPublicKey, encryptedData, mac, nonce);
+            final StartUpgradeRequest upgradeRequest = new StartUpgradeRequest();
+            upgradeRequest.setActivationId(activationId);
+            upgradeRequest.setApplicationKey(applicationKey);
+            upgradeRequest.setEphemeralPublicKey(ephemeralPublicKey);
+            upgradeRequest.setEncryptedData(encryptedData);
+            upgradeRequest.setMac(mac);
+            upgradeRequest.setNonce(nonce);
+            final StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(
+                    upgradeRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
@@ -153,7 +160,14 @@ public class UpgradeService {
             final String applicationKey = httpHeader.getApplicationKey();
 
             // Commit upgrade on PowerAuth server
-            final CommitUpgradeResponse upgradeResponse = powerAuthClient.commitUpgrade(activationId, applicationKey);
+            final CommitUpgradeRequest commitRequest = new CommitUpgradeRequest();
+            commitRequest.setActivationId(activationId);
+            commitRequest.setApplicationKey(applicationKey);
+            final CommitUpgradeResponse upgradeResponse = powerAuthClient.commitUpgrade(
+                    commitRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
 
             if (upgradeResponse.isCommitted()) {
                 return new Response();

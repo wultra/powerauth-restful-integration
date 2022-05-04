@@ -20,10 +20,12 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v2;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v2.PrepareActivationRequest;
 import com.wultra.security.powerauth.client.v2.PrepareActivationResponse;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.request.v2.ActivationCreateRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v2.ActivationCreateResponse;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,17 +46,20 @@ import org.springframework.stereotype.Service;
 @Service("activationServiceV2")
 public class ActivationService {
 
-    private PowerAuthClient powerAuthClient;
-
     private static final Logger logger = LoggerFactory.getLogger(ActivationService.class);
 
+    private final PowerAuthClient powerAuthClient;
+    private final HttpCustomizationService httpCustomizationService;
+
     /**
-     * Set PowerAuth service client via setter injection.
-     * @param powerAuthClient PowerAuth service client.
+     * Service constructor.
+     * @param powerAuthClient PowerAuth client.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
+    public ActivationService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -74,15 +79,19 @@ public class ActivationService {
             final String applicationSignature = request.getApplicationSignature();
             final String clientEphemeralKey = request.getEphemeralPublicKey();
 
+            final PrepareActivationRequest prepareRequest = new PrepareActivationRequest();
+            prepareRequest.setActivationIdShort(activationIDShort);
+            prepareRequest.setActivationName(activationName);
+            prepareRequest.setActivationNonce(activationNonce);
+            prepareRequest.setEphemeralPublicKey(clientEphemeralKey);
+            prepareRequest.setEncryptedDevicePublicKey(cDevicePublicKey);
+            prepareRequest.setExtras(extras);
+            prepareRequest.setApplicationKey(applicationKey);
+            prepareRequest.setApplicationSignature(applicationSignature);
             final PrepareActivationResponse paResponse = powerAuthClient.v2().prepareActivation(
-                    activationIDShort,
-                    activationName,
-                    activationNonce,
-                    clientEphemeralKey,
-                    cDevicePublicKey,
-                    extras,
-                    applicationKey,
-                    applicationSignature
+                    prepareRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
             );
 
             final ActivationCreateResponse response = new ActivationCreateResponse();

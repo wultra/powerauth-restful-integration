@@ -34,6 +34,7 @@ import io.getlime.security.powerauth.rest.api.model.request.v2.VaultUnlockReques
 import io.getlime.security.powerauth.rest.api.model.response.v2.VaultUnlockResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v2.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,26 +59,21 @@ public class SecureVaultService {
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);
 
-    private PowerAuthClient powerAuthClient;
-
-    private PowerAuthAuthenticationProvider authenticationProvider;
+    private final PowerAuthClient powerAuthClient;
+    private final PowerAuthAuthenticationProvider authenticationProvider;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Set PowerAuth service client via setter injection.
-     * @param powerAuthClient PowerAuth service client.
+     * Service constructor.
+     * @param powerAuthClient PowerAuth client.
+     * @param authenticationProvider Authentication provider.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
+    public SecureVaultService(PowerAuthClient powerAuthClient, PowerAuthAuthenticationProvider authenticationProvider, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
-    }
-
-    /**
-     * Set PowerAuth authentication provider via setter injection.
-     * @param authenticationProvider PowerAuth authentication provider.
-     */
-    @Autowired
-    public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
         this.authenticationProvider = authenticationProvider;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -108,7 +104,7 @@ public class SecureVaultService {
             final SignatureTypeConverter converter = new SignatureTypeConverter();
 
             final String activationId = header.getActivationId();
-            final String applicationId = header.getApplicationKey();
+            final String applicationKey = header.getApplicationKey();
             final String signature = header.getSignature();
             final SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             if (signatureType == null) {
@@ -141,7 +137,18 @@ public class SecureVaultService {
 
             final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
 
-            final com.wultra.security.powerauth.client.v2.VaultUnlockResponse paResponse = powerAuthClient.v2().unlockVault(activationId, applicationId, data, signature, signatureType, reason);
+            final com.wultra.security.powerauth.client.v2.VaultUnlockRequest unlockRequest = new com.wultra.security.powerauth.client.v2.VaultUnlockRequest();
+            unlockRequest.setActivationId(activationId);
+            unlockRequest.setApplicationKey(applicationKey);
+            unlockRequest.setData(data);
+            unlockRequest.setSignature(signature);
+            unlockRequest.setSignatureType(signatureType);
+            unlockRequest.setReason(reason);
+            final com.wultra.security.powerauth.client.v2.VaultUnlockResponse paResponse = powerAuthClient.v2().unlockVault(
+                    unlockRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
 
             if (!paResponse.isSignatureValid()) {
                 logger.debug("Signature validation failed");
