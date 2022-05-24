@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.ConfirmRecoveryCodeRequest;
 import com.wultra.security.powerauth.client.v3.ConfirmRecoveryCodeResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
@@ -28,6 +29,7 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthRecoveryConfirmationException;
 import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,14 +51,17 @@ public class RecoveryService {
     private static final Logger logger = LoggerFactory.getLogger(RecoveryService.class);
 
     private final PowerAuthClient powerAuthClient;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
      * Controller constructor.
      * @param powerAuthClient PowerAuth client.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public RecoveryService(PowerAuthClient powerAuthClient) {
+    public RecoveryService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -77,8 +82,18 @@ public class RecoveryService {
                 logger.warn("PowerAuth confirm recovery failed because of invalid request");
                 throw new PowerAuthInvalidRequestException();
             }
-            final ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(activationId, applicationKey,
-                    request.getEphemeralPublicKey(), request.getEncryptedData(), request.getMac(), request.getNonce());
+            final ConfirmRecoveryCodeRequest confirmRequest = new ConfirmRecoveryCodeRequest();
+            confirmRequest.setActivationId(activationId);
+            confirmRequest.setApplicationKey(applicationKey);
+            confirmRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
+            confirmRequest.setEncryptedData(request.getEncryptedData());
+            confirmRequest.setMac(request.getMac());
+            confirmRequest.setNonce(request.getNonce());
+            final ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(
+                    confirmRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
             if (!paResponse.getActivationId().equals(activationId)) {
                 logger.warn("PowerAuth confirm recovery failed because of invalid activation ID in response");
                 throw new PowerAuthInvalidRequestException();
