@@ -58,7 +58,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     /**
      * Application ID.
      */
-    private Long applicationId;
+    private String applicationId;
 
     /**
      * List of application roles.
@@ -111,7 +111,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * @param activationFlags Activation flags.
      * @param authenticationContext Authentication context.
      */
-    public PowerAuthApiAuthenticationImpl(String activationId, String userId, Long applicationId, List<String> applicationRoles,
+    public PowerAuthApiAuthenticationImpl(String activationId, String userId, String applicationId, List<String> applicationRoles,
                                           List<String> activationFlags, AuthenticationContext authenticationContext) {
         super(null);
         // Deprecated field, updated for compatibility reason
@@ -181,12 +181,12 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     }
 
     @Override
-    public Long getApplicationId() {
+    public String getApplicationId() {
         return applicationId;
     }
 
     @Override
-    public void setApplicationId(Long id) {
+    public void setApplicationId(String id) {
         this.applicationId = id;
     }
 

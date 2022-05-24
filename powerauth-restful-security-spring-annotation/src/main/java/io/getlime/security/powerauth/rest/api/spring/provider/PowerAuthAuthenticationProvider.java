@@ -218,7 +218,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param activationContext PowerAuth activation context.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles,
+    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, String applicationId, List<String> applicationRoles,
                                                                         List<String> activationFlags, AuthenticationContext authenticationContext,
                                                                         String version, PowerAuthHttpHeader httpHeader, PowerAuthActivation activationContext) {
         final PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();

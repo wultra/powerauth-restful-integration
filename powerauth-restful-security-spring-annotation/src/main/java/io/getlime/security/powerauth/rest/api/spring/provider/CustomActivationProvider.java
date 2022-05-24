@@ -62,7 +62,7 @@ public interface CustomActivationProvider {
      * @return Custom attributes after processing.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
+    default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return customAttributes;
     }
 
@@ -84,7 +84,7 @@ public interface CustomActivationProvider {
      * @return True in case activation should be committed, false otherwise.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
+    default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return false;
     }
 
@@ -105,7 +105,7 @@ public interface CustomActivationProvider {
      * @param context Context for passing parameters between activation provider calls.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {}
+    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {}
 
     /**
      * Method that indicates if the recovery codes should be revoked when an activation is removed.
@@ -115,7 +115,7 @@ public interface CustomActivationProvider {
      * @param appId Application ID.
      * @return True in case the recovery codes should be revoked on remove, false otherwise.
      **/
-    default boolean shouldRevokeRecoveryCodeOnRemove(String activationId, String userId, Long appId) {
+    default boolean shouldRevokeRecoveryCodeOnRemove(String activationId, String userId, String appId) {
         return false;
     }
 
@@ -129,7 +129,7 @@ public interface CustomActivationProvider {
      * @param appId Application ID.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasRemoved(String activationId, String userId, Long appId) throws PowerAuthActivationException {}
+    default void activationWasRemoved(String activationId, String userId, String appId) throws PowerAuthActivationException {}
 
     /**
      * Get maximum failed attempt count for activations.
@@ -182,7 +182,7 @@ public interface CustomActivationProvider {
      * @param context Context for passing parameters between activation provider calls.
      * @return List of activation flags.
      */
-    default List<String> getActivationFlags(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) {
+    default List<String> getActivationFlags(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) {
         return Collections.emptyList();
     }
 
