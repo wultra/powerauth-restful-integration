@@ -468,7 +468,7 @@ public class ActivationService {
             // Fetch context information
             final String activationId = apiAuthentication.getActivationContext().getActivationId();
             final String userId = apiAuthentication.getUserId();
-            final Long applicationId = apiAuthentication.getApplicationId();
+            final String applicationId = apiAuthentication.getApplicationId();
 
             // Call other application specific cleanup logic
             final RemoveActivationResponse paResponse;
