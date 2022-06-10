@@ -150,10 +150,20 @@ public class ActivationService {
                         throw new PowerAuthActivationException();
                     }
 
+                    // Create context for passing parameters between activation provider calls
+                    final Map<String, Object> context = new LinkedHashMap<>();
+
+                    // Decide if the recovery codes should be generated
+                    Boolean shouldGenerateRecoveryCodes = null;
+                    if (activationProvider != null) {
+                        shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
+                    }
+
                     // Call PrepareActivation method on PA server
                     final PrepareActivationRequest prepareRequest = new PrepareActivationRequest();
                     prepareRequest.setActivationCode(activationCode);
                     prepareRequest.setApplicationKey(applicationKey);
+                    prepareRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
                     prepareRequest.setEphemeralPublicKey(ephemeralPublicKey);
                     prepareRequest.setEncryptedData(encryptedData);
                     prepareRequest.setMac(mac);
@@ -163,9 +173,6 @@ public class ActivationService {
                             httpCustomizationService.getQueryParams(),
                             httpCustomizationService.getHttpHeaders()
                     );
-
-                    // Create context for passing parameters between activation provider calls
-                    final Map<String, Object> context = new LinkedHashMap<>();
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
@@ -214,7 +221,8 @@ public class ActivationService {
 
                 // Custom activation
                 case CUSTOM: {
-                    // Check if there is a custom activation provider available, return an error in case it is not available
+                    // Check if there is a custom activation provider available, return an error in case it is not available.
+                    // Only for CUSTOM activations, proceeding without an activation provider does not make a sensible use-case.
                     if (activationProvider == null) {
                         logger.warn("Activation provider is not available");
                         throw new PowerAuthActivationException();
@@ -238,6 +246,9 @@ public class ActivationService {
                         throw new PowerAuthActivationException();
                     }
 
+                    // Decide if the recovery codes should be generated
+                    final Boolean shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
+
                     // Resolve maxFailedCount and activationExpireTimestamp parameters, null value means use value configured on PowerAuth server
                     final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId, ActivationType.CUSTOM, context);
                     final Long maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
@@ -255,6 +266,7 @@ public class ActivationService {
                     final CreateActivationRequest createRequest = new CreateActivationRequest();
                     createRequest.setUserId(userId);
                     createRequest.setTimestampActivationExpire(activationExpireXml);
+                    createRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
                     createRequest.setMaxFailureCount(maxFailedCount);
                     createRequest.setApplicationKey(applicationKey);
                     createRequest.setEphemeralPublicKey(ephemeralPublicKey);
@@ -336,17 +348,20 @@ public class ActivationService {
                     // Create context for passing parameters between activation provider calls
                     final Map<String, Object> context = new LinkedHashMap<>();
 
-                    // Resolve maxFailedCount, user ID is not known
+                    // Resolve maxFailedCount, user ID is not known and decide if the recovery codes should be generated.
                     Long maxFailedCount = null;
+                    Boolean shouldGenerateRecoveryCodes = null;
                     if (activationProvider != null) {
                         final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, null, ActivationType.RECOVERY, context);
                         maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
+                        shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
                     }
 
                     // Call RecoveryCodeActivation method on PA server
                     final RecoveryCodeActivationRequest recoveryRequest = new RecoveryCodeActivationRequest();
                     recoveryRequest.setRecoveryCode(recoveryCode);
                     recoveryRequest.setPuk(recoveryPuk);
+                    recoveryRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
                     recoveryRequest.setApplicationKey(applicationKey);
                     recoveryRequest.setMaxFailureCount(maxFailedCount);
                     recoveryRequest.setEphemeralPublicKey(ephemeralPublicKey);
@@ -476,9 +491,9 @@ public class ActivationService {
             removeRequest.setActivationId(activationId);
             removeRequest.setExternalUserId(null);
             if (activationProvider != null) {
-                final boolean revokeCodes = activationProvider.shouldRevokeRecoveryCodeOnRemove(activationId, userId, applicationId);
                 // revoke recovery codes
-                removeRequest.setRevokeRecoveryCodes(true);
+                final boolean revokeCodes = activationProvider.shouldRevokeRecoveryCodeOnRemove(activationId, userId, applicationId);
+                removeRequest.setRevokeRecoveryCodes(revokeCodes);
                 paResponse = powerAuthClient.removeActivation(
                         removeRequest,
                         httpCustomizationService.getQueryParams(),
