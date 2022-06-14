@@ -20,7 +20,9 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.CreateTokenRequest;
 import com.wultra.security.powerauth.client.v3.CreateTokenResponse;
+import com.wultra.security.powerauth.client.v3.RemoveTokenRequest;
 import com.wultra.security.powerauth.client.v3.SignatureType;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
@@ -33,6 +35,7 @@ import io.getlime.security.powerauth.rest.api.model.request.v3.TokenRemoveReques
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,15 +56,18 @@ public class TokenService {
 
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
-    private PowerAuthClient powerAuthClient;
+    private final PowerAuthClient powerAuthClient;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Set PowerAuth service client via setter injection.
-     * @param powerAuthClient PowerAuth service client.
+     * Service constructor.
+     * @param powerAuthClient PowerAuth client.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public void setPowerAuthClient(PowerAuthClient powerAuthClient) {
+    public TokenService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -99,8 +105,19 @@ public class TokenService {
             final String applicationKey = httpHeader.getApplicationKey();
 
             // Create a token
-            final CreateTokenResponse token = powerAuthClient.createToken(activationId, applicationKey, ephemeralPublicKey,
-                    encryptedData, mac, nonce, signatureType);
+            final CreateTokenRequest tokenRequest = new CreateTokenRequest();
+            tokenRequest.setActivationId(activationId);
+            tokenRequest.setApplicationKey(applicationKey);
+            tokenRequest.setEphemeralPublicKey(ephemeralPublicKey);
+            tokenRequest.setEncryptedData(encryptedData);
+            tokenRequest.setMac(mac);
+            tokenRequest.setNonce(nonce);
+            tokenRequest.setSignatureType(signatureType);
+            final CreateTokenResponse token = powerAuthClient.createToken(
+                    tokenRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
 
             // Prepare a response
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
@@ -131,7 +148,14 @@ public class TokenService {
             final String tokenId = request.getTokenId();
 
             // Remove a token, ignore response, since the endpoint should quietly return
-            powerAuthClient.removeToken(tokenId, activationId);
+            final RemoveTokenRequest removeRequest = new RemoveTokenRequest();
+            removeRequest.setActivationId(activationId);
+            removeRequest.setTokenId(tokenId);
+            powerAuthClient.removeToken(
+                    removeRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
 
             // Prepare a response
             final TokenRemoveResponse response = new TokenRemoveResponse();

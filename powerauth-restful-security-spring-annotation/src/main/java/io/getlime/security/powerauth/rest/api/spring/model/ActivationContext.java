@@ -36,7 +36,7 @@ public class ActivationContext {
     private final List<String> activationFlags;
     private ActivationStatus activationStatus;
     private String blockedReason;
-    private long applicationId;
+    private String applicationId;
     private String userId;
     private long version;
     private Instant timestampCreated;
@@ -126,7 +126,7 @@ public class ActivationContext {
      * Set application ID.
      * @param applicationId Application ID.
      */
-    public void setApplicationId(long applicationId) {
+    public void setApplicationId(String applicationId) {
         this.applicationId = applicationId;
     }
 
@@ -134,7 +134,7 @@ public class ActivationContext {
      * Get application ID.
      * @return Application ID.
      */
-    public long getApplicationId() {
+    public String getApplicationId() {
         return applicationId;
     }
 

@@ -62,7 +62,7 @@ public interface CustomActivationProvider {
      * @return Custom attributes after processing.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
+    default Map<String, Object> processCustomActivationAttributes(Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return customAttributes;
     }
 
@@ -84,7 +84,7 @@ public interface CustomActivationProvider {
      * @return True in case activation should be committed, false otherwise.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
+    default boolean shouldAutoCommitActivation(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
         return false;
     }
 
@@ -105,18 +105,38 @@ public interface CustomActivationProvider {
      * @param context Context for passing parameters between activation provider calls.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {}
+    default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {}
 
     /**
-     * Method that indicates if the recovery codes should be revoked when an activation is removed.
+     * Method that indicates if recovery codes should be generated for a given activation or not. The method may return null,
+     * in such case, it uses settings of the PowerAuth Server to determine if the recovery codes should be generated or not. Also,
+     * just specifying true in the call will not result in generating recovery codes in case that recovery codes are
+     * globally disabled at the PowerAuth Server.
+     *
+     * @param identityAttributes Identity related attributes.
+     * @param customAttributes Custom attributes, not related to identity.
+     * @param activationType Activation type.
+     * @param context Context for passing parameters between activation provider calls.
+     * @return False to prevent generating recovery codes, "null" to let the PowerAuth Server decide, and true to generate recovery codes
+     *         in case that the feature is enabled globally on PowerAuth Server.
+     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
+     */
+    default Boolean shouldCreateRecoveryCodes(Map<String, String> identityAttributes, Map<String, Object> customAttributes, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
+        return null;
+    }
+
+    /**
+     * Method that indicates if the recovery codes should be revoked when an activation is removed. The default value is
+     * true, since it is the more secure option (recovery codes are removed when original activation code is removed,
+     * which only allows using recovery code when the original activation is still active or blocked).
      *
      * @param activationId Activation ID.
      * @param userId User ID.
      * @param appId Application ID.
      * @return True in case the recovery codes should be revoked on remove, false otherwise.
      **/
-    default boolean shouldRevokeRecoveryCodeOnRemove(String activationId, String userId, Long appId) {
-        return false;
+    default boolean shouldRevokeRecoveryCodeOnRemove(String activationId, String userId, String appId) {
+        return true;
     }
 
     /**
@@ -129,7 +149,7 @@ public interface CustomActivationProvider {
      * @param appId Application ID.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default void activationWasRemoved(String activationId, String userId, Long appId) throws PowerAuthActivationException {}
+    default void activationWasRemoved(String activationId, String userId, String appId) throws PowerAuthActivationException {}
 
     /**
      * Get maximum failed attempt count for activations.
@@ -182,7 +202,7 @@ public interface CustomActivationProvider {
      * @param context Context for passing parameters between activation provider calls.
      * @return List of activation flags.
      */
-    default List<String> getActivationFlags(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, Long appId, ActivationType activationType, Map<String, Object> context) {
+    default List<String> getActivationFlags(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) {
         return Collections.emptyList();
     }
 

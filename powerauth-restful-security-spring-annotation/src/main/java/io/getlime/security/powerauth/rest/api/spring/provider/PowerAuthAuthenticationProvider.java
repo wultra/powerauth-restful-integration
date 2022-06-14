@@ -46,6 +46,7 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthTokenInvalidException;
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationStatus;
 import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
+import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,16 +71,19 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
     private final PowerAuthClient powerAuthClient;
     private final ActivationStatusConverter activationStatusConverter;
+    private final HttpCustomizationService httpCustomizationService;
 
     /**
      * Provider constructor.
      * @param powerAuthClient PowerAuth client.
      * @param activationStatusConverter Activation status converter.
+     * @param httpCustomizationService HTTP customization service.
      */
     @Autowired
-    public PowerAuthAuthenticationProvider(PowerAuthClient powerAuthClient, ActivationStatusConverter activationStatusConverter) {
+    public PowerAuthAuthenticationProvider(PowerAuthClient powerAuthClient, ActivationStatusConverter activationStatusConverter, HttpCustomizationService httpCustomizationService) {
         this.powerAuthClient = powerAuthClient;
         this.activationStatusConverter = activationStatusConverter;
+        this.httpCustomizationService = httpCustomizationService;
     }
 
     /**
@@ -118,13 +122,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                 return null;
             }
 
-            final VerifySignatureRequest request = new VerifySignatureRequest();
-            request.setActivationId(authentication.getActivationId());
-            request.setApplicationKey(authentication.getApplicationKey());
-            request.setSignature(authentication.getSignature());
-            request.setSignatureType(signatureType);
-            request.setSignatureVersion(authentication.getVersion());
-            request.setData(PowerAuthHttpBody.getSignatureBaseString(
+            final VerifySignatureRequest verifyRequest = new VerifySignatureRequest();
+            verifyRequest.setActivationId(authentication.getActivationId());
+            verifyRequest.setApplicationKey(authentication.getApplicationKey());
+            verifyRequest.setSignature(authentication.getSignature());
+            verifyRequest.setSignatureType(signatureType);
+            verifyRequest.setSignatureVersion(authentication.getVersion());
+            verifyRequest.setData(PowerAuthHttpBody.getSignatureBaseString(
                     authentication.getHttpMethod(),
                     authentication.getRequestUri(),
                     authentication.getNonce(),
@@ -134,12 +138,16 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             // In case forced signature version is specified, use it in the request.
             // This occurs when verifying signature during upgrade before upgrade is committed.
             if (authentication.getForcedSignatureVersion() != null) {
-                request.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
+                verifyRequest.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
             }
 
             final VerifySignatureResponse response;
             try {
-                response = powerAuthClient.verifySignature(request);
+                response = powerAuthClient.verifySignature(
+                        verifyRequest,
+                        httpCustomizationService.getQueryParams(),
+                        httpCustomizationService.getHttpHeaders()
+                );
             } catch (PowerAuthClientException ex) {
                 logger.warn("Signature validation failed, error: {}", ex.getMessage());
                 logger.debug("Error details", ex);
@@ -169,13 +177,18 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      */
     private PowerAuthApiAuthenticationImpl validateTokenAuthentication(PowerAuthTokenAuthenticationImpl authentication) {
         try {
-            final ValidateTokenRequest request = new ValidateTokenRequest();
-            request.setTokenId(authentication.getTokenId());
-            request.setTokenDigest(authentication.getTokenDigest());
-            request.setNonce(authentication.getNonce());
-            request.setTimestamp(Long.parseLong(authentication.getTimestamp()));
+            final ValidateTokenRequest validateRequest = new ValidateTokenRequest();
+            validateRequest.setTokenId(authentication.getTokenId());
+            validateRequest.setTokenDigest(authentication.getTokenDigest());
+            validateRequest.setNonce(authentication.getNonce());
+            validateRequest.setTimestamp(Long.parseLong(authentication.getTimestamp()));
 
-            final ValidateTokenResponse response = powerAuthClient.validateToken(request);
+            final ValidateTokenResponse response = powerAuthClient.validateToken(
+                    validateRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
+
             final ActivationStatus activationStatus;
             if (response.isTokenValid()) {
                 activationStatus = ActivationStatus.ACTIVE;
@@ -218,7 +231,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param activationContext PowerAuth activation context.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, Long applicationId, List<String> applicationRoles,
+    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, String applicationId, List<String> applicationRoles,
                                                                         List<String> activationFlags, AuthenticationContext authenticationContext,
                                                                         String version, PowerAuthHttpHeader httpHeader, PowerAuthActivation activationContext) {
         final PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
