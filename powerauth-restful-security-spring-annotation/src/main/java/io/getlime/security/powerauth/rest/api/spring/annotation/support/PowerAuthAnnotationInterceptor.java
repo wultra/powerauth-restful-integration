@@ -29,6 +29,7 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthToken;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthHeaderMissingException;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
@@ -125,6 +126,10 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                 try {
                     final String resourceId = expandResourceId(powerAuthSignatureAnnotation.resourceId(), request, handlerMethod);
                     final String header = request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME);
+                    if (header == null) {
+                        logger.warn("Signature HTTP header is missing");
+                        throw new PowerAuthHeaderMissingException();
+                    }
                     final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthSignatureAnnotation.signatureType());
                     final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
                             request, resourceId, header, signatureTypes
@@ -140,6 +145,10 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
             if (powerAuthTokenAnnotation != null) {
                 try {
                     final String header = request.getHeader(PowerAuthTokenHttpHeader.HEADER_NAME);
+                    if (header == null) {
+                        logger.warn("Token HTTP header is missing");
+                        throw new PowerAuthHeaderMissingException();
+                    }
                     final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthTokenAnnotation.signatureType());
                     final PowerAuthApiAuthentication authentication = authenticationProvider.validateTokenWithActivationDetails(
                             header, signatureTypes

@@ -66,13 +66,13 @@ public interface PowerAuthApiAuthentication {
      * Get related application ID.
      * @return Application ID.
      */
-    Long getApplicationId();
+    String getApplicationId();
 
     /**
      * Set related application ID.
      * @param id Application ID.
      */
-    void setApplicationId(Long id);
+    void setApplicationId(String id);
 
     /**
      * Get application roles.

@@ -59,7 +59,7 @@ In order to connect to the correct PowerAuth Server, you need to add following c
 
 ```java
 @Configuration
-@ComponentScan(basePackages = {"io.getlime.security.powerauth","com.wultra.security.powerauth"})
+@ComponentScan(basePackages = {"io.getlime.security.powerauth", "com.wultra.security.powerauth"})
 public class PowerAuthWebServiceConfiguration {
 
     @Value("${powerauth.rest.url}")
@@ -67,7 +67,12 @@ public class PowerAuthWebServiceConfiguration {
 
     @Bean
     public PowerAuthClient powerAuthClient() {
-        return new PowerAuthRestClient(powerAuthRestUrl);
+        try {
+            return new PowerAuthRestClient(powerAuthRestUrl);
+        } catch (PowerAuthClientException ex) {
+            logger.warn(ex.getMessage(), ex);
+            return null;
+        }
     }
 
 }
@@ -91,7 +96,12 @@ public PowerAuthClient powerAuthClient() {
     PowerAuthRestClientConfiguration config = new PowerAuthRestClientConfiguration();
     config.setPowerAuthClientToken(clientToken);
     config.setPowerAuthClientSecret(clientSecret);
-    return new PowerAuthRestClient(powerAuthRestUrl, config);
+    try {
+        return new PowerAuthRestClient(powerAuthRestUrl, config);
+    } catch (PowerAuthClientException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return null;
+    }
 }
 ```
 
@@ -295,7 +305,7 @@ public class AuthenticationController {
 
     @RequestMapping(value = "login", method = RequestMethod.POST)
     @ResponseBody
-    public PowerAuthAPIResponse<String> login(
+    public ObjectResponse<String> login(
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, required = true) String signatureHeader,
             HttpServletRequest servletRequest) throws Exception {
 
@@ -310,7 +320,7 @@ public class AuthenticationController {
             throw new PowerAuthSignatureInvalidException();
         }
         SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
-        return new PowerAuthAPIResponse<String>("OK", "User " + userId);
+        return new ObjectResponse<String>("OK", "User " + userId);
     }
 
 }
@@ -356,13 +366,13 @@ public class AuthenticationController {
 
     @RequestMapping(value = "widget/balance", method = RequestMethod.GET)
     @PowerAuthToken
-    public @ResponseBody PowerAuthAPIResponse<String> getBalance(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthAuthenticationException {
+    public @ResponseBody ObjectResponse<String> getBalance(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthAuthenticationException {
         if (apiAuthentication == null) {
             throw new PowerAuthTokenInvalidException();
         } else {
             String userId = apiAuthentication.getUserId();
             String balance = service.getBalanceForUser(userId);
-            return new PowerAuthAPIResponse<String>("OK", balance);
+            return new ObjectResponse<String>("OK", balance);
         }
     }
 
