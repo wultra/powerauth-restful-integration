@@ -153,12 +153,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                 logger.debug("Error details", ex);
                 return null;
             }
+            final ActivationStatus activationStatus = activationStatusConverter.convertFrom(response.getActivationStatus());
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isSignatureValid());
             authenticationContext.setRemainingAttempts(response.getRemainingAttempts() != null ? response.getRemainingAttempts().intValue() : null);
             authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
             final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
-                    activationStatusConverter.convertFrom(response.getActivationStatus()), response.getBlockedReason(),
+                    activationStatus, response.getBlockedReason(),
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
             return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
                     response.getApplicationId(), response.getApplicationRoles(), response.getActivationFlags(),
@@ -189,19 +190,13 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                     httpCustomizationService.getHttpHeaders()
             );
 
-            final ActivationStatus activationStatus;
-            if (response.isTokenValid()) {
-                activationStatus = ActivationStatus.ACTIVE;
-            } else {
-                // Detailed activation status in case of token authentication failure needs to be obtained from PA server
-                activationStatus = null;
-            }
+            final ActivationStatus activationStatus = activationStatusConverter.convertFrom(response.getActivationStatus());
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isTokenValid());
             authenticationContext.setRemainingAttempts(null);
             authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
             final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
-                    activationStatus, null,
+                    activationStatus, response.getBlockedReason(),
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
             return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
                     response.getApplicationId(), response.getApplicationRoles(), response.getActivationFlags(),
