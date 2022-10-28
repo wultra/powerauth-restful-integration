@@ -84,7 +84,7 @@
         <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <spring-boot.version>2.6.8</spring-boot.version>
-        <commons-text.version>1.9</commons-text.version>
+        <commons-text.version>1.10.0</commons-text.version>
         <jackson-databind.version>2.13.3</jackson-databind.version>
         <bcprov.version>1.70</bcprov.version>
         <rest-model-base.version>1.5.1</rest-model-base.version>
