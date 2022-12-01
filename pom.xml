@@ -87,7 +87,7 @@
         <commons-text.version>1.10.0</commons-text.version>
         <jackson-databind.version>2.13.3</jackson-databind.version>
         <bcprov.version>1.70</bcprov.version>
-        <rest-model-base.version>1.5.1</rest-model-base.version>
+        <rest-model-base.version>1.6.0-SNAPSHOT</rest-model-base.version>
         <powerauth-java-crypto.version>1.4.0-SNAPSHOT</powerauth-java-crypto.version>
         <powerauth-java-http.version>1.4.0-SNAPSHOT</powerauth-java-http.version>
         <powerauth-restful-model.version>1.4.0-SNAPSHOT</powerauth-restful-model.version>
