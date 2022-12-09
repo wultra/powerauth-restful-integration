@@ -83,9 +83,8 @@
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
-        <spring-boot.version>2.6.8</spring-boot.version>
+        <spring-boot.version>2.6.14</spring-boot.version>
         <commons-text.version>1.10.0</commons-text.version>
-        <jackson-databind.version>2.13.3</jackson-databind.version>
         <bcprov.version>1.70</bcprov.version>
         <rest-model-base.version>1.6.0-SNAPSHOT</rest-model-base.version>
         <powerauth-java-crypto.version>1.4.0-SNAPSHOT</powerauth-java-crypto.version>
@@ -94,6 +93,18 @@
         <powerauth-rest-client-spring.version>1.4.0-SNAPSHOT</powerauth-rest-client-spring.version>
         <powerauth-restful-security-spring-annotation.version>1.4.0-SNAPSHOT</powerauth-restful-security-spring-annotation.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
