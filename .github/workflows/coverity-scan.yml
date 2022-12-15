@@ -3,7 +3,7 @@ name: Run Coverity scan and upload results
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 10 1 * *'    # monthly
+    - cron: '0 10 1 * *' # monthly
 
 
 jobs:
