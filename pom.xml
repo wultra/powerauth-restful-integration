@@ -77,15 +77,15 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <maven-jar-plugin.version>3.2.2</maven-jar-plugin.version>
-        <maven-deploy-plugin.version>3.0.0-M2</maven-deploy-plugin.version>
-        <maven-javadoc-plugin.version>3.4.0</maven-javadoc-plugin.version>
+        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
+        <maven-deploy-plugin.version>3.0.0</maven-deploy-plugin.version>
+        <maven-javadoc-plugin.version>3.4.1</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.2.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <javax.servlet-api.version>4.0.1</javax.servlet-api.version>
         <spring-boot.version>2.6.14</spring-boot.version>
         <commons-text.version>1.10.0</commons-text.version>
-        <bcprov.version>1.70</bcprov.version>
+        <bcprov.version>1.72</bcprov.version>
         <rest-model-base.version>1.6.0-SNAPSHOT</rest-model-base.version>
         <powerauth-java-crypto.version>1.4.0-SNAPSHOT</powerauth-java-crypto.version>
         <powerauth-java-http.version>1.4.0-SNAPSHOT</powerauth-java-http.version>
@@ -102,6 +102,12 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <dependency>
+                <groupId>org.bouncycastle</groupId>
+                <artifactId>bcprov-jdk18on</artifactId>
+                <version>${bcprov.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
