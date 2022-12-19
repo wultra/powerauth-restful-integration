@@ -86,12 +86,12 @@
         <spring-boot.version>2.6.14</spring-boot.version>
         <commons-text.version>1.10.0</commons-text.version>
         <bcprov.version>1.72</bcprov.version>
-        <rest-model-base.version>1.6.0-SNAPSHOT</rest-model-base.version>
-        <powerauth-java-crypto.version>1.4.0-SNAPSHOT</powerauth-java-crypto.version>
-        <powerauth-java-http.version>1.4.0-SNAPSHOT</powerauth-java-http.version>
-        <powerauth-restful-model.version>1.4.0-SNAPSHOT</powerauth-restful-model.version>
-        <powerauth-rest-client-spring.version>1.4.0-SNAPSHOT</powerauth-rest-client-spring.version>
-        <powerauth-restful-security-spring-annotation.version>1.4.0-SNAPSHOT</powerauth-restful-security-spring-annotation.version>
+        <rest-model-base.version>1.6.0</rest-model-base.version>
+        <powerauth-java-crypto.version>1.4.0</powerauth-java-crypto.version>
+        <powerauth-java-http.version>1.4.0</powerauth-java-http.version>
+        <powerauth-restful-model.version>1.4.0</powerauth-restful-model.version>
+        <powerauth-rest-client-spring.version>1.4.0</powerauth-rest-client-spring.version>
+        <powerauth-restful-security-spring-annotation.version>1.4.0</powerauth-restful-security-spring-annotation.version>
     </properties>
 
     <dependencyManagement>
