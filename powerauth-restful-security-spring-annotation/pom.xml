@@ -51,7 +51,13 @@
             <artifactId>spring-boot-starter-security</artifactId>
         </dependency>
 
-        <!-- PowerAuth Dependencies -->
+        <!-- PowerAuth Restful Integration Dependencies -->
+        <dependency>
+            <groupId>io.getlime.security</groupId>
+            <artifactId>powerauth-restful-model</artifactId>
+        </dependency>
+
+        <!-- PowerAuth Libraries -->
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-java-crypto</artifactId>
@@ -61,11 +67,6 @@
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-java-http</artifactId>
             <version>${powerauth-java-http.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>io.getlime.security</groupId>
-            <artifactId>powerauth-restful-model</artifactId>
-            <version>${powerauth-restful-model.version}</version>
         </dependency>
         <dependency>
             <groupId>io.getlime.security</groupId>

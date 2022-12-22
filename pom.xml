@@ -89,9 +89,7 @@
         <rest-model-base.version>1.6.0</rest-model-base.version>
         <powerauth-java-crypto.version>1.4.0</powerauth-java-crypto.version>
         <powerauth-java-http.version>1.4.0</powerauth-java-http.version>
-        <powerauth-restful-model.version>1.4.0</powerauth-restful-model.version>
         <powerauth-rest-client-spring.version>1.4.0</powerauth-rest-client-spring.version>
-        <powerauth-restful-security-spring-annotation.version>1.4.0</powerauth-restful-security-spring-annotation.version>
     </properties>
 
     <dependencyManagement>
@@ -104,6 +102,20 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- PowerAuth Restful Integration Dependencies -->
+            <dependency>
+                <groupId>io.getlime.security</groupId>
+                <artifactId>powerauth-restful-model</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.getlime.security</groupId>
+                <artifactId>powerauth-restful-security-spring-annotation</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- 3rd Party Dependencies -->
             <dependency>
                 <groupId>org.bouncycastle</groupId>
                 <artifactId>bcprov-jdk18on</artifactId>
