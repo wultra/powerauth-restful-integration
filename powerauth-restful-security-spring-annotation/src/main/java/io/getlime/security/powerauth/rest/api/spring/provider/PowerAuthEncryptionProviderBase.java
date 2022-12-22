@@ -123,6 +123,11 @@ public abstract class PowerAuthEncryptionProviderBase {
                 throw new PowerAuthEncryptionException();
             }
 
+            if (eciesRequest == null) {
+                logger.warn("Deserialization of request body bytes resulted in null value.");
+                throw new PowerAuthEncryptionException();
+            }
+
             // Prepare ephemeral public key
             final String ephemeralPublicKey = eciesRequest.getEphemeralPublicKey();
             final String encryptedData = eciesRequest.getEncryptedData();

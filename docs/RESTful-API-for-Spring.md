@@ -27,8 +27,7 @@ This step is technically required only in case your server uses end-to-end encry
 ```xml
 <dependency>
     <groupId>org.bouncycastle</groupId>
-    <artifactId>bcprov-jdk15on</artifactId>
-    <version>${bouncycastle.version}</version>
+    <artifactId>bcprov-jdk18on</artifactId>
 </dependency>
 ```
 
