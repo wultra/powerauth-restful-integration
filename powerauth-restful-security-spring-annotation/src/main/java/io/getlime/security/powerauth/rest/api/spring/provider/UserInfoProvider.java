@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
+import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 
 import java.util.Map;
@@ -31,17 +32,33 @@ import java.util.Map;
 public interface UserInfoProvider {
 
     /**
+     * Determine if the user info should be returned during the activation flow. By default, the user info is only
+     * available via a specialized <code>/pa/v3/user/info</code> endpoint. By enabling this option, the user info claims
+     * will be also returned in the activation response body (inside the outer-encrypted layer).
+     * @param stage Information about where the user info is requested from.
+     * @param userId User ID.
+     * @param activationId Activation ID.
+     * @param applicationId Application ID.
+     * @return True if the user info should be returned during the activation, false otherwise (user info is only
+     *         returned in the separate user info endpoint).
+     */
+    default boolean returnUserInfoDuringActivation(UserInfoStage stage, String userId, String activationId, String applicationId) {
+        return false;
+    }
+
+    /**
      * Fetch claims (as used, for example, in JWT) for a given user ID. The map may, but does not have to include claims
      * "sub", "jti", and "iat". If these claims are set, they will override values which were automatically inferred from the
      * authentication object provided by PowerAuth stack. This may be helpful, for example, to anonymize the user ID
      * contained in the "sub" claim.
      *
+     * @param stage             Information about where the user info is requested from.
      * @param userId            User ID.
      * @param activationId      Activation ID.
      * @param applicationId     Application ID.
      * @return Map of claims obtained for a given user ID.
      */
-    default Map<String, Object> fetchUserClaimsForUserId(String userId, String activationId, String applicationId) throws PowerAuthUserInfoException {
+    default Map<String, Object> fetchUserClaimsForUserId(UserInfoStage stage, String userId, String activationId, String applicationId) throws PowerAuthUserInfoException {
         return null;
     }
 
