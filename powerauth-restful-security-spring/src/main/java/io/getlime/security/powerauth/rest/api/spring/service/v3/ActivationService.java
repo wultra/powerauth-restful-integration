@@ -193,7 +193,7 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        if (userInfoProvider.returnUserInfoDuringActivation(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE, userId, activationId, applicationId)) {
+                        if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE, userId, activationId, applicationId)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE, userId, activationId, applicationId);
                         }
                     }
@@ -309,7 +309,7 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        if (userInfoProvider.returnUserInfoDuringActivation(UserInfoStage.ACTIVATION_PROCESS_CUSTOM, userId, activationId, applicationId)) {
+                        if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM, userId, activationId, applicationId)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.ACTIVATION_PROCESS_CUSTOM, userId, activationId, applicationId);
                         }
                     }
@@ -408,7 +408,7 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        if (userInfoProvider.returnUserInfoDuringActivation(UserInfoStage.ACTIVATION_PROCESS_RECOVERY, userId, activationId, applicationId)) {
+                        if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY, userId, activationId, applicationId)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.ACTIVATION_PROCESS_RECOVERY, userId, activationId, applicationId);
                         }
                     }

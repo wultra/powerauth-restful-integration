@@ -32,9 +32,9 @@ import java.util.Map;
 public interface UserInfoProvider {
 
     /**
-     * Determine if the user info should be returned during the activation flow. By default, the user info is only
-     * available via a specialized <code>/pa/v3/user/info</code> endpoint. By enabling this option, the user info claims
-     * will be also returned in the activation response body (inside the outer-encrypted layer).
+     * Determine if the user info should be returned during the provided stage. By default, the user info is only
+     * available via a specialized <code>/pa/v3/user/info</code> endpoint. By overriding this method, the user info claims
+     * might be also returned in the activation response body (inside the outer-encrypted layer).
      * @param stage Information about where the user info is requested from.
      * @param userId User ID.
      * @param activationId Activation ID.
@@ -42,8 +42,8 @@ public interface UserInfoProvider {
      * @return True if the user info should be returned during the activation, false otherwise (user info is only
      *         returned in the separate user info endpoint).
      */
-    default boolean returnUserInfoDuringActivation(UserInfoStage stage, String userId, String activationId, String applicationId) {
-        return false;
+    default boolean returnUserInfoDuringStage(UserInfoStage stage, String userId, String activationId, String applicationId) {
+        return stage == UserInfoStage.USER_INFO_ENDPOINT;
     }
 
     /**
