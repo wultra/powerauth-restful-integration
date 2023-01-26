@@ -29,7 +29,6 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.service.v3.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
