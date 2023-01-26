@@ -40,6 +40,7 @@ import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,6 +73,7 @@ public class ActivationService {
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
     private CustomActivationProvider activationProvider;
+    private UserInfoProvider userInfoProvider;
 
 
     /**
@@ -103,6 +105,15 @@ public class ActivationService {
     @Autowired(required = false)
     public void setPowerAuthActivationProvider(CustomActivationProvider activationProvider) {
         this.activationProvider = activationProvider;
+    }
+
+    /**
+     * Set user info provider via setter injection.
+     * @param userInfoProvider User info provider.
+     */
+    @Autowired(required = false)
+    public void setUserInfoProvider(UserInfoProvider userInfoProvider) {
+        this.userInfoProvider = userInfoProvider;
     }
 
     /**
@@ -174,6 +185,12 @@ public class ActivationService {
                             httpCustomizationService.getHttpHeaders()
                     );
 
+                    // Process user info
+                    Map<String, Object> userInfo = null;
+                    if (userInfoProvider != null) {
+                        userInfo = userInfoProvider.fetchUserClaimsForUserId(response.getUserId(), response.getActivationId(), response.getApplicationId());
+                    }
+
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
                     if (activationProvider != null) {
@@ -216,7 +233,7 @@ public class ActivationService {
                     }
 
                     // Prepare and return encrypted response
-                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes);
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
                 }
 
                 // Custom activation
@@ -279,6 +296,12 @@ public class ActivationService {
                             httpCustomizationService.getHttpHeaders()
                     );
 
+                    // Process user info
+                    Map<String, Object> userInfo = null;
+                    if (userInfoProvider != null) {
+                        userInfo = userInfoProvider.fetchUserClaimsForUserId(response.getUserId(), response.getActivationId(), response.getApplicationId());
+                    }
+
                     // Process custom attributes using a custom logic
                     final Map<String, Object> processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), userId, response.getApplicationId(), ActivationType.CUSTOM, context);
 
@@ -311,15 +334,7 @@ public class ActivationService {
                     }
 
                     // Prepare encrypted activation data
-                    final EciesEncryptedResponse encryptedActivationData = new EciesEncryptedResponse(response.getEncryptedData(), response.getMac());
-
-                    // Prepare the created activation response data
-                    final ActivationLayer1Response responseL1 = new ActivationLayer1Response();
-                    responseL1.setCustomAttributes(processedCustomAttributes);
-                    responseL1.setActivationData(encryptedActivationData);
-
-                    // Return response
-                    return responseL1;
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
                 }
 
                 // Activation using recovery code
@@ -368,20 +383,26 @@ public class ActivationService {
                     recoveryRequest.setEncryptedData(encryptedData);
                     recoveryRequest.setMac(mac);
                     recoveryRequest.setNonce(nonce);
-                    final RecoveryCodeActivationResponse recoveryResponse = powerAuthClient.createActivationUsingRecoveryCode(
+                    final RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(
                             recoveryRequest,
                             httpCustomizationService.getQueryParams(),
                             httpCustomizationService.getHttpHeaders()
                     );
 
+                    // Process user info
+                    Map<String, Object> userInfo = null;
+                    if (userInfoProvider != null) {
+                        userInfo = userInfoProvider.fetchUserClaimsForUserId(response.getUserId(), response.getActivationId(), response.getApplicationId());
+                    }
+
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
                     if (activationProvider != null) {
-                        processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, recoveryResponse.getActivationId(), recoveryResponse.getUserId(), recoveryResponse.getApplicationId(), ActivationType.RECOVERY, context);
-                        final List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, recoveryResponse.getActivationId(), recoveryResponse.getUserId(), recoveryResponse.getApplicationId(), ActivationType.RECOVERY, context);
+                        processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context);
+                        final List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context);
                         if (activationFlags != null && !activationFlags.isEmpty()) {
                             final AddActivationFlagsRequest flagsRequest = new AddActivationFlagsRequest();
-                            flagsRequest.setActivationId(recoveryResponse.getActivationId());
+                            flagsRequest.setActivationId(response.getActivationId());
                             flagsRequest.getActivationFlags().addAll(activationFlags);
                             powerAuthClient.addActivationFlags(
                                     flagsRequest,
@@ -392,9 +413,9 @@ public class ActivationService {
                     }
 
                     // Automatically commit activation by default, the optional activation provider can override automatic commit
-                    if (activationProvider == null || activationProvider.shouldAutoCommitActivation(identity, customAttributes, recoveryResponse.getActivationId(), recoveryResponse.getUserId(), recoveryResponse.getApplicationId(), ActivationType.RECOVERY, context)) {
+                    if (activationProvider == null || activationProvider.shouldAutoCommitActivation(identity, customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context)) {
                         final CommitActivationRequest commitRequest = new CommitActivationRequest();
-                        commitRequest.setActivationId(recoveryResponse.getActivationId());
+                        commitRequest.setActivationId(response.getActivationId());
                         commitRequest.setExternalUserId(null);
                         final CommitActivationResponse commitResponse = powerAuthClient.commitActivation(
                                 commitRequest,
@@ -402,12 +423,12 @@ public class ActivationService {
                                 httpCustomizationService.getHttpHeaders()
                         );
                         if (activationProvider != null && commitResponse.isActivated()) {
-                            activationProvider.activationWasCommitted(identity, customAttributes, recoveryResponse.getActivationId(), recoveryResponse.getUserId(), recoveryResponse.getApplicationId(), ActivationType.RECOVERY, context);
+                            activationProvider.activationWasCommitted(identity, customAttributes, response.getActivationId(), response.getUserId(), response.getApplicationId(), ActivationType.RECOVERY, context);
                         }
                     }
 
                     // Prepare and return encrypted response
-                    return prepareEncryptedResponse(recoveryResponse.getEncryptedData(), recoveryResponse.getMac(), processedCustomAttributes);
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
                 }
 
                 default:
@@ -529,7 +550,7 @@ public class ActivationService {
      * @param processedCustomAttributes Custom attributes to be returned.
      * @return Encrypted response object.
      */
-    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, Map<String, Object> processedCustomAttributes) {
+    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, Map<String, Object> processedCustomAttributes, Map<String, Object> userInfo) {
         // Prepare encrypted response object for layer 2
         final EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
         encryptedResponseL2.setEncryptedData(encryptedData);
@@ -537,6 +558,7 @@ public class ActivationService {
 
         // The response is encrypted once more before sent to client using ResponseBodyAdvice
         final ActivationLayer1Response responseL1 = new ActivationLayer1Response();
+        responseL1.setUserInfo(userInfo);
         responseL1.setCustomAttributes(processedCustomAttributes);
         responseL1.setActivationData(encryptedResponseL2);
         return responseL1;
