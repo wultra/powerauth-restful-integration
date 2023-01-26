@@ -20,12 +20,10 @@
 package io.getlime.security.powerauth.rest.api.spring.controller.v3;
 
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
-import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.model.request.v3.UserInfoRequest;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthToken;
-import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.service.v3.UserInfoService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,22 +62,15 @@ public class UserInfoController {
      * Fetch user info.
      *
      * @param request Request with user info service.
-     * @param authentication PowerAuth Authentication.
+     * @param eciesContext PowerAuth ECIES encryption context.
      * @return Encrypted user info claims.
      * @throws PowerAuthUserInfoException In case there is an error while fetching claims.
      */
     @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
-    @PowerAuthToken(signatureType = {
-            PowerAuthSignatureTypes.POSSESSION,
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
-    })
     @PostMapping("info")
-    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, PowerAuthApiAuthentication authentication) throws PowerAuthUserInfoException {
-        return userInfoService.fetchUserClaimsByUserId(
-                authentication.getUserId(),
-                authentication.getActivationContext().getActivationId(),
-                authentication.getApplicationId()
+    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, EciesEncryptionContext eciesContext) throws PowerAuthUserInfoException {
+        return userInfoService.fetchUserClaimsByActivationId(
+                eciesContext.getActivationId()
         );
     }
 

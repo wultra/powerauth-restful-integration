@@ -19,9 +19,15 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
+import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
+import com.wultra.security.powerauth.client.v3.ActivationStatus;
+import com.wultra.security.powerauth.client.v3.GetActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,7 +44,15 @@ import java.util.UUID;
 @Service
 public class UserInfoService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserInfoService.class);
+
     private UserInfoProvider userInfoProvider;
+    private final PowerAuthClient powerAuthClient;
+
+    @Autowired
+    public UserInfoService(PowerAuthClient powerAuthClient) {
+        this.powerAuthClient = powerAuthClient;
+    }
 
     /**
      * Setter with optional user info provider bean.
@@ -52,30 +66,44 @@ public class UserInfoService {
     /**
      * Fetch user info as a map of claims.
      *
-     * @param userId User ID.
      * @param activationId Activation ID.
-     * @param applicationId Application ID.
      * @return Map of claims.
      * @throws PowerAuthUserInfoException In case there is an error while fetching claims.
      */
-    public Map<String, Object> fetchUserClaimsByUserId(String userId, String activationId, String applicationId) throws PowerAuthUserInfoException {
-        final Map<String, Object> map = new LinkedHashMap<>();
-        map.put("sub", userId);
-        map.put("jti", UUID.randomUUID().toString());
-        map.put("iat", Instant.now().getEpochSecond());
+    public Map<String, Object> fetchUserClaimsByActivationId(String activationId) throws PowerAuthUserInfoException {
+        try {
+            // Fetch activation details
+            final GetActivationStatusResponse activationStatusResponse = powerAuthClient.getActivationStatus(activationId);
+            final String userId = activationStatusResponse.getUserId();
+            final String applicationId = activationStatusResponse.getApplicationId();
+            final ActivationStatus activationStatus = activationStatusResponse.getActivationStatus();
 
-        if (userInfoProvider != null) {
-            if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId)) {
-                final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId);
-                if (claims != null) {
-                    for (String key : claims.keySet()) {
-                        map.put(key, claims.get(key));
+            if (ActivationStatus.ACTIVE != activationStatus) { // only allow active state for now
+                throw new PowerAuthUserInfoException("Invalid activation status: " + activationStatus + ", for activation: " + activationId);
+            }
+
+            final Map<String, Object> map = new LinkedHashMap<>();
+            map.put("sub", userId);
+            map.put("jti", UUID.randomUUID().toString());
+            map.put("iat", Instant.now().getEpochSecond());
+
+            if (userInfoProvider != null) {
+                if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId)) {
+                    final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId);
+                    if (claims != null) {
+                        for (String key : claims.keySet()) {
+                            map.put(key, claims.get(key));
+                        }
                     }
                 }
             }
-        }
 
-        return map;
+            return map;
+        } catch (PowerAuthClientException ex) {
+            logger.warn("Fetching user claims failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthUserInfoException(ex);
+        }
     }
 
 }
