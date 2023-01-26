@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
+import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public class UserInfoService {
         map.put("iat", Instant.now().getEpochSecond());
 
         if (userInfoProvider != null) {
-            final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(userId, activationId, applicationId);
+            final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId);
             if (claims != null) {
                 for (String key : claims.keySet()) {
                     map.put(key, claims.get(key));
