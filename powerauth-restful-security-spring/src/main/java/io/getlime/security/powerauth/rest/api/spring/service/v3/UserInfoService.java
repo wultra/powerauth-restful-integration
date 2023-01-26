@@ -65,10 +65,12 @@ public class UserInfoService {
         map.put("iat", Instant.now().getEpochSecond());
 
         if (userInfoProvider != null) {
-            final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId);
-            if (claims != null) {
-                for (String key : claims.keySet()) {
-                    map.put(key, claims.get(key));
+            if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId)) {
+                final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId);
+                if (claims != null) {
+                    for (String key : claims.keySet()) {
+                        map.put(key, claims.get(key));
+                    }
                 }
             }
         }
