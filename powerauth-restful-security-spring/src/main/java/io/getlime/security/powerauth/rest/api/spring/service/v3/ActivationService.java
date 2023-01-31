@@ -32,6 +32,8 @@ import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivati
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
+import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
+import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContextBuilder;
 import io.getlime.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
@@ -193,8 +195,14 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE, userId, activationId, applicationId)) {
-                            userInfo = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE, userId, activationId, applicationId);
+                        final UserInfoContext userInfoContext = new UserInfoContextBuilder()
+                                .setStage(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE)
+                                .setUserId(userId)
+                                .setActivationId(activationId)
+                                .setApplicationId(applicationId)
+                                .build();
+                        if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
+                            userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
                         }
                     }
 
@@ -202,7 +210,7 @@ public class ActivationService {
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
                     if (activationProvider != null) {
                         processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, activationId, userId, applicationId, ActivationType.CODE, context);
-                        List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, activationId, userId, applicationId, ActivationType.CODE, context);
+                        final List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, activationId, userId, applicationId, ActivationType.CODE, context);
                         if (activationFlags != null && !activationFlags.isEmpty()) {
                             final AddActivationFlagsRequest flagsRequest = new AddActivationFlagsRequest();
                             flagsRequest.setActivationId(activationId);
@@ -309,8 +317,14 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM, userId, activationId, applicationId)) {
-                            userInfo = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.ACTIVATION_PROCESS_CUSTOM, userId, activationId, applicationId);
+                        final UserInfoContext userInfoContext = new UserInfoContextBuilder()
+                                .setStage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
+                                .setUserId(userId)
+                                .setActivationId(activationId)
+                                .setApplicationId(applicationId)
+                                .build();
+                        if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
+                            userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
                         }
                     }
 
@@ -408,8 +422,14 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY, userId, activationId, applicationId)) {
-                            userInfo = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.ACTIVATION_PROCESS_RECOVERY, userId, activationId, applicationId);
+                        final UserInfoContext userInfoContext = new UserInfoContextBuilder()
+                                .setStage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY)
+                                .setUserId(userId)
+                                .setActivationId(activationId)
+                                .setApplicationId(applicationId)
+                                .build();
+                        if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
+                            userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
                         }
                     }
 
