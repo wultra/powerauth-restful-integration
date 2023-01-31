@@ -106,9 +106,7 @@ public class UserInfoService {
 
             return map;
         } catch (PowerAuthClientException ex) {
-            logger.warn("Fetching user claims failed, error: {}", ex.getMessage());
-            logger.debug(ex.getMessage(), ex);
-            throw new PowerAuthUserInfoException(ex);
+            throw new PowerAuthUserInfoException("Fetching user claims failed, activation ID: " + activationId, ex);
         }
     }
 
