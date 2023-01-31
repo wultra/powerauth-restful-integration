@@ -55,6 +55,16 @@ public class PowerAuthUserInfoException extends Exception {
     }
 
     /**
+     * Constructor with a message and cause.
+     * @param message Error message.
+     * @param cause Error cause.
+     */
+    public PowerAuthUserInfoException(String message, Throwable cause) {
+        super(message, cause);
+    }
+
+
+    /**
      * Get default error code, used for example in the REST response.
      * @return Default error code.
      */
