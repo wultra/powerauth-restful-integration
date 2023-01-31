@@ -26,7 +26,6 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthUserInfoException extends Exception {
 
-
     private static final long serialVersionUID = 5046389522294059168L;
 
     private static final String DEFAULT_CODE = "ERR_USER_INFO";

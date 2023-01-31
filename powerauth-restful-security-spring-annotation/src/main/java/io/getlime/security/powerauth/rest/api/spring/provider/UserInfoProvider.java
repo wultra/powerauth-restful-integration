@@ -21,7 +21,9 @@ package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
+import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 
+import javax.annotation.Nonnull;
 import java.util.Map;
 
 /**
@@ -35,15 +37,13 @@ public interface UserInfoProvider {
      * Determine if the user info should be returned during the provided stage. By default, the user info is only
      * available via a specialized <code>/pa/v3/user/info</code> endpoint. By overriding this method, the user info claims
      * might be also returned in the activation response body (inside the outer-encrypted layer).
-     * @param stage Information about where the user info is requested from.
-     * @param userId User ID.
-     * @param activationId Activation ID.
-     * @param applicationId Application ID.
+     *
+     * @param context User info context object.
      * @return True if the user info should be returned during the activation, false otherwise (user info is only
      *         returned in the separate user info endpoint).
      */
-    default boolean returnUserInfoDuringStage(UserInfoStage stage, String userId, String activationId, String applicationId) {
-        return stage == UserInfoStage.USER_INFO_ENDPOINT;
+    default boolean returnUserInfoDuringStage(@Nonnull UserInfoContext context) {
+        return UserInfoStage.USER_INFO_ENDPOINT == context.getStage();
     }
 
     /**
@@ -52,13 +52,10 @@ public interface UserInfoProvider {
      * authentication object provided by PowerAuth stack. This may be helpful, for example, to anonymize the user ID
      * contained in the "sub" claim.
      *
-     * @param stage             Information about where the user info is requested from.
-     * @param userId            User ID.
-     * @param activationId      Activation ID.
-     * @param applicationId     Application ID.
+     * @param context User info context object.
      * @return Map of claims obtained for a given user ID.
      */
-    default Map<String, Object> fetchUserClaimsForUserId(UserInfoStage stage, String userId, String activationId, String applicationId) throws PowerAuthUserInfoException {
+    default Map<String, Object> fetchUserClaimsForUserId(UserInfoContext context) throws PowerAuthUserInfoException {
         return null;
     }
 

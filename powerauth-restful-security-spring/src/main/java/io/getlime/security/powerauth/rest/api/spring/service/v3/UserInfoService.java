@@ -25,6 +25,8 @@ import com.wultra.security.powerauth.client.v3.ActivationStatus;
 import com.wultra.security.powerauth.client.v3.GetActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
+import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
+import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContextBuilder;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,12 +90,16 @@ public class UserInfoService {
             map.put("iat", Instant.now().getEpochSecond());
 
             if (userInfoProvider != null) {
-                if (userInfoProvider.returnUserInfoDuringStage(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId)) {
-                    final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(UserInfoStage.USER_INFO_ENDPOINT, userId, activationId, applicationId);
+                final UserInfoContext userInfoContext = new UserInfoContextBuilder()
+                        .setStage(UserInfoStage.USER_INFO_ENDPOINT)
+                        .setUserId(userId)
+                        .setActivationId(activationId)
+                        .setApplicationId(applicationId)
+                        .build();
+                if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
+                    final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
                     if (claims != null) {
-                        for (String key : claims.keySet()) {
-                            map.put(key, claims.get(key));
-                        }
+                        map.putAll(claims);
                     }
                 }
             }
