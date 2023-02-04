@@ -33,7 +33,6 @@ import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecovery
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
-import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContextBuilder;
 import io.getlime.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
@@ -195,11 +194,11 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        final UserInfoContext userInfoContext = new UserInfoContextBuilder()
-                                .setStage(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE)
-                                .setUserId(userId)
-                                .setActivationId(activationId)
-                                .setApplicationId(applicationId)
+                        final UserInfoContext userInfoContext = UserInfoContext.builder()
+                                .stage(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE)
+                                .userId(userId)
+                                .activationId(activationId)
+                                .applicationId(applicationId)
                                 .build();
                         if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
@@ -317,11 +316,11 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        final UserInfoContext userInfoContext = new UserInfoContextBuilder()
-                                .setStage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
-                                .setUserId(userId)
-                                .setActivationId(activationId)
-                                .setApplicationId(applicationId)
+                        final UserInfoContext userInfoContext = UserInfoContext.builder()
+                                .stage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
+                                .userId(userId)
+                                .activationId(activationId)
+                                .applicationId(applicationId)
                                 .build();
                         if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
@@ -422,11 +421,11 @@ public class ActivationService {
                     // Process user info
                     Map<String, Object> userInfo = null;
                     if (userInfoProvider != null) {
-                        final UserInfoContext userInfoContext = new UserInfoContextBuilder()
-                                .setStage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY)
-                                .setUserId(userId)
-                                .setActivationId(activationId)
-                                .setApplicationId(applicationId)
+                        final UserInfoContext userInfoContext = UserInfoContext.builder()
+                                .stage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY)
+                                .userId(userId)
+                                .activationId(activationId)
+                                .applicationId(applicationId)
                                 .build();
                         if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
