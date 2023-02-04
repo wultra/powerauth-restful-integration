@@ -28,15 +28,11 @@ import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfo
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContextBuilder;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Service for obtaining user info as claims map.
@@ -45,8 +41,6 @@ import java.util.UUID;
  */
 @Service
 public class UserInfoService {
-
-    private static final Logger logger = LoggerFactory.getLogger(UserInfoService.class);
 
     private UserInfoProvider userInfoProvider;
     private final PowerAuthClient powerAuthClient;
@@ -66,7 +60,7 @@ public class UserInfoService {
     }
 
     /**
-     * Fetch user info as a map of claims.
+     * Fetch user info as a map of claims. Returns empty map by default, i.e., if user info provider is not registered.
      *
      * @param activationId Activation ID.
      * @return Map of claims.
@@ -74,6 +68,11 @@ public class UserInfoService {
      */
     public Map<String, Object> fetchUserClaimsByActivationId(String activationId) throws PowerAuthUserInfoException {
         try {
+
+            if (userInfoProvider == null) {
+                return Collections.emptyMap();
+            }
+
             // Fetch activation details
             final GetActivationStatusResponse activationStatusResponse = powerAuthClient.getActivationStatus(activationId);
             final String userId = activationStatusResponse.getUserId();
@@ -84,27 +83,18 @@ public class UserInfoService {
                 throw new PowerAuthUserInfoException("Invalid activation status: " + activationStatus + ", for activation: " + activationId);
             }
 
-            final Map<String, Object> map = new LinkedHashMap<>();
-            map.put("sub", userId);
-            map.put("jti", UUID.randomUUID().toString());
-            map.put("iat", Instant.now().getEpochSecond());
-
-            if (userInfoProvider != null) {
-                final UserInfoContext userInfoContext = new UserInfoContextBuilder()
-                        .setStage(UserInfoStage.USER_INFO_ENDPOINT)
-                        .setUserId(userId)
-                        .setActivationId(activationId)
-                        .setApplicationId(applicationId)
-                        .build();
-                if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
-                    final Map<String, Object> claims = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
-                    if (claims != null) {
-                        map.putAll(claims);
-                    }
-                }
+            final UserInfoContext userInfoContext = new UserInfoContextBuilder()
+                    .setStage(UserInfoStage.USER_INFO_ENDPOINT)
+                    .setUserId(userId)
+                    .setActivationId(activationId)
+                    .setApplicationId(applicationId)
+                    .build();
+            if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
+                return userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
+            } else {
+                return Collections.emptyMap();
             }
 
-            return map;
         } catch (PowerAuthClientException ex) {
             throw new PowerAuthUserInfoException("Fetching user claims failed, activation ID: " + activationId, ex);
         }
