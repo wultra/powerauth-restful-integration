@@ -26,7 +26,6 @@ import com.wultra.security.powerauth.client.v3.GetActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
-import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContextBuilder;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -83,11 +82,11 @@ public class UserInfoService {
                 throw new PowerAuthUserInfoException("Invalid activation status: " + activationStatus + ", for activation: " + activationId);
             }
 
-            final UserInfoContext userInfoContext = new UserInfoContextBuilder()
-                    .setStage(UserInfoStage.USER_INFO_ENDPOINT)
-                    .setUserId(userId)
-                    .setActivationId(activationId)
-                    .setApplicationId(applicationId)
+            final UserInfoContext userInfoContext = UserInfoContext.builder()
+                    .stage(UserInfoStage.USER_INFO_ENDPOINT)
+                    .userId(userId)
+                    .activationId(activationId)
+                    .applicationId(applicationId)
                     .build();
             if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
                 return userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
