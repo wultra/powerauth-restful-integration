@@ -201,7 +201,7 @@ public class ActivationService {
                                 .setActivationId(activationId)
                                 .setApplicationId(applicationId)
                                 .build();
-                        if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
+                        if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
                         }
                     }
@@ -323,7 +323,7 @@ public class ActivationService {
                                 .setActivationId(activationId)
                                 .setApplicationId(applicationId)
                                 .build();
-                        if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
+                        if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
                         }
                     }
@@ -428,7 +428,7 @@ public class ActivationService {
                                 .setActivationId(activationId)
                                 .setApplicationId(applicationId)
                                 .build();
-                        if (userInfoProvider.returnUserInfoDuringStage(userInfoContext)) {
+                        if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
                             userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
                         }
                     }

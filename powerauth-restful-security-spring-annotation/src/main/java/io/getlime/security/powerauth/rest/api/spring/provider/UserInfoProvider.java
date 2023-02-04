@@ -20,18 +20,20 @@
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
-import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 
 import javax.annotation.Nonnull;
+import java.time.Instant;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * Interface for bean that provides information about a given user.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-public interface UserInfoProvider {
+public class UserInfoProvider {
 
     /**
      * Determine if the user info should be returned during the provided stage. By default, the user info is only
@@ -42,21 +44,32 @@ public interface UserInfoProvider {
      * @return True if the user info should be returned during the activation, false otherwise (user info is only
      *         returned in the separate user info endpoint).
      */
-    default boolean returnUserInfoDuringStage(@Nonnull UserInfoContext context) {
+    public boolean shouldReturnUserInfo(@Nonnull UserInfoContext context) {
         return UserInfoStage.USER_INFO_ENDPOINT == context.getStage();
     }
 
     /**
-     * Fetch claims (as used, for example, in JWT) for a given user ID. The map may, but does not have to include claims
-     * "sub", "jti", and "iat". If these claims are set, they will override values which were automatically inferred from the
-     * authentication object provided by PowerAuth stack. This may be helpful, for example, to anonymize the user ID
-     * contained in the "sub" claim.
+     * Return claims (as used, for example, in JWT) for a given user ID. Default implementation returns minimal claims.
      *
      * @param context User info context object.
      * @return Map of claims obtained for a given user ID.
      */
-    default Map<String, Object> fetchUserClaimsForUserId(UserInfoContext context) throws PowerAuthUserInfoException {
-        return null;
+    public Map<String, Object> fetchUserClaimsForUserId(@Nonnull UserInfoContext context) {
+        return this.minimalClaims(context);
+    }
+
+    /**
+     * Prepare a set of minimal claims <code>sub</code>, <code>jti</code> and <code>iat</code>.
+     *
+     * @param context User info context object.
+     * @return Map of claims obtained for a given user ID.
+     */
+    private Map<String, Object> minimalClaims(@Nonnull UserInfoContext context) {
+        final Map<String, Object> defaultClaims = new LinkedHashMap<>();
+        defaultClaims.put("sub", context.getUserId());
+        defaultClaims.put("jti", UUID.randomUUID().toString());
+        defaultClaims.put("iat", Instant.now().getEpochSecond());
+        return defaultClaims;
     }
 
 }

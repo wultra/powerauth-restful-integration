@@ -129,7 +129,7 @@ public class PowerAuthExceptionHandler {
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handlePowerAuthUserInfoException(PowerAuthUserInfoException ex) {
         logger.warn(ex.getMessage(), ex);
-        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+        return new ErrorResponse(ex.getDefaultCode(), ex.getMessage());
     }
 
 }
