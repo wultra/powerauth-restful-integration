@@ -23,17 +23,15 @@ import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 
 import javax.annotation.Nonnull;
-import java.time.Instant;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Interface for bean that provides information about a given user.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-public class UserInfoProvider {
+public interface UserInfoProvider {
 
     /**
      * Determine if the user info should be returned during the provided stage. By default, the user info is only
@@ -44,7 +42,7 @@ public class UserInfoProvider {
      * @return True if the user info should be returned during the activation, false otherwise (user info is only
      *         returned in the separate user info endpoint).
      */
-    public boolean shouldReturnUserInfo(@Nonnull UserInfoContext context) {
+    default boolean shouldReturnUserInfo(@Nonnull UserInfoContext context) {
         return UserInfoStage.USER_INFO_ENDPOINT == context.getStage();
     }
 
@@ -54,22 +52,7 @@ public class UserInfoProvider {
      * @param context User info context object.
      * @return Map of claims obtained for a given user ID.
      */
-    public Map<String, Object> fetchUserClaimsForUserId(@Nonnull UserInfoContext context) {
-        return this.minimalClaims(context);
+    default Map<String, Object> fetchUserClaimsForUserId(@Nonnull UserInfoContext context) {
+        return Collections.emptyMap();
     }
-
-    /**
-     * Prepare a set of minimal claims <code>sub</code>, <code>jti</code> and <code>iat</code>.
-     *
-     * @param context User info context object.
-     * @return Map of claims obtained for a given user ID.
-     */
-    private Map<String, Object> minimalClaims(@Nonnull UserInfoContext context) {
-        final Map<String, Object> defaultClaims = new LinkedHashMap<>();
-        defaultClaims.put("sub", context.getUserId());
-        defaultClaims.put("jti", UUID.randomUUID().toString());
-        defaultClaims.put("iat", Instant.now().getEpochSecond());
-        return defaultClaims;
-    }
-
 }
