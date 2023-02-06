@@ -20,9 +20,8 @@
 package io.getlime.security.powerauth.rest.api.spring.model;
 
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  * Class for passing the context attributes to user info provider.
@@ -30,8 +29,7 @@ import lombok.NoArgsConstructor;
  * @author Petr Dvorak, petr@wultra.com
  */
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Builder
 public class UserInfoContext {
 
     /**
