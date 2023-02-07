@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
+import com.wultra.core.annotations.PublicSpi;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
@@ -34,6 +35,7 @@ import java.util.Map;
  * @author Petr Dvorak, petr@wultra.com
  * @author Roman Strobl, roman.strobl@wultra.com
  */
+@PublicSpi
 public interface CustomActivationProvider {
 
     /**

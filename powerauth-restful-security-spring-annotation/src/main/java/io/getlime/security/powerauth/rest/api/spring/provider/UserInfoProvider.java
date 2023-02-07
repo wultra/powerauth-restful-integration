@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
+import com.wultra.core.annotations.PublicSpi;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 
@@ -31,6 +32,7 @@ import java.util.Map;
  *
  * @author Petr Dvorak, petr@wultra.com
  */
+@PublicSpi
 public interface UserInfoProvider {
 
     /**

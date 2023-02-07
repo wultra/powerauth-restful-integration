@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
+import com.wultra.core.annotations.PublicSpi;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 
 import javax.annotation.Nonnull;
@@ -35,6 +36,7 @@ import java.util.UUID;
  *
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
+@PublicSpi
 public class MinimalClaimsUserInfoProvider implements UserInfoProvider{
 
     /**
