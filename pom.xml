@@ -85,7 +85,7 @@
         <spring-boot.version>2.7.8</spring-boot.version>
         <commons-text.version>1.10.0</commons-text.version>
         <bcprov.version>1.72</bcprov.version>
-        <rest-model-base.version>1.7.0-SNAPSHOT</rest-model-base.version>
+        <wultra-core.version>1.7.0-SNAPSHOT</wultra-core.version>
         <powerauth-java-crypto.version>1.5.0-SNAPSHOT</powerauth-java-crypto.version>
         <powerauth-java-http.version>1.5.0-SNAPSHOT</powerauth-java-http.version>
         <powerauth-rest-client-spring.version>1.5.0-SNAPSHOT</powerauth-rest-client-spring.version>
@@ -112,6 +112,18 @@
                 <groupId>io.getlime.security</groupId>
                 <artifactId>powerauth-restful-security-spring-annotation</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.getlime.core</groupId>
+                <artifactId>annotations</artifactId>
+                <version>${wultra-core.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>io.getlime.core</groupId>
+                <artifactId>rest-model-base</artifactId>
+                <version>${wultra-core.version}</version>
             </dependency>
 
             <!-- 3rd Party Dependencies -->

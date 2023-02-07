@@ -74,6 +74,11 @@
             <version>${powerauth-rest-client-spring.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.getlime.core</groupId>
+            <artifactId>annotations</artifactId>
+        </dependency>
+
         <!-- Other dependencies -->
         <dependency>
             <groupId>org.apache.commons</groupId>

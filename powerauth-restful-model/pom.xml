@@ -37,7 +37,6 @@
         <dependency>
             <groupId>io.getlime.core</groupId>
             <artifactId>rest-model-base</artifactId>
-            <version>${rest-model-base.version}</version>
         </dependency>
     </dependencies>
 
