@@ -20,13 +20,12 @@
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
-import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,6 +51,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -124,8 +124,8 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             // Encrypt response using decryptor and return ECIES cryptogram
             final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
             final EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
-            final String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
-            final String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
+            final String encryptedDataBase64 = Base64.getEncoder().encodeToString(cryptogram.getEncryptedData());
+            final String macBase64 = Base64.getEncoder().encodeToString(cryptogram.getMac());
 
             // Return encrypted response with type given by converter class
             final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64);

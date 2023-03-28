@@ -19,7 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
-import com.google.common.io.BaseEncoding;
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v3.SignatureType;
 import com.wultra.security.powerauth.client.v3.VaultUnlockRequest;
@@ -41,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Base64;
 
 /**
  * Service implementing secure vault functionality.
@@ -109,7 +109,7 @@ public class SecureVaultService {
 
             // Prepare data for signature to allow signature verification on PowerAuth server
             final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-            final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
+            final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", Base64.getDecoder().decode(nonce), requestBodyBytes);
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server
             final VaultUnlockRequest unlockRequest = new VaultUnlockRequest();
