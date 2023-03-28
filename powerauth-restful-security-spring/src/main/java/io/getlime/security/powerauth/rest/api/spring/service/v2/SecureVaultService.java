@@ -19,7 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.v2;
 
-import com.google.common.io.BaseEncoding;
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.v2.SignatureType;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
@@ -41,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.Base64;
 
 /**
  * Service implementing secure vault functionality.
@@ -135,7 +135,7 @@ public class SecureVaultService {
                 throw new PowerAuthSecureVaultException();
             }
 
-            final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", BaseEncoding.base64().decode(nonce), requestBodyBytes);
+            final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", Base64.getDecoder().decode(nonce), requestBodyBytes);
 
             final com.wultra.security.powerauth.client.v2.VaultUnlockRequest unlockRequest = new com.wultra.security.powerauth.client.v2.VaultUnlockRequest();
             unlockRequest.setActivationId(activationId);

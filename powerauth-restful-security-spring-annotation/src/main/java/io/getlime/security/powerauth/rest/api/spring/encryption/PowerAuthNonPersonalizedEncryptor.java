@@ -21,7 +21,6 @@ package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.BaseEncoding;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.crypto.lib.encryptor.NonPersonalizedEncryptor;
@@ -32,6 +31,7 @@ import io.getlime.security.powerauth.rest.api.model.entity.NonPersonalizedEncryp
 
 import java.io.IOException;
 import java.security.InvalidKeyException;
+import java.util.Base64;
 
 /**
  * Non-personalized encryptor class.
@@ -53,10 +53,10 @@ public class PowerAuthNonPersonalizedEncryptor {
      * @param ephemeralPublicKeyBase64 Ephemeral public key.
      */
     public PowerAuthNonPersonalizedEncryptor(String applicationKeyBase64, String sessionKeyBytesBase64, String sessionIndexBase64, String ephemeralPublicKeyBase64) {
-        final byte[] applicationKey = BaseEncoding.base64().decode(applicationKeyBase64);
-        final byte[] sessionIndex = BaseEncoding.base64().decode(sessionIndexBase64);
-        final byte[] sessionKeyBytes = BaseEncoding.base64().decode(sessionKeyBytesBase64);
-        final byte[] ephemeralKeyBytes = BaseEncoding.base64().decode(ephemeralPublicKeyBase64);
+        final byte[] applicationKey = Base64.getDecoder().decode(applicationKeyBase64);
+        final byte[] sessionIndex = Base64.getDecoder().decode(sessionIndexBase64);
+        final byte[] sessionKeyBytes = Base64.getDecoder().decode(sessionKeyBytesBase64);
+        final byte[] ephemeralKeyBytes = Base64.getDecoder().decode(ephemeralPublicKeyBase64);
         this.encryptor = new NonPersonalizedEncryptor(applicationKey, sessionKeyBytes, sessionIndex, ephemeralKeyBytes);
     }
 
@@ -100,14 +100,14 @@ public class PowerAuthNonPersonalizedEncryptor {
         }
 
         final NonPersonalizedEncryptedPayloadModel responseObject = new NonPersonalizedEncryptedPayloadModel();
-        responseObject.setApplicationKey(BaseEncoding.base64().encode(message.getApplicationKey()));
-        responseObject.setEphemeralPublicKey(BaseEncoding.base64().encode(message.getEphemeralPublicKey()));
-        responseObject.setSessionIndex(BaseEncoding.base64().encode(message.getSessionIndex()));
-        responseObject.setAdHocIndex(BaseEncoding.base64().encode(message.getAdHocIndex()));
-        responseObject.setMacIndex(BaseEncoding.base64().encode(message.getMacIndex()));
-        responseObject.setNonce(BaseEncoding.base64().encode(message.getNonce()));
-        responseObject.setMac(BaseEncoding.base64().encode(message.getMac()));
-        responseObject.setEncryptedData(BaseEncoding.base64().encode(message.getEncryptedData()));
+        responseObject.setApplicationKey(Base64.getEncoder().encodeToString(message.getApplicationKey()));
+        responseObject.setEphemeralPublicKey(Base64.getEncoder().encodeToString(message.getEphemeralPublicKey()));
+        responseObject.setSessionIndex(Base64.getEncoder().encodeToString(message.getSessionIndex()));
+        responseObject.setAdHocIndex(Base64.getEncoder().encodeToString(message.getAdHocIndex()));
+        responseObject.setMacIndex(Base64.getEncoder().encodeToString(message.getMacIndex()));
+        responseObject.setNonce(Base64.getEncoder().encodeToString(message.getNonce()));
+        responseObject.setMac(Base64.getEncoder().encodeToString(message.getMac()));
+        responseObject.setEncryptedData(Base64.getEncoder().encodeToString(message.getEncryptedData()));
 
         return new ObjectResponse<>(responseObject);
     }
@@ -134,14 +134,14 @@ public class PowerAuthNonPersonalizedEncryptor {
         }
 
         final NonPersonalizedEncryptedMessage message = new NonPersonalizedEncryptedMessage();
-        message.setApplicationKey(BaseEncoding.base64().decode(requestObject.getApplicationKey()));
-        message.setEphemeralPublicKey(BaseEncoding.base64().decode(requestObject.getEphemeralPublicKey()));
-        message.setSessionIndex(BaseEncoding.base64().decode(requestObject.getSessionIndex()));
-        message.setAdHocIndex(BaseEncoding.base64().decode(requestObject.getAdHocIndex()));
-        message.setMacIndex(BaseEncoding.base64().decode(requestObject.getMacIndex()));
-        message.setNonce(BaseEncoding.base64().decode(requestObject.getNonce()));
-        message.setMac(BaseEncoding.base64().decode(requestObject.getMac()));
-        message.setEncryptedData(BaseEncoding.base64().decode(requestObject.getEncryptedData()));
+        message.setApplicationKey(Base64.getDecoder().decode(requestObject.getApplicationKey()));
+        message.setEphemeralPublicKey(Base64.getDecoder().decode(requestObject.getEphemeralPublicKey()));
+        message.setSessionIndex(Base64.getDecoder().decode(requestObject.getSessionIndex()));
+        message.setAdHocIndex(Base64.getDecoder().decode(requestObject.getAdHocIndex()));
+        message.setMacIndex(Base64.getDecoder().decode(requestObject.getMacIndex()));
+        message.setNonce(Base64.getDecoder().decode(requestObject.getNonce()));
+        message.setMac(Base64.getDecoder().decode(requestObject.getMac()));
+        message.setEncryptedData(Base64.getDecoder().decode(requestObject.getEncryptedData()));
 
         return encryptor.decrypt(message);
     }

@@ -19,7 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
-import com.google.common.io.BaseEncoding;
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.v3.*;
@@ -56,6 +55,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -326,7 +326,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         final PowerAuthSignatureAuthenticationImpl powerAuthAuthentication = new PowerAuthSignatureAuthenticationImpl();
         powerAuthAuthentication.setActivationId(header.getActivationId());
         powerAuthAuthentication.setApplicationKey(header.getApplicationKey());
-        powerAuthAuthentication.setNonce(BaseEncoding.base64().decode(header.getNonce()));
+        powerAuthAuthentication.setNonce(Base64.getDecoder().decode(header.getNonce()));
         powerAuthAuthentication.setSignatureType(header.getSignatureType());
         powerAuthAuthentication.setSignature(header.getSignature());
         powerAuthAuthentication.setHttpMethod(httpMethod);

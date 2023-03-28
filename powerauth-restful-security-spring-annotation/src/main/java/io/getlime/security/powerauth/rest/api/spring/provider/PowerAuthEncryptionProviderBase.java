@@ -23,7 +23,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
-import com.google.common.io.BaseEncoding;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEnvelopeKey;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesFactory;
@@ -34,14 +33,14 @@ import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import io.getlime.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
 import io.getlime.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
+import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
-import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +49,7 @@ import javax.annotation.Nullable;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Type;
+import java.util.Base64;
 
 /**
  * Abstract class for PowerAuth encryption provider with common HTTP header parsing logic. The class is available for
@@ -144,10 +144,10 @@ public abstract class PowerAuthEncryptionProviderBase {
                 throw new PowerAuthEncryptionException();
             }
 
-            final byte[] ephemeralPublicKeyBytes = BaseEncoding.base64().decode(ephemeralPublicKey);
-            final byte[] encryptedDataBytes = BaseEncoding.base64().decode(encryptedData);
-            final byte[] macBytes = BaseEncoding.base64().decode(mac);
-            final byte[] nonceBytes = nonce != null ? BaseEncoding.base64().decode(nonce) : null;
+            final byte[] ephemeralPublicKeyBytes = Base64.getDecoder().decode(ephemeralPublicKey);
+            final byte[] encryptedDataBytes = Base64.getDecoder().decode(encryptedData);
+            final byte[] macBytes = Base64.getDecoder().decode(mac);
+            final byte[] nonceBytes = nonce != null ? Base64.getDecoder().decode(nonce) : null;
 
             final String applicationKey = eciesEncryption.getContext().getApplicationKey();
             final PowerAuthEciesDecryptorParameters decryptorParameters;
@@ -170,9 +170,9 @@ public abstract class PowerAuthEncryptionProviderBase {
             }
 
             // Prepare envelope key and sharedInfo2 parameter for decryptor
-            final byte[] secretKey = BaseEncoding.base64().decode(decryptorParameters.getSecretKey());
+            final byte[] secretKey = Base64.getDecoder().decode(decryptorParameters.getSecretKey());
             final EciesEnvelopeKey envelopeKey = new EciesEnvelopeKey(secretKey, ephemeralPublicKeyBytes);
-            final byte[] sharedInfo2 = BaseEncoding.base64().decode(decryptorParameters.getSharedInfo2());
+            final byte[] sharedInfo2 = Base64.getDecoder().decode(decryptorParameters.getSharedInfo2());
 
             // Construct decryptor and set it to the request for later encryption of response
             final EciesDecryptor eciesDecryptor = eciesFactory.getEciesDecryptor(envelopeKey, sharedInfo2);
@@ -210,8 +210,8 @@ public abstract class PowerAuthEncryptionProviderBase {
             final byte[] responseData = serializeResponseData(responseObject);
             // Encrypt response using decryptor and return ECIES cryptogram
             final EciesCryptogram cryptogram = eciesEncryption.getEciesDecryptor().encryptResponse(responseData);
-            final String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
-            final String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
+            final String encryptedDataBase64 = Base64.getEncoder().encodeToString(cryptogram.getEncryptedData());
+            final String macBase64 = Base64.getEncoder().encodeToString(cryptogram.getMac());
             return new EciesEncryptedResponse(encryptedDataBase64, macBase64);
         } catch (Exception ex) {
             logger.debug("Response encryption failed, error: " + ex.getMessage(), ex);
