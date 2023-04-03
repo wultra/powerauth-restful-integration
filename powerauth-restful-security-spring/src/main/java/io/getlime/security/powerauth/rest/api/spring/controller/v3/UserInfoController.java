@@ -24,8 +24,10 @@ import io.getlime.security.powerauth.rest.api.model.request.v3.UserInfoRequest;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.service.v3.UserInfoService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +47,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/pa/v3/user")
+@Slf4j
 public class UserInfoController {
 
     private final UserInfoService userInfoService;
@@ -65,10 +68,16 @@ public class UserInfoController {
      * @param eciesContext PowerAuth ECIES encryption context.
      * @return Encrypted user info claims.
      * @throws PowerAuthUserInfoException In case there is an error while fetching claims.
+     * @throws PowerAuthEncryptionException In case of failed encryption.
      */
     @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
     @PostMapping("info")
-    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, EciesEncryptionContext eciesContext) throws PowerAuthUserInfoException {
+    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, EciesEncryptionContext eciesContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
+        if (eciesContext == null) {
+            logger.error("Encryption failed");
+            throw new PowerAuthEncryptionException("Encryption failed");
+        }
+
         return userInfoService.fetchUserClaimsByActivationId(
                 eciesContext.getActivationId()
         );
