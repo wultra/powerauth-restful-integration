@@ -25,7 +25,7 @@ import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
