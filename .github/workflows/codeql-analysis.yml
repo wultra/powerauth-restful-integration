@@ -47,9 +47,6 @@ jobs:
         with:
           java-version: 17
           distribution: 'temurin'
-          server-id: jfrog-central
-          server-username: INTERNAL_USERNAME
-          server-password: INTERNAL_PASSWORD
           cache: maven
 
       # Initializes the CodeQL tools for scanning.
