@@ -40,8 +40,8 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAu
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthSignatureAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthTokenAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.ActivationStatusConverter;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.converter.ActivationStatusConverter;
+import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthHeaderMissingException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
