@@ -20,8 +20,8 @@
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
-import com.wultra.security.powerauth.client.v3.GetEciesDecryptorRequest;
-import com.wultra.security.powerauth.client.v3.GetEciesDecryptorResponse;
+import com.wultra.security.powerauth.client.model.request.GetEciesDecryptorRequest;
+import com.wultra.security.powerauth.client.model.response.GetEciesDecryptorResponse;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;

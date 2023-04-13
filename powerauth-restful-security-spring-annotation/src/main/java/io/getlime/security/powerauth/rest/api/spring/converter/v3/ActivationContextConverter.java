@@ -19,11 +19,11 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.converter.v3;
 
-import com.wultra.security.powerauth.client.v3.GetActivationStatusResponse;
+import com.wultra.security.powerauth.client.model.response.GetActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
 import org.springframework.stereotype.Component;
 
-import javax.xml.datatype.XMLGregorianCalendar;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -66,17 +66,17 @@ public class ActivationContextConverter {
         if (activationFlags != null) {
             destination.getActivationFlags().addAll(activationFlags);
         }
-        final XMLGregorianCalendar timestampCreated = source.getTimestampCreated();
+        final Date timestampCreated = source.getTimestampCreated();
         if (timestampCreated != null) {
-            destination.setTimestampCreated(timestampCreated.toGregorianCalendar().toInstant());
+            destination.setTimestampCreated(timestampCreated.toInstant());
         }
-        final XMLGregorianCalendar timestampLastUsed = source.getTimestampLastUsed();
+        final Date timestampLastUsed = source.getTimestampLastUsed();
         if (timestampLastUsed != null) {
-            destination.setTimestampLastUsed(timestampLastUsed.toGregorianCalendar().toInstant());
+            destination.setTimestampLastUsed(timestampLastUsed.toInstant());
         }
-        final XMLGregorianCalendar timestampLastChange = source.getTimestampLastChange();
+        final Date timestampLastChange = source.getTimestampLastChange();
         if (timestampLastChange != null) {
-            destination.setTimestampLastChange(timestampLastChange.toGregorianCalendar().toInstant());
+            destination.setTimestampLastChange(timestampLastChange.toInstant());
         }
         return destination;
     }

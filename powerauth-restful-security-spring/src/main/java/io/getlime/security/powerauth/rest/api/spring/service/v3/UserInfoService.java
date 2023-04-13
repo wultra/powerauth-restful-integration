@@ -20,9 +20,9 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
-import com.wultra.security.powerauth.client.v3.ActivationStatus;
-import com.wultra.security.powerauth.client.v3.GetActivationStatusResponse;
+import com.wultra.security.powerauth.client.model.response.GetActivationStatusResponse;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;

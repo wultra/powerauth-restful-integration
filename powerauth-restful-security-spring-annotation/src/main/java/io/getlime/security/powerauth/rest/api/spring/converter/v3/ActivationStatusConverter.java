@@ -35,11 +35,11 @@ public class ActivationStatusConverter {
     private static final Logger logger = LoggerFactory.getLogger(ActivationStatusConverter.class);
 
     /**
-     * Convert {@link ActivationStatus} from a {@link com.wultra.security.powerauth.client.v3.ActivationStatus} value.
+     * Convert {@link ActivationStatus} from a {@link com.wultra.security.powerauth.client.model.enumeration.ActivationStatus} value.
      * @param activationStatus Activation status from PowerAuth client model.
      * @return Activation status from Restful integration model.
      */
-    public ActivationStatus convertFrom(com.wultra.security.powerauth.client.v3.ActivationStatus activationStatus) {
+    public ActivationStatus convertFrom(com.wultra.security.powerauth.client.model.enumeration.ActivationStatus activationStatus) {
         if (activationStatus == null) {
             return null;
         }

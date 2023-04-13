@@ -20,15 +20,15 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
-import com.wultra.security.powerauth.client.v3.ConfirmRecoveryCodeRequest;
-import com.wultra.security.powerauth.client.v3.ConfirmRecoveryCodeResponse;
+import com.wultra.security.powerauth.client.model.request.ConfirmRecoveryCodeRequest;
+import com.wultra.security.powerauth.client.model.response.ConfirmRecoveryCodeResponse;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthRecoveryConfirmationException;
-import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

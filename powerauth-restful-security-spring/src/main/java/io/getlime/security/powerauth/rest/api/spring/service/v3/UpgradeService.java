@@ -20,26 +20,29 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
-import com.wultra.security.powerauth.client.v3.*;
+import com.wultra.security.powerauth.client.model.request.CommitUpgradeRequest;
+import com.wultra.security.powerauth.client.model.request.StartUpgradeRequest;
+import com.wultra.security.powerauth.client.model.response.CommitUpgradeResponse;
+import com.wultra.security.powerauth.client.model.response.StartUpgradeResponse;
 import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUpgradeException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
-import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.util.Collections;
 import java.util.List;
 

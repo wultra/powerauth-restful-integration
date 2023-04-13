@@ -20,10 +20,20 @@
 package io.getlime.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.model.error.PowerAuthErrorRecovery;
-import com.wultra.security.powerauth.client.v3.*;
+import com.wultra.security.powerauth.client.model.request.*;
+import com.wultra.security.powerauth.client.model.response.*;
+import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
+import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
+import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
+import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
+import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.converter.v3.ActivationContextConverter;
@@ -34,14 +44,6 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 import io.getlime.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
-import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
-import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
-import io.getlime.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
-import io.getlime.security.powerauth.rest.api.model.request.v3.EciesEncryptedRequest;
-import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
-import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationRemoveResponse;
-import io.getlime.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
-import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
@@ -49,8 +51,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import java.time.Instant;
 import java.util.*;
 
@@ -284,19 +284,16 @@ public class ActivationService {
                     final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId, ActivationType.CUSTOM, context);
                     final Long maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
                     final Long activationValidityPeriod = activationProvider.getValidityPeriodDuringActivation(identity, customAttributes, userId, ActivationType.CUSTOM, context);
-                    XMLGregorianCalendar activationExpireXml = null;
+                    Date activationExpire = null;
                     if (activationValidityPeriod != null) {
-                        Instant now = Instant.now();
-                        Instant expiration = now.plusMillis(activationValidityPeriod);
-                        GregorianCalendar c = new GregorianCalendar();
-                        c.setTimeInMillis(expiration.toEpochMilli());
-                        activationExpireXml = DatatypeFactory.newInstance().newXMLGregorianCalendar(c);
+                        final Instant expiration = Instant.now().plusMillis(activationValidityPeriod);
+                        activationExpire = Date.from(expiration);
                     }
 
                     // Create activation for a looked up user and application related to the given application key
                     final CreateActivationRequest createRequest = new CreateActivationRequest();
                     createRequest.setUserId(userId);
-                    createRequest.setTimestampActivationExpire(activationExpireXml);
+                    createRequest.setTimestampActivationExpire(activationExpire);
                     createRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
                     createRequest.setMaxFailureCount(maxFailedCount);
                     createRequest.setApplicationKey(applicationKey);
