@@ -22,7 +22,7 @@ package io.getlime.security.powerauth.rest.api.spring.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
-import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
