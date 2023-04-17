@@ -165,17 +165,11 @@ public class ActivationService {
                     // Create context for passing parameters between activation provider calls
                     final Map<String, Object> context = new LinkedHashMap<>();
 
-                    // Decide if the recovery codes should be generated
-                    Boolean shouldGenerateRecoveryCodes = null;
-                    if (activationProvider != null) {
-                        shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
-                    }
-
                     // Call PrepareActivation method on PA server
                     final PrepareActivationRequest prepareRequest = new PrepareActivationRequest();
                     prepareRequest.setActivationCode(activationCode);
                     prepareRequest.setApplicationKey(applicationKey);
-                    prepareRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
+                    prepareRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes(identity, customAttributes, context));
                     prepareRequest.setEphemeralPublicKey(ephemeralPublicKey);
                     prepareRequest.setEncryptedData(encryptedData);
                     prepareRequest.setMac(mac);
@@ -487,6 +481,13 @@ public class ActivationService {
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
+    }
+
+    private boolean shouldGenerateRecoveryCodes(final Map<String, String> identity, final Map<String, Object> customAttributes, final Map<String, Object> context) throws PowerAuthActivationException {
+        if (activationProvider == null) {
+            return false;
+        }
+        return activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
     }
 
     /**
