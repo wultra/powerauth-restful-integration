@@ -84,7 +84,7 @@
         <maven-war-plugin.version>3.3.2</maven-war-plugin.version>
         <spring-boot.version>3.0.5</spring-boot.version>
         <commons-text.version>1.10.0</commons-text.version>
-        <bcprov.version>1.72</bcprov.version>
+        <bcprov.version>1.73</bcprov.version>
         <wultra-core.version>1.7.0-SNAPSHOT</wultra-core.version>
         <powerauth-java-crypto.version>1.5.0-SNAPSHOT</powerauth-java-crypto.version>
         <powerauth-java-http.version>1.5.0-SNAPSHOT</powerauth-java-http.version>
