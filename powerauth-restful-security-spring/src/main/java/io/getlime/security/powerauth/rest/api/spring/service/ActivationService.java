@@ -485,7 +485,7 @@ public class ActivationService {
 
     private boolean shouldGenerateRecoveryCodes(final Map<String, String> identity, final Map<String, Object> customAttributes, final Map<String, Object> context) throws PowerAuthActivationException {
         if (activationProvider == null) {
-            return false;
+            return true;
         }
         return activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
     }
