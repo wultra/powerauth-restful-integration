@@ -35,10 +35,7 @@ import io.getlime.security.powerauth.rest.api.spring.service.TokenService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
@@ -74,7 +71,7 @@ public class TokenController {
      * @return ECIES encrypted create token response.
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
-    @RequestMapping(value = "create", method = RequestMethod.POST)
+    @PostMapping("create")
     @PowerAuth(resourceId = "/pa/token/create", signatureType = {
             PowerAuthSignatureTypes.POSSESSION,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
@@ -92,7 +89,9 @@ public class TokenController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
+        if (!"3.0".equals(authentication.getVersion())
+                && !"3.1".equals(authentication.getVersion())
+                && !"3.2".equals(authentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
             throw new PowerAuthInvalidRequestException();
         }
@@ -110,7 +109,7 @@ public class TokenController {
      * @return Remove token response.
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
-    @RequestMapping(value = "remove", method = RequestMethod.POST)
+    @PostMapping("remove")
     @PowerAuth(resourceId = "/pa/token/remove", signatureType = {
             PowerAuthSignatureTypes.POSSESSION,
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
@@ -126,7 +125,9 @@ public class TokenController {
         if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
+        if (!"3.0".equals(authentication.getVersion())
+                && !"3.1".equals(authentication.getVersion())
+                && !"3.2".equals(authentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
             throw new PowerAuthInvalidRequestException();
         }

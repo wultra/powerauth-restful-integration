@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
+import java.util.Date;
+
 /**
  * Request object with data encrypted by ECIES encryption.
  *
@@ -30,6 +32,14 @@ public class EciesEncryptedRequest {
     private String encryptedData;
     private String mac;
     private String nonce;
+    private final long timestamp;
+
+    /**
+     * Request class constructor.
+     */
+    public EciesEncryptedRequest() {
+        this.timestamp = new Date().getTime();
+    }
 
     /**
      * Get Base64 encoded ephemeral public key.
@@ -94,4 +104,13 @@ public class EciesEncryptedRequest {
     public void setNonce(String nonce) {
         this.nonce = nonce;
     }
+
+    /**
+     * Get request timestamp as unix timestamp in milliseconds.
+     * @return Server timestamp.
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
+
 }

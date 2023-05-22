@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.rest.api.model.request.UserInfoRequest;
+import io.getlime.security.powerauth.rest.api.model.response.ServerStatusResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
@@ -33,6 +34,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -47,41 +49,18 @@ import java.util.Map;
  * @author Petr Dvorak, petr@wultra.com
  */
 @RestController
-@RequestMapping("/pa/v3/user")
+@RequestMapping("pa/v3")
 @Slf4j
-public class UserInfoController {
-
-    private final UserInfoService userInfoService;
+public class ServerStatusController {
 
     /**
-     * Default constructor.
-     * @param userInfoService User info service.
+     * Obtain server status.
+     * @return Server status.
      */
-    @Autowired
-    public UserInfoController(UserInfoService userInfoService) {
-        this.userInfoService = userInfoService;
-    }
-
-    /**
-     * Fetch user info.
-     *
-     * @param request Request with user info service.
-     * @param eciesContext PowerAuth ECIES encryption context.
-     * @return Encrypted user info claims.
-     * @throws PowerAuthUserInfoException In case there is an error while fetching claims.
-     * @throws PowerAuthEncryptionException In case of failed encryption.
-     */
-    @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
-    @PostMapping("info")
-    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, EciesEncryptionContext eciesContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
-        if (eciesContext == null) {
-            logger.error("Encryption failed");
-            throw new PowerAuthEncryptionException("Encryption failed");
-        }
-
-        return userInfoService.fetchUserClaimsByActivationId(
-                eciesContext.getActivationId()
-        );
+    @PostMapping("status")
+    public ServerStatusResponse getServerStatus() {
+        final long serverTime = new Date().getTime();
+        return new ServerStatusResponse(serverTime);
     }
 
 }

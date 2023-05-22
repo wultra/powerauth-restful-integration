@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import java.util.Date;
+
 /**
  * Response object for endpoints returning data encrypted by ECIES.
  *
@@ -28,11 +30,13 @@ public class EciesEncryptedResponse {
 
     private String encryptedData;
     private String mac;
+    private final long timestamp;
 
     /**
      * Default constructor.
      */
     public EciesEncryptedResponse() {
+        this.timestamp = new Date().getTime();
     }
 
     /**
@@ -41,6 +45,7 @@ public class EciesEncryptedResponse {
      * @param mac MAC of key and data.
      */
     public EciesEncryptedResponse(String encryptedData, String mac) {
+        this();
         this.encryptedData = encryptedData;
         this.mac = mac;
     }
@@ -77,4 +82,11 @@ public class EciesEncryptedResponse {
         this.mac = mac;
     }
 
+    /**
+     * Get response timestamp as unix timestamp in milliseconds.
+     * @return Server timestamp.
+     */
+    public long getTimestamp() {
+        return timestamp;
+    }
 }
