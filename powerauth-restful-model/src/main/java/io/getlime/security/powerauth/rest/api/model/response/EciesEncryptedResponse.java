@@ -33,6 +33,12 @@ public class EciesEncryptedResponse {
     private Long timestamp;
 
     /**
+     * Default constructor.
+     */
+    public EciesEncryptedResponse() {
+    }
+
+    /**
      * Constructor with Base64 encoded encrypted data and MAC of key and data.
      * @param encryptedData Encrypted data.
      * @param mac MAC of key and data.
