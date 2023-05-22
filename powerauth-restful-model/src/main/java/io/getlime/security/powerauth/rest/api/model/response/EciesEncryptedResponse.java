@@ -38,7 +38,6 @@ public class EciesEncryptedResponse {
      * @param mac MAC of key and data.
      */
     public EciesEncryptedResponse(String encryptedData, String mac) {
-        this();
         this.encryptedData = encryptedData;
         this.mac = mac;
     }
