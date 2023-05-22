@@ -32,14 +32,7 @@ public class EciesEncryptedRequest {
     private String encryptedData;
     private String mac;
     private String nonce;
-    private final long timestamp;
-
-    /**
-     * Request class constructor.
-     */
-    public EciesEncryptedRequest() {
-        this.timestamp = new Date().getTime();
-    }
+    private Long timestamp;
 
     /**
      * Get Base64 encoded ephemeral public key.
@@ -107,10 +100,17 @@ public class EciesEncryptedRequest {
 
     /**
      * Get request timestamp as unix timestamp in milliseconds.
-     * @return Server timestamp.
+     * @return Request timestamp.
      */
     public long getTimestamp() {
         return timestamp;
     }
 
+    /**
+     * Set request timestamp as unix timestamp in milliseconds.
+     * @param timestamp Request timestamp.
+     */
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
+    }
 }

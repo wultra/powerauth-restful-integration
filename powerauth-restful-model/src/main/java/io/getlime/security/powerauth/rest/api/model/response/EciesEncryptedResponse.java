@@ -30,14 +30,7 @@ public class EciesEncryptedResponse {
 
     private String encryptedData;
     private String mac;
-    private final long timestamp;
-
-    /**
-     * Default constructor.
-     */
-    public EciesEncryptedResponse() {
-        this.timestamp = new Date().getTime();
-    }
+    private Long timestamp;
 
     /**
      * Constructor with Base64 encoded encrypted data and MAC of key and data.
@@ -84,9 +77,17 @@ public class EciesEncryptedResponse {
 
     /**
      * Get response timestamp as unix timestamp in milliseconds.
-     * @return Server timestamp.
+     * @return Response timestamp.
      */
     public long getTimestamp() {
         return timestamp;
+    }
+
+    /**
+     * Set response timestamp as unix timestamp in milliseconds.
+     * @param timestamp Response timestamp.
+     */
+    public void setTimestamp(Long timestamp) {
+        this.timestamp = timestamp;
     }
 }
