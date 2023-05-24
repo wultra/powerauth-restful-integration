@@ -73,7 +73,7 @@ public class UpgradeController {
      * @return ECIES encrypted response.
      * @throws PowerAuthUpgradeException In case upgrade fails.
      */
-    @RequestMapping(value = "start", method = RequestMethod.POST)
+    @PostMapping("start")
     public EciesEncryptedResponse upgradeStart(@RequestBody EciesEncryptedRequest request,
                                                  @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
             throws PowerAuthUpgradeException {
@@ -95,7 +95,9 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
-        if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
+        if (!"3.0".equals(header.getVersion())
+                && !"3.1".equals(header.getVersion())
+                && !"3.2".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
             throw new PowerAuthUpgradeException();
         }
@@ -118,7 +120,7 @@ public class UpgradeController {
      * @throws PowerAuthAuthenticationException In case request signature is invalid.
      * @throws PowerAuthUpgradeException In case commit fails.
      */
-    @RequestMapping(value = "commit", method = RequestMethod.POST)
+    @PostMapping("commit")
     public Response upgradeCommit(@RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
                                   HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
@@ -135,7 +137,9 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
-        if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
+        if (!"3.0".equals(header.getVersion())
+                && !"3.1".equals(header.getVersion())
+                && !"3.2".equals(header.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
             throw new PowerAuthInvalidRequestException();
         }

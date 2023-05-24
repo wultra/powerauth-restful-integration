@@ -68,7 +68,9 @@ public class SignatureController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(auth.getVersion()) && !"3.1".equals(auth.getVersion())) {
+        if (!"3.0".equals(auth.getVersion())
+                && !"3.1".equals(auth.getVersion())
+                && !"3.2".equals(auth.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", auth.getVersion());
             throw new PowerAuthInvalidRequestException();
         }

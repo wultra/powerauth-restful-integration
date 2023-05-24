@@ -94,7 +94,7 @@ public class ActivationController {
      * @throws PowerAuthActivationException In case activation fails.
      * @throws PowerAuthRecoveryException In case recovery PUK is invalid.
      */
-    @RequestMapping(value = "create", method = RequestMethod.POST)
+    @PostMapping("create")
     @PowerAuthEncryption(scope = EciesScope.APPLICATION_SCOPE)
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
                                                      EciesEncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
@@ -111,7 +111,7 @@ public class ActivationController {
      * @return PowerAuth RESTful response with {@link ActivationStatusResponse} payload.
      * @throws PowerAuthActivationException In case request fails.
      */
-    @RequestMapping(value = "status", method = RequestMethod.POST)
+    @PostMapping("status")
     public ObjectResponse<ActivationStatusResponse> getActivationStatus(@RequestBody ObjectRequest<ActivationStatusRequest> request)
             throws PowerAuthActivationException {
         if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
@@ -130,7 +130,7 @@ public class ActivationController {
      * @throws PowerAuthActivationException In case activation access fails.
      * @throws PowerAuthAuthenticationException In case the signature validation fails.
      */
-    @RequestMapping(value = "remove", method = RequestMethod.POST)
+    @PostMapping("remove")
     public ObjectResponse<ActivationRemoveResponse> removeActivation(
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
             HttpServletRequest httpServletRequest)
@@ -141,7 +141,9 @@ public class ActivationController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(apiAuthentication.getVersion()) && !"3.1".equals(apiAuthentication.getVersion())) {
+        if (!"3.0".equals(apiAuthentication.getVersion())
+                && !"3.1".equals(apiAuthentication.getVersion())
+                && !"3.2".equals(apiAuthentication.getVersion())) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
             throw new PowerAuthInvalidRequestException();
         }
