@@ -19,8 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
-import java.util.Date;
-
 /**
  * Response object for endpoints returning data encrypted by ECIES.
  *

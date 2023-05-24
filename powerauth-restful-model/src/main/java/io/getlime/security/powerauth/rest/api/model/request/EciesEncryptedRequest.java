@@ -19,8 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
-import java.util.Date;
-
 /**
  * Request object with data encrypted by ECIES encryption.
  *
