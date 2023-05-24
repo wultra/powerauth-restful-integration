@@ -65,20 +65,14 @@ public class SignatureTypeConverter {
      * @return Signature type.
      */
     public SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
-        switch (powerAuthSignatureTypes) {
-            case POSSESSION:
-                return SignatureType.POSSESSION;
-            case KNOWLEDGE:
-                return SignatureType.KNOWLEDGE;
-            case BIOMETRY:
-                return SignatureType.BIOMETRY;
-            case POSSESSION_KNOWLEDGE:
-                return SignatureType.POSSESSION_KNOWLEDGE;
-            case POSSESSION_BIOMETRY:
-                return SignatureType.POSSESSION_BIOMETRY;
-            default:
-                return null;
-        }
+        return switch (powerAuthSignatureTypes) {
+            case POSSESSION -> SignatureType.POSSESSION;
+            case KNOWLEDGE -> SignatureType.KNOWLEDGE;
+            case BIOMETRY -> SignatureType.BIOMETRY;
+            case POSSESSION_KNOWLEDGE -> SignatureType.POSSESSION_KNOWLEDGE;
+            case POSSESSION_BIOMETRY -> SignatureType.POSSESSION_BIOMETRY;
+            default -> null;
+        };
     }
 
 }

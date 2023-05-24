@@ -23,6 +23,8 @@ import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthSignatureAuthentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
+import java.io.Serial;
+
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
  * application (such as mobile banking API).
@@ -32,6 +34,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
  */
 public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthSignatureAuthentication {
 
+    @Serial
     private static final long serialVersionUID = 6495166873663643144L;
 
     /**

@@ -20,8 +20,6 @@
 package io.getlime.security.powerauth.rest.api.spring.converter;
 
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationStatus;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,8 +29,6 @@ import org.springframework.stereotype.Component;
  */
 @Component
 public class ActivationStatusConverter {
-
-    private static final Logger logger = LoggerFactory.getLogger(ActivationStatusConverter.class);
 
     /**
      * Convert {@link ActivationStatus} from a {@link com.wultra.security.powerauth.client.model.enumeration.ActivationStatus} value.
@@ -44,24 +40,13 @@ public class ActivationStatusConverter {
             return null;
         }
 
-        switch (activationStatus) {
-            case CREATED:
-                return ActivationStatus.CREATED;
-
-            case PENDING_COMMIT:
-                return ActivationStatus.PENDING_COMMIT;
-
-            case ACTIVE:
-                return ActivationStatus.ACTIVE;
-
-            case BLOCKED:
-                return ActivationStatus.BLOCKED;
-
-            case REMOVED:
-                return ActivationStatus.REMOVED;
-        }
-
-        return null;
+        return switch (activationStatus) {
+            case CREATED -> ActivationStatus.CREATED;
+            case PENDING_COMMIT -> ActivationStatus.PENDING_COMMIT;
+            case ACTIVE -> ActivationStatus.ACTIVE;
+            case BLOCKED -> ActivationStatus.BLOCKED;
+            case REMOVED -> ActivationStatus.REMOVED;
+        };
     }
 
 }

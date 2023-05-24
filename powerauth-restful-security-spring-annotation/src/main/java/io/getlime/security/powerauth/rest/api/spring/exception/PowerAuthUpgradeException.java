@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception raised in case PowerAuth upgrade fails.
  *
@@ -27,6 +29,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthUpgradeException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -5750221213611810117L;
 
     private static final String DEFAULT_CODE = "ERR_UPGRADE";

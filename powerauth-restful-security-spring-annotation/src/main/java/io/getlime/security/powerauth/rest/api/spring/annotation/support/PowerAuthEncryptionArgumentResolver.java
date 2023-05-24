@@ -101,7 +101,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
      */
     private boolean validateEciesScope(EciesEncryptionContext eciesContext) {
         switch (eciesContext.getEciesScope()) {
-            case ACTIVATION_SCOPE:
+            case ACTIVATION_SCOPE -> {
                 if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
                     logger.warn("ECIES activation scope is invalid because of missing application key");
                     return false;
@@ -110,18 +110,17 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                     logger.warn("ECIES activation scope is invalid because of missing activation ID");
                     return false;
                 }
-                break;
-
-            case APPLICATION_SCOPE:
+            }
+            case APPLICATION_SCOPE -> {
                 if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
                     logger.warn("ECIES application scope is invalid because of missing application key");
                     return false;
                 }
-                break;
-
-            default:
+            }
+            default -> {
                 logger.warn("Unsupported ECIES scope: {}", eciesContext.getEciesScope());
                 return false;
+            }
         }
         return true;
     }

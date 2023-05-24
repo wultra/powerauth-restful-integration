@@ -146,7 +146,7 @@ public class ActivationService {
 
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute
-                case CODE: {
+                case CODE -> {
 
                     // Check if identity attributes are present
                     if (identity == null || identity.isEmpty()) {
@@ -243,8 +243,9 @@ public class ActivationService {
                     return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
                 }
 
+
                 // Custom activation
-                case CUSTOM: {
+                case CUSTOM -> {
                     // Check if there is a custom activation provider available, return an error in case it is not available.
                     // Only for CUSTOM activations, proceeding without an activation provider does not make a sensible use-case.
                     if (activationProvider == null) {
@@ -271,7 +272,7 @@ public class ActivationService {
                     }
 
                     // Decide if the recovery codes should be generated
-                    final Boolean shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
+                    final boolean shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
 
                     // Resolve maxFailedCount and activationExpireTimestamp parameters, null value means use value configured on PowerAuth server
                     final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId, ActivationType.CUSTOM, context);
@@ -352,8 +353,9 @@ public class ActivationService {
                     return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
                 }
 
+
                 // Activation using recovery code
-                case RECOVERY: {
+                case RECOVERY -> {
 
                     // Check if identity attributes are present
                     if (identity == null || identity.isEmpty()) {
@@ -457,14 +459,13 @@ public class ActivationService {
                     // Prepare and return encrypted response
                     return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
                 }
-
-                default:
+                default -> {
                     logger.warn("Invalid activation request");
                     throw new PowerAuthInvalidRequestException();
+                }
             }
         } catch (PowerAuthClientException ex) {
-            if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {
-                final PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
+            if (ex.getPowerAuthError() instanceof final PowerAuthErrorRecovery errorRecovery) {
                 logger.debug("Invalid recovery code, current PUK index: {}", errorRecovery.getCurrentRecoveryPukIndex());
                 throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
