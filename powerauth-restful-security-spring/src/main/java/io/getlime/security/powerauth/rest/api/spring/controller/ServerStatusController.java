@@ -19,23 +19,13 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
-import io.getlime.security.powerauth.rest.api.model.request.UserInfoRequest;
 import io.getlime.security.powerauth.rest.api.model.response.ServerStatusResponse;
-import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
-import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
-import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
-import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
-import io.getlime.security.powerauth.rest.api.spring.service.UserInfoService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
-import java.util.Map;
 
 /**
  * Controller that provides a user information.

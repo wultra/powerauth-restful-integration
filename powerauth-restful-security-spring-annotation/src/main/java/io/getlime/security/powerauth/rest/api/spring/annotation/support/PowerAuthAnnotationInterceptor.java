@@ -92,9 +92,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
         // This is to avoid issues with possible CORS requests )in case of
         // incorrect filter mapping) where there are special "pre-flight"
         // requests before the actual requests.
-        if (handler instanceof HandlerMethod) {
-
-            final HandlerMethod handlerMethod = (HandlerMethod) handler;
+        if (handler instanceof final HandlerMethod handlerMethod) {
 
             // Obtain annotations
             PowerAuth powerAuthSignatureAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);

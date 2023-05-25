@@ -41,12 +41,12 @@ import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEn
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.Base64;
@@ -153,26 +153,25 @@ public abstract class PowerAuthEncryptionProviderBase {
             final PowerAuthEciesDecryptorParameters decryptorParameters;
             // Obtain ECIES decryptor parameters from PowerAuth server
             switch (eciesScope) {
-                case ACTIVATION_SCOPE:
+                case ACTIVATION_SCOPE -> {
                     final String activationId = eciesEncryption.getContext().getActivationId();
                     if (activationId == null) {
                         logger.warn("Activation ID is required in ECIES activation scope");
                         throw new PowerAuthEncryptionException();
                     }
                     decryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey);
-                    break;
-                case APPLICATION_SCOPE:
-                    decryptorParameters = getEciesDecryptorParameters(null, applicationKey, ephemeralPublicKey);
-                    break;
-                default:
+                }
+                case APPLICATION_SCOPE -> decryptorParameters = getEciesDecryptorParameters(null, applicationKey, ephemeralPublicKey);
+                default -> {
                     logger.warn("Unsupported ECIES scope: {}", eciesScope);
                     throw new PowerAuthEncryptionException();
+                }
             }
 
             // Prepare envelope key and sharedInfo2 parameter for decryptor
-            final byte[] secretKey = Base64.getDecoder().decode(decryptorParameters.getSecretKey());
+            final byte[] secretKey = Base64.getDecoder().decode(decryptorParameters.secretKey());
             final EciesEnvelopeKey envelopeKey = new EciesEnvelopeKey(secretKey, ephemeralPublicKeyBytes);
-            final byte[] sharedInfo2 = Base64.getDecoder().decode(decryptorParameters.getSharedInfo2());
+            final byte[] sharedInfo2 = Base64.getDecoder().decode(decryptorParameters.sharedInfo2());
 
             // Construct decryptor and set it to the request for later encryption of response
             final EciesDecryptor eciesDecryptor = eciesFactory.getEciesDecryptor(envelopeKey, sharedInfo2);

@@ -24,7 +24,7 @@ import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 /**
  * Class used for storing data used during ECIES decryption and encryption. A reference to an initialized ECIES decryptor
  * is also stored so that response can be encrypted using same decryptor as used for request decryption.
- *
+ * <p>
  * Use the T parameter to specify the type of request object to be decrypted.
  *
  * @author Roman Strobl, roman.strobl@wultra.com

@@ -22,26 +22,8 @@ package io.getlime.security.powerauth.rest.api.model.response;
 /**
  * Response object for /pa/v3/status end-point.
  *
+ * @param serverTime Server time.
  * @author Roman Strobl, roman.strobl@wultra.com
- *
  */
-public class ServerStatusResponse {
-
-    private final long serverTime;
-
-    /**
-     * Class constructor.
-     * @param serverTime Server time as unix timestamp in milliseconds.
-     */
-    public ServerStatusResponse(long serverTime) {
-        this.serverTime = serverTime;
-    }
-
-    /**
-     * Get server time as unix timestamp in milliseconds.
-     * @return Server time.
-     */
-    public long getServerTime() {
-        return serverTime;
-    }
+public record ServerStatusResponse(long serverTime) {
 }

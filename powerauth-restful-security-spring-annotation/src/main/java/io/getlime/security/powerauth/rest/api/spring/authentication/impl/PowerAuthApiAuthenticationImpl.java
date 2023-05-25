@@ -28,6 +28,7 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,6 +44,7 @@ import java.util.List;
  */
 public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthApiAuthentication, Serializable {
 
+    @Serial
     private static final long serialVersionUID = -3790516505615465445L;
 
     /**
@@ -145,9 +147,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
 
     @Override
     public Collection<GrantedAuthority> getAuthorities() {
-        ArrayList<GrantedAuthority> authorities = new ArrayList<>(1);
-        authorities.add(new SimpleGrantedAuthority("USER"));
-        return Collections.unmodifiableList(authorities);
+        return List.of(new SimpleGrantedAuthority("USER"));
     }
 
     @Override

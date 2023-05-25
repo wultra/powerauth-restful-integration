@@ -63,7 +63,7 @@ public class PowerAuthRequestFilterBase {
             if (queryString != null && queryString.length() > 0) {
 
                 // Decode the query string
-                queryString = URLDecoder.decode(queryString, "UTF-8");
+                queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);
 
                 // Get the canonized form
                 final String signatureBaseStringData = PowerAuthRequestCanonizationUtils.canonizeGetParameters(queryString);

@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception thrown in case PowerAuth recovery fails, with optional current PUK index.
  *
@@ -26,6 +28,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthRecoveryException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 6497199187989286105L;
 
     private static final String DEFAULT_CODE = "ERR_RECOVERY";
