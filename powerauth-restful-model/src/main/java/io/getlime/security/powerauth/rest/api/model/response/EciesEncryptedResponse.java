@@ -82,7 +82,7 @@ public class EciesEncryptedResponse {
      * Get response timestamp as unix timestamp in milliseconds.
      * @return Response timestamp.
      */
-    public long getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 

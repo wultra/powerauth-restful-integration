@@ -100,7 +100,7 @@ public class EciesEncryptedRequest {
      * Get request timestamp as unix timestamp in milliseconds.
      * @return Request timestamp.
      */
-    public long getTimestamp() {
+    public Long getTimestamp() {
         return timestamp;
     }
 
