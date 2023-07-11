@@ -34,6 +34,7 @@ public class EciesEncryptionContext {
     private String activationId;
     private String version;
     private EciesScope eciesScope;
+    private String ephemeralPublicKey;
     private PowerAuthHttpHeader httpHeader;
 
     /**
@@ -125,6 +126,22 @@ public class EciesEncryptionContext {
      */
     public void setEciesScope(EciesScope eciesScope) {
         this.eciesScope = eciesScope;
+    }
+
+    /**
+     * Get ephemeral public key in Base64 encoding.
+     * @return Ephemeral public key.
+     */
+    public String getEphemeralPublicKey() {
+        return ephemeralPublicKey;
+    }
+
+    /**
+     * Set ephemeral public key bytes in Base64 encoding.
+     * @param ephemeralPublicKey Ephemeral public key bytes.
+     */
+    public void setEphemeralPublicKey(String ephemeralPublicKey) {
+        this.ephemeralPublicKey = ephemeralPublicKey;
     }
 
     /**

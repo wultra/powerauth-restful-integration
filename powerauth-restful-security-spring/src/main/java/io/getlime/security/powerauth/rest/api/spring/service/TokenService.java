@@ -89,6 +89,7 @@ public class TokenService {
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
             final String nonce = request.getNonce();
+            final Long timestamp = request.getTimestamp();
 
             // Prepare a signature type converter
             final SignatureTypeConverter converter = new SignatureTypeConverter();
@@ -112,6 +113,8 @@ public class TokenService {
             tokenRequest.setMac(mac);
             tokenRequest.setNonce(nonce);
             tokenRequest.setSignatureType(signatureType);
+            tokenRequest.setProtocolVersion(httpHeader.getVersion());
+            tokenRequest.setTimestamp(timestamp);
             final CreateTokenResponse token = powerAuthClient.createToken(
                     tokenRequest,
                     httpCustomizationService.getQueryParams(),

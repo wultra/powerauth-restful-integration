@@ -107,6 +107,11 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
+        if (request.getTimestamp() == null && (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion()))) {
+            logger.warn("Missing timestamp in ECIES request data");
+            throw new PowerAuthUpgradeException();
+        }
+
         return upgradeService.upgradeStart(request, header);
 
     }

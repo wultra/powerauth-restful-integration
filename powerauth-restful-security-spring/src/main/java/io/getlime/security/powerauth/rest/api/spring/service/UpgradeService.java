@@ -94,6 +94,7 @@ public class UpgradeService {
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
             final String nonce = request.getNonce();
+            final Long timestamp = request.getTimestamp();
 
             // Get ECIES headers
             final String activationId = header.getActivationId();
@@ -107,6 +108,8 @@ public class UpgradeService {
             upgradeRequest.setEncryptedData(encryptedData);
             upgradeRequest.setMac(mac);
             upgradeRequest.setNonce(nonce);
+            upgradeRequest.setProtocolVersion(header.getVersion());
+            upgradeRequest.setTimestamp(timestamp);
             final StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(
                     upgradeRequest,
                     httpCustomizationService.getQueryParams(),

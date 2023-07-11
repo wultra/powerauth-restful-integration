@@ -135,12 +135,17 @@ public class ActivationService {
             final String encryptedData = activationData.getEncryptedData();
             final String mac = activationData.getMac();
             final String nonce = activationData.getNonce();
+            final Long timestamp = activationData.getTimestamp();
             final Map<String, String> identity = request.getIdentityAttributes();
             final Map<String, Object> customAttributes = (request.getCustomAttributes() != null) ? request.getCustomAttributes() : new HashMap<>();
 
             // Validate inner encryption
             if (nonce == null && !"3.0".equals(eciesContext.getVersion())) {
-                logger.warn("Missing nonce for protocol version: {}", eciesContext.getVersion());
+                logger.warn("Missing nonce in ECIES request data");
+                throw new PowerAuthActivationException();
+            }
+            if (timestamp == null && (!"3.0".equals(eciesContext.getVersion()) && !"3.1".equals(eciesContext.getVersion()))) {
+                logger.warn("Missing timestamp in ECIES request data");
                 throw new PowerAuthActivationException();
             }
 
@@ -174,6 +179,8 @@ public class ActivationService {
                     prepareRequest.setEncryptedData(encryptedData);
                     prepareRequest.setMac(mac);
                     prepareRequest.setNonce(nonce);
+                    prepareRequest.setProtocolVersion(eciesContext.getVersion());
+                    prepareRequest.setTimestamp(timestamp);
                     final PrepareActivationResponse response = powerAuthClient.prepareActivation(
                             prepareRequest,
                             httpCustomizationService.getQueryParams(),
@@ -295,6 +302,8 @@ public class ActivationService {
                     createRequest.setEncryptedData(encryptedData);
                     createRequest.setMac(mac);
                     createRequest.setNonce(nonce);
+                    createRequest.setProtocolVersion(eciesContext.getVersion());
+                    createRequest.setTimestamp(timestamp);
                     final CreateActivationResponse response = powerAuthClient.createActivation(
                             createRequest,
                             httpCustomizationService.getQueryParams(),
@@ -400,6 +409,8 @@ public class ActivationService {
                     recoveryRequest.setEncryptedData(encryptedData);
                     recoveryRequest.setMac(mac);
                     recoveryRequest.setNonce(nonce);
+                    recoveryRequest.setProtocolVersion(eciesContext.getVersion());
+                    recoveryRequest.setTimestamp(timestamp);
                     final RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(
                             recoveryRequest,
                             httpCustomizationService.getQueryParams(),

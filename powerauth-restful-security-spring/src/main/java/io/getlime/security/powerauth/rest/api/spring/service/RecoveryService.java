@@ -88,6 +88,8 @@ public class RecoveryService {
             confirmRequest.setEncryptedData(request.getEncryptedData());
             confirmRequest.setMac(request.getMac());
             confirmRequest.setNonce(request.getNonce());
+            confirmRequest.setProtocolVersion(httpHeader.getVersion());
+            confirmRequest.setTimestamp(request.getTimestamp());
             final ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(
                     confirmRequest,
                     httpCustomizationService.getQueryParams(),

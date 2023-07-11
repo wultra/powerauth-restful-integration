@@ -105,6 +105,7 @@ public class SecureVaultService {
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
             final String eciesNonce = request.getNonce();
+            final Long timestamp = request.getTimestamp();
 
             // Prepare data for signature to allow signature verification on PowerAuth server
             final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
@@ -122,6 +123,7 @@ public class SecureVaultService {
             unlockRequest.setEncryptedData(encryptedData);
             unlockRequest.setMac(mac);
             unlockRequest.setNonce(eciesNonce);
+            unlockRequest.setTimestamp(timestamp);
             final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(
                     unlockRequest,
                     httpCustomizationService.getQueryParams(),

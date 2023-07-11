@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEncryptor;
 
 /**
  * Class used for storing data used during ECIES decryption and encryption. A reference to an initialized ECIES decryptor
@@ -33,8 +34,10 @@ public class PowerAuthEciesEncryption {
 
     private final EciesEncryptionContext context;
     private EciesDecryptor eciesDecryptor;
+    private EciesEncryptor eciesEncryptor;
     private byte[] encryptedRequest;
     private byte[] decryptedRequest;
+    private byte[] associatedData;
     private Object requestObject;
 
     /**
@@ -71,6 +74,22 @@ public class PowerAuthEciesEncryption {
     }
 
     /**
+     * Get ECIES encryptor.
+     * @return eciesEncryptor ECIES encryptor.
+     */
+    public EciesEncryptor getEciesEncryptor() {
+        return eciesEncryptor;
+    }
+
+    /**
+     * Set ECIES encryptor.
+     * @param eciesEncryptor ECIES encryptor.
+     */
+    public void setEciesEncryptor(EciesEncryptor eciesEncryptor) {
+        this.eciesEncryptor = eciesEncryptor;
+    }
+
+    /**
      * Get encrypted request data.
      * @return Encrypted request data.
      */
@@ -100,6 +119,22 @@ public class PowerAuthEciesEncryption {
      */
     public void setDecryptedRequest(byte[] decryptedRequest) {
         this.decryptedRequest = decryptedRequest;
+    }
+
+    /**
+     * Get ECIES data associated with request and response.
+     * @return ECIES data associated with request and response.
+     */
+    public byte[] getAssociatedData() {
+        return associatedData;
+    }
+
+    /**
+     * Set ECIES data associated with request and response.
+     * @param associatedData ECIES data associated with request and response.
+     */
+    public void setAssociatedData(byte[] associatedData) {
+        this.associatedData = associatedData;
     }
 
     /**

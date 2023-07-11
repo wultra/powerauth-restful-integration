@@ -20,8 +20,8 @@
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEncryptor;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesPayload;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
@@ -121,11 +121,11 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         try {
             byte[] responseBytes = serializeResponseObject(response);
 
-            // Encrypt response using decryptor and return ECIES cryptogram
-            final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
-            final EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
-            final String encryptedDataBase64 = Base64.getEncoder().encodeToString(cryptogram.getEncryptedData());
-            final String macBase64 = Base64.getEncoder().encodeToString(cryptogram.getMac());
+            // Encrypt response using encryptor and return ECIES cryptogram
+            final EciesEncryptor eciesEncryptor = eciesEncryption.getEciesEncryptor();
+            final EciesPayload payload = eciesEncryptor.encrypt(responseBytes, null);
+            final String encryptedDataBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEncryptedData());
+            final String macBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getMac());
 
             // Return encrypted response with type given by converter class
             final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64);
