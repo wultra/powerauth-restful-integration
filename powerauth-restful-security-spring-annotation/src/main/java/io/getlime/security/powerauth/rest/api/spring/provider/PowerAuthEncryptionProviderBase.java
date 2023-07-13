@@ -205,9 +205,11 @@ public abstract class PowerAuthEncryptionProviderBase {
             final EciesEnvelopeKey envelopeKey = new EciesEnvelopeKey(secretKey, ephemeralPublicKeyBytes);
             final byte[] sharedInfo2 = Base64.getDecoder().decode(decryptorParameters.sharedInfo2());
 
-            // Construct decryptor and set it to the request for later encryption of response
+            // Construct decryptor and encryptor
             final EciesDecryptor eciesDecryptor = eciesFactory.getEciesDecryptor(envelopeKey, sharedInfo2);
+            final EciesEncryptor eciesEncryptor = eciesFactory.getEciesEncryptor(envelopeKey, sharedInfo2);
             eciesEncryption.setEciesDecryptor(eciesDecryptor);
+            eciesEncryption.setEciesEncryptor(eciesEncryptor);
 
             // Decrypt request data
             final EciesParameters parameters = EciesParameters.builder().nonce(nonceBytes).associatedData(associatedData).timestamp(timestamp).build();

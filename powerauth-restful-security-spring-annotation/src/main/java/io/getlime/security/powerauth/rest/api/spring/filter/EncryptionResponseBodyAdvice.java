@@ -21,7 +21,9 @@ package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEncryptor;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesParameters;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesPayload;
+import io.getlime.security.powerauth.crypto.lib.generator.KeyGenerator;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
@@ -52,6 +54,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -123,7 +126,21 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
             // Encrypt response using encryptor and return ECIES cryptogram
             final EciesEncryptor eciesEncryptor = eciesEncryption.getEciesEncryptor();
-            final EciesPayload payload = eciesEncryptor.encrypt(responseBytes, null);
+            final String version = eciesEncryption.getContext().getVersion();
+            final EciesParameters eciesParameters;
+            if ("3.2".equals(version)) {
+                final byte[] associatedData = eciesEncryption.getAssociatedData();
+                final Long timestamp = new Date().getTime();
+                final byte[] nonceBytes = new KeyGenerator().generateRandomBytes(16);
+                eciesParameters = EciesParameters.builder().nonce(nonceBytes).associatedData(associatedData).timestamp(timestamp).build();
+            } else if ("3.1".equals(version)) {
+                final byte[] nonceBytes = new KeyGenerator().generateRandomBytes(16);
+                eciesParameters = EciesParameters.builder().nonce(nonceBytes).build();
+            } else {
+                eciesParameters = EciesParameters.builder().build();
+            }
+
+            final EciesPayload payload = eciesEncryptor.encrypt(responseBytes, eciesParameters);
             final String encryptedDataBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEncryptedData());
             final String macBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getMac());
 

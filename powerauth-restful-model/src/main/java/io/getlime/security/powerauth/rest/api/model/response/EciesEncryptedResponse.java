@@ -26,8 +26,10 @@ package io.getlime.security.powerauth.rest.api.model.response;
  */
 public class EciesEncryptedResponse {
 
+    private String ephemeralPublicKey;
     private String encryptedData;
     private String mac;
+    private String nonce;
     private Long timestamp;
 
     /**
@@ -44,6 +46,22 @@ public class EciesEncryptedResponse {
     public EciesEncryptedResponse(String encryptedData, String mac) {
         this.encryptedData = encryptedData;
         this.mac = mac;
+    }
+
+    /**
+     * Get ephemeral public key.
+     * @return Ephemeral public key.
+     */
+    public String getEphemeralPublicKey() {
+        return ephemeralPublicKey;
+    }
+
+    /**
+     * Set ephemeral public key.
+     * @param ephemeralPublicKey Ephemeral public key.
+     */
+    public void setEphemeralPublicKey(String ephemeralPublicKey) {
+        this.ephemeralPublicKey = ephemeralPublicKey;
     }
 
     /**
@@ -76,6 +94,22 @@ public class EciesEncryptedResponse {
      */
     public void setMac(String mac) {
         this.mac = mac;
+    }
+
+    /**
+     * Get nonce.
+     * @return Nonce.
+     */
+    public String getNonce() {
+        return nonce;
+    }
+
+    /**
+     * Set nonce.
+     * @param nonce Nonce.
+     */
+    public void setNonce(String nonce) {
+        this.nonce = nonce;
     }
 
     /**
