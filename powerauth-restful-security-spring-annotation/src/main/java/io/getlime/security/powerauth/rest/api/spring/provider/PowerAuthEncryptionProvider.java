@@ -60,12 +60,15 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
     }
 
     @Override
-    public @Nonnull PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey) throws PowerAuthEncryptionException {
+    public @Nonnull PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
         try {
             final GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);
             eciesDecryptorRequest.setApplicationKey(applicationKey);
             eciesDecryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
+            eciesDecryptorRequest.setProtocolVersion(version);
+            eciesDecryptorRequest.setNonce(nonce);
+            eciesDecryptorRequest.setTimestamp(timestamp);
             final GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(
                     eciesDecryptorRequest,
                     httpCustomizationService.getQueryParams(),
@@ -82,12 +85,15 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
 
     @Nonnull
     @Override
-    public PowerAuthEciesEncryptorParameters getEciesEncryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey) throws PowerAuthEncryptionException {
+    public PowerAuthEciesEncryptorParameters getEciesEncryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
         try {
             final GetEciesDecryptorRequest eciesEncryptorRequest = new GetEciesDecryptorRequest();
             eciesEncryptorRequest.setActivationId(activationId);
             eciesEncryptorRequest.setApplicationKey(applicationKey);
             eciesEncryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
+            eciesEncryptorRequest.setProtocolVersion(version);
+            eciesEncryptorRequest.setNonce(nonce);
+            eciesEncryptorRequest.setTimestamp(timestamp);
             final GetEciesDecryptorResponse eciesEncryptorResponse = powerAuthClient.getEciesDecryptor(
                     eciesEncryptorRequest,
                     httpCustomizationService.getQueryParams(),

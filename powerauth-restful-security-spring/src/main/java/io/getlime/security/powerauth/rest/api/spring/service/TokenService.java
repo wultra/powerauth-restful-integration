@@ -111,6 +111,7 @@ public class TokenService {
             tokenRequest.setEphemeralPublicKey(ephemeralPublicKey);
             tokenRequest.setEncryptedData(encryptedData);
             tokenRequest.setMac(mac);
+            tokenRequest.setEphemeralPublicKey(ephemeralPublicKey);
             tokenRequest.setNonce(nonce);
             tokenRequest.setSignatureType(signatureType);
             tokenRequest.setProtocolVersion(httpHeader.getVersion());
@@ -125,6 +126,9 @@ public class TokenService {
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
             response.setMac(token.getMac());
             response.setEncryptedData(token.getEncryptedData());
+            response.setEphemeralPublicKey(token.getEphemeralPublicKey());
+            response.setNonce(token.getNonce());
+            response.setMac(token.getMac());
             return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());

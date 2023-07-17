@@ -122,6 +122,7 @@ public class SecureVaultService {
             unlockRequest.setEphemeralPublicKey(ephemeralPublicKey);
             unlockRequest.setEncryptedData(encryptedData);
             unlockRequest.setMac(mac);
+            unlockRequest.setEphemeralPublicKey(ephemeralPublicKey);
             unlockRequest.setNonce(eciesNonce);
             unlockRequest.setTimestamp(timestamp);
             final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(
@@ -135,7 +136,8 @@ public class SecureVaultService {
                 throw new PowerAuthSignatureInvalidException();
             }
 
-            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
+            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac(),
+                    paResponse.getEphemeralPublicKey(), paResponse.getNonce(), paResponse.getTimestamp());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {

@@ -42,10 +42,16 @@ public class EciesEncryptedResponse {
      * Constructor with Base64 encoded encrypted data and MAC of key and data.
      * @param encryptedData Encrypted data.
      * @param mac MAC of key and data.
+     * @param ephemeralPublicKey Ephemeral public key.
+     * @param nonce ECIES nonce.
+     * @param timestamp Unix timestamp in milliseconds.
      */
-    public EciesEncryptedResponse(String encryptedData, String mac) {
+    public EciesEncryptedResponse(String encryptedData, String mac, String ephemeralPublicKey, String nonce, Long timestamp) {
         this.encryptedData = encryptedData;
         this.mac = mac;
+        this.ephemeralPublicKey = ephemeralPublicKey;
+        this.nonce = nonce;
+        this.timestamp = timestamp;
     }
 
     /**
