@@ -43,7 +43,6 @@ import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedRespo
 import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesDecryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
@@ -87,21 +86,6 @@ public abstract class PowerAuthEncryptionProviderBase {
      */
     public abstract @Nonnull
     PowerAuthEciesDecryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
-
-    /**
-     * Get ECIES encryptor parameters from PowerAuth server.
-     *
-     * @param activationId       Activation ID (only used in activation scope, in application scope use null).
-     * @param applicationKey     Application key.
-     * @param ephemeralPublicKey Ephemeral public key for ECIES.
-     * @param version            ECIES protocol version.
-     * @param nonce              ECIES nonce.
-     * @param timestamp          Timestamp for ECIES.
-     * @return ECIES encryptor parameters.
-     * @throws PowerAuthEncryptionException In case PowerAuth server call fails.
-     */
-    public abstract @Nonnull
-    PowerAuthEciesEncryptorParameters getEciesEncryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
 
     /**
      * Decrypt HTTP request body and construct object with ECIES data. Use the requestType parameter to specify
@@ -260,7 +244,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String ephemeralPublicKey = eciesEncryption.getContext().getEphemeralPublicKey();
             final byte[] ephemeralPublicKeyBytes = Base64.getDecoder().decode(ephemeralPublicKey);
 
-            final PowerAuthEciesEncryptorParameters encryptorParameters;
+            final PowerAuthEciesDecryptorParameters encryptorParameters;
             // Obtain ECIES decryptor parameters from PowerAuth server
             final byte[] associatedData;
             final String version = eciesEncryption.getContext().getVersion();
@@ -274,11 +258,11 @@ public abstract class PowerAuthEncryptionProviderBase {
                         logger.warn("Activation ID is required in ECIES activation scope");
                         throw new PowerAuthEncryptionException();
                     }
-                    encryptorParameters = getEciesEncryptorParameters(activationId, applicationKey, ephemeralPublicKey, encryptionContext.getVersion(), nonceResponse, timestampResponse);
+                    encryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey, encryptionContext.getVersion(), nonceResponse, timestampResponse);
                     associatedData = "3.2".equals(encryptionContext.getVersion()) ? EciesUtils.deriveAssociatedData(EciesScope.ACTIVATION_SCOPE, encryptionContext.getVersion(), applicationKey, activationId) : null;
                 }
                 case APPLICATION_SCOPE -> {
-                    encryptorParameters = getEciesEncryptorParameters(null, applicationKey, ephemeralPublicKey, encryptionContext.getVersion(), nonceResponse, timestampResponse);
+                    encryptorParameters = getEciesDecryptorParameters(null, applicationKey, ephemeralPublicKey, encryptionContext.getVersion(), nonceResponse, timestampResponse);
                     associatedData = "3.2".equals(encryptionContext.getVersion()) ? EciesUtils.deriveAssociatedData(EciesScope.APPLICATION_SCOPE, encryptionContext.getVersion(), applicationKey, null) : null;
                 }
                 default -> {

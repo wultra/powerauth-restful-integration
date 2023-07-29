@@ -23,7 +23,6 @@ import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.request.GetEciesDecryptorRequest;
 import com.wultra.security.powerauth.client.model.response.GetEciesDecryptorResponse;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesDecryptorParameters;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
@@ -78,31 +77,6 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
             return new PowerAuthEciesDecryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
         } catch (Exception ex) {
             logger.warn("Get ECIES decryptor call failed, error: {}", ex.getMessage());
-            logger.debug(ex.getMessage(), ex);
-            throw new PowerAuthEncryptionException();
-        }
-    }
-
-    @Nonnull
-    @Override
-    public PowerAuthEciesEncryptorParameters getEciesEncryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
-        try {
-            final GetEciesDecryptorRequest eciesEncryptorRequest = new GetEciesDecryptorRequest();
-            eciesEncryptorRequest.setActivationId(activationId);
-            eciesEncryptorRequest.setApplicationKey(applicationKey);
-            eciesEncryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
-            eciesEncryptorRequest.setProtocolVersion(version);
-            eciesEncryptorRequest.setNonce(nonce);
-            eciesEncryptorRequest.setTimestamp(timestamp);
-            final GetEciesDecryptorResponse eciesEncryptorResponse = powerAuthClient.getEciesDecryptor(
-                    eciesEncryptorRequest,
-                    httpCustomizationService.getQueryParams(),
-                    httpCustomizationService.getHttpHeaders()
-            );
-
-            return new PowerAuthEciesEncryptorParameters(eciesEncryptorResponse.getSecretKey(), eciesEncryptorResponse.getSharedInfo2());
-        } catch (Exception ex) {
-            logger.warn("Get ECIES encryptor call failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
