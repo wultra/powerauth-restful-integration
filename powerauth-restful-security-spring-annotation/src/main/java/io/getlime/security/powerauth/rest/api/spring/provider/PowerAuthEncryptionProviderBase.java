@@ -32,7 +32,6 @@ import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesParam
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesPayload;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.crypto.lib.generator.KeyGenerator;
-import io.getlime.security.powerauth.crypto.lib.util.ByteUtils;
 import io.getlime.security.powerauth.crypto.lib.util.EciesUtils;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
