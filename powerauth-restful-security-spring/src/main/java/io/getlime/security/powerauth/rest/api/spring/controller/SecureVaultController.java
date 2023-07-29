@@ -109,6 +109,11 @@ public class SecureVaultController {
             throw new PowerAuthInvalidRequestException();
         }
 
+        if (request.getTimestamp() == null && (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion()))) {
+            logger.warn("Missing timestamp in ECIES request data");
+            throw new PowerAuthInvalidRequestException();
+        }
+
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }
 

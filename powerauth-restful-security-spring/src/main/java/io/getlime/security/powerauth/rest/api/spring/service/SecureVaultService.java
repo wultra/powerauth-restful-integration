@@ -105,6 +105,7 @@ public class SecureVaultService {
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
             final String eciesNonce = request.getNonce();
+            final Long timestamp = request.getTimestamp();
 
             // Prepare data for signature to allow signature verification on PowerAuth server
             final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
@@ -121,7 +122,9 @@ public class SecureVaultService {
             unlockRequest.setEphemeralPublicKey(ephemeralPublicKey);
             unlockRequest.setEncryptedData(encryptedData);
             unlockRequest.setMac(mac);
+            unlockRequest.setEphemeralPublicKey(ephemeralPublicKey);
             unlockRequest.setNonce(eciesNonce);
+            unlockRequest.setTimestamp(timestamp);
             final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(
                     unlockRequest,
                     httpCustomizationService.getQueryParams(),
@@ -133,7 +136,8 @@ public class SecureVaultService {
                 throw new PowerAuthSignatureInvalidException();
             }
 
-            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
+            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac(),
+                    paResponse.getEphemeralPublicKey(), paResponse.getNonce(), paResponse.getTimestamp());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {

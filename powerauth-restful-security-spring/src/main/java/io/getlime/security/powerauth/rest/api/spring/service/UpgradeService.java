@@ -94,6 +94,7 @@ public class UpgradeService {
             final String encryptedData = request.getEncryptedData();
             final String mac = request.getMac();
             final String nonce = request.getNonce();
+            final Long timestamp = request.getTimestamp();
 
             // Get ECIES headers
             final String activationId = header.getActivationId();
@@ -107,6 +108,8 @@ public class UpgradeService {
             upgradeRequest.setEncryptedData(encryptedData);
             upgradeRequest.setMac(mac);
             upgradeRequest.setNonce(nonce);
+            upgradeRequest.setProtocolVersion(header.getVersion());
+            upgradeRequest.setTimestamp(timestamp);
             final StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(
                     upgradeRequest,
                     httpCustomizationService.getQueryParams(),
@@ -117,6 +120,9 @@ public class UpgradeService {
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
             response.setMac(upgradeResponse.getMac());
             response.setEncryptedData(upgradeResponse.getEncryptedData());
+            response.setEphemeralPublicKey(upgradeResponse.getEphemeralPublicKey());
+            response.setNonce(upgradeResponse.getNonce());
+            response.setTimestamp(upgradeResponse.getTimestamp());
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth upgrade start failed, error: {}", ex.getMessage());

@@ -99,6 +99,10 @@ public class TokenController {
             logger.warn("Missing nonce in ECIES request data");
             throw new PowerAuthInvalidRequestException();
         }
+        if (request.getTimestamp() == null && (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion()))) {
+            logger.warn("Missing timestamp in ECIES request data");
+            throw new PowerAuthInvalidRequestException();
+        }
         return tokenServiceV3.createToken(request, authentication);
     }
 
