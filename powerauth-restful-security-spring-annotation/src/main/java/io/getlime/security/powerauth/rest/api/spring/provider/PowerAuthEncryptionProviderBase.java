@@ -249,7 +249,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final byte[] associatedData;
             final String version = eciesEncryption.getContext().getVersion();
             final byte[] nonceBytesResponse = "3.2".equals(version) ? keyGenerator.generateRandomBytes(16) : null;
-            final String nonceResponse = Base64.getEncoder().encodeToString(nonceBytesResponse);
+            final String nonceResponse = nonceBytesResponse != null ? Base64.getEncoder().encodeToString(nonceBytesResponse) : null;
             final Long timestampResponse = "3.2".equals(version) ? new Date().getTime() : null;
             switch (eciesScope) {
                 case ACTIVATION_SCOPE -> {
@@ -286,8 +286,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final EciesPayload payload = encryptor.encrypt(responseData, parametersResponse);
             final String encryptedDataBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEncryptedData());
             final String macBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getMac());
-            final String ephemeralPublicKey64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEphemeralPublicKey());
-            return new EciesEncryptedResponse(encryptedDataBase64, macBase64, ephemeralPublicKey64, nonceResponse, timestampResponse);
+            return new EciesEncryptedResponse(encryptedDataBase64, macBase64, nonceResponse, timestampResponse);
         } catch (Exception ex) {
             logger.debug("Response encryption failed, error: " + ex.getMessage(), ex);
             return null;

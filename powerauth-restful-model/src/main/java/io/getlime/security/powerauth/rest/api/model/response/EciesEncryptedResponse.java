@@ -26,7 +26,6 @@ package io.getlime.security.powerauth.rest.api.model.response;
  */
 public class EciesEncryptedResponse {
 
-    private String ephemeralPublicKey;
     private String encryptedData;
     private String mac;
     private String nonce;
@@ -42,32 +41,14 @@ public class EciesEncryptedResponse {
      * Constructor with Base64 encoded encrypted data and MAC of key and data.
      * @param encryptedData Encrypted data.
      * @param mac MAC of key and data.
-     * @param ephemeralPublicKey Ephemeral public key.
      * @param nonce ECIES nonce.
      * @param timestamp Unix timestamp in milliseconds.
      */
-    public EciesEncryptedResponse(String encryptedData, String mac, String ephemeralPublicKey, String nonce, Long timestamp) {
+    public EciesEncryptedResponse(String encryptedData, String mac, String nonce, Long timestamp) {
         this.encryptedData = encryptedData;
         this.mac = mac;
-        this.ephemeralPublicKey = ephemeralPublicKey;
         this.nonce = nonce;
         this.timestamp = timestamp;
-    }
-
-    /**
-     * Get ephemeral public key.
-     * @return Ephemeral public key.
-     */
-    public String getEphemeralPublicKey() {
-        return ephemeralPublicKey;
-    }
-
-    /**
-     * Set ephemeral public key.
-     * @param ephemeralPublicKey Ephemeral public key.
-     */
-    public void setEphemeralPublicKey(String ephemeralPublicKey) {
-        this.ephemeralPublicKey = ephemeralPublicKey;
     }
 
     /**

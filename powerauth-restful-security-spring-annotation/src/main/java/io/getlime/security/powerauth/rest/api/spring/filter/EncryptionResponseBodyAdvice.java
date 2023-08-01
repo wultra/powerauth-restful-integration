@@ -136,11 +136,6 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
                 nonce = Base64.getEncoder().encodeToString(nonceBytes);
                 timestamp = new Date().getTime();
                 eciesParameters = EciesParameters.builder().nonce(nonceBytes).associatedData(associatedData).timestamp(timestamp).build();
-            } else if ("3.1".equals(version)) {
-                final byte[] nonceBytes = new KeyGenerator().generateRandomBytes(16);
-                nonce = Base64.getEncoder().encodeToString(nonceBytes);
-                timestamp = null;
-                eciesParameters = EciesParameters.builder().nonce(nonceBytes).build();
             } else {
                 nonce = null;
                 timestamp = null;
@@ -150,11 +145,9 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             final EciesPayload payload = eciesEncryptor.encrypt(responseBytes, eciesParameters);
             final String encryptedDataBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEncryptedData());
             final String macBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getMac());
-            final String ephemeralPublicKey64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEphemeralPublicKey());
 
             // Return encrypted response with type given by converter class
-            final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64, ephemeralPublicKey64,
-                    nonce, timestamp);
+            final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64, nonce, timestamp);
             if (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)) {
                 // Object conversion is done automatically using MappingJackson2HttpMessageConverter
                 return encryptedResponse;

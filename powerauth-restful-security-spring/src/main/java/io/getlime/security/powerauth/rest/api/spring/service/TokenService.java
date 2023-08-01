@@ -126,7 +126,6 @@ public class TokenService {
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
             response.setMac(token.getMac());
             response.setEncryptedData(token.getEncryptedData());
-            response.setEphemeralPublicKey(token.getEphemeralPublicKey());
             response.setNonce(token.getNonce());
             response.setMac(token.getMac());
             return response;

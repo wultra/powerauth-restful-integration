@@ -247,7 +247,7 @@ public class ActivationService {
                     }
 
                     // Prepare and return encrypted response
-                    return prepareEncryptedResponse(response.getEphemeralPublicKey(), response.getEncryptedData(), response.getMac(),
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
                             response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
                 }
 
@@ -360,7 +360,7 @@ public class ActivationService {
                     }
 
                     // Prepare encrypted activation data
-                    return prepareEncryptedResponse(response.getEphemeralPublicKey(), response.getEncryptedData(), response.getMac(),
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
                             response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
                 }
 
@@ -470,7 +470,7 @@ public class ActivationService {
                     }
 
                     // Prepare and return encrypted response
-                    return prepareEncryptedResponse(response.getEphemeralPublicKey(), response.getEncryptedData(), response.getMac(),
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
                             response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
                 }
                 default -> {
@@ -594,18 +594,16 @@ public class ActivationService {
     /**
      * Prepare payload for the encrypted response.
      *
-     * @param ephemeralPublicKey Ephemeral public key for ECIES.
      * @param encryptedData Encrypted data.
      * @param mac MAC code of the encrypted data.
      * @param processedCustomAttributes Custom attributes to be returned.
      * @return Encrypted response object.
      */
-    private ActivationLayer1Response prepareEncryptedResponse(String ephemeralPublicKey, String encryptedData, String mac, String nonce, Long timestmap, Map<String, Object> processedCustomAttributes, Map<String, Object> userInfo) {
+    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, String nonce, Long timestmap, Map<String, Object> processedCustomAttributes, Map<String, Object> userInfo) {
         // Prepare encrypted response object for layer 2
         final EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
         encryptedResponseL2.setEncryptedData(encryptedData);
         encryptedResponseL2.setMac(mac);
-        encryptedResponseL2.setEphemeralPublicKey(ephemeralPublicKey);
         encryptedResponseL2.setNonce(nonce);
         encryptedResponseL2.setTimestamp(timestmap);
 

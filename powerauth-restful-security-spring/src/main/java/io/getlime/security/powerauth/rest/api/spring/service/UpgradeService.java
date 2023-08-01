@@ -120,7 +120,6 @@ public class UpgradeService {
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
             response.setMac(upgradeResponse.getMac());
             response.setEncryptedData(upgradeResponse.getEncryptedData());
-            response.setEphemeralPublicKey(upgradeResponse.getEphemeralPublicKey());
             response.setNonce(upgradeResponse.getNonce());
             response.setTimestamp(upgradeResponse.getTimestamp());
             return response;
