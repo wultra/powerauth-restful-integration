@@ -137,7 +137,7 @@ public class SecureVaultService {
             }
 
             return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac(),
-                    paResponse.getEphemeralPublicKey(), paResponse.getNonce(), paResponse.getTimestamp());
+                    paResponse.getNonce(), paResponse.getTimestamp());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {

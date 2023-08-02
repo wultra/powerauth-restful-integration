@@ -100,7 +100,7 @@ public class RecoveryService {
                 logger.warn("PowerAuth confirm recovery failed because of invalid activation ID in response");
                 throw new PowerAuthInvalidRequestException();
             }
-            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac(), paResponse.getEphemeralPublicKey(),
+            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac(),
                     paResponse.getNonce(), paResponse.getTimestamp());
         } catch (Exception ex) {
             logger.warn("PowerAuth confirm recovery failed, error: {}", ex.getMessage());
