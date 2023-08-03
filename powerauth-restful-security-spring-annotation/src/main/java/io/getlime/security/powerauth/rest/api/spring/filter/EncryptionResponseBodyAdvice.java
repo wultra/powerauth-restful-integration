@@ -139,7 +139,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             } else {
                 nonce = null;
                 timestamp = null;
-                eciesParameters = EciesParameters.builder().build();
+                eciesParameters = eciesEncryption.getRequestParameters();
             }
 
             final EciesPayload payload = eciesEncryptor.encrypt(responseBytes, eciesParameters);

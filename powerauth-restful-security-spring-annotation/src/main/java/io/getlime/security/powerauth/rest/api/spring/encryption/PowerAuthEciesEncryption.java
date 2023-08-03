@@ -21,6 +21,8 @@ package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
 import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEncryptor;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesParameters;
+import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesPayload;
 
 /**
  * Class used for storing data used during ECIES decryption and encryption. A reference to an initialized ECIES decryptor
@@ -35,6 +37,7 @@ public class PowerAuthEciesEncryption {
     private final EciesEncryptionContext context;
     private EciesDecryptor eciesDecryptor;
     private EciesEncryptor eciesEncryptor;
+    private EciesParameters requestParameters;
     private byte[] encryptedRequest;
     private byte[] decryptedRequest;
     private byte[] associatedData;
@@ -153,4 +156,19 @@ public class PowerAuthEciesEncryption {
         this.requestObject = requestObject;
     }
 
+    /**
+     * Set ECIES parameters for request decryption.
+     * @param requestParameters ECIES parameters.
+     */
+    public void setRequestParameters(EciesParameters requestParameters) {
+        this.requestParameters = requestParameters;
+    }
+
+    /**
+     * Get ECIES parameters for request decryption.
+     * @return ECIES parameters.
+     */
+    public EciesParameters getRequestParameters() {
+        return requestParameters;
+    }
 }
