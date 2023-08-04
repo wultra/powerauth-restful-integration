@@ -46,6 +46,9 @@ public class ActivationContext {
     private String deviceInfo;
     private String extras;
 
+    /**
+     * Activation context constructor.
+     */
     public ActivationContext() {
         this.activationFlags = new ArrayList<>();
     }
