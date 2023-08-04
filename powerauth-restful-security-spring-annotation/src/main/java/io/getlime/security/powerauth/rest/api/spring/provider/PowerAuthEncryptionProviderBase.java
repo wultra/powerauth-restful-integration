@@ -70,8 +70,6 @@ public abstract class PowerAuthEncryptionProviderBase {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final EciesFactory eciesFactory = new EciesFactory();
-    // TODO: UNUSED
-    //private final KeyGenerator keyGenerator = new KeyGenerator();
 
     /**
      * Get ECIES decryptor parameters from PowerAuth server.
@@ -172,6 +170,7 @@ public abstract class PowerAuthEncryptionProviderBase {
 
             final String applicationKey = eciesEncryption.getContext().getApplicationKey();
             final PowerAuthEciesDecryptorParameters decryptorParameters;
+            final PowerAuthEciesDecryptorParameters encryptorParameters;
             // Obtain ECIES decryptor parameters from PowerAuth server
             final byte[] associatedData;
             switch (eciesScope) {
@@ -228,75 +227,7 @@ public abstract class PowerAuthEncryptionProviderBase {
         }
         return eciesEncryption;
     }
-
-// TODO: UNUSED
-
-//    /**
-//     * Encrypt response using ECIES.
-//     *
-//     * @param responseObject  Response object which should be encrypted.
-//     * @param eciesEncryption PowerAuth encryption object.
-//     * @return ECIES encrypted response.
-//     */
-//    public @Nullable
-//    EciesEncryptedResponse encryptResponse(@Nonnull Object responseObject, @Nonnull PowerAuthEciesEncryption eciesEncryption) {
-//        try {
-//            final EciesEncryptionContext encryptionContext = eciesEncryption.getContext();
-//            final EciesScope eciesScope = encryptionContext.getEciesScope();
-//
-//            final String applicationKey = eciesEncryption.getContext().getApplicationKey();
-//            final String ephemeralPublicKey = eciesEncryption.getContext().getEphemeralPublicKey();
-//            final byte[] ephemeralPublicKeyBytes = Base64.getDecoder().decode(ephemeralPublicKey);
-//
-//            final PowerAuthEciesDecryptorParameters encryptorParameters;
-//            // Obtain ECIES decryptor parameters from PowerAuth server
-//            final byte[] associatedData;
-//            final String version = eciesEncryption.getContext().getVersion();
-//            final byte[] nonceBytesResponse = "3.2".equals(version) ? keyGenerator.generateRandomBytes(16) : null;
-//            final String nonceResponse = nonceBytesResponse != null ? Base64.getEncoder().encodeToString(nonceBytesResponse) : null;
-//            final Long timestampResponse = "3.2".equals(version) ? new Date().getTime() : null;
-//            switch (eciesScope) {
-//                case ACTIVATION_SCOPE -> {
-//                    final String activationId = eciesEncryption.getContext().getActivationId();
-//                    if (activationId == null) {
-//                        logger.warn("Activation ID is required in ECIES activation scope");
-//                        throw new PowerAuthEncryptionException();
-//                    }
-//                    encryptorParameters = getEciesDecryptorParameters(activationId, applicationKey, ephemeralPublicKey, encryptionContext.getVersion(), nonceResponse, timestampResponse);
-//                    associatedData = "3.2".equals(encryptionContext.getVersion()) ? EciesUtils.deriveAssociatedData(EciesScope.ACTIVATION_SCOPE, encryptionContext.getVersion(), applicationKey, activationId) : null;
-//                }
-//                case APPLICATION_SCOPE -> {
-//                    encryptorParameters = getEciesDecryptorParameters(null, applicationKey, ephemeralPublicKey, encryptionContext.getVersion(), nonceResponse, timestampResponse);
-//                    associatedData = "3.2".equals(encryptionContext.getVersion()) ? EciesUtils.deriveAssociatedData(EciesScope.APPLICATION_SCOPE, encryptionContext.getVersion(), applicationKey, null) : null;
-//                }
-//                default -> {
-//                    logger.warn("Unsupported ECIES scope: {}", eciesScope);
-//                    throw new PowerAuthEncryptionException();
-//                }
-//            }
-//
-//            // Prepare envelope key and sharedInfo2 parameter for encryptor
-//            final byte[] secretKey = Base64.getDecoder().decode(encryptorParameters.secretKey());
-//            final EciesEnvelopeKey envelopeKey = new EciesEnvelopeKey(secretKey, ephemeralPublicKeyBytes);
-//            final byte[] sharedInfo2 = Base64.getDecoder().decode(encryptorParameters.sharedInfo2());
-//
-//            final byte[] responseData = serializeResponseData(responseObject);
-//            // Encrypt response using encryptor and return ECIES cryptogram
-//            final EciesParameters parametersResponse = EciesParameters.builder().nonce(nonceBytesResponse).associatedData(associatedData).timestamp(timestampResponse).build();
-//            final EciesEncryptor encryptor = eciesFactory.getEciesEncryptor(envelopeKey, sharedInfo2);
-//            // Store ECIES encryptor
-//            eciesEncryption.setEciesEncryptor(encryptor);
-//
-//            final EciesPayload payload = encryptor.encrypt(responseData, parametersResponse);
-//            final String encryptedDataBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEncryptedData());
-//            final String macBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getMac());
-//            return new EciesEncryptedResponse(encryptedDataBase64, macBase64, nonceResponse, timestampResponse);
-//        } catch (Exception ex) {
-//            logger.debug("Response encryption failed, error: " + ex.getMessage(), ex);
-//            return null;
-//        }
-//    }
-
+    
     /**
      * Convert byte[] request data to Object with given type.
      *
