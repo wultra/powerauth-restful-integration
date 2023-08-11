@@ -20,13 +20,9 @@
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesEncryptor;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesParameters;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesPayload;
-import io.getlime.security.powerauth.crypto.lib.generator.KeyGenerator;
+import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,8 +49,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -90,7 +84,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      */
     @Override
     public boolean supports(@NonNull MethodParameter methodParameter, @NonNull Class<? extends HttpMessageConverter<?>> converterClass) {
-        return methodParameter.hasMethodAnnotation(PowerAuthEncryption.class) &&
+        return methodParameter.hasMethodAnnotation(io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption.class) &&
                 (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)
                         || converterClass.isAssignableFrom(StringHttpMessageConverter.class)
                         || converterClass.isAssignableFrom(ByteArrayHttpMessageConverter.class));
@@ -113,50 +107,33 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             return null;
         }
 
-        // Extract ECIES encryption object from HTTP request
+        // Extract encryption object from HTTP request
         final HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
-        final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
-        if (eciesEncryption == null) {
+        final PowerAuthEncryptorData encryption = (PowerAuthEncryptorData) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        if (encryption == null || encryption.getServerEncryptor() == null) {
             return null;
         }
 
         // Convert response to JSON
         try {
             byte[] responseBytes = serializeResponseObject(response);
-
-            // Encrypt response using encryptor and return ECIES cryptogram
-            final EciesEncryptor eciesEncryptor = eciesEncryption.getEciesEncryptor();
-            final String version = eciesEncryption.getContext().getVersion();
-            final EciesParameters eciesParameters;
-            final String nonce;
-            final Long timestamp;
-            if ("3.2".equals(version)) {
-                final byte[] associatedData = eciesEncryption.getAssociatedData();
-                final byte[] nonceBytes = new KeyGenerator().generateRandomBytes(16);
-                nonce = Base64.getEncoder().encodeToString(nonceBytes);
-                timestamp = new Date().getTime();
-                eciesParameters = EciesParameters.builder().nonce(nonceBytes).associatedData(associatedData).timestamp(timestamp).build();
-            } else {
-                nonce = null;
-                timestamp = null;
-                eciesParameters = eciesEncryption.getRequestParameters();
-            }
-
-            final EciesPayload payload = eciesEncryptor.encrypt(responseBytes, eciesParameters);
-            final String encryptedDataBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getEncryptedData());
-            final String macBase64 = Base64.getEncoder().encodeToString(payload.getCryptogram().getMac());
-
+            final EncryptedResponse encryptedResponse = encryption.getServerEncryptor().encryptResponse(responseBytes);
             // Return encrypted response with type given by converter class
-            final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64, nonce, timestamp);
+            final EciesEncryptedResponse encryptedResponseObject = new EciesEncryptedResponse(
+                    encryptedResponse.getEncryptedData(),
+                    encryptedResponse.getMac(),
+                    encryptedResponse.getNonce(),
+                    encryptedResponse.getTimestamp()
+            );
             if (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)) {
                 // Object conversion is done automatically using MappingJackson2HttpMessageConverter
-                return encryptedResponse;
+                return encryptedResponseObject;
             } else if (converterClass.isAssignableFrom(StringHttpMessageConverter.class)) {
                 // Conversion to byte[] is done using first applicable configured HTTP message converter, corresponding String is returned
-                return new String(convertEncryptedResponse(encryptedResponse, mediaType), StandardCharsets.UTF_8);
+                return new String(convertEncryptedResponse(encryptedResponseObject, mediaType), StandardCharsets.UTF_8);
             } else {
                 // Conversion to byte[] is done using first applicable configured HTTP message converter
-                return convertEncryptedResponse(encryptedResponse, mediaType);
+                return convertEncryptedResponse(encryptedResponseObject, mediaType);
             }
         } catch (Exception ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());

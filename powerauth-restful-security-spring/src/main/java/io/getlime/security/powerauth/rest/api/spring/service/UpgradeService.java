@@ -89,13 +89,6 @@ public class UpgradeService {
             throws PowerAuthUpgradeException {
 
         try {
-            // Fetch data from the request
-            final String ephemeralPublicKey = request.getEphemeralPublicKey();
-            final String encryptedData = request.getEncryptedData();
-            final String mac = request.getMac();
-            final String nonce = request.getNonce();
-            final Long timestamp = request.getTimestamp();
-
             // Get ECIES headers
             final String activationId = header.getActivationId();
             final String applicationKey = header.getApplicationKey();
@@ -104,12 +97,12 @@ public class UpgradeService {
             final StartUpgradeRequest upgradeRequest = new StartUpgradeRequest();
             upgradeRequest.setActivationId(activationId);
             upgradeRequest.setApplicationKey(applicationKey);
-            upgradeRequest.setEphemeralPublicKey(ephemeralPublicKey);
-            upgradeRequest.setEncryptedData(encryptedData);
-            upgradeRequest.setMac(mac);
-            upgradeRequest.setNonce(nonce);
+            upgradeRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
+            upgradeRequest.setEncryptedData(request.getEncryptedData());
+            upgradeRequest.setMac(request.getMac());
+            upgradeRequest.setNonce(request.getNonce());
             upgradeRequest.setProtocolVersion(header.getVersion());
-            upgradeRequest.setTimestamp(timestamp);
+            upgradeRequest.setTimestamp(request.getTimestamp());
             final StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(
                     upgradeRequest,
                     httpCustomizationService.getQueryParams(),

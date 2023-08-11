@@ -19,11 +19,11 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.rest.api.model.request.UserInfoRequest;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
-import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import io.getlime.security.powerauth.rest.api.spring.service.UserInfoService;
@@ -66,21 +66,21 @@ public class UserInfoController {
      * Fetch user info.
      *
      * @param request Request with user info service.
-     * @param eciesContext PowerAuth ECIES encryption context.
+     * @param encryptionContext PowerAuth ECIES encryption context.
      * @return Encrypted user info claims.
      * @throws PowerAuthUserInfoException In case there is an error while fetching claims.
      * @throws PowerAuthEncryptionException In case of failed encryption.
      */
-    @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
+    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     @PostMapping("info")
-    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, EciesEncryptionContext eciesContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
-        if (eciesContext == null) {
+    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
+        if (encryptionContext == null) {
             logger.error("Encryption failed");
             throw new PowerAuthEncryptionException("Encryption failed");
         }
 
         return userInfoService.fetchUserClaimsByActivationId(
-                eciesContext.getActivationId()
+                encryptionContext.getActivationId()
         );
     }
 
