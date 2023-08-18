@@ -20,6 +20,8 @@
 
 package io.getlime.security.powerauth.rest.api.spring.encryption;
 
+import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
+
 /**
  * Enumeration of application scopes for encryptor.
  */
@@ -33,5 +35,23 @@ public enum EncryptionScope {
     /**
      * Activation scope (personalized).
      */
-    ACTIVATION_SCOPE
+    ACTIVATION_SCOPE;
+
+    /**
+     * Translate this scope object into {@link EncryptorScope} used by low level PowerAuth Crypto library.
+     * @return Translated {@link EncryptorScope}.
+     */
+    public EncryptorScope toEncryptorScope() {
+        switch (this) {
+            case APPLICATION_SCOPE -> {
+                return EncryptorScope.APPLICATION_SCOPE;
+            }
+            case ACTIVATION_SCOPE -> {
+                return EncryptorScope.ACTIVATION_SCOPE;
+            }
+            default -> {
+                throw new IllegalArgumentException("Unsupported scope " + this);
+            }
+        }
+    }
 }

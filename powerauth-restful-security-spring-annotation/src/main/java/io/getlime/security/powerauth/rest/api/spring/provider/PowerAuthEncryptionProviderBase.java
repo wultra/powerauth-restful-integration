@@ -303,7 +303,7 @@ public abstract class PowerAuthEncryptionProviderBase {
 
             // Validate the encryption HTTP header
             try {
-                PowerAuthEncryptionHttpHeaderValidator.validate(header);
+                PowerAuthEncryptionHttpHeaderValidator.validate(header, encryptorScope.toEncryptorScope());
             } catch (InvalidPowerAuthHttpHeaderException ex) {
                 logger.warn("Encryption validation failed, error: {}", ex.getMessage());
                 logger.debug(ex.getMessage(), ex);
