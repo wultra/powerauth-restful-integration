@@ -22,8 +22,10 @@ package io.getlime.security.powerauth.rest.api.spring.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,7 +46,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -84,7 +85,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      */
     @Override
     public boolean supports(@NonNull MethodParameter methodParameter, @NonNull Class<? extends HttpMessageConverter<?>> converterClass) {
-        return methodParameter.hasMethodAnnotation(io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption.class) &&
+        return methodParameter.hasMethodAnnotation(PowerAuthEncryption.class) &&
                 (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)
                         || converterClass.isAssignableFrom(StringHttpMessageConverter.class)
                         || converterClass.isAssignableFrom(ByteArrayHttpMessageConverter.class));

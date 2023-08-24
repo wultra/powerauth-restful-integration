@@ -23,9 +23,11 @@ import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -35,7 +37,6 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
@@ -53,7 +54,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
 
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
-        return parameter.hasMethodAnnotation(io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption.class)
+        return parameter.hasMethodAnnotation(PowerAuthEncryption.class)
                 && (parameter.hasParameterAnnotation(EncryptedRequestBody.class) || EncryptionContext.class.isAssignableFrom(parameter.getParameterType()));
     }
 
@@ -82,7 +83,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
         // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption
         if (eciesObject != null && EncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
             // Set ECIES scope in case it is specified by the @PowerAuthEncryption annotation
-            io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption.class);
+            final PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption.class);
             if (powerAuthEncryption != null) {
                 EncryptionContext eciesContext = eciesObject.getContext();
                 boolean validScope = validateEciesScope(eciesContext);
