@@ -37,7 +37,7 @@ import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedRespo
 import io.getlime.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.converter.ActivationContextConverter;
-import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
@@ -126,7 +126,7 @@ public class ActivationService {
      * @throws PowerAuthActivationException In case create activation fails.
      * @throws PowerAuthRecoveryException In case activation recovery fails.
      */
-    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EciesEncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
+    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
         try {
 
             final String applicationKey = eciesContext.getApplicationKey();
@@ -138,16 +138,6 @@ public class ActivationService {
             final Long timestamp = activationData.getTimestamp();
             final Map<String, String> identity = request.getIdentityAttributes();
             final Map<String, Object> customAttributes = (request.getCustomAttributes() != null) ? request.getCustomAttributes() : new HashMap<>();
-
-            // Validate inner encryption
-            if (nonce == null && !"3.0".equals(eciesContext.getVersion())) {
-                logger.warn("Missing nonce in ECIES request data");
-                throw new PowerAuthActivationException();
-            }
-            if (timestamp == null && (!"3.0".equals(eciesContext.getVersion()) && !"3.1".equals(eciesContext.getVersion()))) {
-                logger.warn("Missing timestamp in ECIES request data");
-                throw new PowerAuthActivationException();
-            }
 
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute

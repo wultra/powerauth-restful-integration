@@ -21,7 +21,7 @@ package io.getlime.security.powerauth.rest.api.spring.provider;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthRequestFilterException;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
@@ -198,8 +198,8 @@ public abstract class PowerAuthAuthenticationProviderBase {
      */
     public @Nullable byte[] extractRequestBodyBytes(@Nonnull HttpServletRequest servletRequest) throws PowerAuthAuthenticationException {
         if (servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT) != null) {
-            // Implementation of sign-then-encrypt - in case the encryption object is present and signature is validate, use decrypted request data
-            PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+            // Implementation of sign-then-encrypt - in case the encryption object is present and signature is valid, use decrypted request data
+            PowerAuthEncryptorData eciesEncryption = (PowerAuthEncryptorData) servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
             return eciesEncryption.getDecryptedRequest();
         } else {
             // Request data was not encrypted - use regular PowerAuth request body for signature validation

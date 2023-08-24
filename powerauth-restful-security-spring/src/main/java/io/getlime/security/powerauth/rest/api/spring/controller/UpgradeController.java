@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.response.Response;
+import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
@@ -88,7 +89,7 @@ public class UpgradeController {
 
         // Validate the encryption header
         try {
-            PowerAuthEncryptionHttpHeaderValidator.validate(header);
+            PowerAuthEncryptionHttpHeaderValidator.validate(header, EncryptorScope.ACTIVATION_SCOPE);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Encryption validation failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);

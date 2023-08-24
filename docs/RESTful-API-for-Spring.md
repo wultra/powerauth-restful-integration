@@ -394,16 +394,16 @@ You can encrypt data in `application` scope (non-personalized) using following p
 public class EncryptedDataExchangeController {
 
     @RequestMapping(value = "application", method = RequestMethod.POST)
-    @PowerAuthEncryption(scope = EciesScope.APPLICATION_SCOPE)
+    @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
     public DataExchangeResponse exchangeInApplicationScope(@EncryptedRequestBody DataExchangeRequest request,
-                                             EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
+                                                           EncryptionContext encryptionContext) throws PowerAuthEncryptionException {
 
-        if (eciesContext == null) {
+        if (encryptionContext == null) {
             throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response
-        return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
+        return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + encryptionContext.getEncryptionScope());
     }
 }
 ```
@@ -422,16 +422,16 @@ You can encrypt data in `activation` scope (personalized) using following patter
 public class EncryptedDataExchangeController {
 
     @RequestMapping(value = "activation", method = RequestMethod.POST)
-    @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
+    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public DataExchangeResponse exchangeInActivationScope(@EncryptedRequestBody DataExchangeRequest request,
-                                            EciesEncryptionContext eciesContext) throws PowerAuthEncryptionException {
+                                                          EncryptionContext encryptionContext) throws PowerAuthEncryptionException {
 
-        if (eciesContext == null) {
+        if (encryptionContext == null) {
             throw new PowerAuthEncryptionException();
         }
 
         // Return a slightly different String containing original data in response
-        return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + eciesContext.getEciesScope());
+        return new DataExchangeResponse("Server successfully decrypted signed data: " + (request == null ? "''" : request.getData()) + ", scope: " + encryptionContext.getEncryptionScope());
     }
 }
 ```
@@ -451,16 +451,16 @@ public class EncryptedDataExchangeController {
 
     @RequestMapping(value = "signed", method = RequestMethod.POST)
     @PowerAuth(resourceId = "/exchange/signed")
-    @PowerAuthEncryption(scope = EciesScope.ACTIVATION_SCOPE)
+    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public DataExchangeResponse exchangeSignedAndEncryptedData(@EncryptedRequestBody DataExchangeRequest request,
-                                                                EciesEncryptionContext eciesContext,
+                                                                EncryptionContext encryptionContext,
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
 
-        if (eciesContext == null) {
+        if (encryptionContext == null) {
             throw new PowerAuthEncryptionException();
         }
 

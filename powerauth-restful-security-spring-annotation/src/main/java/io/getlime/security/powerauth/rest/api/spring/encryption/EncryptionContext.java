@@ -17,29 +17,39 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.annotation;
 
-import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
-import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionScope;
+package io.getlime.security.powerauth.rest.api.spring.encryption;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 /**
- * Annotation that simplifies end-to-end encryption.
+ * Class for storing PowerAuth End-To-End encryption context derived from HTTP headers.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.METHOD)
-public @interface PowerAuthEncryption {
-
+@Getter
+@AllArgsConstructor
+public class EncryptionContext {
     /**
-     * Encryption scope, either {@link EncryptionScope#ACTIVATION_SCOPE} or {@link EncryptionScope#APPLICATION_SCOPE}.
-     * @see EncryptorScope
-     * @return Encryption scope.
+     * Application key.
      */
-    EncryptionScope scope() default EncryptionScope.ACTIVATION_SCOPE;
+    private final String applicationKey;
+    /**
+     * Activation ID.
+     */
+    private final String activationId;
+    /**
+     * Protocol version.
+     */
+    private final String version;
+    /**
+     * PowerAuth HTTP header used for deriving ECIES encryption context.
+     */
+    private final PowerAuthHttpHeader httpHeader;
+    /**
+     * Scope of the encryption.
+     */
+    private final EncryptionScope encryptionScope;
 }
