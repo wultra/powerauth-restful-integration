@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
+import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.rest.api.model.response.ServerStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -48,9 +49,10 @@ public class ServerStatusController {
      * @return Server status.
      */
     @PostMapping("status")
-    public ServerStatusResponse getServerStatus() {
+    public ObjectResponse<ServerStatusResponse> getServerStatus() {
         final long serverTime = new Date().getTime();
-        return new ServerStatusResponse(serverTime);
+        final ServerStatusResponse response = new ServerStatusResponse(serverTime);
+        return new ObjectResponse<>(response);
     }
 
 }
