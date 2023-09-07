@@ -187,6 +187,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             validateRequest.setTokenDigest(authentication.getTokenDigest());
             validateRequest.setNonce(authentication.getNonce());
             validateRequest.setTimestamp(Long.parseLong(authentication.getTimestamp()));
+            validateRequest.setProtocolVersion(authentication.getVersion());
 
             final ValidateTokenResponse response = powerAuthClient.validateToken(
                     validateRequest,
