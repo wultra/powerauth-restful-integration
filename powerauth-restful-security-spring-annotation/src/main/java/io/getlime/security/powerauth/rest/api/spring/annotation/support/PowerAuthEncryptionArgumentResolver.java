@@ -83,7 +83,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
         // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption
         if (eciesObject != null && EncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
             // Set ECIES scope in case it is specified by the @PowerAuthEncryption annotation
-            final PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption.class);
+            final PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(PowerAuthEncryption.class);
             if (powerAuthEncryption != null) {
                 EncryptionContext eciesContext = eciesObject.getContext();
                 boolean validScope = validateEciesScope(eciesContext);
