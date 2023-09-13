@@ -119,7 +119,6 @@ public class TokenService {
             response.setMac(token.getMac());
             response.setEncryptedData(token.getEncryptedData());
             response.setNonce(token.getNonce());
-            response.setMac(token.getMac());
             response.setTimestamp(token.getTimestamp());
             return response;
         } catch (Exception ex) {
