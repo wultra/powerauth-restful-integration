@@ -28,11 +28,11 @@ import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedReques
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.service.RecoveryService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
-import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.*;
 
 /**
  * Controller implementing recovery related end-points from the PowerAuth
@@ -83,9 +83,9 @@ public class RecoveryController {
             throw new PowerAuthSignatureInvalidException();
         }
 
-        checkUnsupportedVersion(authentication.getVersion(), PowerAuthInvalidRequestException::new);
-        checkMissingRequiredNonce(authentication.getVersion(), request.getNonce(), PowerAuthInvalidRequestException::new);
-        checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp(), PowerAuthInvalidRequestException::new);
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(authentication.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp());
 
         return recoveryService.confirmRecoveryCode(request, authentication);
     }

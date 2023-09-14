@@ -19,19 +19,29 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.util;
 
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Supplier;
 
 /**
  * Utility class to assist with PowerAuth version checks and related functionalities.
- *
+ * This class provides methods to validate different aspects of the PowerAuth protocol,
+ * such as version checks, nonce verification, and timestamp checks.
+ * <p>
+ * Note: The usage of these utility methods ensures the protocol adheres to the correct
+ * PowerAuth versions and avoids potential issues in processing requests.
+ * </p>
  * @author Jan Dusil, jan.dusil@wultra.com
  */
 @Slf4j
-public class PowerAuthVersionUtil {
+public final class PowerAuthVersionUtil {
+
+
+    private PowerAuthVersionUtil() {
+        throw new IllegalStateException("Utility class");
+    }
 
     /**
      * Enumeration representing supported PowerAuth versions.
@@ -76,49 +86,46 @@ public class PowerAuthVersionUtil {
     }
 
     /**
-     * Check for unsupported version and throws an exception if unsupported.
+     * Checks if the provided PowerAuth protocol version is unsupported. Throws an exception
+     * if the version is unsupported.
      *
-     * @param version           the version to check
-     * @param exceptionSupplier supplies the exception to be thrown
-     * @param <T>               the type of exception to be thrown
-     * @throws T if the version is unsupported
+     * @param version the version to check
+     * @throws PowerAuthInvalidRequestException if the version is unsupported
      */
-    public static <T extends Exception> void checkUnsupportedVersion(String version, Supplier<T> exceptionSupplier) throws T {
+    public static void checkUnsupportedVersion(String version) throws PowerAuthInvalidRequestException {
         if (isUnsupportedVersion(version)) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", version);
-            throw exceptionSupplier.get();
+            throw new PowerAuthInvalidRequestException();
         }
     }
 
     /**
-     * Check for missing nonce and throws an exception if missing.
+     * Validates the nonce based on the provided PowerAuth protocol version. Throws an exception
+     * if nonce is required and missing.
      *
-     * @param version           the version to check
-     * @param nonce             the nonce to verify
-     * @param exceptionSupplier supplies the exception to be thrown
-     * @param <T>               the type of exception to be thrown
-     * @throws T if nonce is required and missing
+     * @param version the version to check
+     * @param nonce   the nonce to verify
+     * @throws PowerAuthInvalidRequestException if nonce is required and missing
      */
-    public static <T extends Exception> void checkMissingRequiredNonce(String version, String nonce, Supplier<T> exceptionSupplier) throws T {
-        if (isMissingRequiredNonce(nonce, version)) {
+    public static void checkMissingRequiredNonce(String version, String nonce) throws PowerAuthInvalidRequestException {
+        if (isMissingRequiredNonce(version, nonce)) {
             logger.warn("Missing nonce in ECIES request data");
-            throw exceptionSupplier.get();
+            throw new PowerAuthInvalidRequestException();
         }
     }
 
     /**
-     * Check for missing timestamp and throws an exception if missing.
+     * Validates the timestamp based on the provided PowerAuth protocol version. Throws an exception
+     * if the timestamp is required and missing.
      *
-     * @param version           the version to check
-     * @param timestamp         the timestamp to verify
-     * @param exceptionSupplier supplies the exception to be thrown
-     * @param <T>               the type of exception to be thrown
-     * @throws T if timestamp is required and missing
+     * @param version   the version to check
+     * @param timestamp the timestamp to verify
+     * @throws PowerAuthInvalidRequestException if timestamp is required and missing
      */
-    public static <T extends Exception> void checkMissingRequiredTimestamp(String version, Long timestamp, Supplier<T> exceptionSupplier) throws T {
+    public static void checkMissingRequiredTimestamp(String version, Long timestamp) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredTimestamp(version, timestamp)) {
             logger.warn("Missing timestamp in ECIES request data for version {}", version);
-            throw exceptionSupplier.get();
+            throw new PowerAuthInvalidRequestException();
         }
     }
 

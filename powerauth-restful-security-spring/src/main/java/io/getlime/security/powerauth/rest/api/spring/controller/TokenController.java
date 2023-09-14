@@ -32,12 +32,11 @@ import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedRespo
 import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.service.TokenService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.*;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
@@ -91,9 +90,9 @@ public class TokenController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        checkUnsupportedVersion(authentication.getVersion(), PowerAuthInvalidRequestException::new);
-        checkMissingRequiredNonce(authentication.getVersion(), request.getNonce(), PowerAuthInvalidRequestException::new);
-        checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp(), PowerAuthInvalidRequestException::new);
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(authentication.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp());
 
         return tokenServiceV3.createToken(request, authentication);
     }
@@ -122,7 +121,7 @@ public class TokenController {
             throw new PowerAuthSignatureInvalidException();
         }
 
-        checkUnsupportedVersion(authentication.getVersion(), PowerAuthInvalidRequestException::new);
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
 
         TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), authentication);
         return new ObjectResponse<>(response);

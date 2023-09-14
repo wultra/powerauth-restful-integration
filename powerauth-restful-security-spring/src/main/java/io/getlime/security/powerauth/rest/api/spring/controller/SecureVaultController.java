@@ -29,14 +29,13 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.service.SecureVaultService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.*;
 
 /**
  * Controller implementing secure vault related end-points from the
@@ -100,9 +99,9 @@ public class SecureVaultController {
             throw new PowerAuthSignatureInvalidException();
         }
 
-        checkUnsupportedVersion(header.getVersion(), PowerAuthInvalidRequestException::new);
-        checkMissingRequiredNonce(header.getVersion(), request.getNonce(), PowerAuthInvalidRequestException::new);
-        checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp(), PowerAuthInvalidRequestException::new);
+        PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(header.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp());
 
 
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);

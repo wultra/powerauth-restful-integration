@@ -32,14 +32,13 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.service.UpgradeService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.*;
 
 /**
  * Controller responsible for upgrade.
@@ -79,7 +78,7 @@ public class UpgradeController {
     @PostMapping("start")
     public EciesEncryptedResponse upgradeStart(@RequestBody EciesEncryptedRequest request,
                                                @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
-            throws PowerAuthUpgradeException {
+            throws PowerAuthUpgradeException, PowerAuthInvalidRequestException {
 
         if (request == null) {
             logger.warn("Invalid request object in upgrade start");
@@ -98,11 +97,9 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
-        checkUnsupportedVersion(header.getVersion(), PowerAuthUpgradeException::new);
-
-        checkMissingRequiredNonce(header.getVersion(), request.getNonce(), PowerAuthUpgradeException::new);
-
-        checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp(), PowerAuthUpgradeException::new);
+        PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(header.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp());
 
         return upgradeService.upgradeStart(request, header);
 
@@ -134,7 +131,7 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
-        checkUnsupportedVersion(header.getVersion(), PowerAuthInvalidRequestException::new);
+        PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
 
         return upgradeService.upgradeCommit(signatureHeader, httpServletRequest);
     }

@@ -28,7 +28,6 @@ import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
-import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationStatusRequest;
@@ -39,14 +38,13 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequest
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.service.ActivationService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
-
-import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.checkUnsupportedVersion;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
@@ -143,7 +141,7 @@ public class ActivationController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        checkUnsupportedVersion(apiAuthentication.getVersion(), PowerAuthInvalidRequestException::new);
+        PowerAuthVersionUtil.checkUnsupportedVersion(apiAuthentication.getVersion());
 
         ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
         return new ObjectResponse<>(response);
