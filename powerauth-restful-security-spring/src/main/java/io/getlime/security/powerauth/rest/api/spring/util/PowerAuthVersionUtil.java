@@ -10,7 +10,7 @@ import java.util.function.Supplier;
 @Slf4j
 public class PowerAuthVersionUtil {
 
-    public enum PowerAuthVersion {
+    private enum PowerAuthVersion {
         V3_0("3.0"),
         V3_1("3.1"),
         V3_2("3.2");
