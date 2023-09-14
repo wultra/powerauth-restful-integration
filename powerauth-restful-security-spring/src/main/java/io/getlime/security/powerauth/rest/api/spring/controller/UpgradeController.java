@@ -61,7 +61,6 @@ public class UpgradeController {
 
     /**
      * Set upgrade service via setter injection.
-     *
      * @param upgradeService Upgrade service.
      */
     @Autowired
@@ -72,7 +71,7 @@ public class UpgradeController {
     /**
      * Start upgrade of activation to version 3.
      *
-     * @param request          ECIES encrypted request.
+     * @param request ECIES encrypted request.
      * @param encryptionHeader Encryption HTTP header.
      * @return ECIES encrypted response.
      * @throws PowerAuthUpgradeException In case upgrade fails.
@@ -112,11 +111,11 @@ public class UpgradeController {
     /**
      * Commit upgrade of activation to version 3.
      *
-     * @param signatureHeader    PowerAuth signature HTTP header.
+     * @param signatureHeader PowerAuth signature HTTP header.
      * @param httpServletRequest HTTP servlet request.
      * @return Response.
      * @throws PowerAuthAuthenticationException In case request signature is invalid.
-     * @throws PowerAuthUpgradeException        In case commit fails.
+     * @throws PowerAuthUpgradeException In case commit fails.
      */
     @PostMapping("commit")
     public Response upgradeCommit(@RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
