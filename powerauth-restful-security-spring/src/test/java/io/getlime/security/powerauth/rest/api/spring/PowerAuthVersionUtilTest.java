@@ -1,4 +1,4 @@
-package io.getlime.security.powerauth.rest.api.spring;/*
+/*
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
@@ -17,7 +17,7 @@ package io.getlime.security.powerauth.rest.api.spring;/*
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-
+package io.getlime.security.powerauth.rest.api.spring;
 
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
