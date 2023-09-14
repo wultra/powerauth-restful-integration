@@ -39,6 +39,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.*;
+
 /**
  * Controller responsible for upgrade.
  *
@@ -59,6 +61,7 @@ public class UpgradeController {
 
     /**
      * Set upgrade service via setter injection.
+     *
      * @param upgradeService Upgrade service.
      */
     @Autowired
@@ -69,14 +72,14 @@ public class UpgradeController {
     /**
      * Start upgrade of activation to version 3.
      *
-     * @param request ECIES encrypted request.
+     * @param request          ECIES encrypted request.
      * @param encryptionHeader Encryption HTTP header.
      * @return ECIES encrypted response.
      * @throws PowerAuthUpgradeException In case upgrade fails.
      */
     @PostMapping("start")
     public EciesEncryptedResponse upgradeStart(@RequestBody EciesEncryptedRequest request,
-                                                 @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
+                                               @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
             throws PowerAuthUpgradeException {
 
         if (request == null) {
@@ -96,22 +99,11 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
-        if (!"3.0".equals(header.getVersion())
-                && !"3.1".equals(header.getVersion())
-                && !"3.2".equals(header.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthUpgradeException();
-        }
+        checkUnsupportedVersion(header.getVersion(), PowerAuthUpgradeException::new);
 
-        if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthUpgradeException();
-        }
+        checkMissingRequiredNonce(header.getVersion(), request.getNonce(), PowerAuthUpgradeException::new);
 
-        if (request.getTimestamp() == null && (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion()))) {
-            logger.warn("Missing timestamp in ECIES request data");
-            throw new PowerAuthUpgradeException();
-        }
+        checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp(), PowerAuthUpgradeException::new);
 
         return upgradeService.upgradeStart(request, header);
 
@@ -120,11 +112,11 @@ public class UpgradeController {
     /**
      * Commit upgrade of activation to version 3.
      *
-     * @param signatureHeader PowerAuth signature HTTP header.
+     * @param signatureHeader    PowerAuth signature HTTP header.
      * @param httpServletRequest HTTP servlet request.
      * @return Response.
      * @throws PowerAuthAuthenticationException In case request signature is invalid.
-     * @throws PowerAuthUpgradeException In case commit fails.
+     * @throws PowerAuthUpgradeException        In case commit fails.
      */
     @PostMapping("commit")
     public Response upgradeCommit(@RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
@@ -143,12 +135,7 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
-        if (!"3.0".equals(header.getVersion())
-                && !"3.1".equals(header.getVersion())
-                && !"3.2".equals(header.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
+        checkUnsupportedVersion(header.getVersion(), PowerAuthInvalidRequestException::new);
 
         return upgradeService.upgradeCommit(signatureHeader, httpServletRequest);
     }

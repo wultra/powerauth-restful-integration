@@ -36,6 +36,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.*;
+
 /**
  * Controller implementing secure vault related end-points from the
  * PowerAuth Standard API.
@@ -98,21 +100,10 @@ public class SecureVaultController {
             throw new PowerAuthSignatureInvalidException();
         }
 
-        if (!"3.0".equals(header.getVersion())
-                && !"3.1".equals(header.getVersion())
-                && !"3.2".equals(header.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
-        if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
-        }
+        checkUnsupportedVersion(header.getVersion(), PowerAuthInvalidRequestException::new);
+        checkMissingRequiredNonce(header.getVersion(), request.getNonce(), PowerAuthInvalidRequestException::new);
+        checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp(), PowerAuthInvalidRequestException::new);
 
-        if (request.getTimestamp() == null && (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion()))) {
-            logger.warn("Missing timestamp in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
-        }
 
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }

@@ -46,6 +46,8 @@ import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
 
+import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.checkUnsupportedVersion;
+
 /**
  * Controller implementing activation related end-points from the PowerAuth
  * Standard API.
@@ -141,12 +143,8 @@ public class ActivationController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(apiAuthentication.getVersion())
-                && !"3.1".equals(apiAuthentication.getVersion())
-                && !"3.2".equals(apiAuthentication.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
+        checkUnsupportedVersion(apiAuthentication.getVersion(), PowerAuthInvalidRequestException::new);
+
         ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
         return new ObjectResponse<>(response);
     }

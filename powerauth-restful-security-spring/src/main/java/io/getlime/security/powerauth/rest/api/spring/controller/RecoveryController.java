@@ -32,6 +32,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
 
+import static io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil.*;
+
 /**
  * Controller implementing recovery related end-points from the PowerAuth
  * Standard API.
@@ -80,20 +82,11 @@ public class RecoveryController {
         if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(authentication.getVersion())
-                && !"3.1".equals(authentication.getVersion())
-                && !"3.2".equals(authentication.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
-        if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
-        }
-        if (request.getTimestamp() == null && (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion()))) {
-            logger.warn("Missing timestamp in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
-        }
+
+        checkUnsupportedVersion(authentication.getVersion(), PowerAuthInvalidRequestException::new);
+        checkMissingRequiredNonce(authentication.getVersion(), request.getNonce(), PowerAuthInvalidRequestException::new);
+        checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp(), PowerAuthInvalidRequestException::new);
+
         return recoveryService.confirmRecoveryCode(request, authentication);
     }
 
