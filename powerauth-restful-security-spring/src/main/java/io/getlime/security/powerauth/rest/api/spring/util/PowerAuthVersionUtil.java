@@ -37,8 +37,6 @@ import java.util.Map;
  */
 @Slf4j
 public final class PowerAuthVersionUtil {
-
-
     private PowerAuthVersionUtil() {
         throw new IllegalStateException("Utility class");
     }
@@ -95,7 +93,7 @@ public final class PowerAuthVersionUtil {
     public static void checkUnsupportedVersion(String version) throws PowerAuthInvalidRequestException {
         if (isUnsupportedVersion(version)) {
             logger.warn("Endpoint does not support PowerAuth protocol version {}", version);
-            throw new PowerAuthInvalidRequestException();
+            throw new PowerAuthInvalidRequestException("Endpoint does not support PowerAuth protocol version " + version);
         }
     }
 
@@ -110,7 +108,7 @@ public final class PowerAuthVersionUtil {
     public static void checkMissingRequiredNonce(String version, String nonce) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredNonce(version, nonce)) {
             logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
+            throw new PowerAuthInvalidRequestException("Missing nonce in ECIES request data");
         }
     }
 
@@ -125,7 +123,7 @@ public final class PowerAuthVersionUtil {
     public static void checkMissingRequiredTimestamp(String version, Long timestamp) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredTimestamp(version, timestamp)) {
             logger.warn("Missing timestamp in ECIES request data for version {}", version);
-            throw new PowerAuthInvalidRequestException();
+            throw new PowerAuthInvalidRequestException("Missing timestamp in ECIES request data for version " + version);
         }
     }
 

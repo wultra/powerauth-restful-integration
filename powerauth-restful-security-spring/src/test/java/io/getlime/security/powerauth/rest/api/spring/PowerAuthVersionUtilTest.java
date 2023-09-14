@@ -26,14 +26,26 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+/**
+ * This class provides tests for the {@link PowerAuthVersionUtil} utility class,
+ * ensuring that the PowerAuth version checks and related functionalities work as expected.
+ *
+ * @author Jan Dusil, jan.dusil@wultra.com
+ */
 class PowerAuthVersionUtilTest {
 
+    /**
+     * Tests the behavior of checking unsupported PowerAuth versions.
+     */
     @Test
     void testUnsupportedVersion() {
         assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkUnsupportedVersion("4.0"));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkUnsupportedVersion("3.1"));
     }
 
+    /**
+     * Tests the behavior of checking for missing required nonces based on the PowerAuth version.
+     */
     @Test
     void testMissingRequiredNonce() {
         assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkMissingRequiredNonce("3.1", null));
@@ -41,6 +53,9 @@ class PowerAuthVersionUtilTest {
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredNonce("3.1", "testNonce"));
     }
 
+    /**
+     * Tests the behavior of checking for missing required timestamps based on the PowerAuth version.
+     */
     @Test
     void testMissingRequiredTimestamp() {
         assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.2", null));
