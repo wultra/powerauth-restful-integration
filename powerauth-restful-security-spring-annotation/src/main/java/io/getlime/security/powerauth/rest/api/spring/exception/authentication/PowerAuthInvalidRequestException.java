@@ -64,6 +64,7 @@ public class PowerAuthInvalidRequestException extends PowerAuthAuthenticationExc
      * Get the default error code, used for example in REST response.
      * @return Default error code.
      */
+    @Override
     public String getDefaultCode() {
         return DEFAULT_CODE;
     }
