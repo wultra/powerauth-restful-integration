@@ -22,8 +22,7 @@ package io.getlime.security.powerauth.rest.api.spring.util;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 /**
  * Utility class to assist with PowerAuth version checks and related functionalities.
@@ -37,58 +36,45 @@ import java.util.Map;
  */
 @Slf4j
 public final class PowerAuthVersionUtil {
+
+    /**
+     * Prevent instantiation of utility class.
+     */
     private PowerAuthVersionUtil() {
         throw new IllegalStateException("Utility class");
     }
 
     /**
-     * Enumeration representing supported PowerAuth versions.
+     * Set containing all the supported versions of PowerAuth.
      */
-    private enum PowerAuthVersion {
-        V3_0("3.0"),
-        V3_1("3.1"),
-        V3_2("3.2");
+    private static final Set<String> SUPPORTED_VERSIONS = Set.of("3.0", "3.1", "3.2");
 
-        private final String versionString;
-
-        PowerAuthVersion(String versionString) {
-            this.versionString = versionString;
-        }
-
-        /**
-         * Get the string representation of the PowerAuth version.
-         *
-         * @return the version as a string
-         */
-        public String getVersionString() {
-            return versionString;
-        }
-
-        private static final Map<String, PowerAuthVersion> LOOKUP = new HashMap<>();
-
-        static {
-            for (PowerAuthVersion v : PowerAuthVersion.values()) {
-                LOOKUP.put(v.getVersionString(), v);
-            }
-        }
-
-        /**
-         * Retrieve a PowerAuthVersion instance from its string representation.
-         *
-         * @param version the version as a string
-         * @return the corresponding PowerAuthVersion, or null if the version is not recognized
-         */
-        public static PowerAuthVersion fromString(String version) {
-            return LOOKUP.get(version);
-        }
+    /**
+     * Check if the provided version string is "3.0".
+     *
+     * @param version Version string to be checked.
+     * @return true if the version is "3.0", false otherwise.
+     */
+    private static boolean isVersion3_0(final String version) {
+        return "3.0".equals(version);
     }
 
     /**
-     * Checks if the provided PowerAuth protocol version is unsupported. Throws an exception
-     * if the version is unsupported.
+     * Check if the provided version string is "3.1".
      *
-     * @param version the version to check
-     * @throws PowerAuthInvalidRequestException if the version is unsupported
+     * @param version Version string to be checked.
+     * @return true if the version is "3.1", false otherwise.
+     */
+    private static boolean isVersion3_1(final String version) {
+        return "3.1".equals(version);
+    }
+
+    /**
+     * Checks if the provided PowerAuth protocol version is unsupported.
+     * Throws an exception if the version is unsupported.
+     *
+     * @param version Version string to be checked.
+     * @throws PowerAuthInvalidRequestException If the provided version is unsupported.
      */
     public static void checkUnsupportedVersion(String version) throws PowerAuthInvalidRequestException {
         if (isUnsupportedVersion(version)) {
@@ -98,12 +84,12 @@ public final class PowerAuthVersionUtil {
     }
 
     /**
-     * Validates the nonce based on the provided PowerAuth protocol version. Throws an exception
-     * if nonce is required and missing.
+     * Checks if nonce is missing for the provided PowerAuth protocol version.
+     * Throws an exception if nonce is required and missing.
      *
-     * @param version the version to check
-     * @param nonce   the nonce to verify
-     * @throws PowerAuthInvalidRequestException if nonce is required and missing
+     * @param version Version string to be checked.
+     * @param nonce   Nonce string to be verified.
+     * @throws PowerAuthInvalidRequestException If nonce is required and missing.
      */
     public static void checkMissingRequiredNonce(String version, String nonce) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredNonce(version, nonce)) {
@@ -113,12 +99,12 @@ public final class PowerAuthVersionUtil {
     }
 
     /**
-     * Validates the timestamp based on the provided PowerAuth protocol version. Throws an exception
-     * if the timestamp is required and missing.
+     * Checks if timestamp is missing for the provided PowerAuth protocol version.
+     * Throws an exception if the timestamp is required and missing.
      *
-     * @param version   the version to check
-     * @param timestamp the timestamp to verify
-     * @throws PowerAuthInvalidRequestException if timestamp is required and missing
+     * @param version   Version string to be checked.
+     * @param timestamp Timestamp value to be verified.
+     * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
      */
     public static void checkMissingRequiredTimestamp(String version, Long timestamp) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredTimestamp(version, timestamp)) {
@@ -128,36 +114,36 @@ public final class PowerAuthVersionUtil {
     }
 
     /**
-     * Check if the given version is unsupported.
+     * Checks if the provided PowerAuth protocol version is unsupported.
      *
-     * @param version the version to check
-     * @return true if the version is unsupported, false otherwise
+     * @param version Version string to be checked.
+     * @return true if the version is unsupported, false otherwise.
      */
     private static boolean isUnsupportedVersion(String version) {
-        return PowerAuthVersion.fromString(version) == null;
+        return !SUPPORTED_VERSIONS.contains(version);
     }
 
     /**
-     * Check if nonce is missing for a given version.
+     * Checks if nonce is missing for the provided PowerAuth protocol version.
      *
-     * @param version the version to check
-     * @param nonce   the nonce to verify
-     * @return true if nonce is required and missing, false otherwise
+     * @param version Version string to be checked.
+     * @param nonce   Nonce string to be verified.
+     * @return true if nonce is required and missing, false otherwise.
      */
     private static boolean isMissingRequiredNonce(String version, String nonce) {
-        return nonce == null && !version.equals(PowerAuthVersion.V3_0.getVersionString());
+        return nonce == null && !isVersion3_0(version);
     }
 
     /**
-     * Check if timestamp is missing for a given version.
+     * Checks if timestamp is missing for the provided PowerAuth protocol version.
      *
-     * @param version   the version to check
-     * @param timestamp the timestamp to verify
-     * @return true if timestamp is required and missing, false otherwise
+     * @param version   Version string to be checked.
+     * @param timestamp Timestamp value to be verified.
+     * @return true if timestamp is required and missing, false otherwise.
      */
     private static boolean isMissingRequiredTimestamp(String version, Long timestamp) {
         return timestamp == null &&
-                !version.equals(PowerAuthVersion.V3_0.getVersionString()) &&
-                !version.equals(PowerAuthVersion.V3_1.getVersionString());
+                !isVersion3_0(version) &&
+                !isVersion3_1(version);
     }
 }
