@@ -100,12 +100,6 @@ public class SecureVaultService {
             final String signatureVersion = header.getVersion();
             final String nonce = header.getNonce();
 
-            // Fetch data from the request
-            final String ephemeralPublicKey = request.getEphemeralPublicKey();
-            final String encryptedData = request.getEncryptedData();
-            final String mac = request.getMac();
-            final String eciesNonce = request.getNonce();
-
             // Prepare data for signature to allow signature verification on PowerAuth server
             final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
             final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", Base64.getDecoder().decode(nonce), requestBodyBytes);
@@ -118,10 +112,11 @@ public class SecureVaultService {
             unlockRequest.setSignatureType(signatureType);
             unlockRequest.setSignatureVersion(signatureVersion);
             unlockRequest.setSignedData(data);
-            unlockRequest.setEphemeralPublicKey(ephemeralPublicKey);
-            unlockRequest.setEncryptedData(encryptedData);
-            unlockRequest.setMac(mac);
-            unlockRequest.setNonce(eciesNonce);
+            unlockRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
+            unlockRequest.setEncryptedData(request.getEncryptedData());
+            unlockRequest.setMac(request.getMac());
+            unlockRequest.setNonce(request.getNonce());
+            unlockRequest.setTimestamp(request.getTimestamp());
             final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(
                     unlockRequest,
                     httpCustomizationService.getQueryParams(),
@@ -133,7 +128,11 @@ public class SecureVaultService {
                 throw new PowerAuthSignatureInvalidException();
             }
 
-            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
+            return new EciesEncryptedResponse(
+                    paResponse.getEncryptedData(),
+                    paResponse.getMac(),
+                    paResponse.getNonce(),
+                    paResponse.getTimestamp());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
         } catch (Exception ex) {

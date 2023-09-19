@@ -32,6 +32,7 @@ import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedRespo
 import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.service.TokenService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,16 +90,10 @@ public class TokenController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(authentication.getVersion())
-                && !"3.1".equals(authentication.getVersion())
-                && !"3.2".equals(authentication.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
-        if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
-        }
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(authentication.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp());
+
         return tokenServiceV3.createToken(request, authentication);
     }
 
@@ -125,12 +120,9 @@ public class TokenController {
         if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(authentication.getVersion())
-                && !"3.1".equals(authentication.getVersion())
-                && !"3.2".equals(authentication.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
+
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+
         TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), authentication);
         return new ObjectResponse<>(response);
     }

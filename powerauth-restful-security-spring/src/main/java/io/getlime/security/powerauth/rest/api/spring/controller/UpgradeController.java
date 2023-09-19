@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.response.Response;
+import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
 import io.getlime.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
@@ -31,6 +32,7 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.service.UpgradeService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -75,8 +77,8 @@ public class UpgradeController {
      */
     @PostMapping("start")
     public EciesEncryptedResponse upgradeStart(@RequestBody EciesEncryptedRequest request,
-                                                 @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
-            throws PowerAuthUpgradeException {
+                                               @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
+            throws PowerAuthUpgradeException, PowerAuthInvalidRequestException {
 
         if (request == null) {
             logger.warn("Invalid request object in upgrade start");
@@ -88,24 +90,16 @@ public class UpgradeController {
 
         // Validate the encryption header
         try {
-            PowerAuthEncryptionHttpHeaderValidator.validate(header);
+            PowerAuthEncryptionHttpHeaderValidator.validate(header, EncryptorScope.ACTIVATION_SCOPE);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Encryption validation failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthUpgradeException();
         }
 
-        if (!"3.0".equals(header.getVersion())
-                && !"3.1".equals(header.getVersion())
-                && !"3.2".equals(header.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthUpgradeException();
-        }
-
-        if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthUpgradeException();
-        }
+        PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(header.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp());
 
         return upgradeService.upgradeStart(request, header);
 
@@ -137,12 +131,7 @@ public class UpgradeController {
             throw new PowerAuthUpgradeException();
         }
 
-        if (!"3.0".equals(header.getVersion())
-                && !"3.1".equals(header.getVersion())
-                && !"3.2".equals(header.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
+        PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
 
         return upgradeService.upgradeCommit(signatureHeader, httpServletRequest);
     }

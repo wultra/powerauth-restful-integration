@@ -21,14 +21,13 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
-import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationStatusRequest;
@@ -39,6 +38,7 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequest
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.service.ActivationService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -89,20 +89,20 @@ public class ActivationController {
     /**
      * Create activation.
      * @param request Encrypted activation layer 1 request.
-     * @param eciesContext ECIES encryption context.
+     * @param context Encryption context.
      * @return Activation layer 1 response.
      * @throws PowerAuthActivationException In case activation fails.
      * @throws PowerAuthRecoveryException In case recovery PUK is invalid.
      */
     @PostMapping("create")
-    @PowerAuthEncryption(scope = EciesScope.APPLICATION_SCOPE)
+    @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
-                                                     EciesEncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
-        if (request == null || eciesContext == null) {
+                                                     EncryptionContext context) throws PowerAuthActivationException, PowerAuthRecoveryException {
+        if (request == null || context == null) {
             logger.warn("Invalid request in activation create");
             throw new PowerAuthActivationException();
         }
-        return activationServiceV3.createActivation(request, eciesContext);
+        return activationServiceV3.createActivation(request, context);
     }
 
     /**
@@ -141,12 +141,8 @@ public class ActivationController {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(apiAuthentication.getVersion())
-                && !"3.1".equals(apiAuthentication.getVersion())
-                && !"3.2".equals(apiAuthentication.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", apiAuthentication.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
+        PowerAuthVersionUtil.checkUnsupportedVersion(apiAuthentication.getVersion());
+
         ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
         return new ObjectResponse<>(response);
     }
