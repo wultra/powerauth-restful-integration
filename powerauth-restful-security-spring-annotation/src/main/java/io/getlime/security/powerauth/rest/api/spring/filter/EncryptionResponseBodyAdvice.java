@@ -20,13 +20,12 @@
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.io.BaseEncoding;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.EciesDecryptor;
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesCryptogram;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
-import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
-import io.getlime.security.powerauth.rest.api.model.response.v3.EciesEncryptedResponse;
+import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
+import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
+import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +46,6 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 
-import javax.servlet.http.HttpServletRequest;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -110,34 +108,33 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             return null;
         }
 
-        // Extract ECIES encryption object from HTTP request
+        // Extract encryption object from HTTP request
         final HttpServletRequest httpServletRequest = ((ServletServerHttpRequest) serverHttpRequest).getServletRequest();
-        final PowerAuthEciesEncryption eciesEncryption = (PowerAuthEciesEncryption) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
-        if (eciesEncryption == null) {
+        final PowerAuthEncryptorData encryption = (PowerAuthEncryptorData) httpServletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        if (encryption == null || encryption.getServerEncryptor() == null) {
             return null;
         }
 
         // Convert response to JSON
         try {
             byte[] responseBytes = serializeResponseObject(response);
-
-            // Encrypt response using decryptor and return ECIES cryptogram
-            final EciesDecryptor eciesDecryptor = eciesEncryption.getEciesDecryptor();
-            final EciesCryptogram cryptogram = eciesDecryptor.encryptResponse(responseBytes);
-            final String encryptedDataBase64 = BaseEncoding.base64().encode(cryptogram.getEncryptedData());
-            final String macBase64 = BaseEncoding.base64().encode(cryptogram.getMac());
-
+            final EncryptedResponse encryptedResponse = encryption.getServerEncryptor().encryptResponse(responseBytes);
             // Return encrypted response with type given by converter class
-            final EciesEncryptedResponse encryptedResponse = new EciesEncryptedResponse(encryptedDataBase64, macBase64);
+            final EciesEncryptedResponse encryptedResponseObject = new EciesEncryptedResponse(
+                    encryptedResponse.getEncryptedData(),
+                    encryptedResponse.getMac(),
+                    encryptedResponse.getNonce(),
+                    encryptedResponse.getTimestamp()
+            );
             if (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)) {
                 // Object conversion is done automatically using MappingJackson2HttpMessageConverter
-                return encryptedResponse;
+                return encryptedResponseObject;
             } else if (converterClass.isAssignableFrom(StringHttpMessageConverter.class)) {
                 // Conversion to byte[] is done using first applicable configured HTTP message converter, corresponding String is returned
-                return new String(convertEncryptedResponse(encryptedResponse, mediaType), StandardCharsets.UTF_8);
+                return new String(convertEncryptedResponse(encryptedResponseObject, mediaType), StandardCharsets.UTF_8);
             } else {
                 // Conversion to byte[] is done using first applicable configured HTTP message converter
-                return convertEncryptedResponse(encryptedResponse, mediaType);
+                return convertEncryptedResponse(encryptedResponseObject, mediaType);
             }
         } catch (Exception ex) {
             logger.warn("Encryption failed, error: {}", ex.getMessage());

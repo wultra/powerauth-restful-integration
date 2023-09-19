@@ -25,7 +25,7 @@ import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -63,7 +63,7 @@ public class PowerAuthRequestFilterBase {
             if (queryString != null && queryString.length() > 0) {
 
                 // Decode the query string
-                queryString = URLDecoder.decode(queryString, "UTF-8");
+                queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);
 
                 // Get the canonized form
                 final String signatureBaseStringData = PowerAuthRequestCanonizationUtils.canonizeGetParameters(queryString);

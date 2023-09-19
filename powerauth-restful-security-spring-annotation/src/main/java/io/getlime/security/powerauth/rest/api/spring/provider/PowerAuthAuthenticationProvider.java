@@ -19,10 +19,13 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
-import com.google.common.io.BaseEncoding;
 import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.enumeration.SignatureType;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
-import com.wultra.security.powerauth.client.v3.*;
+import com.wultra.security.powerauth.client.model.request.ValidateTokenRequest;
+import com.wultra.security.powerauth.client.model.request.VerifySignatureRequest;
+import com.wultra.security.powerauth.client.model.response.ValidateTokenResponse;
+import com.wultra.security.powerauth.client.model.response.VerifySignatureResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthHttpBody;
 import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
@@ -37,8 +40,8 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAu
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthSignatureAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthTokenAuthenticationImpl;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.ActivationStatusConverter;
-import io.getlime.security.powerauth.rest.api.spring.converter.v3.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.converter.ActivationStatusConverter;
+import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthHeaderMissingException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
@@ -56,6 +59,7 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -157,7 +161,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isSignatureValid());
             authenticationContext.setRemainingAttempts(response.getRemainingAttempts() != null ? response.getRemainingAttempts().intValue() : null);
-            authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
+            authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().name()) : null);
             final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
                     activationStatus, response.getBlockedReason(),
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
@@ -183,6 +187,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             validateRequest.setTokenDigest(authentication.getTokenDigest());
             validateRequest.setNonce(authentication.getNonce());
             validateRequest.setTimestamp(Long.parseLong(authentication.getTimestamp()));
+            validateRequest.setProtocolVersion(authentication.getVersion());
 
             final ValidateTokenResponse response = powerAuthClient.validateToken(
                     validateRequest,
@@ -194,7 +199,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isTokenValid());
             authenticationContext.setRemainingAttempts(null);
-            authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().value()) : null);
+            authenticationContext.setSignatureType(response.getSignatureType() != null ? PowerAuthSignatureTypes.getEnumFromString(response.getSignatureType().name()) : null);
             final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
                     activationStatus, response.getBlockedReason(),
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
@@ -326,7 +331,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         final PowerAuthSignatureAuthenticationImpl powerAuthAuthentication = new PowerAuthSignatureAuthenticationImpl();
         powerAuthAuthentication.setActivationId(header.getActivationId());
         powerAuthAuthentication.setApplicationKey(header.getApplicationKey());
-        powerAuthAuthentication.setNonce(BaseEncoding.base64().decode(header.getNonce()));
+        powerAuthAuthentication.setNonce(Base64.getDecoder().decode(header.getNonce()));
         powerAuthAuthentication.setSignatureType(header.getSignatureType());
         powerAuthAuthentication.setSignature(header.getSignature());
         powerAuthAuthentication.setHttpMethod(httpMethod);

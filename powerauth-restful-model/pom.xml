@@ -30,14 +30,13 @@
     <parent>
         <groupId>io.getlime.security</groupId>
         <artifactId>powerauth-restful-integration-parent</artifactId>
-        <version>1.4.0</version>
+        <version>1.5.0</version>
     </parent>
 
     <dependencies>
         <dependency>
             <groupId>io.getlime.core</groupId>
             <artifactId>rest-model-base</artifactId>
-            <version>${rest-model-base.version}</version>
         </dependency>
     </dependencies>
 

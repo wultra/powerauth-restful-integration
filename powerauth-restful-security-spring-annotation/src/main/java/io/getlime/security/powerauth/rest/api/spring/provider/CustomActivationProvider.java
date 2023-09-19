@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.provider;
 
+import com.wultra.core.annotations.PublicSpi;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 
@@ -34,6 +35,7 @@ import java.util.Map;
  * @author Petr Dvorak, petr@wultra.com
  * @author Roman Strobl, roman.strobl@wultra.com
  */
+@PublicSpi
 public interface CustomActivationProvider {
 
     /**
@@ -108,21 +110,20 @@ public interface CustomActivationProvider {
     default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {}
 
     /**
-     * Method that indicates if recovery codes should be generated for a given activation or not. The method may return null,
-     * in such case, it uses settings of the PowerAuth Server to determine if the recovery codes should be generated or not. Also,
-     * just specifying true in the call will not result in generating recovery codes in case that recovery codes are
+     * Method that indicates if recovery codes should be generated for a given activation or not.
+     * Note that specifying true in the call will not result in generating recovery codes in case that recovery codes are
      * globally disabled at the PowerAuth Server.
      *
      * @param identityAttributes Identity related attributes.
      * @param customAttributes Custom attributes, not related to identity.
      * @param activationType Activation type.
      * @param context Context for passing parameters between activation provider calls.
-     * @return False to prevent generating recovery codes, "null" to let the PowerAuth Server decide, and true to generate recovery codes
+     * @return False to prevent generating recovery codes, true to generate recovery codes
      *         in case that the feature is enabled globally on PowerAuth Server.
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
-    default Boolean shouldCreateRecoveryCodes(Map<String, String> identityAttributes, Map<String, Object> customAttributes, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
-        return null;
+    default boolean shouldCreateRecoveryCodes(Map<String, String> identityAttributes, Map<String, Object> customAttributes, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
+        return true;
     }
 
     /**

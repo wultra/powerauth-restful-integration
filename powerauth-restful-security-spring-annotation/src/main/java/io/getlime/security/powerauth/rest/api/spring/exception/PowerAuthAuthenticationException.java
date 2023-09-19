@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception raised in case PowerAuth authentication fails.
  *
@@ -27,6 +29,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthAuthenticationException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 4280095091435126237L;
 
     private static final String DEFAULT_CODE = "ERR_AUTHENTICATION";

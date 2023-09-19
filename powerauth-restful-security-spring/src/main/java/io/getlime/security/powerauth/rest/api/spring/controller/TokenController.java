@@ -1,0 +1,130 @@
+/*
+ * PowerAuth integration libraries for RESTful API applications, examples and
+ * related software components
+ *
+ * Copyright (C) 2018 Wultra s.r.o.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
+package io.getlime.security.powerauth.rest.api.spring.controller;
+
+import io.getlime.core.rest.model.base.request.ObjectRequest;
+import io.getlime.core.rest.model.base.response.ObjectResponse;
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
+import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
+import io.getlime.security.powerauth.rest.api.model.request.TokenRemoveRequest;
+import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
+import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import io.getlime.security.powerauth.rest.api.spring.service.TokenService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * Controller responsible for publishing services related to simple token-based authentication.
+ *
+ * <p><b>PowerAuth protocol versions:</b>
+ * <ul>
+ *     <li>3.0</li>
+ * </ul>
+ *
+ * @author Petr Dvorak, petr@wultra.com
+ */
+@RestController("tokenControllerV3")
+@RequestMapping("/pa/v3/token")
+public class TokenController {
+
+    private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
+
+    private TokenService tokenServiceV3;
+
+    /**
+     * Set the token verification service via setter injection.
+     * @param tokenServiceV3 Token verification service.
+     */
+    @Autowired
+    public void setTokenServiceV3(TokenService tokenServiceV3) {
+        this.tokenServiceV3 = tokenServiceV3;
+    }
+
+    /**
+     * Create token.
+     * @param request ECIES encrypted create token request.
+     * @param authentication PowerAuth API authentication object.
+     * @return ECIES encrypted create token response.
+     * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
+     */
+    @PostMapping("create")
+    @PowerAuth(resourceId = "/pa/token/create", signatureType = {
+            PowerAuthSignatureTypes.POSSESSION,
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+    })
+    public EciesEncryptedResponse createToken(@RequestBody EciesEncryptedRequest request,
+                                              PowerAuthApiAuthentication authentication)
+            throws PowerAuthAuthenticationException {
+        if (request == null) {
+            logger.warn("Invalid request object in create token");
+            throw new PowerAuthInvalidRequestException();
+        }
+        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
+            logger.debug("Signature validation failed");
+            throw new PowerAuthSignatureInvalidException();
+        }
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(authentication.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp());
+
+        return tokenServiceV3.createToken(request, authentication);
+    }
+
+    /**
+     * Remove token.
+     * @param request Remove token request.
+     * @param authentication PowerAuth API authentication object.
+     * @return Remove token response.
+     * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
+     */
+    @PostMapping("remove")
+    @PowerAuth(resourceId = "/pa/token/remove", signatureType = {
+            PowerAuthSignatureTypes.POSSESSION,
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+    })
+    public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
+                                                           PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+        if (request.getRequestObject() == null) {
+            logger.warn("Invalid request object in remove token");
+            throw new PowerAuthInvalidRequestException();
+        }
+        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
+            throw new PowerAuthSignatureInvalidException();
+        }
+
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+
+        TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), authentication);
+        return new ObjectResponse<>(response);
+    }
+
+}

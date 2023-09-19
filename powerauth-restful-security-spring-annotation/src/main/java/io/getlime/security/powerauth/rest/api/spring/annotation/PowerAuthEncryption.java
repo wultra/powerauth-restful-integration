@@ -19,7 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.annotation;
 
-import io.getlime.security.powerauth.crypto.lib.encryptor.ecies.model.EciesScope;
+import io.getlime.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,7 +28,7 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that simplifies end to end encryption.
+ * Annotation that simplifies end-to-end encryption.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
@@ -36,10 +37,9 @@ import java.lang.annotation.Target;
 public @interface PowerAuthEncryption {
 
     /**
-     * Encryption scope, either EciesScope.ACTIVATION_SCOPE or EciesScope.APPLICATION_SCOPE.
-     * @see EciesScope
+     * Encryption scope, either {@link EncryptionScope#ACTIVATION_SCOPE} or {@link EncryptionScope#APPLICATION_SCOPE}.
+     * @see EncryptorScope
      * @return Encryption scope.
      */
-    EciesScope scope() default EciesScope.ACTIVATION_SCOPE;
-
+    EncryptionScope scope() default EncryptionScope.ACTIVATION_SCOPE;
 }

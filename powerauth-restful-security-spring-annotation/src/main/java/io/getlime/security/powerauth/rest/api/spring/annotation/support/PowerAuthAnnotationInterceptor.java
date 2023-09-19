@@ -46,8 +46,8 @@ import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.AsyncHandlerInterceptor;
 import org.springframework.web.servlet.HandlerMapping;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.List;
@@ -92,9 +92,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
         // This is to avoid issues with possible CORS requests )in case of
         // incorrect filter mapping) where there are special "pre-flight"
         // requests before the actual requests.
-        if (handler instanceof HandlerMethod) {
-
-            final HandlerMethod handlerMethod = (HandlerMethod) handler;
+        if (handler instanceof final HandlerMethod handlerMethod) {
 
             // Obtain annotations
             PowerAuth powerAuthSignatureAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);

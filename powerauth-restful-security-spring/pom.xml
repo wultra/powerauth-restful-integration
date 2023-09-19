@@ -30,7 +30,7 @@
     <parent>
         <groupId>io.getlime.security</groupId>
         <artifactId>powerauth-restful-integration-parent</artifactId>
-        <version>1.4.0</version>
+        <version>1.5.0</version>
     </parent>
 
     <dependencies>
@@ -45,13 +45,20 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-rest-client-spring</artifactId>
-            <version>${powerauth-rest-client-spring.version}</version>
+            <version>${powerauth.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>log4j-to-slf4j</artifactId>
                     <groupId>org.apache.logging.log4j</groupId>
                 </exclusion>
             </exclusions>
+        </dependency>
+
+        <!-- Test Dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>

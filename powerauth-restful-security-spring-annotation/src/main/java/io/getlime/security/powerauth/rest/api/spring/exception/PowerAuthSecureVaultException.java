@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception related to processes during a new secure vault unlocking.
  *
@@ -26,6 +28,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthSecureVaultException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -6996857964853505534L;
 
     private static final String DEFAULT_CODE = "ERR_SECURE_VAULT";
