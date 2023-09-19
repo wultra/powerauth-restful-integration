@@ -44,6 +44,10 @@ public class UserInfoService {
     private UserInfoProvider userInfoProvider;
     private final PowerAuthClient powerAuthClient;
 
+    /**
+     * Service constructor.
+     * @param powerAuthClient PowerAuthClient instance.
+     */
     @Autowired
     public UserInfoService(PowerAuthClient powerAuthClient) {
         this.powerAuthClient = powerAuthClient;

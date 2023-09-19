@@ -21,6 +21,8 @@ package io.getlime.security.powerauth.rest.api.spring.exception.authentication;
 
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 
+import java.io.Serial;
+
 /**
  * Exception raised in case PowerAuth authentication request is invalid.
  *
@@ -29,6 +31,7 @@ import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenti
  */
 public class PowerAuthInvalidRequestException extends PowerAuthAuthenticationException {
 
+    @Serial
     private static final long serialVersionUID = -6068516562428771519L;
 
     private static final String DEFAULT_CODE = "ERR_AUTHENTICATION";
@@ -61,6 +64,7 @@ public class PowerAuthInvalidRequestException extends PowerAuthAuthenticationExc
      * Get the default error code, used for example in REST response.
      * @return Default error code.
      */
+    @Override
     public String getDefaultCode() {
         return DEFAULT_CODE;
     }

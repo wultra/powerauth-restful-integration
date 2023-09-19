@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception for endpoints related to the user info endpoint.
  *
@@ -26,6 +28,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthUserInfoException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = 5046389522294059168L;
 
     private static final String DEFAULT_CODE = "ERR_USER_INFO";

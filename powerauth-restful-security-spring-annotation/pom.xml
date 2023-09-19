@@ -61,17 +61,17 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-java-crypto</artifactId>
-            <version>${powerauth-java-crypto.version}</version>
+            <version>${powerauth-crypto.version}</version>
         </dependency>
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-java-http</artifactId>
-            <version>${powerauth-java-http.version}</version>
+            <version>${powerauth-crypto.version}</version>
         </dependency>
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-rest-client-spring</artifactId>
-            <version>${powerauth-rest-client-spring.version}</version>
+            <version>${powerauth.version}</version>
         </dependency>
 
         <dependency>

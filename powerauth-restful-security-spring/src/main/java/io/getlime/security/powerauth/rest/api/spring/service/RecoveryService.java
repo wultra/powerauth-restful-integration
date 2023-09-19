@@ -76,8 +76,7 @@ public class RecoveryService {
             final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
-            if (activationId == null || applicationKey == null || request.getEphemeralPublicKey() == null
-                    || request.getEncryptedData() == null || request.getMac() == null) {
+            if (activationId == null || applicationKey == null) {
                 logger.warn("PowerAuth confirm recovery failed because of invalid request");
                 throw new PowerAuthInvalidRequestException();
             }
@@ -88,6 +87,8 @@ public class RecoveryService {
             confirmRequest.setEncryptedData(request.getEncryptedData());
             confirmRequest.setMac(request.getMac());
             confirmRequest.setNonce(request.getNonce());
+            confirmRequest.setProtocolVersion(httpHeader.getVersion());
+            confirmRequest.setTimestamp(request.getTimestamp());
             final ConfirmRecoveryCodeResponse paResponse = powerAuthClient.confirmRecoveryCode(
                     confirmRequest,
                     httpCustomizationService.getQueryParams(),
@@ -97,7 +98,11 @@ public class RecoveryService {
                 logger.warn("PowerAuth confirm recovery failed because of invalid activation ID in response");
                 throw new PowerAuthInvalidRequestException();
             }
-            return new EciesEncryptedResponse(paResponse.getEncryptedData(), paResponse.getMac());
+            return new EciesEncryptedResponse(
+                    paResponse.getEncryptedData(),
+                    paResponse.getMac(),
+                    paResponse.getNonce(),
+                    paResponse.getTimestamp());
         } catch (Exception ex) {
             logger.warn("PowerAuth confirm recovery failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);

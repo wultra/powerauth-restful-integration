@@ -37,7 +37,7 @@ import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedRespo
 import io.getlime.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.converter.ActivationContextConverter;
-import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
@@ -126,7 +126,7 @@ public class ActivationService {
      * @throws PowerAuthActivationException In case create activation fails.
      * @throws PowerAuthRecoveryException In case activation recovery fails.
      */
-    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EciesEncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
+    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
         try {
 
             final String applicationKey = eciesContext.getApplicationKey();
@@ -135,18 +135,13 @@ public class ActivationService {
             final String encryptedData = activationData.getEncryptedData();
             final String mac = activationData.getMac();
             final String nonce = activationData.getNonce();
+            final Long timestamp = activationData.getTimestamp();
             final Map<String, String> identity = request.getIdentityAttributes();
             final Map<String, Object> customAttributes = (request.getCustomAttributes() != null) ? request.getCustomAttributes() : new HashMap<>();
 
-            // Validate inner encryption
-            if (nonce == null && !"3.0".equals(eciesContext.getVersion())) {
-                logger.warn("Missing nonce for protocol version: {}", eciesContext.getVersion());
-                throw new PowerAuthActivationException();
-            }
-
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute
-                case CODE: {
+                case CODE -> {
 
                     // Check if identity attributes are present
                     if (identity == null || identity.isEmpty()) {
@@ -174,6 +169,8 @@ public class ActivationService {
                     prepareRequest.setEncryptedData(encryptedData);
                     prepareRequest.setMac(mac);
                     prepareRequest.setNonce(nonce);
+                    prepareRequest.setProtocolVersion(eciesContext.getVersion());
+                    prepareRequest.setTimestamp(timestamp);
                     final PrepareActivationResponse response = powerAuthClient.prepareActivation(
                             prepareRequest,
                             httpCustomizationService.getQueryParams(),
@@ -240,11 +237,13 @@ public class ActivationService {
                     }
 
                     // Prepare and return encrypted response
-                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
+                            response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
                 }
 
+
                 // Custom activation
-                case CUSTOM: {
+                case CUSTOM -> {
                     // Check if there is a custom activation provider available, return an error in case it is not available.
                     // Only for CUSTOM activations, proceeding without an activation provider does not make a sensible use-case.
                     if (activationProvider == null) {
@@ -271,7 +270,7 @@ public class ActivationService {
                     }
 
                     // Decide if the recovery codes should be generated
-                    final Boolean shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
+                    final boolean shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
 
                     // Resolve maxFailedCount and activationExpireTimestamp parameters, null value means use value configured on PowerAuth server
                     final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId, ActivationType.CUSTOM, context);
@@ -294,6 +293,8 @@ public class ActivationService {
                     createRequest.setEncryptedData(encryptedData);
                     createRequest.setMac(mac);
                     createRequest.setNonce(nonce);
+                    createRequest.setProtocolVersion(eciesContext.getVersion());
+                    createRequest.setTimestamp(timestamp);
                     final CreateActivationResponse response = powerAuthClient.createActivation(
                             createRequest,
                             httpCustomizationService.getQueryParams(),
@@ -349,11 +350,13 @@ public class ActivationService {
                     }
 
                     // Prepare encrypted activation data
-                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
+                            response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
                 }
 
+
                 // Activation using recovery code
-                case RECOVERY: {
+                case RECOVERY -> {
 
                     // Check if identity attributes are present
                     if (identity == null || identity.isEmpty()) {
@@ -398,6 +401,8 @@ public class ActivationService {
                     recoveryRequest.setEncryptedData(encryptedData);
                     recoveryRequest.setMac(mac);
                     recoveryRequest.setNonce(nonce);
+                    recoveryRequest.setProtocolVersion(eciesContext.getVersion());
+                    recoveryRequest.setTimestamp(timestamp);
                     final RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(
                             recoveryRequest,
                             httpCustomizationService.getQueryParams(),
@@ -455,16 +460,16 @@ public class ActivationService {
                     }
 
                     // Prepare and return encrypted response
-                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(), processedCustomAttributes, userInfo);
+                    return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
+                            response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
                 }
-
-                default:
+                default -> {
                     logger.warn("Invalid activation request");
                     throw new PowerAuthInvalidRequestException();
+                }
             }
         } catch (PowerAuthClientException ex) {
-            if (ex.getPowerAuthError() instanceof PowerAuthErrorRecovery) {
-                final PowerAuthErrorRecovery errorRecovery = (PowerAuthErrorRecovery) ex.getPowerAuthError();
+            if (ex.getPowerAuthError() instanceof final PowerAuthErrorRecovery errorRecovery) {
                 logger.debug("Invalid recovery code, current PUK index: {}", errorRecovery.getCurrentRecoveryPukIndex());
                 throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
@@ -584,11 +589,13 @@ public class ActivationService {
      * @param processedCustomAttributes Custom attributes to be returned.
      * @return Encrypted response object.
      */
-    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, Map<String, Object> processedCustomAttributes, Map<String, Object> userInfo) {
+    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, String nonce, Long timestmap, Map<String, Object> processedCustomAttributes, Map<String, Object> userInfo) {
         // Prepare encrypted response object for layer 2
         final EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
         encryptedResponseL2.setEncryptedData(encryptedData);
         encryptedResponseL2.setMac(mac);
+        encryptedResponseL2.setNonce(nonce);
+        encryptedResponseL2.setTimestamp(timestmap);
 
         // The response is encrypted once more before sent to client using ResponseBodyAdvice
         final ActivationLayer1Response responseL1 = new ActivationLayer1Response();

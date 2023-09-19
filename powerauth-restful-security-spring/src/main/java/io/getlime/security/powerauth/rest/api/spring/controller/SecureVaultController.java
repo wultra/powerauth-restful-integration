@@ -29,6 +29,7 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.service.SecureVaultService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,7 +75,7 @@ public class SecureVaultController {
      * @throws PowerAuthAuthenticationException In case authentication fails.
      * @throws PowerAuthSecureVaultException In case unlocking the vault fails.
      */
-    @RequestMapping(value = "unlock", method = RequestMethod.POST)
+    @PostMapping("unlock")
     public EciesEncryptedResponse unlockVault(
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader,
             @RequestBody EciesEncryptedRequest request,
@@ -98,14 +99,10 @@ public class SecureVaultController {
             throw new PowerAuthSignatureInvalidException();
         }
 
-        if (!"3.0".equals(header.getVersion()) && !"3.1".equals(header.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", header.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
-        if (request.getNonce() == null && !"3.0".equals(header.getVersion())) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
-        }
+        PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(header.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp());
+
 
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }

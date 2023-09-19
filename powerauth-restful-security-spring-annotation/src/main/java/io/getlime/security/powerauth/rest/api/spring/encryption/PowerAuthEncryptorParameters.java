@@ -20,41 +20,11 @@
 package io.getlime.security.powerauth.rest.api.spring.encryption;
 
 /**
- * Class used for storing ECIES decryptor parameters.
+ * Class used for storing encryptor parameters.
  *
+ * @param secretKey Secret key.
+ * @param sharedInfo2 Parameter sharedInfo2 for ECIES (V3.x protocols).
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public class PowerAuthEciesDecryptorParameters {
-
-    private final String secretKey;
-    private final String sharedInfo2;
-
-    /**
-     * Constructor with secretKey and sharedInfo2.
-     *
-     * @param secretKey ECIES secret key.
-     * @param sharedInfo2 Parameter sharedInfo2 for ECIES.
-     */
-    public PowerAuthEciesDecryptorParameters(String secretKey, String sharedInfo2) {
-        this.secretKey = secretKey;
-        this.sharedInfo2 = sharedInfo2;
-    }
-
-    /**
-     * Get ECIES secret key.
-     *
-     * @return ECIES secret key.
-     */
-    public String getSecretKey() {
-        return secretKey;
-    }
-
-    /**
-     * Get parameter sharedInfo2 for ECIES.
-     * @return Parameter sharedInfo2 for ECIES.
-     */
-    public String getSharedInfo2() {
-        return sharedInfo2;
-    }
-
+public record PowerAuthEncryptorParameters(String secretKey, String sharedInfo2) {
 }

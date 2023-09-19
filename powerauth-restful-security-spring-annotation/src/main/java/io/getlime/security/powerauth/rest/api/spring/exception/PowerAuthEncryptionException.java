@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception raised in case encryption or decryption fails.
  *
@@ -27,6 +29,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthEncryptionException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -4247463135868495185L;
 
     private static final String DEFAULT_CODE = "ERR_ENCRYPTION";

@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception related to processes during a new activation process.
  *
@@ -26,6 +28,7 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthActivationException extends Exception {
 
+    @Serial
     private static final long serialVersionUID = -7975115359211508795L;
 
     private static final String DEFAULT_CODE = "ERR_ACTIVATION";

@@ -24,9 +24,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
-import io.getlime.security.powerauth.rest.api.spring.encryption.EciesEncryptionContext;
-import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEciesEncryption;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionContext;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
@@ -36,13 +37,12 @@ import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
- * Argument resolver for {@link PowerAuthEciesEncryption} objects. It enables automatic
- * parameter resolution for methods that are annotated via {@link PowerAuthEciesEncryption} annotation.
+ * Argument resolver for {@link PowerAuthEncryptorData} objects. It enables automatic
+ * parameter resolution for methods that are annotated via {@link PowerAuthEncryptorData} annotation.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
@@ -55,13 +55,13 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
         return parameter.hasMethodAnnotation(PowerAuthEncryption.class)
-                && (parameter.hasParameterAnnotation(EncryptedRequestBody.class) || EciesEncryptionContext.class.isAssignableFrom(parameter.getParameterType()));
+                && (parameter.hasParameterAnnotation(EncryptedRequestBody.class) || EncryptionContext.class.isAssignableFrom(parameter.getParameterType()));
     }
 
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        final PowerAuthEciesEncryption eciesObject = (PowerAuthEciesEncryption) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        final PowerAuthEncryptorData eciesObject = (PowerAuthEncryptorData) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         // Decrypted object is inserted into parameter annotated by @EncryptedRequestBody annotation
         if (parameter.hasParameterAnnotation(EncryptedRequestBody.class) && eciesObject != null && eciesObject.getDecryptedRequest() != null) {
             final Type requestType = parameter.getGenericParameterType();
@@ -81,11 +81,11 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
             }
         }
         // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption
-        if (eciesObject != null && EciesEncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
+        if (eciesObject != null && EncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
             // Set ECIES scope in case it is specified by the @PowerAuthEncryption annotation
-            PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(PowerAuthEncryption.class);
+            final PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(PowerAuthEncryption.class);
             if (powerAuthEncryption != null) {
-                EciesEncryptionContext eciesContext = eciesObject.getContext();
+                EncryptionContext eciesContext = eciesObject.getContext();
                 boolean validScope = validateEciesScope(eciesContext);
                 if (validScope) {
                     return eciesContext;
@@ -99,9 +99,9 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
      * Validate that encryption HTTP header contains correct values for given ECIES scope.
      * @param eciesContext ECIES context.
      */
-    private boolean validateEciesScope(EciesEncryptionContext eciesContext) {
-        switch (eciesContext.getEciesScope()) {
-            case ACTIVATION_SCOPE:
+    private boolean validateEciesScope(EncryptionContext eciesContext) {
+        switch (eciesContext.getEncryptionScope()) {
+            case ACTIVATION_SCOPE -> {
                 if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
                     logger.warn("ECIES activation scope is invalid because of missing application key");
                     return false;
@@ -110,18 +110,17 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                     logger.warn("ECIES activation scope is invalid because of missing activation ID");
                     return false;
                 }
-                break;
-
-            case APPLICATION_SCOPE:
+            }
+            case APPLICATION_SCOPE -> {
                 if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
                     logger.warn("ECIES application scope is invalid because of missing application key");
                     return false;
                 }
-                break;
-
-            default:
-                logger.warn("Unsupported ECIES scope: {}", eciesContext.getEciesScope());
+            }
+            default -> {
+                logger.warn("Unsupported ECIES scope: {}", eciesContext.getEncryptionScope());
                 return false;
+            }
         }
         return true;
     }

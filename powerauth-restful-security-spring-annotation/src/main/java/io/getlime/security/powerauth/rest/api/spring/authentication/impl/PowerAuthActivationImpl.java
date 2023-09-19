@@ -23,6 +23,7 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthAct
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationStatus;
 import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +36,7 @@ import java.util.List;
  */
 public class PowerAuthActivationImpl implements PowerAuthActivation, Serializable {
 
+    @Serial
     private static final long serialVersionUID = -2171754572617130041L;
 
     /**

@@ -28,12 +28,11 @@ import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedReques
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.service.RecoveryService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
 
 /**
  * Controller implementing recovery related end-points from the PowerAuth
@@ -70,7 +69,7 @@ public class RecoveryController {
      * @return ECIES encrypted response.
      * @throws PowerAuthAuthenticationException In case confirm recovery fails.
      */
-    @RequestMapping(value = "confirm", method = RequestMethod.POST)
+    @PostMapping("confirm")
     @PowerAuth(resourceId = "/pa/recovery/confirm", signatureType = {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
     })
@@ -83,14 +82,11 @@ public class RecoveryController {
         if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
             throw new PowerAuthSignatureInvalidException();
         }
-        if (!"3.0".equals(authentication.getVersion()) && !"3.1".equals(authentication.getVersion())) {
-            logger.warn("Endpoint does not support PowerAuth protocol version {}", authentication.getVersion());
-            throw new PowerAuthInvalidRequestException();
-        }
-        if (request.getNonce() == null && !"3.0".equals(authentication.getVersion())) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException();
-        }
+
+        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(authentication.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp());
+
         return recoveryService.confirmRecoveryCode(request, authentication);
     }
 

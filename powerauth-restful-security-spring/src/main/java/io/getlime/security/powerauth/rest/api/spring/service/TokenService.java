@@ -84,12 +84,6 @@ public class TokenService {
             // Fetch activation ID and signature type
             final PowerAuthSignatureTypes signatureFactors = authentication.getAuthenticationContext().getSignatureType();
 
-            // Fetch data from the request
-            final String ephemeralPublicKey = request.getEphemeralPublicKey();
-            final String encryptedData = request.getEncryptedData();
-            final String mac = request.getMac();
-            final String nonce = request.getNonce();
-
             // Prepare a signature type converter
             final SignatureTypeConverter converter = new SignatureTypeConverter();
             final SignatureType signatureType = converter.convertFrom(signatureFactors);
@@ -107,11 +101,13 @@ public class TokenService {
             final CreateTokenRequest tokenRequest = new CreateTokenRequest();
             tokenRequest.setActivationId(activationId);
             tokenRequest.setApplicationKey(applicationKey);
-            tokenRequest.setEphemeralPublicKey(ephemeralPublicKey);
-            tokenRequest.setEncryptedData(encryptedData);
-            tokenRequest.setMac(mac);
-            tokenRequest.setNonce(nonce);
+            tokenRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
+            tokenRequest.setEncryptedData(request.getEncryptedData());
+            tokenRequest.setMac(request.getMac());
+            tokenRequest.setNonce(request.getNonce());
             tokenRequest.setSignatureType(signatureType);
+            tokenRequest.setProtocolVersion(httpHeader.getVersion());
+            tokenRequest.setTimestamp(request.getTimestamp());
             final CreateTokenResponse token = powerAuthClient.createToken(
                     tokenRequest,
                     httpCustomizationService.getQueryParams(),
@@ -122,6 +118,8 @@ public class TokenService {
             final EciesEncryptedResponse response = new EciesEncryptedResponse();
             response.setMac(token.getMac());
             response.setEncryptedData(token.getEncryptedData());
+            response.setNonce(token.getNonce());
+            response.setTimestamp(token.getTimestamp());
             return response;
         } catch (Exception ex) {
             logger.warn("Creating PowerAuth token failed, error: {}", ex.getMessage());
