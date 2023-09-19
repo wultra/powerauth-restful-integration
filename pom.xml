@@ -87,8 +87,8 @@
         <commons-text.version>1.10.0</commons-text.version>
         <bcprov.version>1.76</bcprov.version>
         <wultra-core.version>1.7.0</wultra-core.version>
-        <powerauth.version>1.5.1</powerauth.version>
-        <powerauth-crypto.version>1.5.0</powerauth-crypto.version>
+        <powerauth.version>1.5.0</powerauth.version>
+        <powerauth-crypto.version>1.5.1</powerauth-crypto.version>
     </properties>
 
     <dependencyManagement>
