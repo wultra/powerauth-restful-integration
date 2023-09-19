@@ -45,7 +45,7 @@
         <dependency>
             <groupId>io.getlime.security</groupId>
             <artifactId>powerauth-rest-client-spring</artifactId>
-            <version>${powerauth-rest-client-spring.version}</version>
+            <version>${powerauth.version}</version>
             <exclusions>
                 <exclusion>
                     <artifactId>log4j-to-slf4j</artifactId>
