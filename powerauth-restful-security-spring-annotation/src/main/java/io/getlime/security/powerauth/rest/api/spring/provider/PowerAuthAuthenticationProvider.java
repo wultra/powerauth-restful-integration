@@ -50,6 +50,8 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationStatus;
 import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,8 +59,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.Base64;
 import java.util.List;
 
