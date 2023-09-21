@@ -118,14 +118,10 @@
 
             <dependency>
                 <groupId>io.getlime.core</groupId>
-                <artifactId>annotations</artifactId>
+                <artifactId>core-bom</artifactId>
                 <version>${wultra-core.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>io.getlime.core</groupId>
-                <artifactId>rest-model-base</artifactId>
-                <version>${wultra-core.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
 
             <!-- 3rd Party Dependencies -->
