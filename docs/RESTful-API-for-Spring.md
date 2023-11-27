@@ -205,17 +205,18 @@ Create a security configuration class `SecurityConfig` extending `WebSecurityCon
 ```java
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+public class SecurityConfig {
 
-    @Autowired
-    private PowerAuthApiAuthenticationEntryPoint apiAuthenticationEntryPoint;
-
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests().antMatchers("/secured/**").fullyAuthenticated();
-        http.httpBasic().disable();
-        http.csrf().disable();
-        http.exceptionHandling().authenticationEntryPoint(apiAuthenticationEntryPoint);
+    @Bean
+    public SecurityFilterChain filterChain(final HttpSecurity http, final PowerAuthApiAuthenticationEntryPoint apiAuthenticationEntryPoint) throws Exception {
+        return http
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/secured/**").fullyAuthenticated())
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling.authenticationEntryPoint(apiAuthenticationEntryPoint))
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .csrf(AbstractHttpConfigurer::disable)
+                .build();
     }
 
 }
