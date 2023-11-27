@@ -194,7 +194,7 @@ public class ApplicationConfiguration implements PowerAuthApplicationConfigurati
 
 _(optional)_
 
-Create a security configuration class `SecurityConfig` extending `WebSecurityConfigurerAdapter`. The configuration we will use:
+Create a security configuration class `SecurityConfig` configuring a bean `SecurityFilterChain`. The configuration we will use:
 
 - disable default Basic HTTP authentication
 - disables CSRF (we don't need it for REST)
