@@ -84,7 +84,7 @@
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
-        <spring-boot.version>3.1.6</spring-boot.version>
+        <spring-boot.version>3.1.7</spring-boot.version>
         <commons-text.version>1.11.0</commons-text.version>
         <bcprov.version>1.77</bcprov.version>
         <!--  TODO (racansky, 2023-12-08) temporarily override the version 1.4.11 from spring boot version because of CVE  -->
