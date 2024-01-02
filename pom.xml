@@ -87,8 +87,6 @@
         <spring-boot.version>3.2.1</spring-boot.version>
         <commons-text.version>1.11.0</commons-text.version>
         <bcprov.version>1.77</bcprov.version>
-        <!--  TODO (racansky, 2023-12-08) temporarily override the version 1.4.11 from spring boot version because of CVE  -->
-        <logback.version>1.4.14</logback.version>
 
         <wultra-core.version>1.8.0-SNAPSHOT</wultra-core.version>
         <powerauth.version>1.6.0-SNAPSHOT</powerauth.version>
@@ -103,18 +101,6 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <!--  TODO (racansky, 2023-12-08) temporarily override the version 1.4.11 from spring boot version because of CVE  -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
             </dependency>
 
             <!-- PowerAuth Restful Integration Dependencies -->
