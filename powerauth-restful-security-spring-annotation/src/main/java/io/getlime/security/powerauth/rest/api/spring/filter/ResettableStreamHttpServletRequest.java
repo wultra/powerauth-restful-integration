@@ -20,12 +20,12 @@
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
 import com.google.common.io.ByteStreams;
-
-import javax.annotation.Nonnull;
+import jakarta.annotation.Nonnull;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletRequestWrapper;
+
 import java.io.*;
 import java.util.Arrays;
 

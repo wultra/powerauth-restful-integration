@@ -469,7 +469,7 @@ public class ActivationService {
                 }
             }
         } catch (PowerAuthClientException ex) {
-            if (ex.getPowerAuthError() instanceof final PowerAuthErrorRecovery errorRecovery) {
+            if (ex.getPowerAuthError().orElse(null) instanceof final PowerAuthErrorRecovery errorRecovery) {
                 logger.debug("Invalid recovery code, current PUK index: {}", errorRecovery.getCurrentRecoveryPukIndex());
                 throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }

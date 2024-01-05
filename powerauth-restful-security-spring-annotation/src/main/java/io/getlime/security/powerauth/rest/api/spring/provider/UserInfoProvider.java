@@ -22,8 +22,8 @@ package io.getlime.security.powerauth.rest.api.spring.provider;
 import com.wultra.core.annotations.PublicSpi;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
+import jakarta.annotation.Nonnull;
 
-import javax.annotation.Nonnull;
 import java.util.Collections;
 import java.util.Map;
 

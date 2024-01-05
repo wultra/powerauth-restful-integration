@@ -25,13 +25,12 @@ import com.wultra.security.powerauth.client.model.response.GetEciesDecryptorResp
 import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
+import jakarta.annotation.Nonnull;
+import jakarta.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 /**
  * Implementation of PowerAuth encryption provider.
