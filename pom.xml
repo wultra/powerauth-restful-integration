@@ -90,9 +90,9 @@
         <!--  TODO (racansky, 2023-12-08) temporarily override the version 1.4.11 from spring boot version because of CVE  -->
         <logback.version>1.4.14</logback.version>
 
-        <wultra-core.version>1.8.0</wultra-core.version>
-        <powerauth.version>1.6.0</powerauth.version>
-        <powerauth-crypto.version>1.6.0</powerauth-crypto.version>
+        <wultra-core.version>1.9.0-SNAPSHOT</wultra-core.version>
+        <powerauth.version>1.7.0-SNAPSHOT</powerauth.version>
+        <powerauth-crypto.version>1.7.0-SNAPSHOT</powerauth-crypto.version>
     </properties>
 
     <dependencyManagement>
