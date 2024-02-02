@@ -21,13 +21,19 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
+import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import io.getlime.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import io.getlime.security.powerauth.rest.api.model.request.ActivationRenameRequest;
+import io.getlime.security.powerauth.rest.api.model.response.ActivationDetailResponse;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthToken;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationLayer1Request;
 import io.getlime.security.powerauth.rest.api.model.request.ActivationStatusRequest;
@@ -38,6 +44,7 @@ import io.getlime.security.powerauth.rest.api.spring.annotation.EncryptedRequest
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import io.getlime.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import io.getlime.security.powerauth.rest.api.spring.service.ActivationService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -146,4 +153,35 @@ public class ActivationController {
         ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
         return new ObjectResponse<>(response);
     }
+
+    @PostMapping("detail")
+    @PowerAuthToken
+    @PowerAuthEncryption
+    public ObjectResponse<ActivationDetailResponse> fetchActivationDetail(PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
+
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
+        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+
+        final ActivationDetailResponse activationDetail = activationServiceV3.getActivationDetail(auth.getActivationContext().getActivationId());
+        return new ObjectResponse<>(activationDetail);
+    }
+
+
+    @PostMapping("rename")
+    @PowerAuth(resourceId = "/pa/activation/rename", signatureType = {
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
+            PowerAuthSignatureTypes.POSSESSION_BIOMETRY
+    })
+    @PowerAuthEncryption
+    public ObjectResponse<ActivationDetailResponse> renameApplication(
+            @RequestBody ActivationRenameRequest request,
+            PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
+
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
+        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+
+        final ActivationDetailResponse activationDetail = activationServiceV3.renameActivation(auth.getActivationContext().getActivationId(), request);
+        return new ObjectResponse<>(activationDetail);
+    }
+
 }

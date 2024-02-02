@@ -20,18 +20,21 @@
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.service.RecoveryService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 
 /**
@@ -65,7 +68,7 @@ public class RecoveryController {
     /**
      * Confirm recovery code.
      * @param request ECIES encrypted request.
-     * @param authentication PowerAuth API authentication object.
+     * @param auth PowerAuth API authentication object.
      * @return ECIES encrypted response.
      * @throws PowerAuthAuthenticationException In case confirm recovery fails.
      */
@@ -74,20 +77,18 @@ public class RecoveryController {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
     })
     public EciesEncryptedResponse confirmRecoveryCode(@RequestBody EciesEncryptedRequest request,
-                                                      PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+                                                      PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
         if (request == null) {
             logger.warn("Invalid request object in confirm recovery");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
-            throw new PowerAuthSignatureInvalidException();
-        }
 
-        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
-        PowerAuthVersionUtil.checkMissingRequiredNonce(authentication.getVersion(), request.getNonce());
-        PowerAuthVersionUtil.checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp());
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
+        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(auth.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(auth.getVersion(), request.getTimestamp());
 
-        return recoveryService.confirmRecoveryCode(request, authentication);
+        return recoveryService.confirmRecoveryCode(request, auth);
     }
 
 }

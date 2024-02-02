@@ -60,7 +60,7 @@ public class PowerAuthRequestFilterBase {
             // Parse the query parameters
             String queryString = httpRequest.getQueryString();
 
-            if (queryString != null && queryString.length() > 0) {
+            if (queryString != null && !queryString.isEmpty()) {
 
                 // Decode the query string
                 queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);

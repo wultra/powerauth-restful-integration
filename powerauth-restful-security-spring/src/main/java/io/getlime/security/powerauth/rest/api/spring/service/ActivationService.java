@@ -27,13 +27,8 @@ import com.wultra.security.powerauth.client.model.request.*;
 import com.wultra.security.powerauth.client.model.response.*;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationLayer1Request;
-import io.getlime.security.powerauth.rest.api.model.request.ActivationStatusRequest;
-import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationLayer1Response;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import io.getlime.security.powerauth.rest.api.model.response.ActivationStatusResponse;
-import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
+import io.getlime.security.powerauth.rest.api.model.request.*;
+import io.getlime.security.powerauth.rest.api.model.response.*;
 import io.getlime.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.converter.ActivationContextConverter;
@@ -264,7 +259,7 @@ public class ActivationService {
                     final String userId = activationProvider.lookupUserIdForAttributes(identity, context);
 
                     // If no user was found or user ID is invalid, return an error
-                    if (userId == null || userId.equals("") || userId.length() > 255) {
+                    if (userId == null || userId.isBlank() || userId.length() > 255) {
                         logger.warn("Invalid user ID: {}", userId);
                         throw new PowerAuthActivationException();
                     }
@@ -522,6 +517,62 @@ public class ActivationService {
                 final ActivationContext activationContext = activationContextConverter.fromActivationDetailResponse(paResponse);
                 response.setCustomObject(applicationConfiguration.statusServiceCustomObject(activationContext));
             }
+            return response;
+        } catch (Exception ex) {
+            logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
+        }
+    }
+
+    /**
+     * Get activation detail.
+     *
+     * @param activationId Activation ID.
+     * @return Activation detail response.
+     * @throws PowerAuthActivationException In case retrieving activation detail fails.
+     */
+    public ActivationDetailResponse getActivationDetail(String activationId) throws PowerAuthActivationException {
+        try {
+            final GetActivationStatusRequest statusRequest = new GetActivationStatusRequest();
+            statusRequest.setActivationId(activationId);
+            final GetActivationStatusResponse paResponse = powerAuthClient.getActivationStatus(
+                    statusRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
+            final ActivationDetailResponse response = new ActivationDetailResponse();
+            response.setActivationId(paResponse.getActivationId());
+            response.setActivationName(paResponse.getActivationName());
+            return response;
+        } catch (Exception ex) {
+            logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
+        }
+    }
+
+    /**
+     * Rename activation.
+     *
+     * @param activationId Activation ID to be renamed.
+     * @param request      Request with the new activation name.
+     * @return Activation detail of the newly named activation.
+     * @throws PowerAuthActivationException In case renaming activation fails.
+     */
+    public ActivationDetailResponse renameActivation(String activationId, ActivationRenameRequest request) throws PowerAuthActivationException {
+        try {
+            final UpdateActivationNameRequest updateNameRequest = new UpdateActivationNameRequest();
+            updateNameRequest.setActivationId(activationId);
+            updateNameRequest.setActivationName(request.getActivationName());
+            final UpdateActivationNameResponse paResponse = powerAuthClient.updateActivationName(
+                    updateNameRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
+            final ActivationDetailResponse response = new ActivationDetailResponse();
+            response.setActivationId(paResponse.getActivationId());
+            response.setActivationName(paResponse.getActivationName());
             return response;
         } catch (Exception ex) {
             logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());

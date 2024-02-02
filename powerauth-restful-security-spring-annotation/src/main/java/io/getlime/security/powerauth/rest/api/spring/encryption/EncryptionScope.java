@@ -49,9 +49,7 @@ public enum EncryptionScope {
             case ACTIVATION_SCOPE -> {
                 return EncryptorScope.ACTIVATION_SCOPE;
             }
-            default -> {
-                throw new IllegalArgumentException("Unsupported scope " + this);
-            }
+            default -> throw new IllegalArgumentException("Unsupported scope " + this);
         }
     }
 }
