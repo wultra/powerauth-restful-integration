@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import lombok.Data;
+
 import java.util.Map;
 
 /**
@@ -27,57 +29,22 @@ import java.util.Map;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ActivationLayer1Response {
 
+    /**
+     * Encrypted activation data.
+     */
     private EciesEncryptedResponse activationData;
+
+    /**
+     * Custom attributes for activation.
+     */
     private Map<String, Object> customAttributes;
+
+    /**
+     * User info as a map of claims.
+     */
     private Map<String, Object> userInfo;
 
-    /**
-     * Get encrypted activation data.
-     * @return Encrypted activation data.
-     */
-    public EciesEncryptedResponse getActivationData() {
-        return activationData;
-    }
-
-    /**
-     * Set encrypted activation data.
-     * @param activationData Encrypted activation data.
-     */
-    public void setActivationData(EciesEncryptedResponse activationData) {
-        this.activationData = activationData;
-    }
-
-    /**
-     * Get custom attributes for activation.
-     * @return Custom attributes.
-     */
-    public Map<String, Object> getCustomAttributes() {
-        return customAttributes;
-    }
-
-    /**
-     * Set custom attributes for activation.
-     * @param customAttributes Custom attributes.
-     */
-    public void setCustomAttributes(Map<String, Object> customAttributes) {
-        this.customAttributes = customAttributes;
-    }
-
-    /**
-     * Get user info as a map of claims.
-     * @return User info.
-     */
-    public Map<String, Object> getUserInfo() {
-        return userInfo;
-    }
-
-    /**
-     * Set user info via a map of claims.
-     * @param userInfo User info.
-     */
-    public void setUserInfo(Map<String, Object> userInfo) {
-        this.userInfo = userInfo;
-    }
 }

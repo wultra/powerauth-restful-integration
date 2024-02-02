@@ -19,29 +19,20 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
+import lombok.Data;
+
 /**
  * Request object for vault unlock ECIES payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class VaultUnlockRequestPayload {
 
+    /**
+     * Vault unlock reason.
+     */
     private String reason;
 
-    /**
-     * Get vault unlock reason.
-     * @return Vault unlock reason.
-     */
-    public String getReason() {
-        return reason;
-    }
-
-    /**
-     * Set vault unlock reason.
-     * @param reason Vault unlock reason.
-     */
-    public void setReason(String reason) {
-        this.reason = reason;
-    }
 }

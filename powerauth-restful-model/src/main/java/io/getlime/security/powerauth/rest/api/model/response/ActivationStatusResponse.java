@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import lombok.Data;
+
 import java.util.Map;
 
 /**
@@ -27,75 +29,27 @@ import java.util.Map;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ActivationStatusResponse {
 
+    /**
+     * Activation ID.
+     */
     private String activationId;
+
+    /**
+     * Encrypted activation status blob.
+     */
     private String encryptedStatusBlob;
+
+    /**
+     * Nonce for activation status blob encryption.
+     */
     private String nonce;
+
+    /**
+     * Custom associated object.
+     */
     private Map<String, Object> customObject;
-
-    /**
-     * Get activation ID
-     * @return Activation ID
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID
-     * @param activationId Activation ID
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
-
-    /**
-     * Get encrypted activation status blob
-     * @return Encrypted activation status blob
-     */
-    public String getEncryptedStatusBlob() {
-        return encryptedStatusBlob;
-    }
-
-    /**
-     * Set encrypted activation status blob
-     * @param cStatusBlob encrypted activation status blob
-     */
-    public void setEncryptedStatusBlob(String cStatusBlob) {
-        this.encryptedStatusBlob = cStatusBlob;
-    }
-
-    /**
-     * Get nonce for activation status blob encryption.
-     * @return Nonce for activation status blob encryption.
-     */
-    public String getNonce() {
-        return nonce;
-    }
-
-    /**
-     * Set nonce for activation status blob encryption.
-     * @param nonce Nonce for activation status blob encryption. Exactly 16 bytes encoded in Base64 is expected.
-     */
-    public void setNonce(String nonce) {
-        this.nonce = nonce;
-    }
-
-    /**
-     * Get custom associated object.
-     * @return Custom associated object
-     */
-    public Map<String, Object> getCustomObject() {
-        return customObject;
-    }
-
-    /**
-     * Set custom associated object
-     * @param customObject Custom associated object
-     */
-    public void setCustomObject(Map<String, Object> customObject) {
-        this.customObject = customObject;
-    }
 
 }

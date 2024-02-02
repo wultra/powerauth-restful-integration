@@ -19,46 +19,24 @@
  */
 package io.getlime.security.powerauth.rest.api.model.entity;
 
+import lombok.Data;
+
 /**
  * Class representing original payload of the encrypted response for the /pa/token endpoint.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
+@Data
 public class TokenResponsePayload {
 
+    /**
+     * Token ID.
+     */
     private String tokenId;
+
+    /**
+     * Token Secret.
+     */
     private String tokenSecret;
-
-    /**
-     * Get token ID.
-     * @return Token ID.
-     */
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    /**
-     * Set token ID.
-     * @param tokenId Token ID.
-     */
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
-    }
-
-    /**
-     * Get token secret.
-     * @return Token secret.
-     */
-    public String getTokenSecret() {
-        return tokenSecret;
-    }
-
-    /**
-     * Set token secret.
-     * @param tokenSecret Token secret.
-     */
-    public void setTokenSecret(String tokenSecret) {
-        this.tokenSecret = tokenSecret;
-    }
 
 }

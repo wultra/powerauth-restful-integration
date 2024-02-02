@@ -19,30 +19,20 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import lombok.Data;
+
 /**
  * Response object for /pa/v3/activation/remove end-point.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ActivationRemoveResponse {
 
+    /**
+     * Activation ID.
+     */
     private String activationId;
-
-    /**
-     * Get activation ID
-     * @return Activation ID
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID
-     * @param activationId Activation ID
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
 
 }

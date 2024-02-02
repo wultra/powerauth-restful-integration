@@ -19,26 +19,48 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Request object for activation layer 2 request.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
+@NoArgsConstructor
 public class ActivationLayer2Request {
 
+    /**
+     * Base64 encoded device public key.
+     */
     private String devicePublicKey;
-    private String activationOtp;
-    private String activationName;
-    private String extras;
-    private String platform;
-    private String deviceInfo;
 
     /**
-     * Default constructor.
+     * Additional activation OTP.
      */
-    public ActivationLayer2Request() {
-    }
+    private String activationOtp;
+
+    /**
+     * Activation name.
+     */
+    private String activationName;
+
+    /**
+     * Activation extras.
+     */
+    private String extras;
+
+    /**
+     * User device platform.
+     */
+    private String platform;
+
+    /**
+     * Information about user device.
+     */
+    private String deviceInfo;
 
     /**
      * Parameterized constructor.
@@ -52,99 +74,4 @@ public class ActivationLayer2Request {
         this.extras = extras;
     }
 
-    /**
-     * Get Base64 encoded device public key.
-     * @return Device public key.
-     */
-    public String getDevicePublicKey() {
-        return devicePublicKey;
-    }
-
-    /**
-     * Set Base64 encoded device public key.
-     * @param devicePublicKey Device public key.
-     */
-    public void setDevicePublicKey(String devicePublicKey) {
-        this.devicePublicKey = devicePublicKey;
-    }
-
-    /**
-     * Get additional activation OTP.
-     * @return Additional activation OTP.
-     */
-    public String getActivationOtp() {
-        return activationOtp;
-    }
-
-    /**
-     * Set additional activation OTP.
-     * @param activationOtp Additional activation OTP.
-     */
-    public void setActivationOtp(String activationOtp) {
-        this.activationOtp = activationOtp;
-    }
-
-    /**
-     * Get activation name.
-     * @return Activation name.
-     */
-    public String getActivationName() {
-        return activationName;
-    }
-
-    /**
-     * Set activation name.
-     * @param activationName Activation name.
-     */
-    public void setActivationName(String activationName) {
-        this.activationName = activationName;
-    }
-
-    /**
-     * Get activation extras.
-     * @return Activation extras.
-     */
-    public String getExtras() {
-        return extras;
-    }
-
-    /**
-     * Set activation extras.
-     * @param extras Activation extras.
-     */
-    public void setExtras(String extras) {
-        this.extras = extras;
-    }
-
-    /**
-     * Get user device platform.
-     * @return User device platform.
-     */
-    public String getPlatform() {
-        return platform;
-    }
-
-    /**
-     * Set user device platform.
-     * @param platform User device platform.
-     */
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }
-
-    /**
-     * Get information about user device.
-     * @return Information about user device.
-     */
-    public String getDeviceInfo() {
-        return deviceInfo;
-    }
-
-    /**
-     * Set information about user device.
-     * @param deviceInfo Information about user device.
-     */
-    public void setDeviceInfo(String deviceInfo) {
-        this.deviceInfo = deviceInfo;
-    }
 }

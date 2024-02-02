@@ -19,99 +19,38 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 /**
  * Response object for endpoints returning data encrypted by ECIES.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class EciesEncryptedResponse {
 
+    /**
+     * Base64 encoded encrypted data payload.
+     */
     private String encryptedData;
+
+    /**
+     * Base64 encoded MAC signature of the response.
+     */
     private String mac;
+
+    /**
+     * Nonce.
+     */
     private String nonce;
+
+    /**
+     * Response timestamp as unix timestamp in milliseconds.
+     */
     private Long timestamp;
 
-    /**
-     * Default constructor.
-     */
-    public EciesEncryptedResponse() {
-    }
-
-    /**
-     * Constructor with Base64 encoded encrypted data and MAC of key and data.
-     * @param encryptedData Encrypted data.
-     * @param mac MAC of key and data.
-     * @param nonce ECIES nonce.
-     * @param timestamp Unix timestamp in milliseconds.
-     */
-    public EciesEncryptedResponse(String encryptedData, String mac, String nonce, Long timestamp) {
-        this.encryptedData = encryptedData;
-        this.mac = mac;
-        this.nonce = nonce;
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * Get Base64 encoded encrypted data payload.
-     * @return Encrypted data.
-     */
-    public String getEncryptedData() {
-        return encryptedData;
-    }
-
-    /**
-     * Set Base64 encoded encrypted data payload.
-     * @param encryptedData Encrypted data.
-     */
-    public void setEncryptedData(String encryptedData) {
-        this.encryptedData = encryptedData;
-    }
-
-    /**
-     * Get Base64 encoded MAC signature of the response.
-     * @return MAC of the response.
-     */
-    public String getMac() {
-        return mac;
-    }
-
-    /**
-     * Set Base64 encoded MAC signature of the response.
-     * @param mac MAC of the response.
-     */
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
-    /**
-     * Get nonce.
-     * @return Nonce.
-     */
-    public String getNonce() {
-        return nonce;
-    }
-
-    /**
-     * Set nonce.
-     * @param nonce Nonce.
-     */
-    public void setNonce(String nonce) {
-        this.nonce = nonce;
-    }
-
-    /**
-     * Get response timestamp as unix timestamp in milliseconds.
-     * @return Response timestamp.
-     */
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Set response timestamp as unix timestamp in milliseconds.
-     * @param timestamp Response timestamp.
-     */
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
 }

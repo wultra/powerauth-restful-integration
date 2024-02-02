@@ -19,45 +19,24 @@
  */
 package io.getlime.security.powerauth.rest.api.model.entity;
 
+import lombok.Data;
+
 /**
  * Activation recovery model class for recovery code and PUK.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
+@Data
 public class ActivationRecovery {
 
+    /**
+     * Recovery code.
+     */
     private String recoveryCode;
+
+    /**
+     * Recovery PUK.
+     */
     private String puk;
 
-    /**
-     * Get recovery code.
-     * @return Recovery code.
-     */
-    public String getRecoveryCode() {
-        return recoveryCode;
-    }
-
-    /**
-     * Set recovery code.
-     * @param recoveryCode Recovery code.
-     */
-    public void setRecoveryCode(String recoveryCode) {
-        this.recoveryCode = recoveryCode;
-    }
-
-    /**
-     * Get recovery PUK.
-     * @return Recovery PUK.
-     */
-    public String getPuk() {
-        return puk;
-    }
-
-    /**
-     * Set recovery PUK.
-     * @param puk Recovery PUK.
-     */
-    public void setPuk(String puk) {
-        this.puk = puk;
-    }
 }
