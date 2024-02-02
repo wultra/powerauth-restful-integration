@@ -41,7 +41,7 @@ public final class PowerAuthAuthenticationUtil {
 
     /**
      * Check if the authentication represents a valid user.
-     * 
+     *
      * @param auth Authentication object
      * @throws PowerAuthSignatureInvalidException Exception in case the authentication do not represent the user.
      */

@@ -155,8 +155,11 @@ public class ActivationController {
     }
 
     @PostMapping("detail")
-    @PowerAuthToken
-    @PowerAuthEncryption
+    @PowerAuthToken(signatureType = {
+            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
+            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
+    })
+    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> fetchActivationDetail(PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
@@ -172,7 +175,7 @@ public class ActivationController {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY
     })
-    @PowerAuthEncryption
+    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameApplication(
             @RequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
