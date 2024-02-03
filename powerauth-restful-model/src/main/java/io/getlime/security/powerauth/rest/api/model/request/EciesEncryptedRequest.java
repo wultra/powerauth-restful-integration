@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.request;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * Request object with data encrypted by ECIES encryption.
@@ -47,6 +48,7 @@ public class EciesEncryptedRequest {
     /**
      * Base64 encoded nonce for IV derivation.
      */
+    @ToString.Exclude
     private String nonce;
 
     /**

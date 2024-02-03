@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.request;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * Request object for /pa/v3/activation/status end-point.
@@ -38,5 +39,6 @@ public class ActivationStatusRequest {
     /**
      * Challenge for activation status blob encryption. Exactly 16 bytes encoded in Base64 is expected.
      */
+    @ToString.Exclude
     private String challenge;
 }

@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.entity;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * Activation recovery model class for recovery code and PUK.
@@ -37,6 +38,7 @@ public class ActivationRecovery {
     /**
      * Recovery PUK.
      */
+    @ToString.Exclude
     private String puk;
 
 }

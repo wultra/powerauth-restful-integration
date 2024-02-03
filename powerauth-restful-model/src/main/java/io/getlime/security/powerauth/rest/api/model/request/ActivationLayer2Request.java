@@ -21,6 +21,7 @@ package io.getlime.security.powerauth.rest.api.model.request;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Request object for activation layer 2 request.
@@ -40,6 +41,7 @@ public class ActivationLayer2Request {
     /**
      * Additional activation OTP.
      */
+    @ToString.Exclude
     private String activationOtp;
 
     /**

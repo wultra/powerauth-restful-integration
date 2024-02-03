@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.response;
 
 import lombok.Data;
+import lombok.ToString;
 
 import java.util.Map;
 
@@ -45,6 +46,7 @@ public class ActivationStatusResponse {
     /**
      * Nonce for activation status blob encryption.
      */
+    @ToString.Exclude
     private String nonce;
 
     /**

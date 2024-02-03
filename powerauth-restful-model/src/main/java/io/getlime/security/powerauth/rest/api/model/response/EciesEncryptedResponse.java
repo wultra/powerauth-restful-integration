@@ -22,6 +22,7 @@ package io.getlime.security.powerauth.rest.api.model.response;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
  * Response object for endpoints returning data encrypted by ECIES.
@@ -46,6 +47,7 @@ public class EciesEncryptedResponse {
     /**
      * Nonce.
      */
+    @ToString.Exclude
     private String nonce;
 
     /**

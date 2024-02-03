@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.entity;
 
 import lombok.Data;
+import lombok.ToString;
 
 /**
  * Class representing original payload of the encrypted response for the /pa/token endpoint.
@@ -37,6 +38,7 @@ public class TokenResponsePayload {
     /**
      * Token Secret.
      */
+    @ToString.Exclude
     private String tokenSecret;
 
 }
