@@ -169,7 +169,6 @@ public class ActivationController {
         return new ObjectResponse<>(activationDetail);
     }
 
-
     @PostMapping("rename")
     @PowerAuth(resourceId = "/pa/activation/rename", signatureType = {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,

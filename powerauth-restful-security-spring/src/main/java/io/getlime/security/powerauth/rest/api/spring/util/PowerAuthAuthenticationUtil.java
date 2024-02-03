@@ -46,7 +46,9 @@ public final class PowerAuthAuthenticationUtil {
      * @throws PowerAuthSignatureInvalidException Exception in case the authentication do not represent the user.
      */
     public static void checkAuthentication(PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException {
-        if (auth == null || auth.getActivationContext().getActivationId() == null) {
+        if (auth == null
+                || auth.getActivationContext() == null
+                || auth.getActivationContext().getActivationId() == null) {
             logger.debug("Signature validation failed");
             throw new PowerAuthSignatureInvalidException();
         }

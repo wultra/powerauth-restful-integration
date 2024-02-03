@@ -44,6 +44,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.time.Instant;
 import java.util.*;
@@ -147,7 +148,7 @@ public class ActivationService {
                     // Extract data from request and encryption object
                     final String activationCode = identity.get("code");
 
-                    if (activationCode == null || activationCode.isEmpty()) {
+                    if (!StringUtils.hasText(activationCode)) {
                         logger.warn("Activation code is missing");
                         throw new PowerAuthActivationException();
                     }
@@ -259,7 +260,7 @@ public class ActivationService {
                     final String userId = activationProvider.lookupUserIdForAttributes(identity, context);
 
                     // If no user was found or user ID is invalid, return an error
-                    if (userId == null || userId.isBlank() || userId.length() > 255) {
+                    if (!StringUtils.hasText(userId) || userId.length() > 255) {
                         logger.warn("Invalid user ID: {}", userId);
                         throw new PowerAuthActivationException();
                     }
@@ -363,12 +364,12 @@ public class ActivationService {
                     final String recoveryCode = identity.get("recoveryCode");
                     final String recoveryPuk = identity.get("puk");
 
-                    if (recoveryCode == null || recoveryCode.isEmpty()) {
+                    if (!StringUtils.hasText(recoveryCode)) {
                         logger.warn("Recovery code is missing");
                         throw new PowerAuthActivationException();
                     }
 
-                    if (recoveryPuk == null || recoveryPuk.isEmpty()) {
+                    if (!StringUtils.hasText(recoveryPuk)) {
                         logger.warn("Recovery PUK is missing");
                         throw new PowerAuthActivationException();
                     }
