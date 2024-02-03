@@ -43,6 +43,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);
 
+    //TODO: Replace by PowerAuth Service
     private final PowerAuthClient powerAuthClient;
     private final HttpCustomizationService httpCustomizationService;
 
