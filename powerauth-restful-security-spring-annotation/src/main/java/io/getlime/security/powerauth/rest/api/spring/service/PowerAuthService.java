@@ -17,12 +17,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.annotation.support;
+package io.getlime.security.powerauth.rest.api.spring.service;
 
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthApiAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthSignatureAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthTokenAuthenticationImpl;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionRequest;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorParameters;
 
 /**
  * Interface for PowerAuth Service of various specific implementations. Allows abstracting API
@@ -51,5 +53,14 @@ public interface PowerAuthService {
      * @throws PowerAuthClientException In case validation of the signature fails.
      */
     PowerAuthApiAuthenticationImpl validateToken(PowerAuthTokenAuthenticationImpl authentication) throws PowerAuthClientException;
+
+    /**
+     * Method to prepare encryption context based on the parameters of the encryption.
+     *
+     * @param request Encryption request.
+     * @return Encryption parameters.
+     * @throws PowerAuthClientException In case preparing the signature context fails.
+     */
+    PowerAuthEncryptorParameters prepareEncryptionContext(EncryptionRequest request) throws PowerAuthClientException;
 
 }

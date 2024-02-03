@@ -17,13 +17,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.spring.annotation.support;
+package io.getlime.security.powerauth.rest.api.spring.service;
 
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.SignatureType;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
+import com.wultra.security.powerauth.client.model.request.GetEciesDecryptorRequest;
 import com.wultra.security.powerauth.client.model.request.ValidateTokenRequest;
 import com.wultra.security.powerauth.client.model.request.VerifySignatureRequest;
+import com.wultra.security.powerauth.client.model.response.GetEciesDecryptorResponse;
 import com.wultra.security.powerauth.client.model.response.ValidateTokenResponse;
 import com.wultra.security.powerauth.client.model.response.VerifySignatureResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
@@ -36,9 +38,10 @@ import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAu
 import io.getlime.security.powerauth.rest.api.spring.authentication.impl.PowerAuthTokenAuthenticationImpl;
 import io.getlime.security.powerauth.rest.api.spring.converter.ActivationStatusConverter;
 import io.getlime.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
+import io.getlime.security.powerauth.rest.api.spring.encryption.EncryptionRequest;
+import io.getlime.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorParameters;
 import io.getlime.security.powerauth.rest.api.spring.model.ActivationStatus;
 import io.getlime.security.powerauth.rest.api.spring.model.AuthenticationContext;
-import io.getlime.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
@@ -49,7 +52,7 @@ import java.util.List;
  * @author Petr Dvorak, petr@wultra.com
  */
 @Slf4j
-public class PowerAuthServerService implements PowerAuthService {
+final public class PowerAuthServerService implements PowerAuthService {
 
     private final PowerAuthClient powerAuthClient;
     private final HttpCustomizationService httpCustomizationService;
@@ -137,9 +140,29 @@ public class PowerAuthServerService implements PowerAuthService {
                 activationContext);
     }
 
+    @Override
+    public PowerAuthEncryptorParameters prepareEncryptionContext(EncryptionRequest request) throws PowerAuthClientException {
+        final GetEciesDecryptorRequest decryptorRequest = new GetEciesDecryptorRequest();
+        decryptorRequest.setActivationId(request.getActivationId());
+        decryptorRequest.setApplicationKey(request.getApplicationKey());
+        decryptorRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
+        decryptorRequest.setNonce(request.getNonce());
+        decryptorRequest.setProtocolVersion(request.getProtocolVersion());
+        decryptorRequest.setTimestamp(request.getTimestamp());
+
+        final GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(
+                decryptorRequest,
+                httpCustomizationService.getQueryParams(),
+                httpCustomizationService.getHttpHeaders()
+        );
+
+        return new PowerAuthEncryptorParameters(eciesDecryptorResponse.getSecretKey(), eciesDecryptorResponse.getSharedInfo2());
+    }
+
 
     /**
      * Prepare API initialized authentication object with provided authentication attributes.
+     *
      * @param activationId Activation ID.
      * @param userId User ID.
      * @param applicationId Application ID.
@@ -151,9 +174,10 @@ public class PowerAuthServerService implements PowerAuthService {
      * @param activationContext PowerAuth activation context.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(String activationId, String userId, String applicationId, List<String> applicationRoles,
-                                                                        List<String> activationFlags, AuthenticationContext authenticationContext,
-                                                                        String version, PowerAuthHttpHeader httpHeader, PowerAuthActivation activationContext) {
+    private PowerAuthApiAuthenticationImpl copyAuthenticationAttributes(
+            String activationId, String userId, String applicationId, List<String> applicationRoles,
+            List<String> activationFlags, AuthenticationContext authenticationContext,
+            String version, PowerAuthHttpHeader httpHeader, PowerAuthActivation activationContext) {
         final PowerAuthApiAuthenticationImpl apiAuthentication = new PowerAuthApiAuthenticationImpl();
         apiAuthentication.setActivationId(activationId);
         apiAuthentication.setUserId(userId);
@@ -170,6 +194,7 @@ public class PowerAuthServerService implements PowerAuthService {
 
     /**
      * Prepare activation detail with provided attributes.
+     *
      * @param activationId Activation ID.
      * @param userId User ID.
      * @param activationStatus Activation status.
@@ -179,8 +204,9 @@ public class PowerAuthServerService implements PowerAuthService {
      * @param version PowerAuth protocol version.
      * @return Initialized instance of API authentication.
      */
-    private PowerAuthActivationImpl copyActivationAttributes(String activationId, String userId, ActivationStatus activationStatus, String blockedReason,
-                                                             List<String> activationFlags, AuthenticationContext authenticationContext, String version) {
+    private PowerAuthActivationImpl copyActivationAttributes(
+            String activationId, String userId, ActivationStatus activationStatus, String blockedReason,
+            List<String> activationFlags, AuthenticationContext authenticationContext, String version) {
         final PowerAuthActivationImpl activationContext = new PowerAuthActivationImpl();
         activationContext.setActivationId(activationId);
         activationContext.setUserId(userId);
