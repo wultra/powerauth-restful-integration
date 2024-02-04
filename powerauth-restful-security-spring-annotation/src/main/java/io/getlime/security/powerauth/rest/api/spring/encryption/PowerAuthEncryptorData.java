@@ -75,9 +75,7 @@ public class PowerAuthEncryptorData {
             case APPLICATION_SCOPE -> {
                 return EncryptorId.APPLICATION_SCOPE_GENERIC;
             }
-            default -> {
-                throw new IllegalStateException("Unsupported scope " + this);
-            }
+            default -> throw new IllegalStateException("Unsupported scope " + this);
         }
     }
 }

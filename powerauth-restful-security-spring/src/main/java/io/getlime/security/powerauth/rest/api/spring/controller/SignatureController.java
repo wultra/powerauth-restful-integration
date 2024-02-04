@@ -21,17 +21,14 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 
 import io.getlime.core.rest.model.base.response.Response;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
-import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-
-import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 
 /**
  * End-point for validating signatures.
@@ -48,8 +45,6 @@ import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 @RequestMapping(value = "/pa/v3/signature")
 public class SignatureController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SignatureController.class);
-
     /**
      * Validate signature by validating any data sent in request to this end-point.
      * @param auth Automatically injected PowerAuth authentication object.
@@ -65,11 +60,7 @@ public class SignatureController {
     })
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
-        if (auth == null || auth.getActivationContext().getActivationId() == null) {
-            logger.debug("Signature validation failed");
-            throw new PowerAuthSignatureInvalidException();
-        }
-
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
 
         return new Response();
