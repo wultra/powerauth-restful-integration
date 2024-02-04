@@ -19,96 +19,41 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
+import lombok.Data;
+import lombok.ToString;
+
 /**
  * Request object with data encrypted by ECIES encryption.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
+@Data
 public class EciesEncryptedRequest {
 
+    /**
+     * Base64 encoded ephemeral public key.
+     */
     private String ephemeralPublicKey;
+
+    /**
+     * Base64 encoded encrypted data.
+     */
     private String encryptedData;
+
+    /**
+     * Base64 encoded MAC of key and data.
+     */
     private String mac;
+
+    /**
+     * Base64 encoded nonce for IV derivation.
+     */
+    @ToString.Exclude
     private String nonce;
+
+    /**
+     * Request timestamp as unix timestamp in milliseconds.
+     */
     private Long timestamp;
 
-    /**
-     * Get Base64 encoded ephemeral public key.
-     * @return Ephemeral public key.
-     */
-    public String getEphemeralPublicKey() {
-        return ephemeralPublicKey;
-    }
-
-    /**
-     * Set Base64 encoded ephemeral public key.
-     * @param ephemeralPublicKey Ephemeral public key.
-     */
-    public void setEphemeralPublicKey(String ephemeralPublicKey) {
-        this.ephemeralPublicKey = ephemeralPublicKey;
-    }
-
-    /**
-     * Get Base64 encoded encrypted data.
-     * @return Encrypted data.
-     */
-    public String getEncryptedData() {
-        return encryptedData;
-    }
-
-    /**
-     * Set Base64 encoded encrypted data.
-     * @param encryptedData Encrypted data.
-     */
-    public void setEncryptedData(String encryptedData) {
-        this.encryptedData = encryptedData;
-    }
-
-    /**
-     * Get Base64 encoded MAC of key and data.
-     * @return MAC of key and data.
-     */
-    public String getMac() {
-        return mac;
-    }
-
-    /**
-     * Set Base64 encoded MAC of key and data.
-     * @param mac MAC of key and data.
-     */
-    public void setMac(String mac) {
-        this.mac = mac;
-    }
-
-    /**
-     * Get Base64 encoded nonce for IV derivation.
-     * @return Nonce for IV derivation.
-     */
-    public String getNonce() {
-        return nonce;
-    }
-
-    /**
-     * Set Base64 encoded nonce for IV derivation.
-     * @param nonce Nonce for IV derivation.
-     */
-    public void setNonce(String nonce) {
-        this.nonce = nonce;
-    }
-
-    /**
-     * Get request timestamp as unix timestamp in milliseconds.
-     * @return Request timestamp.
-     */
-    public Long getTimestamp() {
-        return timestamp;
-    }
-
-    /**
-     * Set request timestamp as unix timestamp in milliseconds.
-     * @param timestamp Request timestamp.
-     */
-    public void setTimestamp(Long timestamp) {
-        this.timestamp = timestamp;
-    }
 }

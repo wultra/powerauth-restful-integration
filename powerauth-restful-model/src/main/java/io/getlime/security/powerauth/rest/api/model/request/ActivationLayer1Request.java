@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.request;
 
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
+import lombok.Data;
 
 import java.util.Map;
 
@@ -29,74 +30,26 @@ import java.util.Map;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ActivationLayer1Request {
 
+    /**
+     * Activation type.
+     */
     private ActivationType type;
+
+    /**
+     * Identity attributes.
+     */
     private Map<String, String> identityAttributes;
+
+    /**
+     * Custom attributes.
+     */
     private Map<String, Object> customAttributes;
+
+    /**
+     * Encrypted activation data.
+     */
     private EciesEncryptedRequest activationData;
-
-    /**
-     * Get activation type.
-     * @return Activation type.
-     */
-    public ActivationType getType() {
-        return type;
-    }
-
-    /**
-     * Set activation type.
-     * @param type Activation type.
-     */
-    public void setType(ActivationType type) {
-        this.type = type;
-    }
-
-    /**
-     * Get identity attributes.
-     * @return Identity attributes.
-     */
-    public Map<String, String> getIdentityAttributes() {
-        return identityAttributes;
-    }
-
-    /**
-     * Set identity attributes.
-     * @param identityAttributes Identity attributes.
-     */
-    public void setIdentityAttributes(Map<String, String> identityAttributes) {
-        this.identityAttributes = identityAttributes;
-    }
-
-    /**
-     * Get custom attributes.
-     * @return Custom attributes.
-     */
-    public Map<String, Object> getCustomAttributes() {
-        return customAttributes;
-    }
-
-    /**
-     * Set custom attributes.
-     * @param customAttributes Custom attributes.
-     */
-    public void setCustomAttributes(Map<String, Object> customAttributes) {
-        this.customAttributes = customAttributes;
-    }
-
-    /**
-     * Get encrypted activation data.
-     * @return Encrypted activation data.
-     */
-    public EciesEncryptedRequest getActivationData() {
-        return activationData;
-    }
-
-    /**
-     * Set encrypted activation data.
-     * @param activationData Encrypted activation data.
-     */
-    public void setActivationData(EciesEncryptedRequest activationData) {
-        this.activationData = activationData;
-    }
 }
