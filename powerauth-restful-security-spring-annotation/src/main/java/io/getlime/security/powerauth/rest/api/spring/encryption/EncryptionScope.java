@@ -42,14 +42,9 @@ public enum EncryptionScope {
      * @return Translated {@link EncryptorScope}.
      */
     public EncryptorScope toEncryptorScope() {
-        switch (this) {
-            case APPLICATION_SCOPE -> {
-                return EncryptorScope.APPLICATION_SCOPE;
-            }
-            case ACTIVATION_SCOPE -> {
-                return EncryptorScope.ACTIVATION_SCOPE;
-            }
-            default -> throw new IllegalArgumentException("Unsupported scope " + this);
-        }
+        return switch (this) {
+            case APPLICATION_SCOPE -> EncryptorScope.APPLICATION_SCOPE;
+            case ACTIVATION_SCOPE -> EncryptorScope.ACTIVATION_SCOPE;
+        };
     }
 }

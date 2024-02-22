@@ -68,14 +68,9 @@ public class PowerAuthEncryptorData {
      * @return EncryptorId depending on scope of encryption.
      */
     public EncryptorId getEncryptorId() {
-        switch (context.getEncryptionScope()) {
-            case ACTIVATION_SCOPE -> {
-                return EncryptorId.ACTIVATION_SCOPE_GENERIC;
-            }
-            case APPLICATION_SCOPE -> {
-                return EncryptorId.APPLICATION_SCOPE_GENERIC;
-            }
-            default -> throw new IllegalStateException("Unsupported scope " + this);
-        }
+        return switch (context.getEncryptionScope()) {
+            case ACTIVATION_SCOPE -> EncryptorId.ACTIVATION_SCOPE_GENERIC;
+            case APPLICATION_SCOPE -> EncryptorId.APPLICATION_SCOPE_GENERIC;
+        };
     }
 }
