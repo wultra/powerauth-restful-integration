@@ -19,11 +19,14 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
+import lombok.Data;
+
 /**
  * Class representing request transport object for token removal.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
+@Data
 public class TokenRemoveRequest {
 
     /**
@@ -31,19 +34,4 @@ public class TokenRemoveRequest {
      */
     private String tokenId;
 
-    /**
-     * Get token ID.
-     * @return Token ID.
-     */
-    public String getTokenId() {
-        return tokenId;
-    }
-
-    /**
-     * Set token ID.
-     * @param tokenId Token ID.
-     */
-    public void setTokenId(String tokenId) {
-        this.tokenId = tokenId;
-    }
 }

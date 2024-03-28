@@ -19,46 +19,26 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
+import lombok.Data;
+import lombok.ToString;
+
 /**
  * Request object for /pa/v3/activation/status end-point.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ActivationStatusRequest {
 
+    /**
+     * Activation ID.
+     */
     private String activationId;
+
+    /**
+     * Challenge for activation status blob encryption. Exactly 16 bytes encoded in Base64 is expected.
+     */
+    @ToString.Exclude
     private String challenge;
-
-    /**
-     * Get activation ID
-     * @return Activation ID
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID
-     * @param activationId Activation ID
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
-
-    /**
-     * Get challenge for activation status blob encryption.
-     * @return Challenge for activation status blob encryption.
-     */
-    public String getChallenge() {
-        return challenge;
-    }
-
-    /**
-     * Set challenge for activation status blob encryption.
-     * @param challenge Challenge for activation status blob encryption. Exactly 16 bytes encoded in Base64 is expected.
-     */
-    public void setChallenge(String challenge) {
-        this.challenge = challenge;
-    }
 }

@@ -19,46 +19,25 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import lombok.Data;
+
 /**
  * Response object for vault unlock payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class VaultUnlockResponsePayload {
 
+    /**
+     * Encrypted vault encryption key.
+     */
     private String encryptedVaultEncryptionKey;
+
+    /**
+     * Flag indicating if the signature is valid.
+     */
     private boolean signatureValid;
 
-    /**
-     * Get encrypted vault encryption key.
-     * @return Encrypted vault encryption key.
-     */
-    public String getEncryptedVaultEncryptionKey() {
-        return encryptedVaultEncryptionKey;
-    }
-
-    /**
-     * Set encrypted vault encryption key.
-     * @param encryptedVaultEncryptionKey Encrypted vault encryption key.
-     */
-    public void setEncryptedVaultEncryptionKey(String encryptedVaultEncryptionKey) {
-        this.encryptedVaultEncryptionKey = encryptedVaultEncryptionKey;
-    }
-
-    /**
-     * Get whether signature is valid.
-     * @return Whether signature is valid.
-     */
-    public boolean isSignatureValid() {
-        return signatureValid;
-    }
-
-    /**
-     * Set whether signature is valid.
-     * @param signatureValid Whether signature is valid.
-     */
-    public void setSignatureValid(boolean signatureValid) {
-        this.signatureValid = signatureValid;
-    }
 }

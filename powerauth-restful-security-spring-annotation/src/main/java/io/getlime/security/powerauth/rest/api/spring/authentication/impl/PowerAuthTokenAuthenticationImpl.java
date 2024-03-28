@@ -23,6 +23,8 @@ import io.getlime.security.powerauth.http.PowerAuthHttpHeader;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthTokenAuthentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
+import java.io.Serial;
+
 /**
  * Implementation of the {@link PowerAuthTokenAuthentication} interface, with Spring Security objects.
  *
@@ -30,6 +32,8 @@ import org.springframework.security.authentication.AbstractAuthenticationToken;
  */
 public class PowerAuthTokenAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthTokenAuthentication {
 
+    @Serial
+    private static final long serialVersionUID = 1894157176884257385L;
     /**
      * Token ID.
      */

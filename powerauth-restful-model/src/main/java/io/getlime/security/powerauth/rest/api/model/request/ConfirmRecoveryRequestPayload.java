@@ -19,29 +19,20 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
+import lombok.Data;
+
 /**
  * Request object for confirm recovery code ECIES payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ConfirmRecoveryRequestPayload {
 
+    /**
+     * Recovery code.
+     */
     private String recoveryCode;
 
-    /**
-     * Get recovery code.
-     * @return Recovery code.
-     */
-    public String getRecoveryCode() {
-        return recoveryCode;
-    }
-
-    /**
-     * Set recovery code.
-     * @param recoveryCode Recovery code.
-     */
-    public void setRecoveryCode(String recoveryCode) {
-        this.recoveryCode = recoveryCode;
-    }
 }

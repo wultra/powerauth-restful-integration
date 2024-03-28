@@ -20,6 +20,7 @@
 package io.getlime.security.powerauth.rest.api.model.response;
 
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationRecovery;
+import lombok.Data;
 
 /**
  * Response object for activation layer 2.
@@ -27,75 +28,27 @@ import io.getlime.security.powerauth.rest.api.model.entity.ActivationRecovery;
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ActivationLayer2Response {
 
+    /**
+     * Activation ID.
+     */
     private String activationId;
+
+    /**
+     * Base64 encoded server public key.
+     */
     private String serverPublicKey;
+
+    /**
+     * Base64 encoded counter data.
+     */
     private String ctrData;
+
+    /**
+     * Activation recovery information.
+     */
     private ActivationRecovery activationRecovery;
-
-    /**
-     * Get activation ID.
-     * @return Activation ID.
-     */
-    public String getActivationId() {
-        return activationId;
-    }
-
-    /**
-     * Set activation ID.
-     * @param activationId Activation ID.
-     */
-    public void setActivationId(String activationId) {
-        this.activationId = activationId;
-    }
-
-    /**
-     * Get Base64 encoded server public key.
-     * @return Server public key.
-     */
-    public String getServerPublicKey() {
-        return serverPublicKey;
-    }
-
-    /**
-     * Set Base64 encoded server public key.
-     * @param serverPublicKey Server public key.
-     */
-    public void setServerPublicKey(String serverPublicKey) {
-        this.serverPublicKey = serverPublicKey;
-    }
-
-    /**
-     * Get Base64 encoded counter data.
-     * @return Counter data.
-     */
-    public String getCtrData() {
-        return ctrData;
-    }
-
-    /**
-     * Set Base64 encoded counter data.
-     * @param ctrData Counter data.
-     */
-    public void setCtrData(String ctrData) {
-        this.ctrData = ctrData;
-    }
-
-    /**
-     * Get activation recovery information.
-     * @return Activation recovery information.
-     */
-    public ActivationRecovery getActivationRecovery() {
-        return activationRecovery;
-    }
-
-    /**
-     * Set activation recovery information.
-     * @param activationRecovery Activation recovery information.
-     */
-    public void setActivationRecovery(ActivationRecovery activationRecovery) {
-        this.activationRecovery = activationRecovery;
-    }
 
 }

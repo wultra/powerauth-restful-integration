@@ -19,29 +19,20 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import lombok.Data;
+
 /**
  * Response object for upgrade payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class UpgradeResponsePayload {
 
+    /**
+     * Counter data.
+     */
     private String ctrData;
 
-    /**
-     * Get counter data.
-     * @return Counter data.
-     */
-    public String getCtrData() {
-        return ctrData;
-    }
-
-    /**
-     * Set counter data.
-     * @param ctrData Counter data.
-     */
-    public void setCtrData(String ctrData) {
-        this.ctrData = ctrData;
-    }
 }

@@ -26,6 +26,8 @@ import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import io.getlime.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.util.StringUtils;
+
 import java.io.IOException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -60,7 +62,7 @@ public class PowerAuthRequestFilterBase {
             // Parse the query parameters
             String queryString = httpRequest.getQueryString();
 
-            if (queryString != null && queryString.length() > 0) {
+            if (StringUtils.hasLength(queryString)) {
 
                 // Decode the query string
                 queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);

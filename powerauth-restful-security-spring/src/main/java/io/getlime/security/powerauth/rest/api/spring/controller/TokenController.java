@@ -22,21 +22,24 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 import io.getlime.core.rest.model.base.request.ObjectRequest;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
-import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
-import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.request.TokenRemoveRequest;
 import io.getlime.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import io.getlime.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import io.getlime.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import io.getlime.security.powerauth.rest.api.spring.service.TokenService;
+import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller responsible for publishing services related to simple token-based authentication.
@@ -68,7 +71,7 @@ public class TokenController {
     /**
      * Create token.
      * @param request ECIES encrypted create token request.
-     * @param authentication PowerAuth API authentication object.
+     * @param auth PowerAuth API authentication object.
      * @return ECIES encrypted create token response.
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
@@ -80,27 +83,25 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
     public EciesEncryptedResponse createToken(@RequestBody EciesEncryptedRequest request,
-                                              PowerAuthApiAuthentication authentication)
+                                              PowerAuthApiAuthentication auth)
             throws PowerAuthAuthenticationException {
         if (request == null) {
             logger.warn("Invalid request object in create token");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
-            logger.debug("Signature validation failed");
-            throw new PowerAuthSignatureInvalidException();
-        }
-        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
-        PowerAuthVersionUtil.checkMissingRequiredNonce(authentication.getVersion(), request.getNonce());
-        PowerAuthVersionUtil.checkMissingRequiredTimestamp(authentication.getVersion(), request.getTimestamp());
 
-        return tokenServiceV3.createToken(request, authentication);
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
+        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkMissingRequiredNonce(auth.getVersion(), request.getNonce());
+        PowerAuthVersionUtil.checkMissingRequiredTimestamp(auth.getVersion(), request.getTimestamp());
+
+        return tokenServiceV3.createToken(request, auth);
     }
 
     /**
      * Remove token.
      * @param request Remove token request.
-     * @param authentication PowerAuth API authentication object.
+     * @param auth PowerAuth API authentication object.
      * @return Remove token response.
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
@@ -112,18 +113,16 @@ public class TokenController {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
     })
     public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
-                                                           PowerAuthApiAuthentication authentication) throws PowerAuthAuthenticationException {
+                                                           PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in remove token");
             throw new PowerAuthInvalidRequestException();
         }
-        if (authentication == null || authentication.getActivationContext().getActivationId() == null) {
-            throw new PowerAuthSignatureInvalidException();
-        }
 
-        PowerAuthVersionUtil.checkUnsupportedVersion(authentication.getVersion());
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
+        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
 
-        TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), authentication);
+        TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), auth);
         return new ObjectResponse<>(response);
     }
 
