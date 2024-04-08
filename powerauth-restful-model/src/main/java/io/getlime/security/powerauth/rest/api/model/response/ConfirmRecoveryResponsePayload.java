@@ -19,29 +19,20 @@
  */
 package io.getlime.security.powerauth.rest.api.model.response;
 
+import lombok.Data;
+
 /**
  * Response object for confirm recovery code ECIES payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
+@Data
 public class ConfirmRecoveryResponsePayload {
 
+    /**
+     * Flag indicating whether recovery code was already confirmed.
+     */
     private boolean alreadyConfirmed;
 
-    /**
-     * Get whether recovery code was already confirmed.
-     * @return Whether recovery code was already confirmed.
-     */
-    public boolean getAlreadyConfirmed() {
-        return alreadyConfirmed;
-    }
-
-    /**
-     * Set whether recovery code was already confirmed.
-     * @param alreadyConfirmed Whether recovery code was already confirmed.
-     */
-    public void setAlreadyConfirmed(boolean alreadyConfirmed) {
-        this.alreadyConfirmed = alreadyConfirmed;
-    }
 }

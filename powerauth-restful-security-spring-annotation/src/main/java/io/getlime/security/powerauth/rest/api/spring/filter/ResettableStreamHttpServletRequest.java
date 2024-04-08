@@ -19,7 +19,6 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.filter;
 
-import com.google.common.io.ByteStreams;
 import jakarta.annotation.Nonnull;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
@@ -61,10 +60,9 @@ public class ResettableStreamHttpServletRequest extends HttpServletRequestWrappe
             return Arrays.copyOf(requestBody, requestBody.length);
         }
 
-        InputStream inputStream = super.getInputStream();
+        final InputStream inputStream = super.getInputStream();
 
-        //TODO: Replace by Java 9 InputStream.readAllBytes() method when relevant.
-        requestBody = ByteStreams.toByteArray(inputStream);
+        requestBody = inputStream.readAllBytes();
 
         bufferFilled = true;
 

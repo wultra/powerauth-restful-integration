@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -19,37 +19,16 @@
  */
 package io.getlime.security.powerauth.rest.api.model.request;
 
-import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import lombok.Data;
 
-import java.util.Map;
-
 /**
- * Request object for activation layer 1.
+ * Request to change activation name.
  *
- * @author Roman Strobl, roman.strobl@wultra.com
- *
+ * @author Petr Dvorak, petr@wultra.com
  */
 @Data
-public class ActivationLayer1Request {
+public class ActivationRenameRequest {
 
-    /**
-     * Activation type.
-     */
-    private ActivationType type;
+    private String activationName;
 
-    /**
-     * Identity attributes.
-     */
-    private Map<String, String> identityAttributes;
-
-    /**
-     * Custom attributes.
-     */
-    private Map<String, Object> customAttributes;
-
-    /**
-     * Encrypted activation data.
-     */
-    private EciesEncryptedRequest activationData;
 }

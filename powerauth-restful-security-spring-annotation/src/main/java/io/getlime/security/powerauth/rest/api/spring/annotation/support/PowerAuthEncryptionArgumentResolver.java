@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.lang.NonNull;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
@@ -102,17 +103,17 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     private boolean validateEciesScope(EncryptionContext eciesContext) {
         switch (eciesContext.getEncryptionScope()) {
             case ACTIVATION_SCOPE -> {
-                if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
+                if (!StringUtils.hasLength(eciesContext.getApplicationKey())) {
                     logger.warn("ECIES activation scope is invalid because of missing application key");
                     return false;
                 }
-                if (eciesContext.getActivationId() == null || eciesContext.getActivationId().isEmpty()) {
+                if (!StringUtils.hasLength(eciesContext.getActivationId())) {
                     logger.warn("ECIES activation scope is invalid because of missing activation ID");
                     return false;
                 }
             }
             case APPLICATION_SCOPE -> {
-                if (eciesContext.getApplicationKey() == null || eciesContext.getApplicationKey().isEmpty()) {
+                if (!StringUtils.hasLength(eciesContext.getApplicationKey())) {
                     logger.warn("ECIES application scope is invalid because of missing application key");
                     return false;
                 }

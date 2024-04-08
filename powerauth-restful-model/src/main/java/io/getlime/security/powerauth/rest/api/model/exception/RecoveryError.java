@@ -20,22 +20,24 @@
 package io.getlime.security.powerauth.rest.api.model.exception;
 
 import io.getlime.core.rest.model.base.entity.Error;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 /**
  * Recovery error.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
+@Data
+@NoArgsConstructor
+@EqualsAndHashCode(callSuper = true)
 public class RecoveryError extends Error {
 
-    private Integer currentRecoveryPukIndex;
-
     /**
-     * Default constructor.
+     * Current recovery PUK index.
      */
-    public RecoveryError() {
-        super();
-    }
+    private Integer currentRecoveryPukIndex;
 
     /**
      * Constructor with error code and message.
@@ -57,19 +59,4 @@ public class RecoveryError extends Error {
         this.currentRecoveryPukIndex = currentRecoveryPukIndex;
     }
 
-    /**
-     * Get current recovery PUK index.
-     * @return Current recovery PUK index.
-     */
-    public Integer getCurrentRecoveryPukIndex() {
-        return currentRecoveryPukIndex;
-    }
-
-    /**
-     * Set current recovery PUK index.
-     * @param currentRecoveryPukIndex Current recovery PUK index.
-     */
-    public void setCurrentRecoveryPukIndex(Integer currentRecoveryPukIndex) {
-        this.currentRecoveryPukIndex = currentRecoveryPukIndex;
-    }
 }

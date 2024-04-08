@@ -28,7 +28,7 @@
 
     <groupId>io.getlime.security</groupId>
     <artifactId>powerauth-restful-integration-parent</artifactId>
-    <version>1.6.0</version>
+    <version>1.7.0</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2017</inceptionYear>
@@ -82,17 +82,15 @@
         <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
         <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
         <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
-        <maven-source-plugin.version>3.3.0</maven-source-plugin.version>
+        <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
-        <spring-boot.version>3.1.6</spring-boot.version>
+        <spring-boot.version>3.2.4</spring-boot.version>
         <commons-text.version>1.11.0</commons-text.version>
         <bcprov.version>1.77</bcprov.version>
-        <!--  TODO (racansky, 2023-12-08) temporarily override the version 1.4.11 from spring boot version because of CVE  -->
-        <logback.version>1.4.14</logback.version>
 
-        <wultra-core.version>1.8.0</wultra-core.version>
-        <powerauth.version>1.6.0</powerauth.version>
-        <powerauth-crypto.version>1.6.0</powerauth-crypto.version>
+        <wultra-core.version>1.9.0</wultra-core.version>
+        <powerauth.version>1.7.0</powerauth.version>
+        <powerauth-crypto.version>1.7.0</powerauth-crypto.version>
     </properties>
 
     <dependencyManagement>
@@ -103,18 +101,6 @@
                 <version>${spring-boot.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <!--  TODO (racansky, 2023-12-08) temporarily override the version 1.4.11 from spring boot version because of CVE  -->
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-classic</artifactId>
-                <version>${logback.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>ch.qos.logback</groupId>
-                <artifactId>logback-core</artifactId>
-                <version>${logback.version}</version>
             </dependency>
 
             <!-- PowerAuth Restful Integration Dependencies -->
@@ -207,26 +193,19 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <version>${maven-enforcer-plugin.version}</version>
-                <dependencies>
-                    <dependency>
-                        <groupId>de.skuzzle.enforcer</groupId>
-                        <artifactId>restrict-imports-enforcer-rule</artifactId>
-                        <version>2.4.0</version>
-                    </dependency>
-                </dependencies>
                 <executions>
                     <execution>
-                        <id>enforce-banned-java-imports</id>
+                        <id>enforce-banned-dependencies</id>
                         <goals>
                             <goal>enforce</goal>
                         </goals>
                         <configuration>
                             <rules>
-                                <RestrictImports>
-                                    <!--  https://github.com/google/guava/issues/2960  -->
-                                    <reason>Guava depends on jsr305 but we prefer jakarta in our code</reason>
-                                    <bannedImport>javax.annotation.**</bannedImport>
-                                </RestrictImports>
+                                <bannedDependencies>
+                                    <excludes>
+                                        <exclude>com.google.guava:guava*:*:*:compile</exclude>
+                                    </excludes>
+                                </bannedDependencies>
                             </rules>
                         </configuration>
                     </execution>
