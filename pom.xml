@@ -86,7 +86,6 @@
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
         <spring-boot.version>3.2.5</spring-boot.version>
         <commons-text.version>1.12.0</commons-text.version>
-        <bcprov.version>1.78.1</bcprov.version>
 
         <wultra-core.version>1.10.0-SNAPSHOT</wultra-core.version>
         <powerauth.version>1.8.0-SNAPSHOT</powerauth.version>
@@ -122,13 +121,6 @@
                 <version>${wultra-core.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <!-- 3rd Party Dependencies -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk18on</artifactId>
-                <version>${bcprov.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
