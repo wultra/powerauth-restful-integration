@@ -87,9 +87,9 @@
         <spring-boot.version>3.3.1</spring-boot.version>
         <commons-text.version>1.12.0</commons-text.version>
 
-        <wultra-core.version>1.10.0-SNAPSHOT</wultra-core.version>
-        <powerauth.version>1.8.0-SNAPSHOT</powerauth.version>
-        <powerauth-crypto.version>1.8.0-SNAPSHOT</powerauth-crypto.version>
+        <wultra-core.version>1.10.0</wultra-core.version>
+        <powerauth.version>1.8.0</powerauth.version>
+        <powerauth-crypto.version>1.8.0</powerauth-crypto.version>
     </properties>
 
     <dependencyManagement>
