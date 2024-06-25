@@ -142,7 +142,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             // In case forced signature version is specified, use it in the request.
             // This occurs when verifying signature during upgrade before upgrade is committed.
             if (authentication.getForcedSignatureVersion() != null) {
-                verifyRequest.setForcedSignatureVersion(authentication.getForcedSignatureVersion().longValue());
+                verifyRequest.setForcedSignatureVersion(authentication.getForcedSignatureVersion());
             }
 
             final VerifySignatureResponse response;
