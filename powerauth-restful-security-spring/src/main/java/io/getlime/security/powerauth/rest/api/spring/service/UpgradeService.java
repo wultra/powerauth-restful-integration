@@ -92,11 +92,13 @@ public class UpgradeService {
             // Get ECIES headers
             final String activationId = header.getActivationId();
             final String applicationKey = header.getApplicationKey();
+            final String temporaryKeyId = header.getTemporaryKeyId();
 
             // Start upgrade on PowerAuth server
             final StartUpgradeRequest upgradeRequest = new StartUpgradeRequest();
             upgradeRequest.setActivationId(activationId);
             upgradeRequest.setApplicationKey(applicationKey);
+            upgradeRequest.setTemporaryKeyId(temporaryKeyId);
             upgradeRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             upgradeRequest.setEncryptedData(request.getEncryptedData());
             upgradeRequest.setMac(request.getMac());

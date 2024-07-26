@@ -96,11 +96,13 @@ public class TokenService {
             final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
+            final String temporaryKeyId = httpHeader.getTemporaryKeyId();
 
             // Create a token
             final CreateTokenRequest tokenRequest = new CreateTokenRequest();
             tokenRequest.setActivationId(activationId);
             tokenRequest.setApplicationKey(applicationKey);
+            tokenRequest.setTemporaryKeyId(temporaryKeyId);
             tokenRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             tokenRequest.setEncryptedData(request.getEncryptedData());
             tokenRequest.setMac(request.getMac());

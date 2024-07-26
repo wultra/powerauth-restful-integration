@@ -92,6 +92,7 @@ public class SecureVaultService {
             final String activationId = header.getActivationId();
             final String applicationKey = header.getApplicationKey();
             final String signature = header.getSignature();
+            final String temporaryKeyId = header.getTemporaryKeyId();
             final SignatureType signatureType = converter.convertFrom(header.getSignatureType());
             if (signatureType == null) {
                 logger.warn("Invalid signature type: {}", header.getSignatureType());
@@ -112,6 +113,7 @@ public class SecureVaultService {
             unlockRequest.setSignatureType(signatureType);
             unlockRequest.setSignatureVersion(signatureVersion);
             unlockRequest.setSignedData(data);
+            unlockRequest.setTemporaryKeyId(temporaryKeyId);
             unlockRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             unlockRequest.setEncryptedData(request.getEncryptedData());
             unlockRequest.setMac(request.getMac());

@@ -76,6 +76,7 @@ public class RecoveryService {
             final String activationId = authentication.getActivationContext().getActivationId();
             final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
+            final String temporaryKeyId = httpHeader.getTemporaryKeyId();
             if (activationId == null || applicationKey == null) {
                 logger.warn("PowerAuth confirm recovery failed because of invalid request");
                 throw new PowerAuthInvalidRequestException();
@@ -83,6 +84,7 @@ public class RecoveryService {
             final ConfirmRecoveryCodeRequest confirmRequest = new ConfirmRecoveryCodeRequest();
             confirmRequest.setActivationId(activationId);
             confirmRequest.setApplicationKey(applicationKey);
+            confirmRequest.setTemporaryKeyId(temporaryKeyId);
             confirmRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             confirmRequest.setEncryptedData(request.getEncryptedData());
             confirmRequest.setMac(request.getMac());

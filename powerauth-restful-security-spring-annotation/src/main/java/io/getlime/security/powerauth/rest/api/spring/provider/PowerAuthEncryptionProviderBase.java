@@ -80,7 +80,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @throws PowerAuthEncryptionException In case PowerAuth server call fails.
      */
     public abstract @Nonnull
-    PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
+    PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
 
     /**
      * Decrypt HTTP request body and construct object with ECIES data. Use the requestType parameter to specify
@@ -133,6 +133,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String version = encryptionContext.getVersion();
             final String applicationKey = encryptionContext.getApplicationKey();
             final String activationId = encryptionContext.getActivationId();
+            final String temporaryKeyId = encryptionContext.getTemporaryKeyId();
 
             // Prepare and validate EncryptedRequest object
             final EncryptedRequest encryptedRequest = new EncryptedRequest(
@@ -155,6 +156,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final PowerAuthEncryptorParameters encryptorParameters = getEciesDecryptorParameters(
                     activationId,
                     applicationKey,
+                    encryptionContext.getTemporaryKeyId(),
                     encryptedRequest.getEphemeralPublicKey(),
                     version,
                     encryptedRequest.getNonce(),
@@ -165,7 +167,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final byte[] sharedInfo2Base = Base64.getDecoder().decode(encryptorParameters.sharedInfo2());
             final ServerEncryptor serverEncryptor = encryptorFactory.getServerEncryptor(
                     encryptorData.getEncryptorId(),
-                    new EncryptorParameters(version, applicationKey, activationId),
+                    new EncryptorParameters(version, applicationKey, activationId, temporaryKeyId),
                     new ServerEncryptorSecrets(secretKeyBytes, sharedInfo2Base)
             );
 
@@ -298,7 +300,8 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String applicationKey = header.getApplicationKey();
             final String activationId = header.getActivationId();
             final String version = header.getVersion();
-            return new EncryptionContext(applicationKey, activationId, version, header, encryptorScope);
+            final String temporaryKeyId = header.getTemporaryKeyId();
+            return new EncryptionContext(applicationKey, activationId, version, temporaryKeyId, header, encryptorScope);
         } else {
             // Parse encryption HTTP header
             final PowerAuthEncryptionHttpHeader header = new PowerAuthEncryptionHttpHeader().fromValue(encryptionHttpHeader);
@@ -316,7 +319,8 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String applicationKey = header.getApplicationKey();
             final String activationId = header.getActivationId();
             final String version = header.getVersion();
-            return new EncryptionContext(applicationKey, activationId, version, header, encryptorScope);
+            final String temporaryKeyId = header.getTemporaryKeyId();
+            return new EncryptionContext(applicationKey, activationId, version, temporaryKeyId, header, encryptorScope);
         }
     }
 }

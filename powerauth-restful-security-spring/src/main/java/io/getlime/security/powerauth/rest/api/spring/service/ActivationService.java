@@ -127,6 +127,7 @@ public class ActivationService {
 
             final String applicationKey = eciesContext.getApplicationKey();
             final EciesEncryptedRequest activationData = request.getActivationData();
+            final String temporaryKeyId = eciesContext.getTemporaryKeyId();
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
             final String encryptedData = activationData.getEncryptedData();
             final String mac = activationData.getMac();
@@ -161,6 +162,7 @@ public class ActivationService {
                     prepareRequest.setActivationCode(activationCode);
                     prepareRequest.setApplicationKey(applicationKey);
                     prepareRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes(identity, customAttributes, context));
+                    prepareRequest.setTemporaryKeyId(temporaryKeyId);
                     prepareRequest.setEphemeralPublicKey(ephemeralPublicKey);
                     prepareRequest.setEncryptedData(encryptedData);
                     prepareRequest.setMac(mac);
@@ -285,6 +287,7 @@ public class ActivationService {
                     createRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
                     createRequest.setMaxFailureCount(maxFailedCount);
                     createRequest.setApplicationKey(applicationKey);
+                    createRequest.setTemporaryKeyId(temporaryKeyId);
                     createRequest.setEphemeralPublicKey(ephemeralPublicKey);
                     createRequest.setEncryptedData(encryptedData);
                     createRequest.setMac(mac);
@@ -393,6 +396,7 @@ public class ActivationService {
                     recoveryRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
                     recoveryRequest.setApplicationKey(applicationKey);
                     recoveryRequest.setMaxFailureCount(maxFailedCount);
+                    recoveryRequest.setTemporaryKeyId(temporaryKeyId);
                     recoveryRequest.setEphemeralPublicKey(ephemeralPublicKey);
                     recoveryRequest.setEncryptedData(encryptedData);
                     recoveryRequest.setMac(mac);

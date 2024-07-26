@@ -45,6 +45,10 @@ public class EncryptionContext {
      */
     private final String version;
     /**
+     * Temporary key ID.
+     */
+    private final String temporaryKeyId;
+    /**
      * PowerAuth HTTP header used for deriving ECIES encryption context.
      */
     private final PowerAuthHttpHeader httpHeader;
