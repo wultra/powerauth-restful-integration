@@ -28,7 +28,7 @@
 
     <groupId>io.getlime.security</groupId>
     <artifactId>powerauth-restful-integration-parent</artifactId>
-    <version>1.7.0</version>
+    <version>1.8.0</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2017</inceptionYear>
@@ -78,19 +78,18 @@
         <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
-        <maven-deploy-plugin.version>3.1.1</maven-deploy-plugin.version>
-        <maven-enforcer-plugin.version>3.4.1</maven-enforcer-plugin.version>
-        <maven-jar-plugin.version>3.3.0</maven-jar-plugin.version>
-        <maven-javadoc-plugin.version>3.6.3</maven-javadoc-plugin.version>
+        <maven-deploy-plugin.version>3.1.2</maven-deploy-plugin.version>
+        <maven-enforcer-plugin.version>3.5.0</maven-enforcer-plugin.version>
+        <maven-jar-plugin.version>3.4.2</maven-jar-plugin.version>
+        <maven-javadoc-plugin.version>3.8.0</maven-javadoc-plugin.version>
         <maven-source-plugin.version>3.3.1</maven-source-plugin.version>
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
-        <spring-boot.version>3.2.4</spring-boot.version>
-        <commons-text.version>1.11.0</commons-text.version>
-        <bcprov.version>1.77</bcprov.version>
+        <spring-boot.version>3.3.2</spring-boot.version>
+        <commons-text.version>1.12.0</commons-text.version>
 
-        <wultra-core.version>1.9.0</wultra-core.version>
-        <powerauth.version>1.7.0</powerauth.version>
-        <powerauth-crypto.version>1.7.0</powerauth-crypto.version>
+        <wultra-core.version>1.10.0</wultra-core.version>
+        <powerauth.version>1.8.0</powerauth.version>
+        <powerauth-crypto.version>1.8.0</powerauth-crypto.version>
     </properties>
 
     <dependencyManagement>
@@ -122,13 +121,6 @@
                 <version>${wultra-core.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
-            </dependency>
-
-            <!-- 3rd Party Dependencies -->
-            <dependency>
-                <groupId>org.bouncycastle</groupId>
-                <artifactId>bcprov-jdk18on</artifactId>
-                <version>${bcprov.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
