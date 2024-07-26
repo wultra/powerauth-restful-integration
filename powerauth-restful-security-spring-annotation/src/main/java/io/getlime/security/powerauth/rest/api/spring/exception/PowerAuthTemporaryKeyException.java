@@ -26,8 +26,8 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
  */
 public class PowerAuthTemporaryKeyException extends Exception {
 
-    private static final String DEFAULT_CODE = "ERR_SECURE_VAULT";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_SECURE_VAULT_INVALID";
+    private static final String DEFAULT_CODE = "ERR_TEMPORARY_KEY";
+    private static final String DEFAULT_ERROR = "POWER_AUTH_TEMPORARY_KEY_FAILURE";
 
     /**
      * Default constructor.

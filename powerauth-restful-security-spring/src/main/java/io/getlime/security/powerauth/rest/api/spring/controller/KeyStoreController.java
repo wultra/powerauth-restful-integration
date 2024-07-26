@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.*;
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-@RestController("activationControllerV3")
+@RestController("keyStoreControllerV3")
 @RequestMapping(value = "/pa/v3/keystore")
 public class KeyStoreController {
 
