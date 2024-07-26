@@ -132,4 +132,16 @@ public class PowerAuthExceptionHandler {
         return new ErrorResponse(ex.getDefaultCode(), ex.getMessage());
     }
 
+    /**
+     * Handle PowerAuthTemporaryKeyException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthTemporaryKeyException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthTemporaryKeyException(PowerAuthTemporaryKeyException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+    }
+
 }
