@@ -32,6 +32,7 @@ import io.getlime.security.powerauth.rest.api.model.response.OidcApplicationConf
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthApplicationConfigurationException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -42,6 +43,7 @@ import java.util.List;
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
 @Service
+@Slf4j
 @AllArgsConstructor
 public class ApplicationConfigurationService {
 
@@ -76,8 +78,8 @@ public class ApplicationConfigurationService {
                     .map(it -> convert(it, providerId))
                     .orElseThrow(() ->
                             new PowerAuthApplicationConfigurationException("Fetching application configuration failed, application ID: %s, provider ID: %s".formatted(applicationId, providerId)));
-        } catch (PowerAuthClientException | IllegalArgumentException ex) { // IllegalArgumentException may be thrown by the objectMapper
-            throw new PowerAuthApplicationConfigurationException("Fetching application configuration failed.", ex);
+        } catch (PowerAuthClientException e) {
+            throw new PowerAuthApplicationConfigurationException("Fetching application configuration failed.", e);
         }
     }
 
@@ -98,7 +100,12 @@ public class ApplicationConfigurationService {
     }
 
     private OidcApplicationConfigurationResponse convert(Object value) {
-        return objectMapper.convertValue(value, OidcApplicationConfigurationResponse.class);
+        try {
+            return objectMapper.convertValue(value, OidcApplicationConfigurationResponse.class);
+        } catch (IllegalArgumentException e) {
+            logger.warn("Unable to convert {}", value, e);
+            return null;
+        }
     }
 
     @Builder
