@@ -92,8 +92,7 @@ public class TokenController {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
-        PowerAuthVersionUtil.checkMissingRequiredNonce(auth.getVersion(), request.getNonce());
-        PowerAuthVersionUtil.checkMissingRequiredTimestamp(auth.getVersion(), request.getTimestamp());
+        PowerAuthVersionUtil.checkEciesParameters(auth.getVersion(), request);
 
         return tokenServiceV3.createToken(request, auth);
     }

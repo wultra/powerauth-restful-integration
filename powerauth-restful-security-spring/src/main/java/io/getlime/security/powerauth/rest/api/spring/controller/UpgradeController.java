@@ -98,8 +98,7 @@ public class UpgradeController {
         }
 
         PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
-        PowerAuthVersionUtil.checkMissingRequiredNonce(header.getVersion(), request.getNonce());
-        PowerAuthVersionUtil.checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp());
+        PowerAuthVersionUtil.checkEciesParameters(header.getVersion(), request);
 
         return upgradeService.upgradeStart(request, header);
 

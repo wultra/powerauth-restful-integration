@@ -85,8 +85,7 @@ public class RecoveryController {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
-        PowerAuthVersionUtil.checkMissingRequiredNonce(auth.getVersion(), request.getNonce());
-        PowerAuthVersionUtil.checkMissingRequiredTimestamp(auth.getVersion(), request.getTimestamp());
+        PowerAuthVersionUtil.checkEciesParameters(auth.getVersion(), request);
 
         return recoveryService.confirmRecoveryCode(request, auth);
     }
