@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
- * Controller that provides activation configuration.
+ * Controller that provides application configuration.
  *
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/pa/v3/config")
 @Slf4j
 @AllArgsConstructor
-public class ActivationConfigurationController {
+public class ApplicationConfigurationController {
 
     private ApplicationConfigurationService applicationConfigurationService;
 
