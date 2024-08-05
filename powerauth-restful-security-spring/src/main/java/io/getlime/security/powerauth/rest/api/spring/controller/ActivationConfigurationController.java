@@ -43,7 +43,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/pa/v3/config")
 @Slf4j
 @AllArgsConstructor
-public class OidcActivationConfigurationController {
+public class ActivationConfigurationController {
 
     private ApplicationConfigurationService applicationConfigurationService;
 
