@@ -25,7 +25,9 @@ import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.entity.ApplicationConfigurationItem;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.model.request.GetApplicationConfigRequest;
+import com.wultra.security.powerauth.client.model.request.LookupApplicationByAppKeyRequest;
 import com.wultra.security.powerauth.client.model.response.GetApplicationConfigResponse;
+import com.wultra.security.powerauth.client.model.response.LookupApplicationByAppKeyResponse;
 import io.getlime.security.powerauth.rest.api.model.response.OidcApplicationConfigurationResponse;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthApplicationConfigurationException;
 import lombok.AllArgsConstructor;
@@ -57,10 +59,12 @@ public class ApplicationConfigurationService {
      * @throws PowerAuthApplicationConfigurationException in case of any error
      */
     public OidcApplicationConfigurationResponse fetchOidcApplicationConfiguration(final OidcQuery query) throws PowerAuthApplicationConfigurationException {
-        final String applicationId = query.applicationId();
+        final String applicationKey = query.applicationKey();
         final String providerId = query.providerId();
 
         try {
+            final String applicationId = fetchApplicationIdByApplicationKey(applicationKey);
+
             final GetApplicationConfigRequest request = new GetApplicationConfigRequest();
             request.setApplicationId(applicationId);
             final GetApplicationConfigResponse applicationConfig = powerAuthClient.getApplicationConfig(request);
@@ -73,8 +77,16 @@ public class ApplicationConfigurationService {
                     .orElseThrow(() ->
                             new PowerAuthApplicationConfigurationException("Fetching application configuration failed, application ID: %s, provider ID: %s".formatted(applicationId, providerId)));
         } catch (PowerAuthClientException | IllegalArgumentException ex) { // IllegalArgumentException may be thrown by the objectMapper
-            throw new PowerAuthApplicationConfigurationException("Fetching application configuration failed, application ID: " + applicationId, ex);
+            throw new PowerAuthApplicationConfigurationException("Fetching application configuration failed.", ex);
         }
+    }
+
+    private String fetchApplicationIdByApplicationKey(final String applicationKey) throws PowerAuthClientException {
+        final LookupApplicationByAppKeyRequest request = new LookupApplicationByAppKeyRequest();
+        request.setApplicationKey(applicationKey);
+
+        final LookupApplicationByAppKeyResponse applicationResponse = powerAuthClient.lookupApplicationByAppKey(request);
+        return applicationResponse.getApplicationId();
     }
 
     private OidcApplicationConfigurationResponse convert(List<Object> values, String providerId) {
@@ -90,7 +102,7 @@ public class ApplicationConfigurationService {
     }
 
     @Builder
-    public record OidcQuery(String providerId, String applicationId) {
+    public record OidcQuery(String providerId, String applicationKey) {
     }
 
 }

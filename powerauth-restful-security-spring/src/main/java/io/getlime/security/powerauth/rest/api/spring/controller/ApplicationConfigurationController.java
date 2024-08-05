@@ -66,7 +66,7 @@ public class ApplicationConfigurationController {
 
         return applicationConfigurationService.fetchOidcApplicationConfiguration(ApplicationConfigurationService.OidcQuery.builder()
                 .providerId(request.getProviderId())
-                .applicationId(encryptionContext.getApplicationKey())
+                .applicationKey(encryptionContext.getApplicationKey())
                 .build());
     }
 

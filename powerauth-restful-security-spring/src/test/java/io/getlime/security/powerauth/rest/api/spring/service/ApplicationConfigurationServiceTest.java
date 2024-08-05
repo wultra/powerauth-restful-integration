@@ -23,7 +23,9 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.request.GetApplicationConfigRequest;
+import com.wultra.security.powerauth.client.model.request.LookupApplicationByAppKeyRequest;
 import com.wultra.security.powerauth.client.model.response.GetApplicationConfigResponse;
+import com.wultra.security.powerauth.client.model.response.LookupApplicationByAppKeyResponse;
 import io.getlime.security.powerauth.rest.api.model.response.OidcApplicationConfigurationResponse;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthApplicationConfigurationException;
 import org.junit.jupiter.api.Test;
@@ -56,15 +58,25 @@ class ApplicationConfigurationServiceTest {
 
     @Test
     void testFetchOidcApplicationConfiguration() throws Exception {
-        final GetApplicationConfigRequest request = new GetApplicationConfigRequest();
-        request.setApplicationId("application-1");
+        final LookupApplicationByAppKeyRequest lookupRequest = new LookupApplicationByAppKeyRequest();
+        lookupRequest.setApplicationKey("AIsOlIghnLztV2np3SANnQ==");
 
-        final GetApplicationConfigResponse response = createResponse();
-        when(powerAuthClient.getApplicationConfig(request))
-                .thenReturn(response);
+
+        final LookupApplicationByAppKeyResponse lookupResponse = new LookupApplicationByAppKeyResponse();
+        lookupResponse.setApplicationId("application-1");
+
+        when(powerAuthClient.lookupApplicationByAppKey(lookupRequest))
+                .thenReturn(lookupResponse);
+
+        final GetApplicationConfigRequest configRequest = new GetApplicationConfigRequest();
+        configRequest.setApplicationId("application-1");
+
+        final GetApplicationConfigResponse configResponse = createResponse();
+        when(powerAuthClient.getApplicationConfig(configRequest))
+                .thenReturn(configResponse);
 
         final OidcApplicationConfigurationResponse result = tested.fetchOidcApplicationConfiguration(ApplicationConfigurationService.OidcQuery.builder()
-                .applicationId("application-1")
+                .applicationKey("AIsOlIghnLztV2np3SANnQ==")
                 .providerId("xyz999")
                 .build());
 
@@ -77,15 +89,25 @@ class ApplicationConfigurationServiceTest {
 
     @Test
     void testFetchOidcApplicationConfiguration_invalidProviderId() throws Exception {
-        final GetApplicationConfigRequest request = new GetApplicationConfigRequest();
-        request.setApplicationId("application-1");
+        final LookupApplicationByAppKeyRequest lookupRequest = new LookupApplicationByAppKeyRequest();
+        lookupRequest.setApplicationKey("AIsOlIghnLztV2np3SANnQ==");
 
-        final GetApplicationConfigResponse response = createResponse();
-        when(powerAuthClient.getApplicationConfig(request))
-                .thenReturn(response);
+
+        final LookupApplicationByAppKeyResponse lookupResponse = new LookupApplicationByAppKeyResponse();
+        lookupResponse.setApplicationId("application-1");
+
+        when(powerAuthClient.lookupApplicationByAppKey(lookupRequest))
+                .thenReturn(lookupResponse);
+
+        final GetApplicationConfigRequest configRequest = new GetApplicationConfigRequest();
+        configRequest.setApplicationId("application-1");
+
+        final GetApplicationConfigResponse configResponse = createResponse();
+        when(powerAuthClient.getApplicationConfig(configRequest))
+                .thenReturn(configResponse);
 
         final Exception e = assertThrows(PowerAuthApplicationConfigurationException.class, () -> tested.fetchOidcApplicationConfiguration(ApplicationConfigurationService.OidcQuery.builder()
-                .applicationId("application-1")
+                .applicationKey("AIsOlIghnLztV2np3SANnQ==")
                 .providerId("non-existing")
                 .build()));
 
