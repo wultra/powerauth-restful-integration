@@ -36,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Service for application configuration.
@@ -94,6 +95,7 @@ public class ApplicationConfigurationService {
     private OidcApplicationConfigurationResponse convert(List<Object> values, String providerId) {
         return values.stream()
                 .map(this::convert)
+                .filter(Objects::nonNull)
                 .filter(it -> it.getProviderId().equals(providerId))
                 .findFirst()
                 .orElse(null);
