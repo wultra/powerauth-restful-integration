@@ -111,18 +111,10 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                     logger.warn("ECIES activation scope is invalid because of missing activation ID");
                     return false;
                 }
-                if ("3.3".equals(eciesContext.getVersion()) && !StringUtils.hasLength(eciesContext.getTemporaryKeyId())) {
-                    logger.warn("ECIES activation scope is invalid because of missing temporary key");
-                    return false;
-                }
             }
             case APPLICATION_SCOPE -> {
                 if (!StringUtils.hasLength(eciesContext.getApplicationKey())) {
                     logger.warn("ECIES application scope is invalid because of missing application key");
-                    return false;
-                }
-                if ("3.3".equals(eciesContext.getVersion()) && !StringUtils.hasLength(eciesContext.getTemporaryKeyId())) {
-                    logger.warn("ECIES activation scope is invalid because of missing temporary key");
                     return false;
                 }
             }

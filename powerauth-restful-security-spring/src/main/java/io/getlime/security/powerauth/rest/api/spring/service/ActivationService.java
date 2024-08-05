@@ -127,7 +127,7 @@ public class ActivationService {
 
             final String applicationKey = eciesContext.getApplicationKey();
             final EciesEncryptedRequest activationData = request.getActivationData();
-            final String temporaryKeyId = eciesContext.getTemporaryKeyId();
+            final String temporaryKeyId = activationData.getTemporaryKeyId();
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
             final String encryptedData = activationData.getEncryptedData();
             final String mac = activationData.getMac();
