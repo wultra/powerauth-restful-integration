@@ -29,7 +29,6 @@ import java.util.List;
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
 @Data
-//@SuperBuilder
 public class OidcApplicationConfigurationResponse {
 
     private String providerId;
