@@ -66,7 +66,7 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  */
 @RestController("activationControllerV3")
-@RequestMapping(value = "/pa/v3/activation")
+@RequestMapping("/pa/v3/activation")
 public class ActivationController {
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);

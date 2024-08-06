@@ -42,7 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  */
 @RestController("signatureControllerV3")
-@RequestMapping(value = "/pa/v3/signature")
+@RequestMapping("/pa/v3/signature")
 public class SignatureController {
 
     /**

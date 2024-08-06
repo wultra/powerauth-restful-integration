@@ -49,7 +49,7 @@ import jakarta.servlet.http.HttpServletRequest;
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 @RestController("secureVaultControllerV3")
-@RequestMapping(value = "/pa/v3/vault")
+@RequestMapping("/pa/v3/vault")
 public class SecureVaultController {
 
     private static final Logger logger = LoggerFactory.getLogger(SecureVaultController.class);

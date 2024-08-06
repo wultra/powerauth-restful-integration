@@ -50,7 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
  *
  */
 @RestController
-@RequestMapping(value = "/pa/v3/recovery")
+@RequestMapping("/pa/v3/recovery")
 public class RecoveryController {
 
     private static final Logger logger = LoggerFactory.getLogger(RecoveryController.class);
