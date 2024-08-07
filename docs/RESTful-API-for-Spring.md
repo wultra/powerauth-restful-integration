@@ -231,13 +231,12 @@ Note: Controllers that establish a session must not be on a context that is prot
 <!-- end -->
 
 ```java
-@Controller
-@RequestMapping(value = "session")
+@RestController
+@RequestMapping("session")
 public class AuthenticationController {
 
-    @RequestMapping(value = "login", method = RequestMethod.POST)
+    @PostMapping("login")
     @PowerAuth(resourceId = "/session/login")
-    @ResponseBody
     public MyApiResponse login(PowerAuthApiAuthentication auth) {
         if (auth == null) {
             // handle authentication failure
@@ -265,13 +264,12 @@ In case both `@RequestParam` and `@PathVariable` with the same name exist, the v
 Example of using dynamic resource ID:
 
 ```java
-@Controller
-@RequestMapping(value = "secured")
+@RestController
+@RequestMapping("secured")
 public class AuthenticationController {
 
-    @RequestMapping(value = "account/{id}", method = RequestMethod.POST)
+    @PostMapping("account/{id}")
     @PowerAuth(resourceId = "/secured/account/${id}?filter=${filter}")
-    @ResponseBody
     public MyAccountApiResponse changeAccountSettings(
             @PathVariable("id") String accountId, @RequestParam("filter") String filter,  PowerAuthApiAuthentication auth, PowerAuthActivation activation) {
         
@@ -296,15 +294,14 @@ public class AuthenticationController {
 In case you need a more low-level access to the signature verification, you can verify the signature manually using the `PowerAuthAuthenticationProvider` like this:
 
 ```java
-@Controller
-@RequestMapping(value = "session")
+@RestController
+@RequestMapping("session")
 public class AuthenticationController {
 
     @Autowired
     private PowerAuthAuthenticationProvider authenticationProvider;
 
-    @RequestMapping(value = "login", method = RequestMethod.POST)
-    @ResponseBody
+    @PostMapping("login")
     public ObjectResponse<String> login(
             @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, required = true) String signatureHeader,
             HttpServletRequest servletRequest) throws Exception {
@@ -357,16 +354,16 @@ This sample `@Controller` implementation illustrates how to use `@PowerAuthToken
 Please note that token based authentication should be used only for endpoints with lower sensitivity, such as simplified account information for widgets or smart watch, that are also not prone to replay attack.
 
 ```java
-@Controller
-@RequestMapping(value = "secure/account")
+@RestController
+@RequestMapping("secure/account")
 public class AuthenticationController {
 
     @Autowired
     private CustomService service;
 
-    @RequestMapping(value = "widget/balance", method = RequestMethod.GET)
+    @GetMapping("widget/balance")
     @PowerAuthToken
-    public @ResponseBody ObjectResponse<String> getBalance(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthAuthenticationException {
+    public ObjectResponse<String> getBalance(PowerAuthApiAuthentication apiAuthentication) throws PowerAuthAuthenticationException {
         if (apiAuthentication == null) {
             throw new PowerAuthTokenInvalidException();
         } else {
@@ -391,10 +388,10 @@ You can encrypt data in `application` scope (non-personalized) using following p
 
 ```java
 @RestController
-@RequestMapping(value = "/exchange")
+@RequestMapping("/exchange")
 public class EncryptedDataExchangeController {
 
-    @RequestMapping(value = "application", method = RequestMethod.POST)
+    @PostMapping("application")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
     public DataExchangeResponse exchangeInApplicationScope(@EncryptedRequestBody DataExchangeRequest request,
                                                            EncryptionContext encryptionContext) throws PowerAuthEncryptionException {
@@ -419,10 +416,10 @@ You can encrypt data in `activation` scope (personalized) using following patter
 
 ```java
 @RestController
-@RequestMapping(value = "/exchange")
+@RequestMapping("/exchange")
 public class EncryptedDataExchangeController {
 
-    @RequestMapping(value = "activation", method = RequestMethod.POST)
+    @PostMapping("activation")
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public DataExchangeResponse exchangeInActivationScope(@EncryptedRequestBody DataExchangeRequest request,
                                                           EncryptionContext encryptionContext) throws PowerAuthEncryptionException {
@@ -447,10 +444,10 @@ You can also sign the data before encryption and perform signature verification 
 
 ```java
 @RestController
-@RequestMapping(value = "/exchange")
+@RequestMapping("/exchange")
 public class EncryptedDataExchangeController {
 
-    @RequestMapping(value = "signed", method = RequestMethod.POST)
+    @PostMapping("signed")
     @PowerAuth(resourceId = "/exchange/signed")
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public DataExchangeResponse exchangeSignedAndEncryptedData(@EncryptedRequestBody DataExchangeRequest request,
