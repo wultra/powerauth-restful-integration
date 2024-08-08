@@ -177,19 +177,13 @@ public class ActivationService {
                     final String activationId = response.getActivationId();
                     final String applicationId = response.getApplicationId();
 
-                    // Process user info
-                    Map<String, Object> userInfo = null;
-                    if (userInfoProvider != null) {
-                        final UserInfoContext userInfoContext = UserInfoContext.builder()
-                                .stage(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE)
-                                .userId(userId)
-                                .activationId(activationId)
-                                .applicationId(applicationId)
-                                .build();
-                        if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
-                            userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
-                        }
-                    }
+                    final UserInfoContext userInfoContext = UserInfoContext.builder()
+                            .stage(UserInfoStage.ACTIVATION_PROCESS_ACTIVATION_CODE)
+                            .userId(userId)
+                            .activationId(activationId)
+                            .applicationId(applicationId)
+                            .build();
+                    final Map<String, Object> userInfo = processUserInfo(userInfoContext);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
@@ -215,15 +209,7 @@ public class ActivationService {
                     } else {
                         // Otherwise check if activation should be committed instantly and if yes, perform commit.
                         if (activationProvider != null && activationProvider.shouldAutoCommitActivation(identity, customAttributes, activationId, userId, applicationId, ActivationType.CODE, context)) {
-                            final CommitActivationRequest commitRequest = new CommitActivationRequest();
-                            commitRequest.setActivationId(activationId);
-                            commitRequest.setExternalUserId(null);
-                            final CommitActivationResponse commitResponse = powerAuthClient.commitActivation(
-                                    commitRequest,
-                                    httpCustomizationService.getQueryParams(),
-                                    httpCustomizationService.getHttpHeaders()
-                            );
-
+                            final CommitActivationResponse commitResponse = commitActivation(activationId);
                             notifyActivationCommit = commitResponse.isActivated();
                         }
                     }
@@ -300,19 +286,13 @@ public class ActivationService {
                     final String activationId = response.getActivationId();
                     final String applicationId = response.getApplicationId();
 
-                    // Process user info
-                    Map<String, Object> userInfo = null;
-                    if (userInfoProvider != null) {
-                        final UserInfoContext userInfoContext = UserInfoContext.builder()
-                                .stage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
-                                .userId(userId)
-                                .activationId(activationId)
-                                .applicationId(applicationId)
-                                .build();
-                        if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
-                            userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
-                        }
-                    }
+                    final UserInfoContext userInfoContext = UserInfoContext.builder()
+                            .stage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
+                            .userId(userId)
+                            .activationId(activationId)
+                            .applicationId(applicationId)
+                            .build();
+                    final Map<String, Object> userInfo = processUserInfo(userInfoContext);
 
                     // Process custom attributes using a custom logic
                     final Map<String, Object> processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, activationId, userId, applicationId, ActivationType.CUSTOM, context);
@@ -332,14 +312,7 @@ public class ActivationService {
 
                     // Check if activation should be committed instantly and if yes, perform commit
                     if (activationProvider.shouldAutoCommitActivation(identity, customAttributes, activationId, userId, applicationId, ActivationType.CUSTOM, context)) {
-                        final CommitActivationRequest commitRequest = new CommitActivationRequest();
-                        commitRequest.setActivationId(activationId);
-                        commitRequest.setExternalUserId(null);
-                        final CommitActivationResponse commitResponse = powerAuthClient.commitActivation(
-                                commitRequest,
-                                httpCustomizationService.getQueryParams(),
-                                httpCustomizationService.getHttpHeaders()
-                        );
+                        final CommitActivationResponse commitResponse = commitActivation(activationId);
                         if (commitResponse.isActivated()) {
                             activationProvider.activationWasCommitted(identity, customAttributes, activationId, userId, applicationId, ActivationType.CUSTOM, context);
                         }
@@ -409,19 +382,13 @@ public class ActivationService {
                     final String activationId = response.getActivationId();
                     final String applicationId = response.getApplicationId();
 
-                    // Process user info
-                    Map<String, Object> userInfo = null;
-                    if (userInfoProvider != null) {
-                        final UserInfoContext userInfoContext = UserInfoContext.builder()
-                                .stage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY)
-                                .userId(userId)
-                                .activationId(activationId)
-                                .applicationId(applicationId)
-                                .build();
-                        if (userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
-                            userInfo = userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
-                        }
-                    }
+                    final UserInfoContext userInfoContext = UserInfoContext.builder()
+                            .stage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY)
+                            .userId(userId)
+                            .activationId(activationId)
+                            .applicationId(applicationId)
+                            .build();
+                    final Map<String, Object> userInfo = processUserInfo(userInfoContext);
 
                     Map<String, Object> processedCustomAttributes = customAttributes;
                     // In case a custom activation provider is enabled, process custom attributes and save any flags
@@ -442,14 +409,7 @@ public class ActivationService {
 
                     // Automatically commit activation by default, the optional activation provider can override automatic commit
                     if (activationProvider == null || activationProvider.shouldAutoCommitActivation(identity, customAttributes, activationId, userId, applicationId, ActivationType.RECOVERY, context)) {
-                        final CommitActivationRequest commitRequest = new CommitActivationRequest();
-                        commitRequest.setActivationId(activationId);
-                        commitRequest.setExternalUserId(null);
-                        final CommitActivationResponse commitResponse = powerAuthClient.commitActivation(
-                                commitRequest,
-                                httpCustomizationService.getQueryParams(),
-                                httpCustomizationService.getHttpHeaders()
-                        );
+                        final CommitActivationResponse commitResponse = commitActivation(activationId);
                         if (activationProvider != null && commitResponse.isActivated()) {
                             activationProvider.activationWasCommitted(identity, customAttributes, activationId, userId, applicationId, ActivationType.RECOVERY, context);
                         }
@@ -482,6 +442,24 @@ public class ActivationService {
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
+    }
+
+    private CommitActivationResponse commitActivation(final String activationId) throws PowerAuthClientException {
+        final CommitActivationRequest commitRequest = new CommitActivationRequest();
+        commitRequest.setActivationId(activationId);
+        commitRequest.setExternalUserId(null);
+        return powerAuthClient.commitActivation(
+                commitRequest,
+                httpCustomizationService.getQueryParams(),
+                httpCustomizationService.getHttpHeaders()
+        );
+    }
+
+    private Map<String, Object> processUserInfo(final UserInfoContext userInfoContext) {
+        if (userInfoProvider != null && userInfoProvider.shouldReturnUserInfo(userInfoContext)) {
+            return userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
+        }
+        return null;
     }
 
     private boolean shouldGenerateRecoveryCodes(final Map<String, String> identity, final Map<String, Object> customAttributes, final Map<String, Object> context) throws PowerAuthActivationException {
