@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,35 +17,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.entity;
+package io.getlime.security.powerauth.rest.api.spring.service.oidc;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Activation type specifying how activation will be handled.
+ * OIDC client authentication methods.
  *
- * @author Roman Strobl, roman.strobl@wultra.com
+ * @author Lubos Racansky, lubos.racansky@wultra.com
  */
-public enum ActivationType {
+enum ClientAuthenticationMethod {
 
-    /**
-     * Activation via activation code.
-     */
-    CODE,
+    @JsonProperty("client_secret_basic")
+    CLIENT_SECRET_BASIC,
 
-    /**
-     * Activation via custom credentials.
-     * @deprecated Use {@link #DIRECT} instead.
-     */
-    @Deprecated
-    CUSTOM,
+    @JsonProperty("client_secret_post")
+    CLIENT_SECRET_POST
 
-    /**
-     * Direct activation, alias for {@link #CUSTOM}.
-     * The method could be specified, for example {@code OIDC}.
-     */
-    DIRECT,
-
-    /**
-     * Activation via recovery code.
-     */
-    RECOVERY
 }

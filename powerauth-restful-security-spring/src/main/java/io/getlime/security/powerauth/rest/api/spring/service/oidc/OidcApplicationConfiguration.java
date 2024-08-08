@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,35 +17,46 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.entity;
+package io.getlime.security.powerauth.rest.api.spring.service.oidc;
+
+import lombok.Getter;
+import lombok.Setter;
 
 /**
- * Activation type specifying how activation will be handled.
+ * OIDC activation configuration.
  *
- * @author Roman Strobl, roman.strobl@wultra.com
+ * @author Lubos Racansky, lubos.racansky@wultra.com
  */
-public enum ActivationType {
+@Getter
+@Setter
+public class OidcApplicationConfiguration {
+
+    private String providerId;
+
+    private String clientId;
+
+    private String clientSecret;
 
     /**
-     * Activation via activation code.
+     * Optional. If emtpy, {@code client_secret_basic} is used.
      */
-    CODE,
+    private ClientAuthenticationMethod clientAuthenticationMethod;
+
+    private String issuerUri;
+
+    private String tokenUri;
+
+    private String jwkSetUri;
+
+    private String redirectUri;
+
+    private String scopes;
+
+    private String authorizeUri;
 
     /**
-     * Activation via custom credentials.
-     * @deprecated Use {@link #DIRECT} instead.
+     * Optional. If empty, {code RS256} is used.
      */
-    @Deprecated
-    CUSTOM,
+    private String signatureAlgorithm;
 
-    /**
-     * Direct activation, alias for {@link #CUSTOM}.
-     * The method could be specified, for example {@code OIDC}.
-     */
-    DIRECT,
-
-    /**
-     * Activation via recovery code.
-     */
-    RECOVERY
 }
