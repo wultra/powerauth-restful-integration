@@ -43,6 +43,8 @@ import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 import io.getlime.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
+import io.getlime.security.powerauth.rest.api.spring.service.oidc.OAuth2Handler;
+import io.getlime.security.powerauth.rest.api.spring.service.oidc.OAuthActivationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +73,7 @@ public class ActivationService {
     private final PowerAuthClient powerAuthClient;
     private final HttpCustomizationService httpCustomizationService;
     private final ActivationContextConverter activationContextConverter;
+    private final OAuth2Handler oAuth2Handler;
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
     private CustomActivationProvider activationProvider;
@@ -84,10 +87,16 @@ public class ActivationService {
      * @param activationContextConverter Activation context converter.
      */
     @Autowired
-    public ActivationService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService, ActivationContextConverter activationContextConverter) {
+    public ActivationService(
+            PowerAuthClient powerAuthClient,
+            HttpCustomizationService httpCustomizationService,
+            ActivationContextConverter activationContextConverter,
+            OAuth2Handler oAuth2Handler) {
+
         this.powerAuthClient = powerAuthClient;
         this.httpCustomizationService = httpCustomizationService;
         this.activationContextConverter = activationContextConverter;
+        this.oAuth2Handler = oAuth2Handler;
     }
 
     /**
@@ -441,7 +450,15 @@ public class ActivationService {
 
     private ActivationLayer1Response processOidcActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthClientException {
         logger.debug("Processing direct OIDC activation.");
-        final String userId = ""; // TODO Lubos call OIDC
+
+        final Map<String, String> identity = request.getIdentityAttributes();
+        final OAuthActivationContext oAuthActivationContext = OAuthActivationContext.builder()
+                .clientId(identity.get("clientId"))
+                .code(identity.get("code"))
+                .nonce(identity.get("nonce"))
+                .build();
+
+        final String userId = oAuth2Handler.retrieveUserId(oAuthActivationContext);
 
         final EciesEncryptedRequest activationData = request.getActivationData();
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());

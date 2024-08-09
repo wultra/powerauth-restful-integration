@@ -33,15 +33,15 @@ import org.springframework.web.reactive.function.client.WebClient;
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
 @Slf4j
-public class OAuth2TokenClient {
+class OAuth2TokenClient {
 
     /**
-     * Call token endpoint.
+     * Call token endpoint using {@code authorization_code} flow. Mind that <strong>the token is not verified yet</strong>.
      *
      * @param tokenRequest Token request.
      * @return Token response.
      */
-    public TokenResponse fetchTokenResponse(final TokenRequest tokenRequest) {
+    TokenResponse fetchTokenResponse(final TokenRequest tokenRequest) {
         final WebClient webClient = WebClient.builder()
                 .baseUrl(tokenRequest.getTokenUrl())
                 .build();
@@ -61,5 +61,4 @@ public class OAuth2TokenClient {
                 .bodyToMono(TokenResponse.class)
                 .block();
     }
-
 }

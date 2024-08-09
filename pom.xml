@@ -86,8 +86,6 @@
         <maven-war-plugin.version>3.4.0</maven-war-plugin.version>
         <spring-boot.version>3.3.2</spring-boot.version>
         <commons-text.version>1.12.0</commons-text.version>
-        <java-jwt.version>4.4.0</java-jwt.version>
-        <jwks-rsa.version>0.22.1</jwks-rsa.version>
 
         <wultra-core.version>1.11.0-SNAPSHOT</wultra-core.version>
         <powerauth.version>1.9.0-SNAPSHOT</powerauth.version>
@@ -124,19 +122,6 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
-
-            <!--  Other Dependencies  -->
-            <dependency>
-                <groupId>com.auth0</groupId>
-                <artifactId>java-jwt</artifactId>
-                <version>${java-jwt.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.auth0</groupId>
-                <artifactId>jwks-rsa</artifactId>
-                <version>${jwks-rsa.version}</version>
-            </dependency>
         </dependencies>
     </dependencyManagement>
 
@@ -145,6 +130,14 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
+        </dependency>
+
+        <!-- For run at Apple M1 architecture -->
+        <dependency>
+            <groupId>io.netty</groupId>
+            <artifactId>netty-resolver-dns-native-macos</artifactId>
+            <scope>runtime</scope>
+            <classifier>osx-aarch_64</classifier>
         </dependency>
     </dependencies>
 

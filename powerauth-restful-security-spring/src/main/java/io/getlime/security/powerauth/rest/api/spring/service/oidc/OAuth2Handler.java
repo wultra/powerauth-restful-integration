@@ -19,154 +19,143 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.service.oidc;
 
-import com.auth0.jwk.JwkException;
-import com.auth0.jwk.JwkProvider;
-import com.auth0.jwk.JwkProviderBuilder;
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTVerifier;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.DecodedJWT;
-import com.auth0.jwt.interfaces.ECDSAKeyProvider;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.security.oauth2.core.DelegatingOAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2Error;
+import org.springframework.security.oauth2.core.OAuth2TokenValidator;
+import org.springframework.security.oauth2.core.OAuth2TokenValidatorResult;
+import org.springframework.security.oauth2.jose.jws.JwsAlgorithms;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.jwt.JwtValidators;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.stereotype.Component;
 
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+import java.util.List;
 
 /**
+ * Wrap OAuth client calls, add other logic such as validation.
+ *
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
+@Component
+@AllArgsConstructor
 @Slf4j
 public class OAuth2Handler {
 
-    private TokenResponse fetchTokenResponse(final String clientId, String clientSecret, final String code) {
-        // TODO rewrite to restClient
-        final RestTemplate restTemplate = new RestTemplate();
+    private static final String ERROR_CODE_INVALID_TOKEN = "invalid_token";
 
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+    private final OAuth2TokenClient tokenClient;
 
-        // Create a map of the key/value pairs that we want to supply in the body of the request
-        final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
-        map.add("grant_type", "authorization_code");
-        map.add("client_id", clientId);
-        map.add("client_secret", clientSecret);
-        map.add("code", code);
-        final String redirectUri = "TODO"; //TODO
-        map.add("redirect_uri", redirectUri);
-
-        final HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
-
-        // TODO
-        final String url = "TODO";
-        final ResponseEntity<TokenResponse> response =
-                restTemplate.exchange(url,
-                        HttpMethod.POST,
-                        entity,
-                        TokenResponse.class);
-
-        return response.getBody();
-    }
-
-    public static void main(String[] args) throws Exception {
-
-        final String issuerUrl = "TODO";
-        final String token = fetchIdToken(issuerUrl);
-
-        final String nonce = "top-secret";
-
-        final DecodedJWT decodedJWT = verifyAndDecode(token, issuerUrl, nonce);
-        final String subject = decodedJWT.getSubject();
-        logger.info("Got subject: {}", subject);
-    }
-
-    private static DecodedJWT verifyAndDecode(final String token, final String issuerUrl, final String nonce) {
-        final String algorithmName = JWT.decode(token).getAlgorithm();
-        logger.debug("Using algorithm: {}", algorithmName);
-        final Algorithm algorithm = switch (algorithmName) {
-            case "RS256" -> Algorithm.RSA256(createRSAKeyProvider(issuerUrl));
-            case "RS384" -> Algorithm.RSA384(createRSAKeyProvider(issuerUrl));
-            case "RS512" -> Algorithm.RSA512(createRSAKeyProvider(issuerUrl));
-            case "ES256" -> Algorithm.ECDSA256(createECDSAKeyProvider(issuerUrl));
-            case "ES384" -> Algorithm.ECDSA384(createECDSAKeyProvider(issuerUrl));
-            case "ES512" -> Algorithm.ECDSA512(createECDSAKeyProvider(issuerUrl));
-            default -> throw new IllegalArgumentException("Unsupported algorithm: " + algorithmName);
-        };
-
-        final JWTVerifier verifier = JWT.require(algorithm)
-                .withIssuer(issuerUrl)
-                .withClaim("nonce", nonce)
+    /**
+     * Retrieve user ID from a token, using {@code authorization_code} flow. The token is verified first.
+     *
+     * @param request Parameter object.
+     * @return User ID.
+     */
+    public String retrieveUserId(final OAuthActivationContext request) {
+        // TODO error handling
+        final TokenRequest tokenRequest = TokenRequest.builder()
+                .clientId(request.getClientId())
+                .code(request.getCode())
+                // TODO load the application configuration
+                //.clientSecret()
+                //.tokenUrl()
+                //.redirectUri()
                 .build();
-        return verifier.verify(token);
+        logger.debug("Issuing token, clientId: {}", request.getClientId());
+        final TokenResponse tokenResponse = tokenClient.fetchTokenResponse(tokenRequest);
+
+        logger.debug("Token issued, verifying,  clientId: {}", request.getClientId());
+        final String issuerUrl = "";
+        final String audience = "";
+        final Jwt jwt = verifyAndDecode(tokenResponse, issuerUrl, request.getNonce(), audience);
+        return jwt.getSubject();
     }
 
-    private static String fetchIdToken(final String issuerUrl) {
-        return "TODO";
-    }
-
-    private static ECDSAKeyProvider createECDSAKeyProvider(final String issuerUrl) {
-        final JwkProvider jwkProvider = createJwkProvider(issuerUrl);
-
-        return new ECDSAKeyProvider() {
-            @Override
-            public ECPublicKey getPublicKeyById(final String kid) {
-                try {
-                    logger.debug("Requesting public key  id: {}, {}", kid, issuerUrl);
-                    return (ECPublicKey) jwkProvider.get(kid).getPublicKey();
-                } catch (JwkException e) {
-                    logger.error("Unable to get public key id: {}, {}", kid, issuerUrl, e);
-                    return null;
-                }
-            }
-
-            @Override
-            public ECPrivateKey getPrivateKey() {
-                return null;
-            }
-
-            @Override
-            public String getPrivateKeyId() {
-                return null;
-            }
-        };
-    }
-
-    private static RSAKeyProvider createRSAKeyProvider(final String issuerUrl) {
-        final JwkProvider jwkProvider = createJwkProvider(issuerUrl);
-
-        return new RSAKeyProvider() {
-            @Override
-            public RSAPublicKey getPublicKeyById(String kid) {
-                try {
-                    logger.debug("Requesting public key  id: {}, {}", kid, issuerUrl);
-                    return (RSAPublicKey) jwkProvider.get(kid).getPublicKey();
-                } catch (JwkException e) {
-                    logger.error("Unable to get public key id: {}, {}", kid, issuerUrl, e);
-                    return null;
-                }
-            }
-
-            @Override
-            public RSAPrivateKey getPrivateKey() {
-                return null;
-            }
-
-            @Override
-            public String getPrivateKeyId() {
-                return null;
-            }
-        };
-    }
-
-    private static JwkProvider createJwkProvider(final String issuerUrl) {
-        return new JwkProviderBuilder(issuerUrl)
-                .cached(false)
+    // TODO improve parameter object
+    private Jwt verifyAndDecode(final TokenResponse tokenResponse, final String issuerUrl, final String nonce, final String audience) {
+        final NimbusJwtDecoder jwtDecoder = NimbusJwtDecoder.withIssuerLocation(issuerUrl)
+                .jwsAlgorithms(algorithms ->
+                        algorithms.addAll(List.of(
+                                SignatureAlgorithm.RS256,
+                                SignatureAlgorithm.RS384,
+                                SignatureAlgorithm.RS512,
+                                SignatureAlgorithm.ES256,
+                                SignatureAlgorithm.ES384,
+                                SignatureAlgorithm.ES512)))
                 .build();
+
+        final DelegatingOAuth2TokenValidator<Jwt> validator = new DelegatingOAuth2TokenValidator<>(
+                JwtValidators.createDefaultWithIssuer(issuerUrl),
+                createAudienceValidator(audience),
+                createNonceValidator(nonce),
+                createAtHashValidator(tokenResponse.getAccessToken()));
+        jwtDecoder.setJwtValidator(validator);
+        return jwtDecoder.decode(tokenResponse.getAccessToken());
+    }
+
+    private static OAuth2TokenValidator<Jwt> createAtHashValidator(final String accessToken) {
+        return idToken -> {
+            final String atHash = idToken.getClaimAsString("at_hash");
+            if (atHash == null || isAtHashValid(accessToken, atHash, idToken.getHeaders().get("alg").toString())) {
+                return OAuth2TokenValidatorResult.success();
+            }
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error(ERROR_CODE_INVALID_TOKEN, "The at_hash does not match", null));
+        };
+    }
+
+    private static  OAuth2TokenValidator<Jwt> createNonceValidator(final String nonce) {
+        return idToken -> {
+            if (nonce.equals(idToken.getClaimAsString("nonce"))) {
+                return OAuth2TokenValidatorResult.success();
+            }
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error(ERROR_CODE_INVALID_TOKEN, "The nonce does not match", null));
+        };
+    }
+
+    private static OAuth2TokenValidator<Jwt> createAudienceValidator(final String audience) {
+        return idToken -> {
+            if (idToken.getAudience().contains(audience)) {
+                return OAuth2TokenValidatorResult.success();
+            }
+            return OAuth2TokenValidatorResult.failure(new OAuth2Error(ERROR_CODE_INVALID_TOKEN, "The required audience '%s' is missing".formatted(audience), null));
+        };
+    }
+
+    /**
+     * <ol>
+     *   <li>Hash the octets of the ASCII representation of the access_token with the hash algorithm for the alg Header Parameter of the ID Token's JOSE Header. For instance, if the alg is RS256, the hash algorithm used is SHA-256.</li>
+     *   <li>Take the left-most half of the hash and base64url-encode it.</li>
+     *   <li>The value of at_hash in the ID Token MUST match the value produced in the previous step.</li>
+     * </ol>
+     *
+     * @see <a href="https://openid.net/specs/openid-connect-core-1_0.html#ImplicitTokenValidation">3.2.2.9. Access Token Validation</a>
+     */
+    private static boolean isAtHashValid(final String accessToken, final String atHash, final String signatureAlgorithm) {
+        try {
+            final MessageDigest digest = MessageDigest.getInstance(mapHashAlgorithm(signatureAlgorithm));
+            final byte[] hash = digest.digest(accessToken.getBytes());
+            final byte[] leftHalf = new byte[hash.length / 2];
+            System.arraycopy(hash, 0, leftHalf, 0, leftHalf.length);
+            final String computedAtHash = Base64.getUrlEncoder().withoutPadding().encodeToString(leftHalf);
+            return atHash.equals(computedAtHash);
+        } catch (NoSuchAlgorithmException e) {
+            logger.error("Unable to validate at_hash", e);
+            return false;
+        }
+    }
+
+    private static String mapHashAlgorithm(final String signatureAlgorithm) throws NoSuchAlgorithmException {
+        return switch (signatureAlgorithm) {
+            case JwsAlgorithms.RS256, JwsAlgorithms.ES256 -> "SHA-256";
+            case JwsAlgorithms.RS384, JwsAlgorithms.ES384 -> "SHA-384";
+            case JwsAlgorithms.RS512, JwsAlgorithms.ES512 -> "SHA-512";
+            default -> throw new NoSuchAlgorithmException("Unsupported signature algorithm: " + signatureAlgorithm);
+        };
     }
 }

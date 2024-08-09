@@ -23,18 +23,16 @@ import lombok.Builder;
 import lombok.Getter;
 
 /**
- * OIDC token endpoint request.
+ * OAuth activation context.
  *
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
 @Builder
 @Getter
-class TokenRequest {
+public class OAuthActivationContext {
 
     private String clientId;
-    private String clientSecret;
     private String code;
-    private String tokenUrl;
-    private String redirectUri;
+    private String nonce;
 
 }
