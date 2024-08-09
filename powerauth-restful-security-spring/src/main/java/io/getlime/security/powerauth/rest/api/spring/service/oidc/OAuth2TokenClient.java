@@ -20,24 +20,32 @@
 package io.getlime.security.powerauth.rest.api.spring.service.oidc;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /**
+ * OAuth2 client.
+ *
  * @author Lubos Racansky, lubos.racansky@wultra.com
  */
 @Slf4j
 public class OAuth2TokenClient {
 
-    private TokenResponse fetchTokenResponse(final TokenRequest tokenRequest) {
-        final RestTemplate restTemplate = new RestTemplate();
+    /**
+     * Call token endpoint.
+     *
+     * @param tokenRequest Token request.
+     * @return Token response.
+     */
+    public TokenResponse fetchTokenResponse(final TokenRequest tokenRequest) {
+        final WebClient webClient = WebClient.builder()
+                .baseUrl(tokenRequest.getTokenUrl())
+                .build();
 
-        final HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-        // Create a map of the key/value pairs that we want to supply in the body of the request
         final MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
         map.add("grant_type", "authorization_code");
         map.add("client_id", tokenRequest.getClientId());
@@ -45,15 +53,13 @@ public class OAuth2TokenClient {
         map.add("code", tokenRequest.getCode());
         map.add("redirect_uri", tokenRequest.getRedirectUri());
 
-        final HttpEntity<MultiValueMap<String, String>> entity = new HttpEntity<>(map, headers);
-
-        final ResponseEntity<TokenResponse> response =
-                restTemplate.exchange(tokenRequest.getTokenUrl(),
-                        HttpMethod.POST,
-                        entity,
-                        TokenResponse.class);
-
-        return response.getBody();
+        logger.debug("Calling token endpoint: {}", tokenRequest.getTokenUrl());
+        return webClient.post()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(BodyInserters.fromFormData(map))
+                .retrieve()
+                .bodyToMono(TokenResponse.class)
+                .block();
     }
 
 }
