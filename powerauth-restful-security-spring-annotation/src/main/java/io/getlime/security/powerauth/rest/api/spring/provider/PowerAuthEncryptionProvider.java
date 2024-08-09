@@ -58,11 +58,12 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
     }
 
     @Override
-    public @Nonnull PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
+    public @Nonnull PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
         try {
             final GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);
             eciesDecryptorRequest.setApplicationKey(applicationKey);
+            eciesDecryptorRequest.setTemporaryKeyId(temporaryKeyId);
             eciesDecryptorRequest.setEphemeralPublicKey(ephemeralPublicKey);
             eciesDecryptorRequest.setProtocolVersion(version);
             eciesDecryptorRequest.setNonce(nonce);

@@ -101,6 +101,7 @@ public class TokenService {
             final CreateTokenRequest tokenRequest = new CreateTokenRequest();
             tokenRequest.setActivationId(activationId);
             tokenRequest.setApplicationKey(applicationKey);
+            tokenRequest.setTemporaryKeyId(request.getTemporaryKeyId());
             tokenRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             tokenRequest.setEncryptedData(request.getEncryptedData());
             tokenRequest.setMac(request.getMac());

@@ -100,9 +100,7 @@ public class SecureVaultController {
         }
 
         PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
-        PowerAuthVersionUtil.checkMissingRequiredNonce(header.getVersion(), request.getNonce());
-        PowerAuthVersionUtil.checkMissingRequiredTimestamp(header.getVersion(), request.getTimestamp());
-
+        PowerAuthVersionUtil.checkEciesParameters(header.getVersion(), request);
 
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }

@@ -23,6 +23,8 @@ import io.getlime.security.powerauth.rest.api.spring.exception.authentication.Po
 import io.getlime.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -61,5 +63,13 @@ class PowerAuthVersionUtilTest {
         assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.2", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.1", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.2", 1630234567890L));
+    }
+
+    @Test
+    void testMissingRequiredTemporaryKeyId() {
+        assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("3.3", null));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("3.1", null));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("3.2", null));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("3.3", UUID.randomUUID().toString()));
     }
 }

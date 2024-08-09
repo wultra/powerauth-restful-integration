@@ -112,6 +112,7 @@ public class SecureVaultService {
             unlockRequest.setSignatureType(signatureType);
             unlockRequest.setSignatureVersion(signatureVersion);
             unlockRequest.setSignedData(data);
+            unlockRequest.setTemporaryKeyId(request.getTemporaryKeyId());
             unlockRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             unlockRequest.setEncryptedData(request.getEncryptedData());
             unlockRequest.setMac(request.getMac());

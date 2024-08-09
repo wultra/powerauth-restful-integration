@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,45 +20,18 @@
 package io.getlime.security.powerauth.rest.api.model.request;
 
 import lombok.Data;
-import lombok.ToString;
 
 /**
- * Request object with data encrypted by ECIES encryption.
+ * Request class with temporary public key.
  *
- * @author Roman Strobl, roman.strobl@wultra.com
+ * @author Petr Dvorak, petr@wultra.com
  */
 @Data
-public class EciesEncryptedRequest {
+public class TemporaryKeyRequest {
 
     /**
-     * Identifier of the temporary key.
+     * JWT with encoded temporary key request.
      */
-    private String temporaryKeyId;
-
-    /**
-     * Base64 encoded ephemeral public key.
-     */
-    private String ephemeralPublicKey;
-
-    /**
-     * Base64 encoded encrypted data.
-     */
-    private String encryptedData;
-
-    /**
-     * Base64 encoded MAC of key and data.
-     */
-    private String mac;
-
-    /**
-     * Base64 encoded nonce for IV derivation.
-     */
-    @ToString.Exclude
-    private String nonce;
-
-    /**
-     * Request timestamp as unix timestamp in milliseconds.
-     */
-    private Long timestamp;
+    private String jwt;
 
 }

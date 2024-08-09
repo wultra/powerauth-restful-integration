@@ -80,7 +80,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @throws PowerAuthEncryptionException In case PowerAuth server call fails.
      */
     public abstract @Nonnull
-    PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
+    PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
 
     /**
      * Decrypt HTTP request body and construct object with ECIES data. Use the requestType parameter to specify
@@ -136,6 +136,7 @@ public abstract class PowerAuthEncryptionProviderBase {
 
             // Prepare and validate EncryptedRequest object
             final EncryptedRequest encryptedRequest = new EncryptedRequest(
+                    eciesRequest.getTemporaryKeyId(),
                     eciesRequest.getEphemeralPublicKey(),
                     eciesRequest.getEncryptedData(),
                     eciesRequest.getMac(),
@@ -155,6 +156,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final PowerAuthEncryptorParameters encryptorParameters = getEciesDecryptorParameters(
                     activationId,
                     applicationKey,
+                    encryptedRequest.getTemporaryKeyId(),
                     encryptedRequest.getEphemeralPublicKey(),
                     version,
                     encryptedRequest.getNonce(),
@@ -165,7 +167,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final byte[] sharedInfo2Base = Base64.getDecoder().decode(encryptorParameters.sharedInfo2());
             final ServerEncryptor serverEncryptor = encryptorFactory.getServerEncryptor(
                     encryptorData.getEncryptorId(),
-                    new EncryptorParameters(version, applicationKey, activationId),
+                    new EncryptorParameters(version, applicationKey, activationId, encryptedRequest.getTemporaryKeyId()),
                     new ServerEncryptorSecrets(secretKeyBytes, sharedInfo2Base)
             );
 
