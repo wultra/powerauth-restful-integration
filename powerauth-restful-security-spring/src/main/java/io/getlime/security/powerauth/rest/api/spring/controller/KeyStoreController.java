@@ -57,7 +57,7 @@ public class KeyStoreController {
      * @throws PowerAuthTemporaryKeyException In case temporary key cannot be returned.
      */
     @PostMapping("create")
-    public @ResponseBody TemporaryKeyResponse fetchTemporaryKey(@RequestBody TemporaryKeyRequest request) throws PowerAuthTemporaryKeyException {
+    public TemporaryKeyResponse fetchTemporaryKey(@RequestBody TemporaryKeyRequest request) throws PowerAuthTemporaryKeyException {
         if (request == null) {
             logger.warn("Invalid request while fetching temporary key");
             throw new PowerAuthTemporaryKeyException();
