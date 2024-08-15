@@ -62,12 +62,16 @@ public class ServerStatusController {
     public ObjectResponse<ServerStatusResponse> getServerStatus() {
         final long serverTime = new Date().getTime();
         final String version;
+        final String name;
         if (buildProperties != null) {
             version = buildProperties.getVersion();
+            name = buildProperties.getName();
         } else {
+            name = "UNKNOWN";
             version = "UNKNOWN";
         }
-        final ServerStatusResponse response = new ServerStatusResponse(serverTime, version);
+        final ServerStatusResponse.Application application = new ServerStatusResponse.Application(name, version);
+        final ServerStatusResponse response = new ServerStatusResponse(serverTime, application);
         return new ObjectResponse<>(response);
     }
 
