@@ -44,6 +44,9 @@ import jakarta.servlet.http.HttpServletRequest;
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
+ *     <li>3.1</li>
+ *     <li>3.2</li>
+ *     <li>3.3</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com

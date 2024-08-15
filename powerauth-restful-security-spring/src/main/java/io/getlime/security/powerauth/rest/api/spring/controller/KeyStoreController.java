@@ -31,6 +31,11 @@ import org.springframework.web.bind.annotation.*;
 /**
  * Controller for obtaining temporary encryption keys.
  *
+ * <p><b>PowerAuth protocol versions:</b>
+ * <ul>
+ *     <li>3.3</li>
+ * </ul>
+ *
  * @author Petr Dvorak, petr@wultra.com
  */
 @RestController("keyStoreControllerV3")

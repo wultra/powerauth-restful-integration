@@ -25,5 +25,5 @@ package io.getlime.security.powerauth.rest.api.model.response;
  * @param serverTime Server time.
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-public record ServerStatusResponse(long serverTime) {
+public record ServerStatusResponse(long serverTime, String version) {
 }

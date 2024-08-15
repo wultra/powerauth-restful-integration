@@ -22,6 +22,8 @@ package io.getlime.security.powerauth.rest.api.spring.controller;
 import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.rest.api.model.response.ServerStatusResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.info.BuildProperties;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -35,6 +37,7 @@ import java.util.Date;
  *     <li>3.0</li>
  *     <li>3.1</li>
  *     <li>3.2</li>
+ *     <li>3.3</li>
  * </ul>
  *
  * @author Petr Dvorak, petr@wultra.com
@@ -44,6 +47,13 @@ import java.util.Date;
 @Slf4j
 public class ServerStatusController {
 
+    private BuildProperties buildProperties;
+
+    @Autowired(required = false)
+    public void setBuildProperties(BuildProperties buildProperties) {
+        this.buildProperties = buildProperties;
+    }
+
     /**
      * Obtain server status.
      * @return Server status.
@@ -51,7 +61,13 @@ public class ServerStatusController {
     @PostMapping("status")
     public ObjectResponse<ServerStatusResponse> getServerStatus() {
         final long serverTime = new Date().getTime();
-        final ServerStatusResponse response = new ServerStatusResponse(serverTime);
+        final String version;
+        if (buildProperties != null) {
+            version = buildProperties.getVersion();
+        } else {
+            version = "UNKNOWN";
+        }
+        final ServerStatusResponse response = new ServerStatusResponse(serverTime, version);
         return new ObjectResponse<>(response);
     }
 
