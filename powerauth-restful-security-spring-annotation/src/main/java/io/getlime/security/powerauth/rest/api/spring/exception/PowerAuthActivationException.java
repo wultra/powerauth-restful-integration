@@ -58,6 +58,16 @@ public class PowerAuthActivationException extends Exception {
     }
 
     /**
+     * Constructor with a message and a cause.
+     *
+     * @param message Error message.
+     * @param cause Error cause.
+     */
+    public PowerAuthActivationException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
+
+    /**
      * Get default error code, used for example in the REST response.
      * @return Default error code.
      */

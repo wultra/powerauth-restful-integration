@@ -27,7 +27,10 @@ import com.wultra.security.powerauth.client.model.request.*;
 import com.wultra.security.powerauth.client.model.response.*;
 import io.getlime.security.powerauth.rest.api.model.entity.ActivationType;
 import io.getlime.security.powerauth.rest.api.model.entity.UserInfoStage;
-import io.getlime.security.powerauth.rest.api.model.request.*;
+import io.getlime.security.powerauth.rest.api.model.request.ActivationLayer1Request;
+import io.getlime.security.powerauth.rest.api.model.request.ActivationRenameRequest;
+import io.getlime.security.powerauth.rest.api.model.request.ActivationStatusRequest;
+import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.model.response.*;
 import io.getlime.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import io.getlime.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
@@ -44,6 +47,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
@@ -123,8 +127,11 @@ public class ActivationService {
      * @throws PowerAuthRecoveryException In case activation recovery fails.
      */
     public ActivationLayer1Response createActivation(ActivationLayer1Request request, EncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
-        try {
+        final Map<String, String> identity = request.getIdentityAttributes();
 
+        checkIdentityAttributesPresent(identity);
+
+        try {
             final String applicationKey = eciesContext.getApplicationKey();
             final EciesEncryptedRequest activationData = request.getActivationData();
             final String ephemeralPublicKey = activationData.getEphemeralPublicKey();
@@ -132,18 +139,11 @@ public class ActivationService {
             final String mac = activationData.getMac();
             final String nonce = activationData.getNonce();
             final Long timestamp = activationData.getTimestamp();
-            final Map<String, String> identity = request.getIdentityAttributes();
             final Map<String, Object> customAttributes = (request.getCustomAttributes() != null) ? request.getCustomAttributes() : new HashMap<>();
 
             switch (request.getType()) {
                 // Regular activation which uses "code" identity attribute
                 case CODE -> {
-
-                    // Check if identity attributes are present
-                    if (identity == null || identity.isEmpty()) {
-                        logger.warn("Identity attributes are missing for code activation");
-                        throw new PowerAuthActivationException();
-                    }
 
                     // Extract data from request and encryption object
                     final String activationCode = identity.get("code");
@@ -230,12 +230,6 @@ public class ActivationService {
                     // Only for CUSTOM activations, proceeding without an activation provider does not make a sensible use-case.
                     if (activationProvider == null) {
                         logger.warn("Activation provider is not available");
-                        throw new PowerAuthActivationException();
-                    }
-
-                    // Check if identity attributes are present
-                    if (identity == null || identity.isEmpty()) {
-                        logger.warn("Identity attributes are missing for custom activation");
                         throw new PowerAuthActivationException();
                     }
 
@@ -327,12 +321,6 @@ public class ActivationService {
                 // Activation using recovery code
                 case RECOVERY -> {
 
-                    // Check if identity attributes are present
-                    if (identity == null || identity.isEmpty()) {
-                        logger.warn("Identity attributes are missing for activation recovery");
-                        throw new PowerAuthActivationException();
-                    }
-
                     // Extract data from request and encryption object
                     final String recoveryCode = identity.get("recoveryCode");
                     final String recoveryPuk = identity.get("puk");
@@ -419,28 +407,23 @@ public class ActivationService {
                     return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
                             response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
                 }
-                default -> {
-                    logger.warn("Invalid activation request");
-                    throw new PowerAuthInvalidRequestException();
-                }
+                default ->
+                        throw new PowerAuthInvalidRequestException("Unsupported activation type: " + request.getType());
             }
         } catch (PowerAuthClientException ex) {
             if (ex.getPowerAuthError().orElse(null) instanceof final PowerAuthErrorRecovery errorRecovery) {
                 logger.debug("Invalid recovery code, current PUK index: {}", errorRecovery.getCurrentRecoveryPukIndex());
                 throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
             }
-            logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            logger.debug(ex.getMessage(), ex);
-            throw new PowerAuthActivationException();
-        } catch (PowerAuthActivationException ex) {
-            // Do not swallow PowerAuthActivationException for custom activations.
-            // See: https://github.com/wultra/powerauth-restful-integration/issues/199
-            logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            throw ex;
+            throw new PowerAuthActivationException("Creating PowerAuth activation failed.", ex);
         } catch (Exception ex) {
-            logger.warn("Creating PowerAuth activation failed, error: {}", ex.getMessage());
-            logger.debug(ex.getMessage(), ex);
-            throw new PowerAuthActivationException();
+            throw new PowerAuthActivationException("Creating PowerAuth activation failed.", ex);
+        }
+    }
+
+    private static void checkIdentityAttributesPresent(final Map<String, String> identity) throws PowerAuthActivationException {
+        if (CollectionUtils.isEmpty(identity)) {
+            throw new PowerAuthActivationException("Identity attributes are missing for activation.");
         }
     }
 
