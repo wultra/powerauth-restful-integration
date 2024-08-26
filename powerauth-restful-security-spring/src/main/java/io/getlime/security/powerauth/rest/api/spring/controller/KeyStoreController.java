@@ -19,6 +19,8 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.controller;
 
+import io.getlime.core.rest.model.base.request.ObjectRequest;
+import io.getlime.core.rest.model.base.response.ObjectResponse;
 import io.getlime.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import io.getlime.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
@@ -26,6 +28,7 @@ import io.getlime.security.powerauth.rest.api.spring.service.KeyStoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -62,12 +65,21 @@ public class KeyStoreController {
      * @throws PowerAuthTemporaryKeyException In case temporary key cannot be returned.
      */
     @PostMapping("create")
-    public TemporaryKeyResponse fetchTemporaryKey(@RequestBody TemporaryKeyRequest request) throws PowerAuthTemporaryKeyException {
+    public ObjectResponse<TemporaryKeyResponse> fetchTemporaryKey(@RequestBody ObjectRequest<TemporaryKeyRequest> request) throws PowerAuthTemporaryKeyException {
         if (request == null) {
-            logger.warn("Invalid request while fetching temporary key");
+            logger.warn("Null request while fetching temporary key");
             throw new PowerAuthTemporaryKeyException();
         }
-        return service.fetchTemporaryKey(request);
+        final TemporaryKeyRequest requestObject = request.getRequestObject();
+        if (requestObject == null) {
+            logger.warn("Null request object while fetching temporary key");
+            throw new PowerAuthTemporaryKeyException();
+        }
+        if (!StringUtils.hasLength(requestObject.getJwt())) {
+            logger.warn("Invalid request object with empty JWT while fetching temporary key");
+            throw new PowerAuthTemporaryKeyException();
+        }
+        return new ObjectResponse<>(service.fetchTemporaryKey(requestObject));
     }
 
 }
