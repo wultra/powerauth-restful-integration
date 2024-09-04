@@ -83,6 +83,7 @@ public class RecoveryService {
             final ConfirmRecoveryCodeRequest confirmRequest = new ConfirmRecoveryCodeRequest();
             confirmRequest.setActivationId(activationId);
             confirmRequest.setApplicationKey(applicationKey);
+            confirmRequest.setTemporaryKeyId(request.getTemporaryKeyId());
             confirmRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             confirmRequest.setEncryptedData(request.getEncryptedData());
             confirmRequest.setMac(request.getMac());

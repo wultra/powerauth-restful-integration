@@ -44,6 +44,9 @@ import org.springframework.web.bind.annotation.RestController;
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
+ *     <li>3.1</li>
+ *     <li>3.2</li>
+ *     <li>3.3</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
@@ -85,8 +88,7 @@ public class RecoveryController {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
-        PowerAuthVersionUtil.checkMissingRequiredNonce(auth.getVersion(), request.getNonce());
-        PowerAuthVersionUtil.checkMissingRequiredTimestamp(auth.getVersion(), request.getTimestamp());
+        PowerAuthVersionUtil.checkEciesParameters(auth.getVersion(), request);
 
         return recoveryService.confirmRecoveryCode(request, auth);
     }

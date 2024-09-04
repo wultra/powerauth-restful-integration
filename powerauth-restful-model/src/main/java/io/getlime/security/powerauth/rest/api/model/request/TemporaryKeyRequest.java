@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2023 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,20 +17,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.response;
+package io.getlime.security.powerauth.rest.api.model.request;
+
+import lombok.Data;
 
 /**
- * Response object for /pa/v3/status end-point.
+ * Request class with temporary public key.
  *
- * @param serverTime Server time.
- * @author Roman Strobl, roman.strobl@wultra.com
+ * @author Petr Dvorak, petr@wultra.com
  */
-public record ServerStatusResponse(long serverTime, Application application) {
+@Data
+public class TemporaryKeyRequest {
+
     /**
-     * Record for information about the application.
-     * @param name Application name, if present in BuildProperties.
-     * @param version Application version, if present in BuildProperties.
+     * JWT with encoded temporary key request.
      */
-    public record Application(String name, String version) {
-    }
+    private String jwt;
+
 }

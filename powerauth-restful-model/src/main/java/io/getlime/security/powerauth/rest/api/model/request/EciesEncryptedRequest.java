@@ -31,6 +31,11 @@ import lombok.ToString;
 public class EciesEncryptedRequest {
 
     /**
+     * Identifier of the temporary key.
+     */
+    private String temporaryKeyId;
+
+    /**
      * Base64 encoded ephemeral public key.
      */
     private String ephemeralPublicKey;
