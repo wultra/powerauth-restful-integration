@@ -475,6 +475,7 @@ public class ActivationService {
         createRequest.setUserId(userId);
         createRequest.setGenerateRecoveryCodes(false);
         createRequest.setApplicationKey(eciesContext.getApplicationKey());
+        createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
         createRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
         createRequest.setEncryptedData(activationData.getEncryptedData());
         createRequest.setMac(activationData.getMac());
