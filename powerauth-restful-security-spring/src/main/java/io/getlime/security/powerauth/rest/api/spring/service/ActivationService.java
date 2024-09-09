@@ -42,6 +42,8 @@ import io.getlime.security.powerauth.rest.api.spring.model.ActivationContext;
 import io.getlime.security.powerauth.rest.api.spring.model.UserInfoContext;
 import io.getlime.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
 import io.getlime.security.powerauth.rest.api.spring.provider.UserInfoProvider;
+import io.getlime.security.powerauth.rest.api.spring.service.oidc.OidcActivationContext;
+import io.getlime.security.powerauth.rest.api.spring.service.oidc.OidcHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -65,9 +67,12 @@ import java.util.*;
 @Slf4j
 public class ActivationService {
 
+    private static final String METHOD_OIDC = "oidc";
+
     private final PowerAuthClient powerAuthClient;
     private final HttpCustomizationService httpCustomizationService;
     private final ActivationContextConverter activationContextConverter;
+    private final OidcHandler oidcHandler;
 
     private PowerAuthApplicationConfiguration applicationConfiguration;
     private CustomActivationProvider activationProvider;
@@ -81,10 +86,16 @@ public class ActivationService {
      * @param activationContextConverter Activation context converter.
      */
     @Autowired
-    public ActivationService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService, ActivationContextConverter activationContextConverter) {
+    public ActivationService(
+            PowerAuthClient powerAuthClient,
+            HttpCustomizationService httpCustomizationService,
+            ActivationContextConverter activationContextConverter,
+            OidcHandler oidcHandler) {
+
         this.powerAuthClient = powerAuthClient;
         this.httpCustomizationService = httpCustomizationService;
         this.activationContextConverter = activationContextConverter;
+        this.oidcHandler = oidcHandler;
     }
 
     /**
@@ -134,7 +145,8 @@ public class ActivationService {
             return switch (type) {
                 // Regular activation which uses "code" identity attribute
                 case CODE -> processCodeActivation(eciesContext, request);
-                case CUSTOM -> processCustomActivation(eciesContext, request);
+                // Direct activation for known specific methods, otherwise fallback to custom activation
+                case CUSTOM, DIRECT -> processDirectOrCustomActivation(eciesContext, request, type, identity);
                 case RECOVERY -> processRecoveryCodeActivation(eciesContext, request);
             };
         } catch (PowerAuthClientException ex) {
@@ -428,6 +440,73 @@ public class ActivationService {
         // Prepare encrypted activation data
         return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
                 response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
+    }
+
+    private ActivationLayer1Response processDirectOrCustomActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request, final ActivationType type, final Map<String, String> identity) throws PowerAuthActivationException, PowerAuthClientException {
+        if (type == ActivationType.DIRECT) {
+            final String method = identity.get("method");
+            if (METHOD_OIDC.equals(method)) {
+                return processOidcActivation(eciesContext, request);
+            } else {
+                logger.info("Unknown method: {} of direct activation, fallback to custom activation", method);
+            }
+        }
+
+        return processCustomActivation(eciesContext, request);
+    }
+
+    private ActivationLayer1Response processOidcActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthClientException, PowerAuthActivationException {
+        logger.debug("Processing direct OIDC activation.");
+
+        final Map<String, String> identity = request.getIdentityAttributes();
+        final OidcActivationContext oAuthActivationContext = OidcActivationContext.builder()
+                .providerId(identity.get("providerId"))
+                .code(identity.get("code"))
+                .nonce(identity.get("nonce"))
+                .applicationKey(eciesContext.getApplicationKey())
+                .build();
+
+        final String userId = oidcHandler.retrieveUserId(oAuthActivationContext);
+
+        // Create context for passing parameters between activation provider calls
+        final Map<String, Object> context = new LinkedHashMap<>();
+
+        final EciesEncryptedRequest activationData = request.getActivationData();
+        final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
+
+        final CreateActivationRequest createRequest = new CreateActivationRequest();
+        createRequest.setUserId(userId);
+        createRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes(identity, customAttributes, context));
+        createRequest.setApplicationKey(eciesContext.getApplicationKey());
+        createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
+        createRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
+        createRequest.setEncryptedData(activationData.getEncryptedData());
+        createRequest.setMac(activationData.getMac());
+        createRequest.setNonce(activationData.getNonce());
+        createRequest.setProtocolVersion(eciesContext.getVersion());
+        createRequest.setTimestamp(activationData.getTimestamp());
+
+        final CreateActivationResponse response = powerAuthClient.createActivation(
+                createRequest,
+                httpCustomizationService.getQueryParams(),
+                httpCustomizationService.getHttpHeaders()
+        );
+
+        final String activationId = response.getActivationId();
+        final String applicationId = response.getApplicationId();
+
+        commitActivation(activationId);
+
+        final UserInfoContext userInfoContext = UserInfoContext.builder()
+                .stage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
+                .userId(userId)
+                .activationId(activationId)
+                .applicationId(applicationId)
+                .build();
+        final Map<String, Object> userInfo = processUserInfo(userInfoContext);
+
+        return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
+                response.getNonce(), response.getTimestamp(), customAttributes, userInfo);
     }
 
     private static void checkIdentityAttributesPresent(final Map<String, String> identity) throws PowerAuthActivationException {
