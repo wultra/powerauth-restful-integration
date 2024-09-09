@@ -35,4 +35,9 @@ class TokenRequest {
     private String code;
     private ClientRegistration clientRegistration;
 
+    /**
+     * Optional. Required only for PKCE.
+     */
+    private String codeVerifier;
+
 }

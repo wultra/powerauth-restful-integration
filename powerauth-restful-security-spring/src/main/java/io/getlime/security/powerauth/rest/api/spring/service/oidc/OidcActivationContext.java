@@ -33,6 +33,7 @@ public class OidcActivationContext {
 
     private String code;
     private String nonce;
+    private String codeVerifier;
     private String applicationKey;
     private String providerId;
 

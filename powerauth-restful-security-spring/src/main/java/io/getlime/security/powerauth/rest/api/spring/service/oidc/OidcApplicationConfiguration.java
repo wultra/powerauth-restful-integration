@@ -59,4 +59,9 @@ public class OidcApplicationConfiguration {
      */
     private String signatureAlgorithm;
 
+    /**
+     * A hint for the mobile application whether to user PKCE.
+     */
+    private boolean pkceEnabled;
+
 }

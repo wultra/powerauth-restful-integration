@@ -80,6 +80,7 @@ public class OidcHandler {
 
         final TokenRequest tokenRequest = TokenRequest.builder()
                 .code(request.getCode())
+                .codeVerifier(request.getCodeVerifier())
                 .clientRegistration(clientRegistration)
                 .build();
 

@@ -25,6 +25,7 @@ import com.wultra.core.rest.client.base.RestClientConfiguration;
 import com.wultra.core.rest.client.base.RestClientException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -67,6 +68,11 @@ class OidcTokenClient {
         map.add("client_id", clientRegistration.getClientId());
         map.add("code", tokenRequest.getCode());
         map.add("redirect_uri", clientRegistration.getRedirectUri());
+
+        final String codeVerifier = tokenRequest.getCodeVerifier();
+        if (StringUtils.isNoneBlank(codeVerifier)) {
+            map.add("code_verifier", codeVerifier);
+        }
 
         if (clientAuthenticationMethod == org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_POST) {
             map.add("client_secret", clientRegistration.getClientSecret());
