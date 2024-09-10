@@ -34,6 +34,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 import java.util.Objects;
@@ -74,6 +75,7 @@ public class OidcHandler {
     public String retrieveUserId(final OidcActivationContext request) throws PowerAuthActivationException {
         final OidcApplicationConfiguration oidcApplicationConfiguration = fetchOidcApplicationConfiguration(request);
 
+        validate(request, oidcApplicationConfiguration);
         final ClientRegistration clientRegistration = createClientRegistration(request.getProviderId(), oidcApplicationConfiguration);
 
         signatureAlgorithms.putIfAbsent(clientRegistration.getRegistrationId(), mapSignatureAlgorithmFromConfiguration(oidcApplicationConfiguration));
@@ -88,6 +90,12 @@ public class OidcHandler {
         final Jwt idToken = verifyAndDecode(tokenResponse, clientRegistration, request.getNonce());
 
         return idToken.getSubject();
+    }
+
+    private static void validate(final OidcActivationContext context, final OidcApplicationConfiguration configuration) throws PowerAuthActivationException {
+        if (configuration.isPkceEnabled() && !StringUtils.hasText(context.getCodeVerifier())) {
+            throw new PowerAuthActivationException("PKCE is enabled, CodeVerifier must be present.");
+        }
     }
 
     private static ClientRegistration createClientRegistration(final String providerId, final OidcApplicationConfiguration oidcApplicationConfiguration) {

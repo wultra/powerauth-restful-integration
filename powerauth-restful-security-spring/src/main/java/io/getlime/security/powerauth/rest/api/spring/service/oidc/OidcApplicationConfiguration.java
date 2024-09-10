@@ -61,6 +61,7 @@ public class OidcApplicationConfiguration {
 
     /**
      * A hint for the mobile application whether to user PKCE.
+     * If set to {@code true}, {@code codeVerifier} must be present in identity attributes during create activation step.
      */
     private boolean pkceEnabled;
 
