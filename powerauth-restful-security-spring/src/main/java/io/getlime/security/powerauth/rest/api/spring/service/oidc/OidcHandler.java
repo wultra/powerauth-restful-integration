@@ -74,8 +74,8 @@ public class OidcHandler {
      */
     public String retrieveUserId(final OidcActivationContext request) throws PowerAuthActivationException {
         final OidcApplicationConfiguration oidcApplicationConfiguration = fetchOidcApplicationConfiguration(request);
-
         validate(request, oidcApplicationConfiguration);
+
         final ClientRegistration clientRegistration = createClientRegistration(request.getProviderId(), oidcApplicationConfiguration);
 
         signatureAlgorithms.putIfAbsent(clientRegistration.getRegistrationId(), mapSignatureAlgorithmFromConfiguration(oidcApplicationConfiguration));
