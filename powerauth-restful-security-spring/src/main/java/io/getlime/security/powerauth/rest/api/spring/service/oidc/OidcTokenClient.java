@@ -70,7 +70,7 @@ class OidcTokenClient {
         map.add("redirect_uri", clientRegistration.getRedirectUri());
 
         final String codeVerifier = tokenRequest.getCodeVerifier();
-        if (StringUtils.isNoneBlank(codeVerifier)) {
+        if (StringUtils.isNotBlank(codeVerifier)) {
             map.add("code_verifier", codeVerifier);
         }
 

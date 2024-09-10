@@ -23,6 +23,7 @@ import com.wultra.core.rest.client.base.RestClientException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthApplicationConfigurationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -34,7 +35,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import java.util.Map;
 import java.util.Objects;
@@ -93,7 +93,7 @@ public class OidcHandler {
     }
 
     private static void validate(final OidcActivationContext context, final OidcApplicationConfiguration configuration) throws PowerAuthActivationException {
-        if (configuration.isPkceEnabled() && !StringUtils.hasText(context.getCodeVerifier())) {
+        if (configuration.isPkceEnabled() && StringUtils.isBlank(context.getCodeVerifier())) {
             throw new PowerAuthActivationException("PKCE is enabled, CodeVerifier must be present.");
         }
     }
