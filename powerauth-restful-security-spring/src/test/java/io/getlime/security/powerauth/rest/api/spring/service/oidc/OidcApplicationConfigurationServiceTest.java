@@ -33,8 +33,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
 /**
@@ -84,6 +83,7 @@ class OidcApplicationConfigurationServiceTest {
         assertEquals("https://token.example.com", result.getTokenUri());
         assertEquals("https://authorize.example.com", result.getAuthorizeUri());
         assertEquals("ES256", result.getSignatureAlgorithm());
+        assertFalse(result.isPkceEnabled());
     }
 
     @Test

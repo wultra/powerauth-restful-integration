@@ -23,6 +23,7 @@ import com.wultra.core.rest.client.base.RestClientException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import io.getlime.security.powerauth.rest.api.spring.exception.PowerAuthApplicationConfigurationException;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.oauth2.client.oidc.authentication.OidcIdTokenDecoderFactory;
 import org.springframework.security.oauth2.client.registration.ClientRegistration;
@@ -73,6 +74,7 @@ public class OidcHandler {
      */
     public String retrieveUserId(final OidcActivationContext request) throws PowerAuthActivationException {
         final OidcApplicationConfiguration oidcApplicationConfiguration = fetchOidcApplicationConfiguration(request);
+        validate(request, oidcApplicationConfiguration);
 
         final ClientRegistration clientRegistration = createClientRegistration(request.getProviderId(), oidcApplicationConfiguration);
 
@@ -80,6 +82,7 @@ public class OidcHandler {
 
         final TokenRequest tokenRequest = TokenRequest.builder()
                 .code(request.getCode())
+                .codeVerifier(request.getCodeVerifier())
                 .clientRegistration(clientRegistration)
                 .build();
 
@@ -87,6 +90,12 @@ public class OidcHandler {
         final Jwt idToken = verifyAndDecode(tokenResponse, clientRegistration, request.getNonce());
 
         return idToken.getSubject();
+    }
+
+    private static void validate(final OidcActivationContext context, final OidcApplicationConfiguration configuration) throws PowerAuthActivationException {
+        if (configuration.isPkceEnabled() && StringUtils.isBlank(context.getCodeVerifier())) {
+            throw new PowerAuthActivationException("PKCE is enabled, CodeVerifier must be present.");
+        }
     }
 
     private static ClientRegistration createClientRegistration(final String providerId, final OidcApplicationConfiguration oidcApplicationConfiguration) {

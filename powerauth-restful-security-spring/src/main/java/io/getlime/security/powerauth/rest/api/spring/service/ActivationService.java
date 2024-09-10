@@ -463,6 +463,7 @@ public class ActivationService {
                 .providerId(identity.get("providerId"))
                 .code(identity.get("code"))
                 .nonce(identity.get("nonce"))
+                .codeVerifier(identity.get("codeVerifier"))
                 .applicationKey(eciesContext.getApplicationKey())
                 .build();
 
