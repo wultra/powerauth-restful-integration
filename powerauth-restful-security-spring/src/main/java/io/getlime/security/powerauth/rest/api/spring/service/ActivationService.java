@@ -448,7 +448,7 @@ public class ActivationService {
             if (METHOD_OIDC.equals(method)) {
                 return processOidcActivation(eciesContext, request);
             } else {
-                logger.info("Unknown method: {} of direct activation, fallback to custom activation", method);
+                logger.debug("Unknown method: {} of direct activation, fallback to custom activation", method);
             }
         }
 
