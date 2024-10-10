@@ -38,7 +38,7 @@ public class OidcApplicationConfiguration {
     private String clientSecret;
 
     /**
-     * Optional. If emtpy, {@code client_secret_basic} is used.
+     * Optional. If empty, {@code client_secret_basic} is used.
      */
     private ClientAuthenticationMethod clientAuthenticationMethod;
 
