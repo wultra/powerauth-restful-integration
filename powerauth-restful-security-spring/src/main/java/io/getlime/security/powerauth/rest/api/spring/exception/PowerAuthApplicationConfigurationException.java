@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -22,30 +22,27 @@ package io.getlime.security.powerauth.rest.api.spring.exception;
 import java.io.Serial;
 
 /**
- * Exception related to processes during a new activation process.
+ * Exception related to application configuration.
  *
- * @author Petr Dvorak, petr@wultra.com
+ * @author Lubos Racansky, lubos.racansky@wultra.com
  */
-public class PowerAuthActivationException extends Exception {
+public class PowerAuthApplicationConfigurationException extends Exception {
 
     @Serial
-    private static final long serialVersionUID = -7975115359211508795L;
-
-    private static final String DEFAULT_CODE = "ERR_ACTIVATION";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_ACTIVATION_INVALID";
+    private static final long serialVersionUID = 8677977961740746599L;
 
     /**
-     * Default constructor.
+     * No-arg constructor.
      */
-    public PowerAuthActivationException() {
-        super(DEFAULT_ERROR);
+    public PowerAuthApplicationConfigurationException() {
+        super();
     }
 
     /**
      * Constructor with a custom error message.
      * @param message Error message.
      */
-    public PowerAuthActivationException(String message) {
+    public PowerAuthApplicationConfigurationException(String message) {
         super(message);
     }
 
@@ -53,33 +50,16 @@ public class PowerAuthActivationException extends Exception {
      * Constructor with a cause.
      * @param cause Error cause.
      */
-    public PowerAuthActivationException(Throwable cause) {
+    public PowerAuthApplicationConfigurationException(Throwable cause) {
         super(cause);
     }
 
     /**
-     * Constructor with a message and a cause.
-     *
+     * Constructor with a message and cause.
      * @param message Error message.
      * @param cause Error cause.
      */
-    public PowerAuthActivationException(final String message, final Throwable cause) {
+    public PowerAuthApplicationConfigurationException(String message, Throwable cause) {
         super(message, cause);
-    }
-
-    /**
-     * Get default error code, used for example in the REST response.
-     * @return Default error code.
-     */
-    public String getDefaultCode() {
-        return DEFAULT_CODE;
-    }
-
-    /**
-     * Get default error message, used for example in the REST response.
-     * @return Default error message.
-     */
-    public String getDefaultError() {
-        return DEFAULT_ERROR;
     }
 }

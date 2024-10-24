@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -19,56 +19,25 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.exception;
 
-import java.io.Serial;
-
 /**
- * Exception related to processes during a new activation process.
+ * Exception raised in case PowerAuth fails to return temporary keys.
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-public class PowerAuthActivationException extends Exception {
+public class PowerAuthTemporaryKeyException extends Exception {
 
-    @Serial
-    private static final long serialVersionUID = -7975115359211508795L;
-
-    private static final String DEFAULT_CODE = "ERR_ACTIVATION";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_ACTIVATION_INVALID";
+    private static final String DEFAULT_CODE = "ERR_TEMPORARY_KEY";
+    private static final String DEFAULT_ERROR = "POWER_AUTH_TEMPORARY_KEY_FAILURE";
 
     /**
      * Default constructor.
      */
-    public PowerAuthActivationException() {
+    public PowerAuthTemporaryKeyException() {
         super(DEFAULT_ERROR);
     }
 
     /**
-     * Constructor with a custom error message.
-     * @param message Error message.
-     */
-    public PowerAuthActivationException(String message) {
-        super(message);
-    }
-
-    /**
-     * Constructor with a cause.
-     * @param cause Error cause.
-     */
-    public PowerAuthActivationException(Throwable cause) {
-        super(cause);
-    }
-
-    /**
-     * Constructor with a message and a cause.
-     *
-     * @param message Error message.
-     * @param cause Error cause.
-     */
-    public PowerAuthActivationException(final String message, final Throwable cause) {
-        super(message, cause);
-    }
-
-    /**
-     * Get default error code, used for example in the REST response.
+     * Get the default error code, used for example in REST response.
      * @return Default error code.
      */
     public String getDefaultCode() {
@@ -82,4 +51,5 @@ public class PowerAuthActivationException extends Exception {
     public String getDefaultError() {
         return DEFAULT_ERROR;
     }
+
 }

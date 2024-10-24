@@ -30,7 +30,7 @@
     <parent>
         <groupId>io.getlime.security</groupId>
         <artifactId>powerauth-restful-integration-parent</artifactId>
-        <version>1.8.0</version>
+        <version>1.9.0</version>
     </parent>
 
     <dependencies>
@@ -54,10 +54,21 @@
             </exclusions>
         </dependency>
 
+        <!--  Other Dependencies  -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-oauth2-jose</artifactId>
+        </dependency>
+
         <!-- Test Dependencies -->
         <dependency>
-            <groupId>org.junit.jupiter</groupId>
-            <artifactId>junit-jupiter-engine</artifactId>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
 

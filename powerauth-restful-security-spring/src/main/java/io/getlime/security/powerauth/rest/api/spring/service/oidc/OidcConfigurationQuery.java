@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2023 Wultra s.r.o.
+ * Copyright (C) 2024 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,20 +17,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package io.getlime.security.powerauth.rest.api.model.response;
+package io.getlime.security.powerauth.rest.api.spring.service.oidc;
+
+import lombok.Builder;
 
 /**
- * Response object for /pa/v3/status end-point.
+ * Query for {@link OidcApplicationConfigurationService}.
  *
- * @param serverTime Server time.
- * @author Roman Strobl, roman.strobl@wultra.com
+ * @author Lubos Racansky, lubos.racansky@wultra.com
+ * @param providerId
+ * @param applicationKey
  */
-public record ServerStatusResponse(long serverTime, Application application) {
-    /**
-     * Record for information about the application.
-     * @param name Application name, if present in BuildProperties.
-     * @param version Application version, if present in BuildProperties.
-     */
-    public record Application(String name, String version) {
-    }
+@Builder
+public record OidcConfigurationQuery(String providerId, String applicationKey) {
 }

@@ -19,6 +19,7 @@
  */
 package io.getlime.security.powerauth.rest.api.spring.util;
 
+import io.getlime.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import io.getlime.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,7 +48,7 @@ public final class PowerAuthVersionUtil {
     /**
      * Set containing all the supported versions of PowerAuth.
      */
-    private static final Set<String> SUPPORTED_VERSIONS = Set.of("3.0", "3.1", "3.2");
+    private static final Set<String> SUPPORTED_VERSIONS = Set.of("3.0", "3.1", "3.2", "3.3");
 
     /**
      * Check if the provided version string is "3.0".
@@ -67,6 +68,16 @@ public final class PowerAuthVersionUtil {
      */
     private static boolean isVersion3_1(final String version) {
         return "3.1".equals(version);
+    }
+
+    /**
+     * Check if the provided version string is "3.2".
+     *
+     * @param version Version string to be checked.
+     * @return true if the version is "3.2", false otherwise.
+     */
+    private static boolean isVersion3_2(final String version) {
+        return "3.2".equals(version);
     }
 
     /**
@@ -114,6 +125,35 @@ public final class PowerAuthVersionUtil {
     }
 
     /**
+     * Checks if temporary key ID is missing for the provided PowerAuth protocol version.
+     * Throws an exception if the temporary key ID is required and missing.
+     *
+     * @param version   Version string to be checked.
+     * @param temporaryKeyId Temporary key ID value to be verified.
+     * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
+     */
+    public static void checkMissingRequiredTemporaryKeyId(String version, String temporaryKeyId) throws PowerAuthInvalidRequestException {
+        if (isMissingRequiredTemporaryKeyId(version, temporaryKeyId)) {
+            logger.warn("Missing temporary key ID in ECIES request data for version {}", version);
+            throw new PowerAuthInvalidRequestException("Missing temporary kdy ID in ECIES request data for version " + version);
+        }
+    }
+
+    /**
+     * Checks if required ECIES parameters are missing for the provided PowerAuth protocol version.
+     * Throws an exception if the required parameter is missing.
+     *
+     * @param version   Version string to be checked.
+     * @param request   Request to be verified.
+     * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
+     */
+    public static void checkEciesParameters(String version, EciesEncryptedRequest request) throws PowerAuthInvalidRequestException {
+        checkMissingRequiredNonce(version, request.getNonce());
+        checkMissingRequiredTimestamp(version, request.getTimestamp());
+        checkMissingRequiredTemporaryKeyId(version, request.getTemporaryKeyId());
+    }
+
+    /**
      * Checks if the provided PowerAuth protocol version is unsupported.
      *
      * @param version Version string to be checked.
@@ -146,4 +186,19 @@ public final class PowerAuthVersionUtil {
                 !isVersion3_0(version) &&
                 !isVersion3_1(version);
     }
+
+    /**
+     * Checks if temporary key ID is missing for the provided PowerAuth protocol version.
+     *
+     * @param version   Version string to be checked.
+     * @param temporaryKeyId Temporary key ID
+     * @return true if temporary key ID is required and missing, false otherwise.
+     */
+    private static boolean isMissingRequiredTemporaryKeyId(String version, String temporaryKeyId) {
+        return temporaryKeyId == null &&
+                !isVersion3_0(version) &&
+                !isVersion3_1(version) &&
+                !isVersion3_2(version);
+    }
+
 }

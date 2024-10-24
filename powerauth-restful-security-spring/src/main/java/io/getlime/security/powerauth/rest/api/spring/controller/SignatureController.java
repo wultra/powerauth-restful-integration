@@ -36,13 +36,16 @@ import org.springframework.web.bind.annotation.RestController;
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
+ *     <li>3.1</li>
+ *     <li>3.2</li>
+ *     <li>3.3</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @RestController("signatureControllerV3")
-@RequestMapping(value = "/pa/v3/signature")
+@RequestMapping("/pa/v3/signature")
 public class SignatureController {
 
     /**

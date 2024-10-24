@@ -33,8 +33,16 @@ public enum ActivationType {
 
     /**
      * Activation via custom credentials.
+     * @deprecated Use {@link #DIRECT} instead.
      */
+    @Deprecated
     CUSTOM,
+
+    /**
+     * Direct activation, alias for {@link #CUSTOM}.
+     * The method could be specified, for example {@code OIDC}.
+     */
+    DIRECT,
 
     /**
      * Activation via recovery code.

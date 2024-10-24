@@ -97,6 +97,7 @@ public class UpgradeService {
             final StartUpgradeRequest upgradeRequest = new StartUpgradeRequest();
             upgradeRequest.setActivationId(activationId);
             upgradeRequest.setApplicationKey(applicationKey);
+            upgradeRequest.setTemporaryKeyId(request.getTemporaryKeyId());
             upgradeRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             upgradeRequest.setEncryptedData(request.getEncryptedData());
             upgradeRequest.setMac(request.getMac());
