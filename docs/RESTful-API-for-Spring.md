@@ -14,7 +14,7 @@ To add PowerAuth support in your RESTful API, add Maven dependency for PowerAuth
 
 ```xml
 <dependency>
-    <groupId>io.getlime.security</groupId>
+    <groupId>com.wultra.security</groupId>
     <artifactId>powerauth-restful-security-spring</artifactId>
     <version>${powerauth.version}</version>
 </dependency>
@@ -50,15 +50,11 @@ public class ServletInitializer extends SpringBootServletInitializer {
 
 ## Configure PowerAuth REST Client
 
-<!-- begin box warning -->
-Make sure to add both `io.getlime.security.powerauth` and `com.wultra.security.powerauth` packages in the `@ComponentScan` annotation. At this moment, both packages need to be scanned. We are already the process of package name migration. In the future library versions, we will only use the `com.wultra.security.powerauth`.
-<!-- end -->
-
 In order to connect to the correct PowerAuth Server, you need to add following configuration:
 
 ```java
 @Configuration
-@ComponentScan(basePackages = {"io.getlime.security.powerauth", "com.wultra.security.powerauth"})
+@ComponentScan(basePackages = {"com.wultra.security.powerauth"})
 public class PowerAuthWebServiceConfiguration {
 
     @Value("${powerauth.rest.url}")
