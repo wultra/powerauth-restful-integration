@@ -21,10 +21,10 @@ package com.wultra.security.powerauth.rest.api.spring.controller;
 
 import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import com.wultra.security.powerauth.rest.api.model.request.TokenRemoveRequest;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;

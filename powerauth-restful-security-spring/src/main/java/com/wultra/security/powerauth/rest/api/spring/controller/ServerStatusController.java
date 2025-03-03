@@ -49,6 +49,10 @@ public class ServerStatusController {
 
     private BuildProperties buildProperties;
 
+    /**
+     * Set build properties.
+     * @param buildProperties Build properties.
+     */
     @Autowired(required = false)
     public void setBuildProperties(BuildProperties buildProperties) {
         this.buildProperties = buildProperties;

@@ -25,8 +25,8 @@ import lombok.Builder;
  * Query for {@link OidcApplicationConfigurationService}.
  *
  * @author Lubos Racansky, lubos.racansky@wultra.com
- * @param providerId
- * @param applicationKey
+ * @param providerId Provider identifier.
+ * @param applicationKey Application key.
  */
 @Builder
 public record OidcConfigurationQuery(String providerId, String applicationKey) {

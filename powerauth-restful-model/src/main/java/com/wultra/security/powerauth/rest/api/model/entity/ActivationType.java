@@ -44,8 +44,4 @@ public enum ActivationType {
      */
     DIRECT,
 
-    /**
-     * Activation via recovery code.
-     */
-    RECOVERY
 }

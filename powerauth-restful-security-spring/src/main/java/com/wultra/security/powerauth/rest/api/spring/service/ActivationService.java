@@ -22,22 +22,21 @@ package com.wultra.security.powerauth.rest.api.spring.service;
 import com.wultra.security.powerauth.client.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
-import com.wultra.security.powerauth.client.model.error.PowerAuthErrorRecovery;
 import com.wultra.security.powerauth.client.model.request.*;
 import com.wultra.security.powerauth.client.model.response.*;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import com.wultra.security.powerauth.rest.api.model.entity.UserInfoStage;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
 import com.wultra.security.powerauth.rest.api.model.response.*;
 import com.wultra.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.converter.ActivationContextConverter;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
-import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
 import com.wultra.security.powerauth.rest.api.spring.model.ActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.model.UserInfoContext;
 import com.wultra.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
@@ -84,6 +83,7 @@ public class ActivationService {
      * @param powerAuthClient PowerAuth client.
      * @param httpCustomizationService HTTP customization service.
      * @param activationContextConverter Activation context converter.
+     * @param oidcHandler OIDC handler.
      */
     @Autowired
     public ActivationService(
@@ -132,9 +132,8 @@ public class ActivationService {
      * @param eciesContext PowerAuth ECIES encryption context.
      * @return Create activation layer 1 response.
      * @throws PowerAuthActivationException In case create activation fails.
-     * @throws PowerAuthRecoveryException In case activation recovery fails.
      */
-    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EncryptionContext eciesContext) throws PowerAuthActivationException, PowerAuthRecoveryException {
+    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EncryptionContext eciesContext) throws PowerAuthActivationException {
         final ActivationType type = request.getType();
         logger.debug("Handling activation type: {}", type);
         final Map<String, String> identity = request.getIdentityAttributes();
@@ -147,21 +146,14 @@ public class ActivationService {
                 case CODE -> processCodeActivation(eciesContext, request);
                 // Direct activation for known specific methods, otherwise fallback to custom activation
                 case CUSTOM, DIRECT -> processDirectOrCustomActivation(eciesContext, request, type, identity);
-                case RECOVERY -> processRecoveryCodeActivation(eciesContext, request);
             };
-        } catch (PowerAuthClientException ex) {
-            if (ex.getPowerAuthError().orElse(null) instanceof final PowerAuthErrorRecovery errorRecovery) {
-                logger.debug("Invalid recovery code, current PUK index: {}", errorRecovery.getCurrentRecoveryPukIndex());
-                throw new PowerAuthRecoveryException(ex.getMessage(), "INVALID_RECOVERY_CODE", errorRecovery.getCurrentRecoveryPukIndex());
-            }
-            throw new PowerAuthActivationException("Creating PowerAuth activation failed.", ex);
         } catch (Exception ex) {
             throw new PowerAuthActivationException("Creating PowerAuth activation failed.", ex);
         }
     }
 
     private ActivationLayer1Response processCodeActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthActivationException, PowerAuthClientException {
-        logger.debug("Processing recovery code activation.");
+        logger.debug("Processing code activation.");
 
         final Map<String, String> identity = request.getIdentityAttributes();
 
@@ -183,7 +175,6 @@ public class ActivationService {
         final PrepareActivationRequest prepareRequest = new PrepareActivationRequest();
         prepareRequest.setActivationCode(activationCode);
         prepareRequest.setApplicationKey(eciesContext.getApplicationKey());
-        prepareRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes(identity, customAttributes, context));
         prepareRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
         prepareRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
         prepareRequest.setEncryptedData(activationData.getEncryptedData());
@@ -248,102 +239,6 @@ public class ActivationService {
                 response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
     }
 
-    private ActivationLayer1Response processRecoveryCodeActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthActivationException, PowerAuthClientException {
-        logger.debug("Processing recovery code activation.");
-
-        final Map<String, String> identity = request.getIdentityAttributes();
-
-        // Extract data from request and encryption object
-        final String recoveryCode = identity.get("recoveryCode");
-        final String recoveryPuk = identity.get("puk");
-
-        if (!StringUtils.hasText(recoveryCode)) {
-            throw new PowerAuthActivationException("Recovery code is missing");
-        }
-
-        if (!StringUtils.hasText(recoveryPuk)) {
-            throw new PowerAuthActivationException("Recovery PUK is missing");
-        }
-
-        // Create context for passing parameters between activation provider calls
-        final Map<String, Object> context = new LinkedHashMap<>();
-
-        final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
-
-        // Resolve maxFailedCount, user ID is not known and decide if the recovery codes should be generated.
-        Long maxFailedCount = null;
-        Boolean shouldGenerateRecoveryCodes = null;
-        if (activationProvider != null) {
-            final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, null, ActivationType.RECOVERY, context);
-            maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
-            shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
-        }
-
-        final EciesEncryptedRequest activationData = request.getActivationData();
-
-        // Call RecoveryCodeActivation method on PA server
-        final RecoveryCodeActivationRequest recoveryRequest = new RecoveryCodeActivationRequest();
-        recoveryRequest.setRecoveryCode(recoveryCode);
-        recoveryRequest.setPuk(recoveryPuk);
-        recoveryRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
-        recoveryRequest.setApplicationKey(eciesContext.getApplicationKey());
-        recoveryRequest.setMaxFailureCount(maxFailedCount);
-        recoveryRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
-        recoveryRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
-        recoveryRequest.setEncryptedData(activationData.getEncryptedData());
-        recoveryRequest.setMac(activationData.getMac());
-        recoveryRequest.setNonce(activationData.getNonce());
-        recoveryRequest.setProtocolVersion(eciesContext.getVersion());
-        recoveryRequest.setTimestamp(activationData.getTimestamp());
-
-        final RecoveryCodeActivationResponse response = powerAuthClient.createActivationUsingRecoveryCode(
-                recoveryRequest,
-                httpCustomizationService.getQueryParams(),
-                httpCustomizationService.getHttpHeaders()
-        );
-
-        final String userId = response.getUserId();
-        final String activationId = response.getActivationId();
-        final String applicationId = response.getApplicationId();
-
-        final UserInfoContext userInfoContext = UserInfoContext.builder()
-                .stage(UserInfoStage.ACTIVATION_PROCESS_RECOVERY)
-                .userId(userId)
-                .activationId(activationId)
-                .applicationId(applicationId)
-                .build();
-        final Map<String, Object> userInfo = processUserInfo(userInfoContext);
-
-        Map<String, Object> processedCustomAttributes = customAttributes;
-        // In case a custom activation provider is enabled, process custom attributes and save any flags
-        if (activationProvider != null) {
-            processedCustomAttributes = activationProvider.processCustomActivationAttributes(customAttributes, activationId, userId, applicationId, ActivationType.RECOVERY, context);
-            final List<String> activationFlags = activationProvider.getActivationFlags(identity, processedCustomAttributes, activationId, userId, applicationId, ActivationType.RECOVERY, context);
-            if (activationFlags != null && !activationFlags.isEmpty()) {
-                final AddActivationFlagsRequest flagsRequest = new AddActivationFlagsRequest();
-                flagsRequest.setActivationId(activationId);
-                flagsRequest.getActivationFlags().addAll(activationFlags);
-                powerAuthClient.addActivationFlags(
-                        flagsRequest,
-                        httpCustomizationService.getQueryParams(),
-                        httpCustomizationService.getHttpHeaders()
-                );
-            }
-        }
-
-        // Automatically commit activation by default, the optional activation provider can override automatic commit
-        if (activationProvider == null || activationProvider.shouldAutoCommitActivation(identity, customAttributes, activationId, userId, applicationId, ActivationType.RECOVERY, context)) {
-            final CommitActivationResponse commitResponse = commitActivation(activationId);
-            if (activationProvider != null && commitResponse.isActivated()) {
-                activationProvider.activationWasCommitted(identity, customAttributes, activationId, userId, applicationId, ActivationType.RECOVERY, context);
-            }
-        }
-
-        // Prepare and return encrypted response
-        return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
-                response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
-    }
-
     private ActivationLayer1Response processCustomActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthActivationException, PowerAuthClientException {
         logger.debug("Processing custom activation.");
 
@@ -367,9 +262,6 @@ public class ActivationService {
 
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
 
-        // Decide if the recovery codes should be generated
-        final boolean shouldGenerateRecoveryCodes = activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
-
         // Resolve maxFailedCount and activationExpireTimestamp parameters, null value means use value configured on PowerAuth server
         final Integer maxFailed = activationProvider.getMaxFailedAttemptCount(identity, customAttributes, userId, ActivationType.CUSTOM, context);
         final Long maxFailedCount = maxFailed == null ? null : maxFailed.longValue();
@@ -386,7 +278,6 @@ public class ActivationService {
         final CreateActivationRequest createRequest = new CreateActivationRequest();
         createRequest.setUserId(userId);
         createRequest.setTimestampActivationExpire(activationExpire);
-        createRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes);
         createRequest.setMaxFailureCount(maxFailedCount);
         createRequest.setApplicationKey(eciesContext.getApplicationKey());
         createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
@@ -477,7 +368,6 @@ public class ActivationService {
 
         final CreateActivationRequest createRequest = new CreateActivationRequest();
         createRequest.setUserId(userId);
-        createRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes(identity, customAttributes, context));
         createRequest.setApplicationKey(eciesContext.getApplicationKey());
         createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
         createRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
@@ -532,13 +422,6 @@ public class ActivationService {
             return userInfoProvider.fetchUserClaimsForUserId(userInfoContext);
         }
         return null;
-    }
-
-    private boolean shouldGenerateRecoveryCodes(final Map<String, String> identity, final Map<String, Object> customAttributes, final Map<String, Object> context) throws PowerAuthActivationException {
-        if (activationProvider == null) {
-            return true;
-        }
-        return activationProvider.shouldCreateRecoveryCodes(identity, customAttributes, ActivationType.CODE, context);
     }
 
     /**
@@ -652,24 +535,13 @@ public class ActivationService {
             final RemoveActivationRequest removeRequest = new RemoveActivationRequest();
             removeRequest.setActivationId(activationId);
             removeRequest.setExternalUserId(null);
+            paResponse = powerAuthClient.removeActivation(
+                    removeRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
             if (activationProvider != null) {
-                // revoke recovery codes
-                final boolean revokeCodes = activationProvider.shouldRevokeRecoveryCodeOnRemove(activationId, userId, applicationId);
-                removeRequest.setRevokeRecoveryCodes(revokeCodes);
-                paResponse = powerAuthClient.removeActivation(
-                        removeRequest,
-                        httpCustomizationService.getQueryParams(),
-                        httpCustomizationService.getHttpHeaders()
-                );
                 activationProvider.activationWasRemoved(activationId, userId, applicationId);
-            } else {
-                // do not revoke recovery codes
-                removeRequest.setRevokeRecoveryCodes(false);
-                paResponse = powerAuthClient.removeActivation(
-                        removeRequest,
-                        httpCustomizationService.getQueryParams(),
-                        httpCustomizationService.getHttpHeaders()
-                );
             }
 
             // Prepare and return the response

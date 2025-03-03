@@ -19,6 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.response;
 
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import lombok.Data;
 
 import java.util.Map;

@@ -20,8 +20,7 @@
 package com.wultra.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
@@ -118,14 +117,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         // Convert response to JSON
         try {
             byte[] responseBytes = serializeResponseObject(response);
-            final EncryptedResponse encryptedResponse = encryption.getServerEncryptor().encryptResponse(responseBytes);
-            // Return encrypted response with type given by converter class
-            final EciesEncryptedResponse encryptedResponseObject = new EciesEncryptedResponse(
-                    encryptedResponse.getEncryptedData(),
-                    encryptedResponse.getMac(),
-                    encryptedResponse.getNonce(),
-                    encryptedResponse.getTimestamp()
-            );
+            final EciesEncryptedResponse encryptedResponseObject = encryption.getServerEncryptor().encryptResponse(responseBytes);
             if (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)) {
                 // Object conversion is done automatically using MappingJackson2HttpMessageConverter
                 return encryptedResponseObject;

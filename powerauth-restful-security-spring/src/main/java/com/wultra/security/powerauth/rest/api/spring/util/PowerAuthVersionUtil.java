@@ -19,7 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.util;
 
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
 

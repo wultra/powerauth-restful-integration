@@ -32,7 +32,6 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContex
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
-import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthRecoveryException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationLayer1Request;
@@ -102,12 +101,11 @@ public class ActivationController {
      * @param context Encryption context.
      * @return Activation layer 1 response.
      * @throws PowerAuthActivationException In case activation fails.
-     * @throws PowerAuthRecoveryException In case recovery PUK is invalid.
      */
     @PostMapping("create")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
-                                                     EncryptionContext context) throws PowerAuthActivationException, PowerAuthRecoveryException {
+                                                     EncryptionContext context) throws PowerAuthActivationException {
         if (request == null || context == null) {
             logger.warn("Invalid request in activation create");
             throw new PowerAuthActivationException();
@@ -157,6 +155,14 @@ public class ActivationController {
         return new ObjectResponse<>(response);
     }
 
+    /**
+     * Fetch activation detail.
+     * @param auth PowerAuth authentication.
+     * @return Activation detail response.
+     * @throws PowerAuthSignatureInvalidException In case the signature validation fails.
+     * @throws PowerAuthInvalidRequestException In case request is invalid.
+     * @throws PowerAuthActivationException In case retrieving activation detail fails.
+     */
     @PostMapping("detail")
     @PowerAuthToken(signatureType = {
             PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
@@ -172,6 +178,15 @@ public class ActivationController {
         return new ObjectResponse<>(activationDetail);
     }
 
+    /**
+     * Remove activation.
+     * @param request Remove activation request.
+     * @param auth PowerAuth authentication.
+     * @return Activation detail response.
+     * @throws PowerAuthSignatureInvalidException In case the signature validation fails.
+     * @throws PowerAuthInvalidRequestException In case request is invalid.
+     * @throws PowerAuthActivationException In case retrieving activation detail fails.
+     */
     @PostMapping("rename")
     @PowerAuth(resourceId = "/pa/activation/rename", signatureType = {
             PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
