@@ -25,17 +25,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.wultra.security.powerauth.crypto.lib.encryptor.EncryptorFactory;
 import com.wultra.security.powerauth.crypto.lib.encryptor.ServerEncryptor;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedRequest;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptorParameters;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.ServerEncryptorSecrets;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.ServerEciesSecrets;
 import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import com.wultra.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import com.wultra.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
 import com.wultra.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
@@ -72,6 +70,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      *
      * @param activationId       Activation ID (only used in activation scope, in application scope use null).
      * @param applicationKey     Application key.
+     * @param temporaryKeyId     Temporary key ID.
      * @param ephemeralPublicKey Ephemeral public key for ECIES.
      * @param version            ECIES protocol version.
      * @param nonce              ECIES nonce.
@@ -79,8 +78,7 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @return ECIES decryptor parameters.
      * @throws PowerAuthEncryptionException In case PowerAuth server call fails.
      */
-    public abstract @Nonnull
-    PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
+    public abstract @Nonnull PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException;
 
     /**
      * Decrypt HTTP request body and construct object with ECIES data. Use the requestType parameter to specify
@@ -135,7 +133,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String activationId = encryptionContext.getActivationId();
 
             // Prepare and validate EncryptedRequest object
-            final EncryptedRequest encryptedRequest = new EncryptedRequest(
+            final EciesEncryptedRequest encryptedRequest = new EciesEncryptedRequest(
                     eciesRequest.getTemporaryKeyId(),
                     eciesRequest.getEphemeralPublicKey(),
                     eciesRequest.getEncryptedData(),
@@ -165,10 +163,10 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Build server encryptor with obtained encryptor parameters
             final byte[] secretKeyBytes = Base64.getDecoder().decode(encryptorParameters.secretKey());
             final byte[] sharedInfo2Base = Base64.getDecoder().decode(encryptorParameters.sharedInfo2());
-            final ServerEncryptor serverEncryptor = encryptorFactory.getServerEncryptor(
+            final ServerEncryptor<EciesEncryptedRequest, EciesEncryptedResponse> serverEncryptor = encryptorFactory.getServerEncryptor(
                     encryptorData.getEncryptorId(),
                     new EncryptorParameters(version, applicationKey, activationId, encryptedRequest.getTemporaryKeyId()),
-                    new ServerEncryptorSecrets(secretKeyBytes, sharedInfo2Base)
+                    new ServerEciesSecrets(secretKeyBytes, sharedInfo2Base)
             );
 
             // Try to decrypt request data
@@ -199,11 +197,10 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param encryption PowerAuth encryption object.
      * @return ECIES encrypted response.
      */
-    public @Nullable
-    EciesEncryptedResponse encryptResponse(@Nonnull Object responseObject, @Nonnull PowerAuthEncryptorData encryption) {
+    public @Nullable EciesEncryptedResponse encryptResponse(@Nonnull Object responseObject, @Nonnull PowerAuthEncryptorData encryption) {
         try {
             final EncryptionContext encryptionContext = encryption.getContext();
-            final ServerEncryptor serverEncryptor = encryption.getServerEncryptor();
+            final ServerEncryptor<EciesEncryptedRequest, EciesEncryptedResponse> serverEncryptor = encryption.getServerEncryptor();
             if (encryptionContext == null) {
                 logger.warn("Encryption context is not prepared");
                 throw new PowerAuthEncryptionException();
@@ -215,7 +212,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             // Serialize response data
             final byte[] responseData = serializeResponseData(responseObject);
             // Encrypt response
-            final EncryptedResponse encryptedResponse = serverEncryptor.encryptResponse(responseData);
+            final EciesEncryptedResponse encryptedResponse = serverEncryptor.encryptResponse(responseData);
             return new EciesEncryptedResponse(
                     encryptedResponse.getEncryptedData(),
                     encryptedResponse.getMac(),

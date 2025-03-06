@@ -38,6 +38,11 @@
             <groupId>com.wultra.core</groupId>
             <artifactId>rest-model-base</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.wultra.security</groupId>
+            <artifactId>powerauth-java-crypto</artifactId>
+            <version>${powerauth-crypto.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

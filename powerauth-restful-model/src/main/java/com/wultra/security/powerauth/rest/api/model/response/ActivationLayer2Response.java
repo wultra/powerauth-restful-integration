@@ -19,7 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.model.response;
 
-import com.wultra.security.powerauth.rest.api.model.entity.ActivationRecovery;
 import lombok.Data;
 
 /**
@@ -45,10 +44,5 @@ public class ActivationLayer2Response {
      * Base64 encoded counter data.
      */
     private String ctrData;
-
-    /**
-     * Activation recovery information.
-     */
-    private ActivationRecovery activationRecovery;
 
 }

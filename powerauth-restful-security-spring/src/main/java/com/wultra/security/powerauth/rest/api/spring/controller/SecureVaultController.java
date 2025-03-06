@@ -19,6 +19,8 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.controller;
 
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import com.wultra.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import com.wultra.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
@@ -26,8 +28,6 @@ import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenti
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthSecureVaultException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.spring.service.SecureVaultService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;

@@ -21,6 +21,8 @@ package com.wultra.security.powerauth.rest.api.spring.controller;
 
 import com.wultra.core.rest.model.base.response.Response;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import com.wultra.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
@@ -29,8 +31,6 @@ import com.wultra.security.powerauth.http.validator.PowerAuthSignatureHttpHeader
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUpgradeException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.spring.service.UpgradeService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
@@ -78,6 +78,7 @@ public class UpgradeController {
      * @param encryptionHeader Encryption HTTP header.
      * @return ECIES encrypted response.
      * @throws PowerAuthUpgradeException In case upgrade fails.
+     * @throws PowerAuthInvalidRequestException In case request is invalid.
      */
     @PostMapping("start")
     public EciesEncryptedResponse upgradeStart(@RequestBody EciesEncryptedRequest request,

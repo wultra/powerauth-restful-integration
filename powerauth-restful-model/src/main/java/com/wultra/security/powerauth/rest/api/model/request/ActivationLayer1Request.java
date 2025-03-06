@@ -19,6 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request;
 
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import lombok.Data;
 

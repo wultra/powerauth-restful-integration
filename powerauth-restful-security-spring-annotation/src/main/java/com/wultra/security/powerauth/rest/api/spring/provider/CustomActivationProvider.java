@@ -41,7 +41,7 @@ public interface CustomActivationProvider {
     /**
      * This method is responsible for looking user ID up based on a provided set of identity attributes.
      * <br><br>
-     * This method is called for the CUSTOM activation type only.
+     * This method is called for the DIRECT (CUSTOM) activation type only.
      *
      * @param identityAttributes Attributes that uniquely identify user with given ID.
      * @param context Context for passing parameters between activation provider calls.
@@ -73,7 +73,7 @@ public interface CustomActivationProvider {
      * Return true in case you would like to create an activation that is ready to be used for signing (ACTIVE),
      * and false for the cases when you need activation to remain in PENDING_COMMIT state.
      * <br><br>
-     * Note that this setting only affects CUSTOM or RECOVERY activation types. On CODE activation type, auto-commit
+     * Note that this setting only affects DIRECT (CUSTOM) activation type. On CODE activation type, auto-commit
      * is always disabled. Default implementation returns false.
      *
      * @param identityAttributes Identity related attributes.
@@ -93,7 +93,7 @@ public interface CustomActivationProvider {
     /**
      * Method is called when activation commit succeeds.
      * <br><br>
-     * Note that this method is only called for CUSTOM or RECOVERY activation types, and only in the case activation
+     * Note that this method is only called for DIRECT (CUSTOM) activation type, and only in the case activation
      * was successfully committed on the server side. Method is not called in case commit fails on server. On CODE
      * activation type, auto-commit is always disabled and hence this method is not called. Default implementation
      * is no-op.
@@ -108,37 +108,6 @@ public interface CustomActivationProvider {
      * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
      */
     default void activationWasCommitted(Map<String, String> identityAttributes, Map<String, Object> customAttributes, String activationId, String userId, String appId, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {}
-
-    /**
-     * Method that indicates if recovery codes should be generated for a given activation or not.
-     * Note that specifying true in the call will not result in generating recovery codes in case that recovery codes are
-     * globally disabled at the PowerAuth Server.
-     *
-     * @param identityAttributes Identity related attributes.
-     * @param customAttributes Custom attributes, not related to identity.
-     * @param activationType Activation type.
-     * @param context Context for passing parameters between activation provider calls.
-     * @return False to prevent generating recovery codes, true to generate recovery codes
-     *         in case that the feature is enabled globally on PowerAuth Server.
-     * @throws PowerAuthActivationException In case of error in custom activation business logic that should terminate the rest of the activation.
-     */
-    default boolean shouldCreateRecoveryCodes(Map<String, String> identityAttributes, Map<String, Object> customAttributes, ActivationType activationType, Map<String, Object> context) throws PowerAuthActivationException {
-        return true;
-    }
-
-    /**
-     * Method that indicates if the recovery codes should be revoked when an activation is removed. The default value is
-     * true, since it is the more secure option (recovery codes are removed when original activation code is removed,
-     * which only allows using recovery code when the original activation is still active or blocked).
-     *
-     * @param activationId Activation ID.
-     * @param userId User ID.
-     * @param appId Application ID.
-     * @return True in case the recovery codes should be revoked on remove, false otherwise.
-     **/
-    default boolean shouldRevokeRecoveryCodeOnRemove(String activationId, String userId, String appId) {
-        return true;
-    }
 
     /**
      * Method is called after activation was just removed using the standard removal endpoint.
@@ -156,7 +125,7 @@ public interface CustomActivationProvider {
      * Get maximum failed attempt count for activations.
      * Use null value for using value which is configured on PowerAuth server.
      * <br><br>
-     * Note that this method is only called for CUSTOM or RECOVERY activation types, since for CODE activation,
+     * Note that this method is only called for DIRECT (CUSTOM) activation type, since for CODE activation,
      * the number of max. failed attempts is set earlier while creating the activation code. Default implementation returns
      * null (use the server configured value).
      *
@@ -176,7 +145,7 @@ public interface CustomActivationProvider {
      * Get length of the period of activation record validity during activation in milliseconds.
      * Use null value for using value which is configured on PowerAuth server.
      * <br><br>
-     * Note that this method is only called for CUSTOM or RECOVERY activation types, since for CODE activation,
+     * Note that this method is only called for DIRECT (CUSTOM) activation type, since for CODE activation,
      * the expiration period for activation is set earlier while creating the activation code. Default implementation returns
      * null (use the server configured value).
      *
