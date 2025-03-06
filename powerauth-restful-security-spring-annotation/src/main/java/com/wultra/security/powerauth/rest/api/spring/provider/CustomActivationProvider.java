@@ -73,7 +73,7 @@ public interface CustomActivationProvider {
      * Return true in case you would like to create an activation that is ready to be used for signing (ACTIVE),
      * and false for the cases when you need activation to remain in PENDING_COMMIT state.
      * <br><br>
-     * Note that this setting only affects CUSTOM activation type. On CODE activation type, auto-commit
+     * Note that this setting only affects DIRECT (CUSTOM) activation type. On CODE activation type, auto-commit
      * is always disabled. Default implementation returns false.
      *
      * @param identityAttributes Identity related attributes.
