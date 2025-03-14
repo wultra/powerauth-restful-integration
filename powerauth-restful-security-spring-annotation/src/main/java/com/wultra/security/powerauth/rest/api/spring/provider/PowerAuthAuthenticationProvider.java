@@ -19,13 +19,13 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.provider;
 
-import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.SignatureType;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.model.request.ValidateTokenRequest;
-import com.wultra.security.powerauth.client.model.request.VerifySignatureRequest;
+import com.wultra.security.powerauth.client.model.request.v3.VerifySignatureRequest;
 import com.wultra.security.powerauth.client.model.response.ValidateTokenResponse;
-import com.wultra.security.powerauth.client.model.response.VerifySignatureResponse;
+import com.wultra.security.powerauth.client.model.response.v3.VerifySignatureResponse;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import com.wultra.security.powerauth.http.PowerAuthHttpBody;
 import com.wultra.security.powerauth.http.PowerAuthHttpHeader;

@@ -19,10 +19,10 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.service;
 
-import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.SignatureType;
-import com.wultra.security.powerauth.client.model.request.VaultUnlockRequest;
-import com.wultra.security.powerauth.client.model.response.VaultUnlockResponse;
+import com.wultra.security.powerauth.client.model.request.v3.VaultUnlockRequest;
+import com.wultra.security.powerauth.client.model.response.v3.VaultUnlockResponse;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.http.PowerAuthHttpBody;

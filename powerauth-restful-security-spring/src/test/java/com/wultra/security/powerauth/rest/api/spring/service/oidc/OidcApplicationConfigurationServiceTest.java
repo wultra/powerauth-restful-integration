@@ -21,7 +21,7 @@ package com.wultra.security.powerauth.rest.api.spring.service.oidc;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.request.GetApplicationConfigRequest;
 import com.wultra.security.powerauth.client.model.request.LookupApplicationByAppKeyRequest;
 import com.wultra.security.powerauth.client.model.response.GetApplicationConfigResponse;
