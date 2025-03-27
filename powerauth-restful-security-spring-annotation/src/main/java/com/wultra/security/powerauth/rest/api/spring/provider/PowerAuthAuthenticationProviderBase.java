@@ -199,8 +199,8 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public @Nullable byte[] extractRequestBodyBytes(@Nonnull HttpServletRequest servletRequest) throws PowerAuthAuthenticationException {
         if (servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT) != null) {
             // Implementation of sign-then-encrypt - in case the encryption object is present and signature is valid, use decrypted request data
-            PowerAuthEncryptorData eciesEncryption = (PowerAuthEncryptorData) servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
-            return eciesEncryption.getDecryptedRequest();
+            PowerAuthEncryptorData encryption = (PowerAuthEncryptorData) servletRequest.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+            return encryption.getDecryptedRequest();
         } else {
             // Request data was not encrypted - use regular PowerAuth request body for signature validation
             PowerAuthRequestBody requestBody = ((PowerAuthRequestBody) servletRequest.getAttribute(PowerAuthRequestObjects.REQUEST_BODY));

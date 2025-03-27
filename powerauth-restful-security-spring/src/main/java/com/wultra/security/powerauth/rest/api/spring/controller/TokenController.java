@@ -95,7 +95,7 @@ public class TokenController {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
-        PowerAuthVersionUtil.checkEciesParameters(auth.getVersion(), request);
+        PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
 
         return tokenServiceV3.createToken(request, auth);
     }

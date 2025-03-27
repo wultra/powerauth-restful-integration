@@ -48,7 +48,7 @@ public final class PowerAuthVersionUtil {
     /**
      * Set containing all the supported versions of PowerAuth.
      */
-    private static final Set<String> SUPPORTED_VERSIONS = Set.of("3.0", "3.1", "3.2", "3.3");
+    private static final Set<String> SUPPORTED_VERSIONS = Set.of("3.0", "3.1", "3.2", "3.3", "4.0");
 
     /**
      * Check if the provided version string is "3.0".
@@ -104,8 +104,8 @@ public final class PowerAuthVersionUtil {
      */
     public static void checkMissingRequiredNonce(String version, String nonce) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredNonce(version, nonce)) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException("Missing nonce in ECIES request data");
+            logger.warn("Missing nonce in encrypted request data");
+            throw new PowerAuthInvalidRequestException("Missing nonce in encrypted request data");
         }
     }
 
@@ -119,8 +119,8 @@ public final class PowerAuthVersionUtil {
      */
     public static void checkMissingRequiredTimestamp(String version, Long timestamp) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredTimestamp(version, timestamp)) {
-            logger.warn("Missing timestamp in ECIES request data for version {}", version);
-            throw new PowerAuthInvalidRequestException("Missing timestamp in ECIES request data for version " + version);
+            logger.warn("Missing timestamp in encrypted request data for version {}", version);
+            throw new PowerAuthInvalidRequestException("Missing timestamp in encrypted request data for version " + version);
         }
     }
 
@@ -134,20 +134,20 @@ public final class PowerAuthVersionUtil {
      */
     public static void checkMissingRequiredTemporaryKeyId(String version, String temporaryKeyId) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredTemporaryKeyId(version, temporaryKeyId)) {
-            logger.warn("Missing temporary key ID in ECIES request data for version {}", version);
-            throw new PowerAuthInvalidRequestException("Missing temporary kdy ID in ECIES request data for version " + version);
+            logger.warn("Missing temporary key ID in encrypted request data for version {}", version);
+            throw new PowerAuthInvalidRequestException("Missing temporary kdy ID in encrypted request data for version " + version);
         }
     }
 
     /**
-     * Checks if required ECIES parameters are missing for the provided PowerAuth protocol version.
+     * Checks if required encryption parameters are missing for the provided PowerAuth protocol version.
      * Throws an exception if the required parameter is missing.
      *
      * @param version   Version string to be checked.
      * @param request   Request to be verified.
      * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
      */
-    public static void checkEciesParameters(String version, EciesEncryptedRequest request) throws PowerAuthInvalidRequestException {
+    public static void checkEncryptionParameters(String version, EciesEncryptedRequest request) throws PowerAuthInvalidRequestException {
         checkMissingRequiredNonce(version, request.getNonce());
         checkMissingRequiredTimestamp(version, request.getTimestamp());
         checkMissingRequiredTemporaryKeyId(version, request.getTemporaryKeyId());

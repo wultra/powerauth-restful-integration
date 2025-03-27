@@ -22,7 +22,7 @@ package com.wultra.security.powerauth.rest.api.model.request;
 import lombok.Data;
 
 /**
- * Request object for vault unlock ECIES payload.
+ * Request object for vault unlock encrypted payload.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *

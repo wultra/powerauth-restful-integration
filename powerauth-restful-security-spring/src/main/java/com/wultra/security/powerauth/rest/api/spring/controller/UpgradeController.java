@@ -103,7 +103,7 @@ public class UpgradeController {
         }
 
         PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
-        PowerAuthVersionUtil.checkEciesParameters(header.getVersion(), request);
+        PowerAuthVersionUtil.checkEncryptionParameters(header.getVersion(), request);
 
         return upgradeService.upgradeStart(request, header);
 

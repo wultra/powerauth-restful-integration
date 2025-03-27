@@ -62,18 +62,18 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     @Override
     public Object resolveArgument(@NonNull MethodParameter parameter, ModelAndViewContainer mavContainer, @NonNull NativeWebRequest webRequest, WebDataBinderFactory binderFactory) {
         final HttpServletRequest request = (HttpServletRequest) webRequest.getNativeRequest();
-        final PowerAuthEncryptorData eciesObject = (PowerAuthEncryptorData) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
+        final PowerAuthEncryptorData encryptorData = (PowerAuthEncryptorData) request.getAttribute(PowerAuthRequestObjects.ENCRYPTION_OBJECT);
         // Decrypted object is inserted into parameter annotated by @EncryptedRequestBody annotation
-        if (parameter.hasParameterAnnotation(EncryptedRequestBody.class) && eciesObject != null && eciesObject.getDecryptedRequest() != null) {
+        if (parameter.hasParameterAnnotation(EncryptedRequestBody.class) && encryptorData != null && encryptorData.getDecryptedRequest() != null) {
             final Type requestType = parameter.getGenericParameterType();
             if (requestType.equals(byte[].class)) {
-                return eciesObject.getDecryptedRequest();
+                return encryptorData.getDecryptedRequest();
             } else {
                 try {
                     // Object is deserialized from JSON based on request type
                     final TypeFactory typeFactory = objectMapper.getTypeFactory();
                     final JavaType requestJavaType = typeFactory.constructType(requestType);
-                    return objectMapper.readValue(eciesObject.getDecryptedRequest(), requestJavaType);
+                    return objectMapper.readValue(encryptorData.getDecryptedRequest(), requestJavaType);
                 } catch (IOException ex) {
                     logger.warn("Invalid request, error: {}", ex.getMessage());
                     logger.debug("Error details", ex);
@@ -81,15 +81,15 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                 }
             }
         }
-        // Ecies encryption object is inserted into parameter which is of type PowerAuthEciesEncryption
-        if (eciesObject != null && EncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
-            // Set ECIES scope in case it is specified by the @PowerAuthEncryption annotation
+        // Encryption object is inserted into parameter which is of type PowerAuthEncryption
+        if (encryptorData != null && EncryptionContext.class.isAssignableFrom(parameter.getParameterType())) {
+            // Set encryption scope in case it is specified by the @PowerAuthEncryption annotation
             final PowerAuthEncryption powerAuthEncryption = parameter.getMethodAnnotation(PowerAuthEncryption.class);
             if (powerAuthEncryption != null) {
-                EncryptionContext eciesContext = eciesObject.getContext();
-                boolean validScope = validateEciesScope(eciesContext);
+                EncryptionContext encryptionContext = encryptorData.getContext();
+                boolean validScope = validateEncryptionScope(encryptionContext);
                 if (validScope) {
-                    return eciesContext;
+                    return encryptionContext;
                 }
             }
         }
@@ -97,29 +97,29 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
     }
 
     /**
-     * Validate that encryption HTTP header contains correct values for given ECIES scope.
-     * @param eciesContext ECIES context.
+     * Validate that encryption HTTP header contains correct values for given encryption scope.
+     * @param encryptionContext Encryption context.
      */
-    private boolean validateEciesScope(EncryptionContext eciesContext) {
-        switch (eciesContext.getEncryptionScope()) {
+    private boolean validateEncryptionScope(EncryptionContext encryptionContext) {
+        switch (encryptionContext.getEncryptionScope()) {
             case ACTIVATION_SCOPE -> {
-                if (!StringUtils.hasLength(eciesContext.getApplicationKey())) {
-                    logger.warn("ECIES activation scope is invalid because of missing application key");
+                if (!StringUtils.hasLength(encryptionContext.getApplicationKey())) {
+                    logger.warn("Encryption activation scope is invalid because of missing application key");
                     return false;
                 }
-                if (!StringUtils.hasLength(eciesContext.getActivationId())) {
-                    logger.warn("ECIES activation scope is invalid because of missing activation ID");
+                if (!StringUtils.hasLength(encryptionContext.getActivationId())) {
+                    logger.warn("Encryption activation scope is invalid because of missing activation ID");
                     return false;
                 }
             }
             case APPLICATION_SCOPE -> {
-                if (!StringUtils.hasLength(eciesContext.getApplicationKey())) {
-                    logger.warn("ECIES application scope is invalid because of missing application key");
+                if (!StringUtils.hasLength(encryptionContext.getApplicationKey())) {
+                    logger.warn("Encryption application scope is invalid because of missing application key");
                     return false;
                 }
             }
             default -> {
-                logger.warn("Unsupported ECIES scope: {}", eciesContext.getEncryptionScope());
+                logger.warn("Unsupported encryption scope: {}", encryptionContext.getEncryptionScope());
                 return false;
             }
         }

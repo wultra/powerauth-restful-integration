@@ -109,7 +109,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
             // Resolve @PowerAuthEncryption annotation. The order of processing is important, PowerAuth expects
             // sign-then-encrypt sequence in case both authorization and encryption are used.
             if (powerAuthEncryptionAnnotation != null) {
-                final Type requestType = resolveGenericParameterTypeForEcies(handlerMethod);
+                final Type requestType = resolveGenericParameterTypeForEncryption(handlerMethod);
                 try {
                     encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope());
                     // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for Spring
@@ -170,7 +170,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
      * @param handlerMethod Handler method.
      * @return Resolved type of request object.
      */
-    private Type resolveGenericParameterTypeForEcies(HandlerMethod handlerMethod) {
+    private Type resolveGenericParameterTypeForEncryption(HandlerMethod handlerMethod) {
         for (MethodParameter parameter: handlerMethod.getMethodParameters()) {
             if (parameter.hasParameterAnnotation(EncryptedRequestBody.class)) {
                 return parameter.getGenericParameterType();

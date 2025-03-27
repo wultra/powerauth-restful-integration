@@ -23,7 +23,7 @@ package com.wultra.security.powerauth.rest.api.spring.encryption;
  * Class used for storing encryptor parameters.
  *
  * @param secretKey Secret key.
- * @param sharedInfo2 Parameter sharedInfo2 for ECIES (V3.x protocols).
+ * @param sharedInfo2 Parameter sharedInfo2 for encryption.
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 public record PowerAuthEncryptorParameters(String secretKey, String sharedInfo2) {

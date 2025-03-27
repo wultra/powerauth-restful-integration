@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2024 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,32 +17,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v4;
 
 import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
 import com.wultra.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
-import com.wultra.security.powerauth.rest.api.spring.service.KeyStoreService;
+import com.wultra.security.powerauth.rest.api.spring.service.v4.KeyStoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * Controller for obtaining temporary encryption keys.
  *
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- *     <li>3.3</li>
+ *     <li>4.0</li>
  * </ul>
  *
- * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController("keyStoreControllerV3")
-@RequestMapping(value = "/pa/v3/keystore")
+@RestController("keyStoreControllerV4")
+@RequestMapping(value = "/pa/v4/keystore")
 public class KeyStoreController {
 
     private static final Logger logger = LoggerFactory.getLogger(KeyStoreController.class);
