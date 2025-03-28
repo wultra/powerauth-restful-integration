@@ -28,6 +28,7 @@ import com.wultra.security.powerauth.rest.api.spring.service.v4.KeyStoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -57,7 +58,7 @@ public class KeyStoreController {
      * @param service Keystore service.
      */
     @Autowired
-    public KeyStoreController(KeyStoreService service) {
+    public KeyStoreController(@Qualifier("keyStoreServiceV4") KeyStoreService service) {
         this.service = service;
     }
 
