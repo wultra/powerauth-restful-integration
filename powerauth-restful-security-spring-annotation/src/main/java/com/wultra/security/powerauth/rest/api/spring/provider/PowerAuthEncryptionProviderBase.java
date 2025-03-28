@@ -145,18 +145,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String temporaryKeyId;
             switch (versionInt) {
                 case 3:
-                    final EciesEncryptedRequest eciesRequest;
-                    try {
-                        eciesRequest = objectMapper.readValue(requestBodyBytes, EciesEncryptedRequest.class);
-                    } catch (IOException ex) {
-                        logger.warn("Request deserialization failed, error: {}", ex.getMessage());
-                        logger.debug(ex.getMessage(), ex);
-                        throw new PowerAuthEncryptionException();
-                    }
-                    if (eciesRequest == null) {
-                        logger.warn("Deserialization of request body bytes resulted in null value.");
-                        throw new PowerAuthEncryptionException();
-                    }
+                    final EciesEncryptedRequest eciesRequest = deserializeRequest(requestBodyBytes, EciesEncryptedRequest.class);
                     temporaryKeyId = eciesRequest.getTemporaryKeyId();
                     encryptedRequest = new EciesEncryptedRequest(
                             temporaryKeyId,
@@ -180,18 +169,7 @@ public abstract class PowerAuthEncryptionProviderBase {
                     encryptorSecrets = new ServerEciesSecrets(secretKeyBytesEcies, sharedInfo2BaseEcies);
                     break;
                 case 4:
-                    final AeadEncryptedRequest aeadRequest;
-                    try {
-                        aeadRequest = objectMapper.readValue(requestBodyBytes, AeadEncryptedRequest.class);
-                    } catch (IOException ex) {
-                        logger.warn("Request deserialization failed, error: {}", ex.getMessage());
-                        logger.debug(ex.getMessage(), ex);
-                        throw new PowerAuthEncryptionException();
-                    }
-                    if (aeadRequest == null) {
-                        logger.warn("Deserialization of request body bytes resulted in null value.");
-                        throw new PowerAuthEncryptionException();
-                    }
+                    final AeadEncryptedRequest aeadRequest = deserializeRequest(requestBodyBytes, AeadEncryptedRequest.class);
                     temporaryKeyId = aeadRequest.getTemporaryKeyId();
                     encryptedRequest = new AeadEncryptedRequest(
                             temporaryKeyId,
@@ -254,6 +232,30 @@ public abstract class PowerAuthEncryptionProviderBase {
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
         }
+    }
+
+    /**
+     * Deserialize an encrypted request.
+     * @param requestBodyBytes Request body bytes.
+     * @param type Request type class.
+     * @return Deserialized request.
+     * @param <T> Request type.
+     * @throws PowerAuthEncryptionException In case deserialization fails.
+     */
+    private <T> T deserializeRequest(byte[] requestBodyBytes, Class<T> type) throws PowerAuthEncryptionException {
+        final T request;
+        try {
+            request = objectMapper.readValue(requestBodyBytes, type);
+        } catch (IOException ex) {
+            logger.warn("Request deserialization failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthEncryptionException();
+        }
+        if (request == null) {
+            logger.warn("Deserialization of request body bytes resulted in null value.");
+            throw new PowerAuthEncryptionException();
+        }
+        return request;
     }
 
     /**
