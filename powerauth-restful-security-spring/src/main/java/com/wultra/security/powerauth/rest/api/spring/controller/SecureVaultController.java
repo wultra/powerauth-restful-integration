@@ -103,7 +103,7 @@ public class SecureVaultController {
         }
 
         PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
-        PowerAuthVersionUtil.checkEciesParameters(header.getVersion(), request);
+        PowerAuthVersionUtil.checkEncryptionParameters(header.getVersion(), request);
 
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
     }

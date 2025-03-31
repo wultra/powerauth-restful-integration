@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.service;
+package com.wultra.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
@@ -26,6 +26,7 @@ import com.wultra.security.powerauth.client.model.response.TemporaryPublicKeyRes
 import com.wultra.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
+import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +37,7 @@ import org.springframework.stereotype.Service;
  *
  * @author Petr Dvorak, petr@wultra.com
  */
-@Service
+@Service("keyStoreServiceV3")
 public class KeyStoreService {
 
     private static final Logger logger = LoggerFactory.getLogger(KeyStoreService.class);

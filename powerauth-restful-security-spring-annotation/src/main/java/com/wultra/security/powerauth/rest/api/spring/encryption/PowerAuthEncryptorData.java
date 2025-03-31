@@ -22,9 +22,8 @@ package com.wultra.security.powerauth.rest.api.spring.encryption;
 
 import com.wultra.security.powerauth.crypto.lib.encryptor.ServerEncryptor;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptorId;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,13 +35,13 @@ import lombok.Setter;
 @Setter
 public class PowerAuthEncryptorData {
     /**
-     * ECIES encryption context.
+     * Encryption context.
      */
     private final EncryptionContext context;
     /**
      * {@link ServerEncryptor} implementation.
      */
-    private ServerEncryptor<EciesEncryptedRequest, EciesEncryptedResponse> serverEncryptor;
+    private ServerEncryptor<EncryptedRequest, EncryptedResponse> serverEncryptor;
     /**
      * Encrypted request data.
      */

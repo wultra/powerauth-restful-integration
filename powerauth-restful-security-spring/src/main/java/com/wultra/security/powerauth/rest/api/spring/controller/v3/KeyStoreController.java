@@ -17,17 +17,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v3;
 
 import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
 import com.wultra.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
-import com.wultra.security.powerauth.rest.api.spring.service.KeyStoreService;
+import com.wultra.security.powerauth.rest.api.spring.service.v3.KeyStoreService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -54,7 +55,7 @@ public class KeyStoreController {
      * @param service Keystore service.
      */
     @Autowired
-    public KeyStoreController(KeyStoreService service) {
+    public KeyStoreController(@Qualifier("keyStoreServiceV3") KeyStoreService service) {
         this.service = service;
     }
 
