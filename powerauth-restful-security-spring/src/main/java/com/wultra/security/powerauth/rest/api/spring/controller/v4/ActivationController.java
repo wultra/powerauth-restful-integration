@@ -17,15 +17,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v4;
 
 import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
+import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
+import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationStatusResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationLayer1Response;
+import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthToken;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
@@ -34,23 +41,15 @@ import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivati
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationLayer1Request;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
-import com.wultra.security.powerauth.rest.api.model.response.ActivationLayer1Response;
-import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import com.wultra.security.powerauth.rest.api.model.response.ActivationStatusResponse;
-import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
-import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
-import com.wultra.security.powerauth.rest.api.spring.service.ActivationService;
+import com.wultra.security.powerauth.rest.api.spring.service.v4.ActivationService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
@@ -58,32 +57,29 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- *     <li>3.0</li>
- *     <li>3.1</li>
- *     <li>3.2</li>
- *     <li>3.3</li>
+ *     <li>4.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@RestController("activationControllerV3")
-@RequestMapping("/pa/v3/activation")
+@RestController("activationControllerV4")
+@RequestMapping("/pa/v4/activation")
 public class ActivationController {
 
     private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);
 
     private PowerAuthAuthenticationProvider authenticationProvider;
 
-    private ActivationService activationServiceV3;
+    private ActivationService activationServiceV4;
 
     /**
      * Set the activation service via setter injection.
-     * @param activationServiceV3 Activation service (v3).
+     * @param activationServiceV4 Activation service (v4).
      */
     @Autowired
-    public void setActivationServiceV3(ActivationService activationServiceV3) {
-        this.activationServiceV3 = activationServiceV3;
+    public void setActivationServiceV4(ActivationService activationServiceV4) {
+        this.activationServiceV4 = activationServiceV4;
     }
 
     /**
@@ -110,7 +106,7 @@ public class ActivationController {
             logger.warn("Invalid request in activation create");
             throw new PowerAuthActivationException();
         }
-        return activationServiceV3.createActivation(request, context);
+        return activationServiceV4.createActivation(request, context);
     }
 
     /**
@@ -126,7 +122,7 @@ public class ActivationController {
             logger.warn("Invalid request object in activation status");
             throw new PowerAuthActivationException();
         }
-        ActivationStatusResponse response = activationServiceV3.getActivationStatus(request.getRequestObject());
+        ActivationStatusResponse response = activationServiceV4.getActivationStatus(request.getRequestObject());
         return new ObjectResponse<>(response);
     }
 
@@ -151,7 +147,7 @@ public class ActivationController {
         }
         PowerAuthVersionUtil.checkUnsupportedVersion(apiAuthentication.getVersion());
 
-        ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
+        ActivationRemoveResponse response = activationServiceV4.removeActivation(apiAuthentication);
         return new ObjectResponse<>(response);
     }
 
@@ -174,7 +170,7 @@ public class ActivationController {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
 
-        final ActivationDetailResponse activationDetail = activationServiceV3.getActivationDetail(auth.getActivationContext().getActivationId());
+        final ActivationDetailResponse activationDetail = activationServiceV4.getActivationDetail(auth.getActivationContext().getActivationId());
         return new ObjectResponse<>(activationDetail);
     }
 
@@ -200,7 +196,7 @@ public class ActivationController {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
 
-        final ActivationDetailResponse activationDetail = activationServiceV3.renameActivation(auth.getActivationContext().getActivationId(), request);
+        final ActivationDetailResponse activationDetail = activationServiceV4.renameActivation(auth.getActivationContext().getActivationId(), request);
         return new ObjectResponse<>(activationDetail);
     }
 

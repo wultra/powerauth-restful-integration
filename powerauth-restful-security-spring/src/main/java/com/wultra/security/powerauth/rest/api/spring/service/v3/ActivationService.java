@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.service;
+package com.wultra.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
@@ -32,10 +32,11 @@ import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncrypte
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import com.wultra.security.powerauth.rest.api.model.entity.UserInfoStage;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
+import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.response.*;
+import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
 import com.wultra.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.converter.ActivationContextConverter;
@@ -45,6 +46,7 @@ import com.wultra.security.powerauth.rest.api.spring.model.ActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.model.UserInfoContext;
 import com.wultra.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
 import com.wultra.security.powerauth.rest.api.spring.provider.UserInfoProvider;
+import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -62,6 +64,9 @@ import java.util.*;
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
+ *     <li>3.1</li>
+ *     <li>3.2</li>
+ *     <li>3.3</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com

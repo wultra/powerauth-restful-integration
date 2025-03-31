@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,35 +17,41 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.response;
+package com.wultra.security.powerauth.rest.api.model.request.v4;
 
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
+import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import lombok.Data;
 
 import java.util.Map;
 
 /**
- * Response object for activation layer 2.
+ * Request object for activation layer 1.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @Data
-public class ActivationLayer1Response {
+public class ActivationLayer1Request {
 
     /**
-     * Encrypted activation data.
+     * Activation type.
      */
-    private EciesEncryptedResponse activationData;
+    private ActivationType type;
 
     /**
-     * Custom attributes for activation.
+     * Identity attributes.
+     */
+    private Map<String, String> identityAttributes;
+
+    /**
+     * Custom attributes.
      */
     private Map<String, Object> customAttributes;
 
     /**
-     * User info as a map of claims.
+     * Encrypted activation data.
      */
-    private Map<String, Object> userInfo;
+    private AeadEncryptedRequest activationData;
 
 }

@@ -17,40 +17,35 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.request;
+package com.wultra.security.powerauth.rest.api.model.response.v3;
 
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
-import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import lombok.Data;
 
 import java.util.Map;
 
 /**
- * Request object for activation layer 1.
+ * Response object for activation layer 2.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @Data
-public class ActivationLayer1Request {
-
-    /**
-     * Activation type.
-     */
-    private ActivationType type;
-
-    /**
-     * Identity attributes.
-     */
-    private Map<String, String> identityAttributes;
-
-    /**
-     * Custom attributes.
-     */
-    private Map<String, Object> customAttributes;
+public class ActivationLayer1Response {
 
     /**
      * Encrypted activation data.
      */
-    private EciesEncryptedRequest activationData;
+    private EciesEncryptedResponse activationData;
+
+    /**
+     * Custom attributes for activation.
+     */
+    private Map<String, Object> customAttributes;
+
+    /**
+     * User info as a map of claims.
+     */
+    private Map<String, Object> userInfo;
+
 }
