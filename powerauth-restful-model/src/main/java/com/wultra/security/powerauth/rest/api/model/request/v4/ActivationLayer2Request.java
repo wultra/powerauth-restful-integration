@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,14 +17,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.request;
+package com.wultra.security.powerauth.rest.api.model.request.v4;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 /**
- * Request object for activation layer 2 request.
+ * Request object for activation layer 2 (V4).
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
@@ -33,10 +33,8 @@ import lombok.ToString;
 @NoArgsConstructor
 public class ActivationLayer2Request {
 
-    /**
-     * Base64 encoded device public key.
-     */
-    private String devicePublicKey;
+    private SharedSecretRequest sharedSecretRequest;
+    private DevicePublicKeys devicePublicKeys;
 
     /**
      * Additional activation OTP.
@@ -63,17 +61,5 @@ public class ActivationLayer2Request {
      * Information about user device.
      */
     private String deviceInfo;
-
-    /**
-     * Parameterized constructor.
-     * @param devicePublicKey Device public key.
-     * @param activationName Activation name.
-     * @param extras Activation extras.
-     */
-    public ActivationLayer2Request(String devicePublicKey, String activationName, String extras) {
-        this.devicePublicKey = devicePublicKey;
-        this.activationName = activationName;
-        this.extras = extras;
-    }
 
 }

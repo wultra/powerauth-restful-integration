@@ -26,7 +26,7 @@ import lombok.Data;
 import java.util.Map;
 
 /**
- * Request object for activation layer 1.
+ * Request object for activation layer 1 (V4).
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *

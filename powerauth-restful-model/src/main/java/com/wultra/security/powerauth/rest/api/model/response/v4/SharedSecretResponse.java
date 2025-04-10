@@ -19,33 +19,17 @@
  */
 package com.wultra.security.powerauth.rest.api.model.response.v4;
 
-import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.AeadEncryptedResponse;
 import lombok.Data;
 
-import java.util.Map;
-
 /**
- * Response object for activation layer 2 (V3).
+ * Shared secret response.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
- *
  */
 @Data
-public class ActivationLayer1Response {
+public class SharedSecretResponse {
 
-    /**
-     * Encrypted activation data.
-     */
-    private AeadEncryptedResponse activationData;
-
-    /**
-     * Custom attributes for activation.
-     */
-    private Map<String, Object> customAttributes;
-
-    /**
-     * User info as a map of claims.
-     */
-    private Map<String, Object> userInfo;
+    private String ecdhe;
+    private String mlkem;
 
 }

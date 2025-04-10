@@ -17,35 +17,19 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.response.v4;
+package com.wultra.security.powerauth.rest.api.model.request.v4;
 
-import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.AeadEncryptedResponse;
 import lombok.Data;
 
-import java.util.Map;
-
 /**
- * Response object for activation layer 2 (V3).
+ * Device public keys.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
- *
  */
 @Data
-public class ActivationLayer1Response {
+public class DevicePublicKeys {
 
-    /**
-     * Encrypted activation data.
-     */
-    private AeadEncryptedResponse activationData;
-
-    /**
-     * Custom attributes for activation.
-     */
-    private Map<String, Object> customAttributes;
-
-    /**
-     * User info as a map of claims.
-     */
-    private Map<String, Object> userInfo;
+    private String ecdsa;
+    private String mldsa;
 
 }

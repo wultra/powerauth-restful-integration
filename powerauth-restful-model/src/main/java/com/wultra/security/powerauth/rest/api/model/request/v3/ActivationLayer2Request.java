@@ -19,38 +19,61 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request.v3;
 
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
-import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import lombok.Data;
-
-import java.util.Map;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
- * Request object for activation layer 1 (V3).
+ * Request object for activation layer 2 (V3).
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @Data
-public class ActivationLayer1Request {
+@NoArgsConstructor
+public class ActivationLayer2Request {
 
     /**
-     * Activation type.
+     * Base64 encoded device public key.
      */
-    private ActivationType type;
+    private String devicePublicKey;
 
     /**
-     * Identity attributes.
+     * Additional activation OTP.
      */
-    private Map<String, String> identityAttributes;
+    @ToString.Exclude
+    private String activationOtp;
 
     /**
-     * Custom attributes.
+     * Activation name.
      */
-    private Map<String, Object> customAttributes;
+    private String activationName;
 
     /**
-     * Encrypted activation data.
+     * Activation extras.
      */
-    private EciesEncryptedRequest activationData;
+    private String extras;
+
+    /**
+     * User device platform.
+     */
+    private String platform;
+
+    /**
+     * Information about user device.
+     */
+    private String deviceInfo;
+
+    /**
+     * Parameterized constructor.
+     * @param devicePublicKey Device public key.
+     * @param activationName Activation name.
+     * @param extras Activation extras.
+     */
+    public ActivationLayer2Request(String devicePublicKey, String activationName, String extras) {
+        this.devicePublicKey = devicePublicKey;
+        this.activationName = activationName;
+        this.extras = extras;
+    }
+
 }

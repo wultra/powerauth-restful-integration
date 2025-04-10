@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2025 Wultra s.r.o.
+ * Copyright (C) 2018 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,12 +17,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.response.v4;
+package com.wultra.security.powerauth.rest.api.model.response.v3;
 
-import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.AeadEncryptedResponse;
 import lombok.Data;
-
-import java.util.Map;
 
 /**
  * Response object for activation layer 2 (V3).
@@ -31,21 +28,21 @@ import java.util.Map;
  *
  */
 @Data
-public class ActivationLayer1Response {
+public class ActivationLayer2Response {
 
     /**
-     * Encrypted activation data.
+     * Activation ID.
      */
-    private AeadEncryptedResponse activationData;
+    private String activationId;
 
     /**
-     * Custom attributes for activation.
+     * Base64 encoded server public key.
      */
-    private Map<String, Object> customAttributes;
+    private String serverPublicKey;
 
     /**
-     * User info as a map of claims.
+     * Base64 encoded counter data.
      */
-    private Map<String, Object> userInfo;
+    private String ctrData;
 
 }
