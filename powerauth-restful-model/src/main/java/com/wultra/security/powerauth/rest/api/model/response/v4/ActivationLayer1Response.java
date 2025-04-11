@@ -25,7 +25,7 @@ import lombok.Data;
 import java.util.Map;
 
 /**
- * Response object for activation layer 2 (V3).
+ * Response object for activation layer 2 (V4).
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
