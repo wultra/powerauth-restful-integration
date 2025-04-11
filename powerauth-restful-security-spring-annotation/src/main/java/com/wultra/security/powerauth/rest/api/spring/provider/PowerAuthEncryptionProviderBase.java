@@ -137,13 +137,17 @@ public abstract class PowerAuthEncryptionProviderBase {
             final String applicationKey = encryptionContext.getApplicationKey();
             final String activationId = encryptionContext.getActivationId();
             final String version = encryptionContext.getVersion();
-            final int versionInt = (int) Double.parseDouble(version);
+            if (!version.matches("^\\d+\\.\\d+$")) {
+                logger.warn("Invalid version: " + version);
+                throw new PowerAuthEncryptionException();
+            }
+            final int majorVersion = Integer.parseInt(version.split("\\.")[0]);
 
             final EncryptedRequest encryptedRequest;
             final PowerAuthEncryptorParameters encryptorParameters;
             final EncryptorSecrets encryptorSecrets;
             final String temporaryKeyId;
-            switch (versionInt) {
+            switch (majorVersion) {
                 case 3:
                     final EciesEncryptedRequest eciesRequest = deserializeRequest(requestBodyBytes, EciesEncryptedRequest.class);
                     temporaryKeyId = eciesRequest.getTemporaryKeyId();
