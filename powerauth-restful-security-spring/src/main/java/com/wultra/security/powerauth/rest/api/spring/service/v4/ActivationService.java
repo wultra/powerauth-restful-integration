@@ -17,25 +17,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.service;
+package com.wultra.security.powerauth.rest.api.spring.service.v4;
 
-import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.model.request.*;
-import com.wultra.security.powerauth.client.model.request.v3.CreateActivationRequest;
-import com.wultra.security.powerauth.client.model.request.v3.PrepareActivationRequest;
-import com.wultra.security.powerauth.client.model.response.*;
-import com.wultra.security.powerauth.client.model.response.v3.CreateActivationResponse;
-import com.wultra.security.powerauth.client.model.response.v3.PrepareActivationResponse;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
+import com.wultra.security.powerauth.client.model.request.v4.CreateActivationRequest;
+import com.wultra.security.powerauth.client.model.request.v4.PrepareActivationRequest;
+import com.wultra.security.powerauth.client.model.response.CommitActivationResponse;
+import com.wultra.security.powerauth.client.model.response.GetActivationStatusResponse;
+import com.wultra.security.powerauth.client.model.response.RemoveActivationResponse;
+import com.wultra.security.powerauth.client.model.response.UpdateActivationNameResponse;
+import com.wultra.security.powerauth.client.model.response.v4.CreateActivationResponse;
+import com.wultra.security.powerauth.client.model.response.v4.PrepareActivationResponse;
+import com.wultra.security.powerauth.client.v4.PowerAuthClient;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.AeadEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import com.wultra.security.powerauth.rest.api.model.entity.UserInfoStage;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
-import com.wultra.security.powerauth.rest.api.model.response.*;
+import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationLayer1Request;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationStatusResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationLayer1Response;
 import com.wultra.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.converter.ActivationContextConverter;
@@ -45,6 +51,7 @@ import com.wultra.security.powerauth.rest.api.spring.model.ActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.model.UserInfoContext;
 import com.wultra.security.powerauth.rest.api.spring.provider.CustomActivationProvider;
 import com.wultra.security.powerauth.rest.api.spring.provider.UserInfoProvider;
+import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcHandler;
 import lombok.extern.slf4j.Slf4j;
@@ -61,12 +68,12 @@ import java.util.*;
  *
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- *     <li>3.0</li>
+ *     <li>4.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Service("activationServiceV3")
+@Service("activationServiceV4")
 @Slf4j
 public class ActivationService {
 
@@ -133,11 +140,11 @@ public class ActivationService {
      * Create activation.
      *
      * @param request Create activation layer 1 request.
-     * @param eciesContext PowerAuth ECIES encryption context.
+     * @param encryptionContext PowerAuth encryption context.
      * @return Create activation layer 1 response.
      * @throws PowerAuthActivationException In case create activation fails.
      */
-    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EncryptionContext eciesContext) throws PowerAuthActivationException {
+    public ActivationLayer1Response createActivation(ActivationLayer1Request request, EncryptionContext encryptionContext) throws PowerAuthActivationException {
         final ActivationType type = request.getType();
         logger.debug("Handling activation type: {}", type);
         final Map<String, String> identity = request.getIdentityAttributes();
@@ -147,16 +154,16 @@ public class ActivationService {
         try {
             return switch (type) {
                 // Regular activation which uses "code" identity attribute
-                case CODE -> processCodeActivation(eciesContext, request);
+                case CODE -> processCodeActivation(encryptionContext, request);
                 // Direct activation for known specific methods, otherwise fallback to custom activation
-                case CUSTOM, DIRECT -> processDirectOrCustomActivation(eciesContext, request, type, identity);
+                case CUSTOM, DIRECT -> processDirectOrCustomActivation(encryptionContext, request, type, identity);
             };
         } catch (Exception ex) {
             throw new PowerAuthActivationException("Creating PowerAuth activation failed.", ex);
         }
     }
 
-    private ActivationLayer1Response processCodeActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthActivationException, PowerAuthClientException {
+    private ActivationLayer1Response processCodeActivation(final EncryptionContext encryptionContext, final ActivationLayer1Request request) throws PowerAuthActivationException, PowerAuthClientException {
         logger.debug("Processing code activation.");
 
         final Map<String, String> identity = request.getIdentityAttributes();
@@ -173,18 +180,16 @@ public class ActivationService {
 
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
 
-        final EciesEncryptedRequest activationData = request.getActivationData();
+        final AeadEncryptedRequest activationData = request.getActivationData();
 
         // Call PrepareActivation method on PA server
         final PrepareActivationRequest prepareRequest = new PrepareActivationRequest();
         prepareRequest.setActivationCode(activationCode);
-        prepareRequest.setApplicationKey(eciesContext.getApplicationKey());
+        prepareRequest.setApplicationKey(encryptionContext.getApplicationKey());
         prepareRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
-        prepareRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
         prepareRequest.setEncryptedData(activationData.getEncryptedData());
-        prepareRequest.setMac(activationData.getMac());
         prepareRequest.setNonce(activationData.getNonce());
-        prepareRequest.setProtocolVersion(eciesContext.getVersion());
+        prepareRequest.setProtocolVersion(encryptionContext.getVersion());
         prepareRequest.setTimestamp(activationData.getTimestamp());
 
         final PrepareActivationResponse response = powerAuthClient.prepareActivation(
@@ -239,11 +244,10 @@ public class ActivationService {
         }
 
         // Prepare and return encrypted response
-        return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
-                response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
+        return prepareEncryptedResponse(response.getEncryptedData(), response.getTimestamp(), processedCustomAttributes, userInfo);
     }
 
-    private ActivationLayer1Response processCustomActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthActivationException, PowerAuthClientException {
+    private ActivationLayer1Response processCustomActivation(final EncryptionContext encryptionContext, final ActivationLayer1Request request) throws PowerAuthActivationException, PowerAuthClientException {
         logger.debug("Processing custom activation.");
 
         if (activationProvider == null) {
@@ -276,20 +280,18 @@ public class ActivationService {
             activationExpire = Date.from(expiration);
         }
 
-        final EciesEncryptedRequest activationData = request.getActivationData();
+        final AeadEncryptedRequest activationData = request.getActivationData();
 
         // Create activation for a looked up user and application related to the given application key
         final CreateActivationRequest createRequest = new CreateActivationRequest();
         createRequest.setUserId(userId);
         createRequest.setTimestampActivationExpire(activationExpire);
         createRequest.setMaxFailureCount(maxFailedCount);
-        createRequest.setApplicationKey(eciesContext.getApplicationKey());
+        createRequest.setApplicationKey(encryptionContext.getApplicationKey());
         createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
-        createRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
         createRequest.setEncryptedData(activationData.getEncryptedData());
-        createRequest.setMac(activationData.getMac());
         createRequest.setNonce(activationData.getNonce());
-        createRequest.setProtocolVersion(eciesContext.getVersion());
+        createRequest.setProtocolVersion(encryptionContext.getVersion());
         createRequest.setTimestamp(activationData.getTimestamp());
         final CreateActivationResponse response = powerAuthClient.createActivation(
                 createRequest,
@@ -333,24 +335,23 @@ public class ActivationService {
         }
 
         // Prepare encrypted activation data
-        return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
-                response.getNonce(), response.getTimestamp(), processedCustomAttributes, userInfo);
+        return prepareEncryptedResponse(response.getEncryptedData(), response.getTimestamp(), processedCustomAttributes, userInfo);
     }
 
-    private ActivationLayer1Response processDirectOrCustomActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request, final ActivationType type, final Map<String, String> identity) throws PowerAuthActivationException, PowerAuthClientException {
+    private ActivationLayer1Response processDirectOrCustomActivation(final EncryptionContext encryptionContext, final ActivationLayer1Request request, final ActivationType type, final Map<String, String> identity) throws PowerAuthActivationException, PowerAuthClientException {
         if (type == ActivationType.DIRECT) {
             final String method = identity.get("method");
             if (METHOD_OIDC.equals(method)) {
-                return processOidcActivation(eciesContext, request);
+                return processOidcActivation(encryptionContext, request);
             } else {
                 logger.debug("Unknown method: {} of direct activation, fallback to custom activation", method);
             }
         }
 
-        return processCustomActivation(eciesContext, request);
+        return processCustomActivation(encryptionContext, request);
     }
 
-    private ActivationLayer1Response processOidcActivation(final EncryptionContext eciesContext, final ActivationLayer1Request request) throws PowerAuthClientException, PowerAuthActivationException {
+    private ActivationLayer1Response processOidcActivation(final EncryptionContext encryptionContext, final ActivationLayer1Request request) throws PowerAuthClientException, PowerAuthActivationException {
         logger.debug("Processing direct OIDC activation.");
 
         final Map<String, String> identity = request.getIdentityAttributes();
@@ -359,26 +360,21 @@ public class ActivationService {
                 .code(identity.get("code"))
                 .nonce(identity.get("nonce"))
                 .codeVerifier(identity.get("codeVerifier"))
-                .applicationKey(eciesContext.getApplicationKey())
+                .applicationKey(encryptionContext.getApplicationKey())
                 .build();
 
         final String userId = oidcHandler.retrieveUserId(oAuthActivationContext);
 
-        // Create context for passing parameters between activation provider calls
-        final Map<String, Object> context = new LinkedHashMap<>();
-
-        final EciesEncryptedRequest activationData = request.getActivationData();
+        final AeadEncryptedRequest activationData = request.getActivationData();
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
 
         final CreateActivationRequest createRequest = new CreateActivationRequest();
         createRequest.setUserId(userId);
-        createRequest.setApplicationKey(eciesContext.getApplicationKey());
+        createRequest.setApplicationKey(encryptionContext.getApplicationKey());
         createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
-        createRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
         createRequest.setEncryptedData(activationData.getEncryptedData());
-        createRequest.setMac(activationData.getMac());
         createRequest.setNonce(activationData.getNonce());
-        createRequest.setProtocolVersion(eciesContext.getVersion());
+        createRequest.setProtocolVersion(encryptionContext.getVersion());
         createRequest.setTimestamp(activationData.getTimestamp());
 
         final CreateActivationResponse response = powerAuthClient.createActivation(
@@ -400,8 +396,7 @@ public class ActivationService {
                 .build();
         final Map<String, Object> userInfo = processUserInfo(userInfoContext);
 
-        return prepareEncryptedResponse(response.getEncryptedData(), response.getMac(),
-                response.getNonce(), response.getTimestamp(), customAttributes, userInfo);
+        return prepareEncryptedResponse(response.getEncryptedData(), response.getTimestamp(), customAttributes, userInfo);
     }
 
     private static void checkIdentityAttributesPresent(final Map<String, String> identity) throws PowerAuthActivationException {
@@ -563,16 +558,15 @@ public class ActivationService {
      * Prepare payload for the encrypted response.
      *
      * @param encryptedData Encrypted data.
-     * @param mac MAC code of the encrypted data.
+     * @param timestamp Timestamp.
      * @param processedCustomAttributes Custom attributes to be returned.
+     * @param userInfo User info.
      * @return Encrypted response object.
      */
-    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, String mac, String nonce, Long timestamp, Map<String, Object> processedCustomAttributes, Map<String, Object> userInfo) {
+    private ActivationLayer1Response prepareEncryptedResponse(String encryptedData, Long timestamp, Map<String, Object> processedCustomAttributes, Map<String, Object> userInfo) {
         // Prepare encrypted response object for layer 2
-        final EciesEncryptedResponse encryptedResponseL2 = new EciesEncryptedResponse();
+        final AeadEncryptedResponse encryptedResponseL2 = new AeadEncryptedResponse();
         encryptedResponseL2.setEncryptedData(encryptedData);
-        encryptedResponseL2.setMac(mac);
-        encryptedResponseL2.setNonce(nonce);
         encryptedResponseL2.setTimestamp(timestamp);
 
         // The response is encrypted once more before sent to client using ResponseBodyAdvice

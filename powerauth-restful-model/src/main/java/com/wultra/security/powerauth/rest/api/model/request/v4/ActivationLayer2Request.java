@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,32 +17,49 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.response;
+package com.wultra.security.powerauth.rest.api.model.request.v4;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 /**
- * Response object for activation layer 2.
+ * Request object for activation layer 2 (V4).
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @Data
-public class ActivationLayer2Response {
+@NoArgsConstructor
+public class ActivationLayer2Request {
+
+    private SharedSecretRequest sharedSecretRequest;
+    private DevicePublicKeys devicePublicKeys;
 
     /**
-     * Activation ID.
+     * Additional activation OTP.
      */
-    private String activationId;
+    @ToString.Exclude
+    private String activationOtp;
 
     /**
-     * Base64 encoded server public key.
+     * Activation name.
      */
-    private String serverPublicKey;
+    private String activationName;
 
     /**
-     * Base64 encoded counter data.
+     * Activation extras.
      */
-    private String ctrData;
+    private String extras;
+
+    /**
+     * User device platform.
+     */
+    private String platform;
+
+    /**
+     * Information about user device.
+     */
+    private String deviceInfo;
 
 }

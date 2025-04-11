@@ -75,7 +75,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
     }
 
     @Override
-    public @Nonnull PowerAuthEncryptorParameters getAeadEncryptorParameters(String activationId, String applicationKey, String temporaryKeyId, String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
+    public @Nonnull PowerAuthEncryptorParameters getAeadEncryptorParameters(String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String version, @Nonnull String nonce, @Nonnull Long timestamp) throws PowerAuthEncryptionException {
         try {
             final ExtractEncryptorRequest encryptorRequest = new ExtractEncryptorRequest();
             encryptorRequest.setActivationId(activationId);
