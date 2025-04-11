@@ -365,9 +365,6 @@ public class ActivationService {
 
         final String userId = oidcHandler.retrieveUserId(oAuthActivationContext);
 
-        // Create context for passing parameters between activation provider calls
-        final Map<String, Object> context = new LinkedHashMap<>();
-
         final AeadEncryptedRequest activationData = request.getActivationData();
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
 
