@@ -46,6 +46,8 @@ import com.wultra.security.powerauth.rest.api.spring.service.v4.ActivationServic
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,31 +67,12 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController("activationControllerV4")
 @RequestMapping("/pa/v4/activation")
+@Slf4j
+@AllArgsConstructor
 public class ActivationController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);
-
     private PowerAuthAuthenticationProvider authenticationProvider;
-
     private ActivationService activationServiceV4;
-
-    /**
-     * Set the activation service via setter injection.
-     * @param activationServiceV4 Activation service (v4).
-     */
-    @Autowired
-    public void setActivationServiceV4(ActivationService activationServiceV4) {
-        this.activationServiceV4 = activationServiceV4;
-    }
-
-    /**
-     * Set the authentication provider via setter injection.
-     * @param authenticationProvider Authentication provider.
-     */
-    @Autowired
-    public void setAuthenticationProvider(PowerAuthAuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
-    }
 
     /**
      * Create activation.
