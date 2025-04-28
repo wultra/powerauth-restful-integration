@@ -22,7 +22,7 @@ package com.wultra.security.powerauth.rest.api.spring.service;
 import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
-import com.wultra.security.powerauth.client.model.response.GetActivationStatusResponse;
+import com.wultra.security.powerauth.client.model.response.v3.GetActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.model.entity.UserInfoStage;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import com.wultra.security.powerauth.rest.api.spring.model.UserInfoContext;

@@ -35,10 +35,10 @@ import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenti
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
+import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import com.wultra.security.powerauth.rest.api.model.response.ActivationStatusResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;

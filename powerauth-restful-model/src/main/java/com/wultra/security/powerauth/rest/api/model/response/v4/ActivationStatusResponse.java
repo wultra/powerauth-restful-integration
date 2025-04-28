@@ -17,15 +17,14 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.response;
+package com.wultra.security.powerauth.rest.api.model.response.v4;
 
 import lombok.Data;
-import lombok.ToString;
 
 import java.util.Map;
 
 /**
- * Response object for /pa/v3/activation/status end-point.
+ * Response object for /pa/v4/activation/status end-point.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
@@ -34,20 +33,9 @@ import java.util.Map;
 public class ActivationStatusResponse {
 
     /**
-     * Activation ID.
+     * Activation status blob.
      */
-    private String activationId;
-
-    /**
-     * Encrypted activation status blob.
-     */
-    private String encryptedStatusBlob;
-
-    /**
-     * Nonce for activation status blob encryption.
-     */
-    @ToString.Exclude
-    private String nonce;
+    private String activationStatus;
 
     /**
      * Custom associated object.

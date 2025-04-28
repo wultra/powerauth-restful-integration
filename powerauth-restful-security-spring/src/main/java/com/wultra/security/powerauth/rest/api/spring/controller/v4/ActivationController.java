@@ -19,16 +19,15 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.controller.v4;
 
-import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
 import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
+import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import com.wultra.security.powerauth.rest.api.model.response.ActivationStatusResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationLayer1Response;
 import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
@@ -39,6 +38,7 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContex
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
@@ -48,9 +48,6 @@ import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -95,18 +92,24 @@ public class ActivationController {
     /**
      * Get activation status.
      * @param request PowerAuth RESTful request with {@link ActivationStatusRequest} payload.
+     * @param encryptionContext Encryption context.
      * @return PowerAuth RESTful response with {@link ActivationStatusResponse} payload.
      * @throws PowerAuthActivationException In case request fails.
+     * @throws PowerAuthEncryptionException In case encryption fails.
      */
     @PostMapping("status")
-    public ObjectResponse<ActivationStatusResponse> getActivationStatus(@RequestBody ObjectRequest<ActivationStatusRequest> request)
-            throws PowerAuthActivationException {
-        if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
+    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
+    public ActivationStatusResponse getActivationStatus(@EncryptedRequestBody ActivationStatusRequest request, EncryptionContext encryptionContext)
+            throws PowerAuthActivationException, PowerAuthEncryptionException {
+        if (request == null) {
             logger.warn("Invalid request object in activation status");
             throw new PowerAuthActivationException();
         }
-        ActivationStatusResponse response = activationServiceV4.getActivationStatus(request.getRequestObject());
-        return new ObjectResponse<>(response);
+        if (encryptionContext == null) {
+            logger.warn("Invalid encryption context in activation status");
+            throw new PowerAuthEncryptionException();
+        }
+        return activationServiceV4.getActivationStatus(encryptionContext.getActivationId());
     }
 
     /**

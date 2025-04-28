@@ -17,13 +17,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.request;
+package com.wultra.security.powerauth.rest.api.model.request.v4;
 
 import lombok.Data;
-import lombok.ToString;
 
 /**
- * Request object for /pa/v3/activation/status end-point.
+ * Request object for /pa/v4/activation/status end-point.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
@@ -31,14 +30,4 @@ import lombok.ToString;
 @Data
 public class ActivationStatusRequest {
 
-    /**
-     * Activation ID.
-     */
-    private String activationId;
-
-    /**
-     * Challenge for activation status blob encryption. Exactly 16 bytes encoded in Base64 is expected.
-     */
-    @ToString.Exclude
-    private String challenge;
 }
