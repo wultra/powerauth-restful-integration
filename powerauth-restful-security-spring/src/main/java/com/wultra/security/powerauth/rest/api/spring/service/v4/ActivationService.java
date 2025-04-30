@@ -23,9 +23,10 @@ import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.model.request.*;
 import com.wultra.security.powerauth.client.model.request.v4.CreateActivationRequest;
+import com.wultra.security.powerauth.client.model.request.v4.GetActivationStatusRequest;
 import com.wultra.security.powerauth.client.model.request.v4.PrepareActivationRequest;
 import com.wultra.security.powerauth.client.model.response.CommitActivationResponse;
-import com.wultra.security.powerauth.client.model.response.GetActivationStatusResponse;
+import com.wultra.security.powerauth.client.model.response.v4.GetActivationStatusResponse;
 import com.wultra.security.powerauth.client.model.response.RemoveActivationResponse;
 import com.wultra.security.powerauth.client.model.response.UpdateActivationNameResponse;
 import com.wultra.security.powerauth.client.model.response.v4.CreateActivationResponse;
@@ -36,11 +37,10 @@ import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.Aead
 import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import com.wultra.security.powerauth.rest.api.model.entity.UserInfoStage;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import com.wultra.security.powerauth.rest.api.model.response.ActivationStatusResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationLayer1Response;
 import com.wultra.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
@@ -425,27 +425,21 @@ public class ActivationService {
 
     /**
      * Get activation status.
-     *
-     * @param request Activation status request.
+     * @param activationId Activation identifier.
      * @return Activation status response.
      * @throws PowerAuthActivationException In case retrieving activation status fails.
      */
-    public ActivationStatusResponse getActivationStatus(ActivationStatusRequest request) throws PowerAuthActivationException {
+    public ActivationStatusResponse getActivationStatus(String activationId) throws PowerAuthActivationException {
         try {
-            final String activationId = request.getActivationId();
-            final String challenge = request.getChallenge();
             final GetActivationStatusRequest statusRequest = new GetActivationStatusRequest();
             statusRequest.setActivationId(activationId);
-            statusRequest.setChallenge(challenge);
             final GetActivationStatusResponse paResponse = powerAuthClient.getActivationStatus(
                     statusRequest,
                     httpCustomizationService.getQueryParams(),
                     httpCustomizationService.getHttpHeaders()
             );
             final ActivationStatusResponse response = new ActivationStatusResponse();
-            response.setActivationId(paResponse.getActivationId());
-            response.setEncryptedStatusBlob(paResponse.getEncryptedStatusBlob());
-            response.setNonce(paResponse.getEncryptedStatusBlobNonce());
+            response.setActivationStatus(paResponse.getStatusBlob());
             if (applicationConfiguration != null) {
                 final ActivationContext activationContext = activationContextConverter.fromActivationDetailResponse(paResponse);
                 response.setCustomObject(applicationConfiguration.statusServiceCustomObject(activationContext));

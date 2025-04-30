@@ -19,23 +19,32 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.service.v3;
 
-import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
-import com.wultra.security.powerauth.client.model.request.*;
+import com.wultra.security.powerauth.client.model.request.AddActivationFlagsRequest;
+import com.wultra.security.powerauth.client.model.request.CommitActivationRequest;
+import com.wultra.security.powerauth.client.model.request.RemoveActivationRequest;
+import com.wultra.security.powerauth.client.model.request.UpdateActivationNameRequest;
 import com.wultra.security.powerauth.client.model.request.v3.CreateActivationRequest;
+import com.wultra.security.powerauth.client.model.request.v3.GetActivationStatusRequest;
 import com.wultra.security.powerauth.client.model.request.v3.PrepareActivationRequest;
-import com.wultra.security.powerauth.client.model.response.*;
+import com.wultra.security.powerauth.client.model.response.CommitActivationResponse;
+import com.wultra.security.powerauth.client.model.response.RemoveActivationResponse;
+import com.wultra.security.powerauth.client.model.response.UpdateActivationNameResponse;
 import com.wultra.security.powerauth.client.model.response.v3.CreateActivationResponse;
+import com.wultra.security.powerauth.client.model.response.v3.GetActivationStatusResponse;
 import com.wultra.security.powerauth.client.model.response.v3.PrepareActivationResponse;
+import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import com.wultra.security.powerauth.rest.api.model.entity.UserInfoStage;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
-import com.wultra.security.powerauth.rest.api.model.request.ActivationStatusRequest;
+import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
-import com.wultra.security.powerauth.rest.api.model.response.*;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
 import com.wultra.security.powerauth.rest.api.spring.application.PowerAuthApplicationConfiguration;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
