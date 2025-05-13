@@ -38,6 +38,7 @@ public class VaultUnlockResponsePayload {
     /**
      * Flag indicating if the signature is valid.
      */
+    // TODO - update for crypto4
     private boolean signatureValid;
 
 }

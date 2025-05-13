@@ -24,23 +24,23 @@ import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenti
 import java.io.Serial;
 
 /**
- * Exception raised in case PowerAuth signature validation fails with an error.
+ * Exception raised in case PowerAuth authentication code type is invalid.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-public class PowerAuthSignatureErrorException extends PowerAuthAuthenticationException {
+public class PowerAuthCodeTypeInvalidException extends PowerAuthAuthenticationException {
 
     @Serial
-    private static final long serialVersionUID = 1428981649658439163L;
+    private static final long serialVersionUID = 6914310542180702420L;
 
     private static final String DEFAULT_CODE = "ERR_AUTHENTICATION";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_SIGNATURE_ERROR";
+    private static final String DEFAULT_ERROR = "POWER_AUTH_CODE_TYPE_INVALID";
 
     /**
      * Default constructor
      */
-    public PowerAuthSignatureErrorException() {
+    public PowerAuthCodeTypeInvalidException() {
         super(DEFAULT_ERROR);
     }
 
@@ -48,7 +48,7 @@ public class PowerAuthSignatureErrorException extends PowerAuthAuthenticationExc
      * Constructor with a custom error message
      * @param message Error message
      */
-    public PowerAuthSignatureErrorException(String message) {
+    public PowerAuthCodeTypeInvalidException(String message) {
         super(message);
     }
 
@@ -56,7 +56,7 @@ public class PowerAuthSignatureErrorException extends PowerAuthAuthenticationExc
      * Constructor with a cause.
      * @param cause Error cause.
      */
-    public PowerAuthSignatureErrorException(Throwable cause) {
+    public PowerAuthCodeTypeInvalidException(Throwable cause) {
         super(cause);
     }
 

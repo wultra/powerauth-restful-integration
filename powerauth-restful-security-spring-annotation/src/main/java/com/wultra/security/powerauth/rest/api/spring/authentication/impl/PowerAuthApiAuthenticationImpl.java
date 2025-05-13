@@ -19,7 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.authentication.impl;
 
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthActivation;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
@@ -73,9 +73,9 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     private List<String> activationFlags = new ArrayList<>();
 
     /**
-     * Signature type, representing used authentication factor.
+     * Authentication code type, representing used authentication factors.
      */
-    private PowerAuthSignatureTypes factors;
+    private PowerAuthCodeType factors;
 
     /**
      * PowerAuth authentication context.
@@ -83,7 +83,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     private AuthenticationContext authenticationContext;
 
     /**
-     * Signature version.
+     * Protocol version.
      */
     private String version;
 
@@ -130,7 +130,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
         this.authenticationContext = authenticationContext;
         if (authenticationContext != null) {
             // Deprecated field, updated for compatibility reason
-            this.factors = authenticationContext.getSignatureType();
+            this.factors = authenticationContext.getAuthenticationCodeType();
         }
         this.activationContext = new PowerAuthActivationImpl();
         activationContext.setActivationId(activationId);
@@ -219,12 +219,12 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     }
 
     @Override
-    public PowerAuthSignatureTypes getSignatureFactors() {
+    public PowerAuthCodeType getAuthenticationFactors() {
         return factors;
     }
 
     @Override
-    public void setSignatureFactors(PowerAuthSignatureTypes factors) {
+    public void setAuthenticationFactors(PowerAuthCodeType factors) {
         this.factors = factors;
     }
 
@@ -237,8 +237,8 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
     public void setAuthenticationContext(AuthenticationContext authenticationContext) {
         this.authenticationContext = authenticationContext;
         if (authenticationContext != null) {
-            // Update deprecated signatureFactors to ensure compatibility
-            setSignatureFactors(authenticationContext.getSignatureType());
+            // Update deprecated authentication factors to ensure compatibility
+            setAuthenticationFactors(authenticationContext.getAuthenticationCodeType());
         }
     }
 

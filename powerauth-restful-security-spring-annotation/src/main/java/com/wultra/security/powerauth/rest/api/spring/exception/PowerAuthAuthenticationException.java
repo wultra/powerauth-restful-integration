@@ -33,7 +33,7 @@ public class PowerAuthAuthenticationException extends Exception {
     private static final long serialVersionUID = 4280095091435126237L;
 
     private static final String DEFAULT_CODE = "ERR_AUTHENTICATION";
-    private static final String DEFAULT_ERROR = "POWER_AUTH_SIGNATURE_INVALID";
+    private static final String DEFAULT_ERROR = "POWER_AUTH_CODE_INVALID";
 
     /**
      * Default constructor

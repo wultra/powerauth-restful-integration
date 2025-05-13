@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -20,19 +20,19 @@
 package com.wultra.security.powerauth.rest.api.spring.authentication.impl;
 
 import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
-import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthSignatureAuthentication;
+import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthCodeAuthentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 import java.io.Serial;
 
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
- * application (such as mobile banking API). Used in version 3 of the protocol.
+ * application (such as mobile banking API). Used in version 4 of the protocol.
  *
  * @author Petr Dvorak, petr@wultra.com
  *
  */
-public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthSignatureAuthentication {
+public class PowerAuthCodeAuthenticationImpl extends AbstractAuthenticationToken implements PowerAuthCodeAuthentication {
 
     @Serial
     private static final long serialVersionUID = 6495166873663643144L;
@@ -48,14 +48,14 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     private String applicationKey;
 
     /**
-     * Signature value.
+     * Authentication code value.
      */
-    private String signature;
+    private String authenticationCode;
 
     /**
-     * Signature type.
+     * Authentication code type.
      */
-    private String signatureType;
+    private String authenticationCodeType;
 
     /**
      * Request URI identifier.
@@ -78,15 +78,15 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     private byte[] data;
 
     /**
-     * Signature version.
+     * Protocol version.
      */
     private String version;
 
     /**
-     * Forced signature version. Used during scheme upgrade, when the element already uses new signature type but
+     * Forced authentication version. Used during scheme upgrade, when the element already uses new authentication code type but
      * some parts of the process still need to work with the old one.
      */
-    private Integer forcedSignatureVersion;
+    private Integer forcedAuthenticationVersion;
 
     /**
      * Reference to the original HTTP header.
@@ -96,7 +96,7 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     /**
      * Default constructor.
      */
-    public PowerAuthSignatureAuthenticationImpl() {
+    public PowerAuthCodeAuthenticationImpl() {
         super(null);
     }
 
@@ -104,7 +104,7 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
 
     @Override
     public Object getCredentials() {
-        return signature;
+        return authenticationCode;
     }
 
     @Override
@@ -147,35 +147,35 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     }
 
     /**
-     * Get signature.
-     * @return Signature.
+     * Get authentication code.
+     * @return Authentication code.
      */
-    public String getSignature() {
-        return signature;
+    public String getAuthenticationCode() {
+        return authenticationCode;
     }
 
     /**
-     * Set signature.
-     * @param signature Signature.
+     * Set authentication code.
+     * @param authenticationCode Authentication code.
      */
-    public void setSignature(String signature) {
-        this.signature = signature;
+    public void setAuthenticationCode(String authenticationCode) {
+        this.authenticationCode = authenticationCode;
     }
 
     /**
-     * Get signature type.
-     * @return Signature type.
+     * Get authentication code type.
+     * @return Authentication code type.
      */
-    public String getSignatureType() {
-        return signatureType;
+    public String getAuthenticationCodeType() {
+        return authenticationCodeType;
     }
 
     /**
-     * Set signature type.
-     * @param signatureType Signature type.
+     * Set authentication code type.
+     * @param authenticationCodeType Authentication code type.
      */
-    public void setSignatureType(String signatureType) {
-        this.signatureType = signatureType;
+    public void setAuthenticationCodeType(String authenticationCodeType) {
+        this.authenticationCodeType = authenticationCodeType;
     }
 
     /**
@@ -261,21 +261,21 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     }
 
     /**
-     * Get forced signature version which is used during upgrade.
-     * @return Forced signature version.
+     * Get forced authentication version which is used during upgrade.
+     * @return Forced authentication version.
      */
     @Override
-    public Integer getForcedSignatureVersion() {
-        return forcedSignatureVersion;
+    public Integer getForcedAuthenticationVersion() {
+        return forcedAuthenticationVersion;
     }
 
     /**
-     * Set forced signature version which is used during upgrade.
-     * @param forcedSignatureVersion Forced signature version.
+     * Set forced authentication version which is used during upgrade.
+     * @param forcedAuthenticationVersion Forced authentication version.
      */
     @Override
-    public void setForcedSignatureVersion(Integer forcedSignatureVersion) {
-        this.forcedSignatureVersion = forcedSignatureVersion;
+    public void setForcedAuthenticationVersion(Integer forcedAuthenticationVersion) {
+        this.forcedAuthenticationVersion = forcedAuthenticationVersion;
     }
 
     /**
@@ -295,4 +295,5 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
     public void setHttpHeader(PowerAuthHttpHeader httpHeader) {
         this.httpHeader = httpHeader;
     }
+
 }

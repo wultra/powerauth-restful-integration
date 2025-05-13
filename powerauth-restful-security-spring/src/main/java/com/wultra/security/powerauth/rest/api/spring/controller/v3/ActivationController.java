@@ -21,8 +21,8 @@ package com.wultra.security.powerauth.rest.api.spring.controller.v3;
 
 import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
@@ -33,7 +33,7 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
 import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
 import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
@@ -132,22 +132,22 @@ public class ActivationController {
 
     /**
      * Remove activation.
-     * @param signatureHeader PowerAuth signature HTTP header.
+     * @param authHeader PowerAuth authorization HTTP header.
      * @param httpServletRequest HTTP servlet request.
      * @return PowerAuth RESTful response with {@link ActivationRemoveResponse} payload.
      * @throws PowerAuthActivationException In case activation access fails.
-     * @throws PowerAuthAuthenticationException In case the signature validation fails.
+     * @throws PowerAuthAuthenticationException In case the authentication code validation fails.
      */
     @PostMapping("remove")
     public ObjectResponse<ActivationRemoveResponse> removeActivation(
-            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
+            @RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME) String authHeader,
             HttpServletRequest httpServletRequest)
             throws PowerAuthActivationException, PowerAuthAuthenticationException {
         byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-        PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature("POST", requestBodyBytes, "/pa/activation/remove", signatureHeader);
+        PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication("POST", requestBodyBytes, "/pa/activation/remove", authHeader);
         if (apiAuthentication == null || apiAuthentication.getActivationContext().getActivationId() == null) {
-            logger.debug("Signature validation failed");
-            throw new PowerAuthSignatureInvalidException();
+            logger.debug("Authentication code validation failed");
+            throw new PowerAuthCodeInvalidException();
         }
         PowerAuthVersionUtil.checkUnsupportedVersion(apiAuthentication.getVersion());
 
@@ -159,17 +159,17 @@ public class ActivationController {
      * Fetch activation detail.
      * @param auth PowerAuth authentication.
      * @return Activation detail response.
-     * @throws PowerAuthSignatureInvalidException In case the signature validation fails.
+     * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
      * @throws PowerAuthActivationException In case retrieving activation detail fails.
      */
     @PostMapping("detail")
-    @PowerAuthToken(signatureType = {
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE
+    @PowerAuthToken(authenticationCodeType = {
+            PowerAuthCodeType.POSSESSION_BIOMETRY,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
-    public ObjectResponse<ActivationDetailResponse> fetchActivationDetail(PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
+    public ObjectResponse<ActivationDetailResponse> fetchActivationDetail(PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
@@ -183,19 +183,19 @@ public class ActivationController {
      * @param request Remove activation request.
      * @param auth PowerAuth authentication.
      * @return Activation detail response.
-     * @throws PowerAuthSignatureInvalidException In case the signature validation fails.
+     * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
      * @throws PowerAuthActivationException In case retrieving activation detail fails.
      */
     @PostMapping("rename")
-    @PowerAuth(resourceId = "/pa/activation/rename", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY
+    @PowerAuth(resourceId = "/pa/activation/rename", authenticationCodeType = {
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE,
+            PowerAuthCodeType.POSSESSION_BIOMETRY
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameApplication(
             @RequestBody ActivationRenameRequest request,
-            PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
+            PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());

@@ -25,7 +25,7 @@ import com.wultra.security.powerauth.rest.api.spring.model.AuthenticationContext
 import java.util.List;
 
 /**
- * Interface for obtaining PowerAuth activation detail during signature verification.
+ * Interface for obtaining PowerAuth activation detail during authentication.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */

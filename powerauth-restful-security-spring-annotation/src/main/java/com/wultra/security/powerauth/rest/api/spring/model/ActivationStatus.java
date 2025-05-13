@@ -37,7 +37,7 @@ public enum ActivationStatus {
     PENDING_COMMIT,
 
     /**
-     * ACTIVE - the activation was committed, and it is ready for signature verification.
+     * ACTIVE - the activation was committed, and it is ready for authentication code verification.
      */
     ACTIVE,
 

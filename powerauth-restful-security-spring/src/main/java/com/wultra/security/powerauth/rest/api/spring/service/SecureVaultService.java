@@ -20,18 +20,18 @@
 package com.wultra.security.powerauth.rest.api.spring.service;
 
 import com.wultra.security.powerauth.client.v3.PowerAuthClient;
-import com.wultra.security.powerauth.client.model.enumeration.SignatureType;
+import com.wultra.security.powerauth.client.model.enumeration.v3.SignatureType;
 import com.wultra.security.powerauth.client.model.request.v3.VaultUnlockRequest;
 import com.wultra.security.powerauth.client.model.response.v3.VaultUnlockResponse;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.http.PowerAuthHttpBody;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthSecureVaultException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeTypeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -83,32 +83,33 @@ public class SecureVaultService {
      * @throws PowerAuthSecureVaultException In case vault unlock request fails.
      * @throws PowerAuthAuthenticationException In case authentication fails.
      */
-    public EciesEncryptedResponse vaultUnlock(PowerAuthSignatureHttpHeader header,
+    public EciesEncryptedResponse vaultUnlock(PowerAuthAuthorizationHttpHeader header,
                                               EciesEncryptedRequest request,
                                               HttpServletRequest httpServletRequest) throws PowerAuthSecureVaultException, PowerAuthAuthenticationException {
         try {
+            // TODO - update for crypto4
             final SignatureTypeConverter converter = new SignatureTypeConverter();
 
             final String activationId = header.getActivationId();
             final String applicationKey = header.getApplicationKey();
-            final String signature = header.getSignature();
-            final SignatureType signatureType = converter.convertFrom(header.getSignatureType());
+            final String authCode = header.getAuthCode();
+            final SignatureType signatureType = converter.convertFrom(header.getAuthCodeType());
             if (signatureType == null) {
-                logger.warn("Invalid signature type: {}", header.getSignatureType());
-                throw new PowerAuthSignatureTypeInvalidException();
+                logger.warn("Invalid signature type: {}", header.getAuthCodeType());
+                throw new PowerAuthCodeTypeInvalidException();
             }
             final String signatureVersion = header.getVersion();
             final String nonce = header.getNonce();
 
             // Prepare data for signature to allow signature verification on PowerAuth server
             final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-            final String data = PowerAuthHttpBody.getSignatureBaseString("POST", "/pa/vault/unlock", Base64.getDecoder().decode(nonce), requestBodyBytes);
+            final String data = PowerAuthHttpBody.getAuthenticationBaseString("POST", "/pa/vault/unlock", Base64.getDecoder().decode(nonce), requestBodyBytes);
 
             // Verify signature and get encrypted vault encryption key from PowerAuth server
             final VaultUnlockRequest unlockRequest = new VaultUnlockRequest();
             unlockRequest.setActivationId(activationId);
             unlockRequest.setApplicationKey(applicationKey);
-            unlockRequest.setSignature(signature);
+            unlockRequest.setSignature(authCode);
             unlockRequest.setSignatureType(signatureType);
             unlockRequest.setSignatureVersion(signatureVersion);
             unlockRequest.setSignedData(data);
@@ -126,7 +127,7 @@ public class SecureVaultService {
 
             if (!paResponse.isSignatureValid()) {
                 logger.debug("Signature validation failed");
-                throw new PowerAuthSignatureInvalidException();
+                throw new PowerAuthCodeInvalidException();
             }
 
             return new EciesEncryptedResponse(
