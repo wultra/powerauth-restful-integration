@@ -110,7 +110,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         }
         // Handle basic token-based authentications
         else if (authentication instanceof PowerAuthTokenAuthenticationImpl) {
-            return validateTokenAuthentication((PowerAuthTokenAuthenticationImpl) authentication);
+            return authenticateTokenRequest((PowerAuthTokenAuthenticationImpl) authentication);
         }
         // Return null in case unknown authentication type is provided
         return null;
@@ -224,7 +224,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      * @param authentication Token based authentication object.
      * @return API authentication object in case of successful authentication, null otherwise.
      */
-    private PowerAuthApiAuthenticationImpl validateTokenAuthentication(PowerAuthTokenAuthenticationImpl authentication) {
+    private PowerAuthApiAuthenticationImpl authenticateTokenRequest(PowerAuthTokenAuthenticationImpl authentication) {
         try {
             final ValidateTokenRequest validateRequest = new ValidateTokenRequest();
             validateRequest.setTokenId(authentication.getTokenId());
