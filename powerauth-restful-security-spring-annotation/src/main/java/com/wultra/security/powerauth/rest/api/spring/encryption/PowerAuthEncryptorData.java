@@ -56,9 +56,9 @@ public class PowerAuthEncryptorData {
     private Object requestObject;
 
     /**
-     * Initialize encryption object from either encryption or signature HTTP header.
+     * Initialize encryption object from either encryption or authentication HTTP header.
      *
-     * @param context PowerAuth encryption context derived from either encryption or signature HTTP header.
+     * @param context PowerAuth encryption context derived from either encryption or authentication HTTP header.
      */
     public PowerAuthEncryptorData(EncryptionContext context) {
         this.context = context;

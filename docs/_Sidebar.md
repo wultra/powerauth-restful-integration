@@ -10,4 +10,4 @@
 **Implementation Tutorials**
 
 - [Authentication in Mobile Banking Apps (SCA)](https://developers.wultra.com/tutorials/posts/Mobile-First-Authentication/)
-- [Verifying PowerAuth Signatures On The Server](https://developers.wultra.com/tutorials/posts/Manual-Signature-Verification/)
+- [Verifying PowerAuth Authentication Codes On The Server](https://developers.wultra.com/tutorials/posts/Manual-Signature-Verification/)

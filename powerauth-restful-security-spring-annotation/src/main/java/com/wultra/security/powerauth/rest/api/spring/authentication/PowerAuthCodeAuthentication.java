@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -23,12 +23,11 @@ import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
 
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
- * application (such as mobile banking API). Used in version 3 of the protocol.
+ * application (such as mobile banking API). Used in version 4 of the protocol.
  *
- * @author Petr Dvorak, petr@wultra.com
- *
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-public interface PowerAuthSignatureAuthentication extends PowerAuthAuthentication {
+public interface PowerAuthCodeAuthentication extends PowerAuthAuthentication {
 
     /**
      * Get activation ID.
@@ -55,28 +54,28 @@ public interface PowerAuthSignatureAuthentication extends PowerAuthAuthenticatio
     void setApplicationKey(String applicationKey);
 
     /**
-     * Get signature.
-     * @return Signature.
+     * Get authentication code.
+     * @return Authentication code.
      */
-    String getSignature();
+    String getAuthenticationCode();
 
     /**
-     * Set signature.
-     * @param signature Signature.
+     * Set authentication code.
+     * @param authenticationCode Authentication code.
      */
-    void setSignature(String signature);
+    void setAuthenticationCode(String authenticationCode);
 
     /**
-     * Get signature type.
-     * @return Signature type.
+     * Get authentication code type.
+     * @return Authentication code type.
      */
-    String getSignatureType();
+    String getAuthenticationCodeType();
 
     /**
-     * Set signature type.
-     * @param signatureType Signature type.
+     * Set authentication code type.
+     * @param authenticationCodeType Authentication code type.
      */
-    void setSignatureType(String signatureType);
+    void setAuthenticationCodeType(String authenticationCodeType);
 
     /**
      * Get request URI identifier.
@@ -139,16 +138,16 @@ public interface PowerAuthSignatureAuthentication extends PowerAuthAuthenticatio
     void setVersion(String version);
 
     /**
-     * Get forced signature version which is used during upgrade.
-     * @return Forced signature version
+     * Get forced authentication version which is used during upgrade.
+     * @return Forced authentication version
      */
-    Integer getForcedSignatureVersion();
+    Integer getForcedAuthenticationVersion();
 
     /**
-     * Set forced signature version which is used during upgrade.
-     * @param forcedSignatureVersion Forced signature version.
+     * Set forced authentication version which is used during upgrade.
+     * @param forcedAuthenticationVersion Forced authentication version.
      */
-    void setForcedSignatureVersion(Integer forcedSignatureVersion);
+    void setForcedAuthenticationVersion(Integer forcedAuthenticationVersion);
 
     /**
      * Get parsed PowerAuth HTTP header.

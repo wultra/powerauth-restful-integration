@@ -19,7 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.authentication;
 
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.model.AuthenticationContext;
 
@@ -103,22 +103,22 @@ public interface PowerAuthApiAuthentication {
     void setActivationFlags(List<String> activationFlags);
 
     /**
-     * Return authentication factors related to the signature that was used to produce
+     * Return authentication factors related to the authentication that was used to produce
      * this authentication object.
      * This method is deprecated, use {@link PowerAuthApiAuthentication#getAuthenticationContext()} ()} instead.
-     * @return Signature type (signature factors).
+     * @return Authentication code type (factors).
      */
     @Deprecated
-    PowerAuthSignatureTypes getSignatureFactors();
+    PowerAuthCodeType getAuthenticationFactors();
 
     /**
-     * Set authentication factors related to the signature that was used to produce
+     * Set authentication factors related to the authentication that was used to produce
      * this authentication object.
      * This method is deprecated, use {@link PowerAuthApiAuthentication#getAuthenticationContext()} ()} instead.
-     * @param factors Signature type (signature factors).
+     * @param factors Authentication code type (factors).
      */
     @Deprecated
-    void setSignatureFactors(PowerAuthSignatureTypes factors);
+    void setAuthenticationFactors(PowerAuthCodeType factors);
 
     /**
      * Get PowerAuth authentication context.

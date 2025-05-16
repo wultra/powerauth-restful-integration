@@ -34,10 +34,10 @@ import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.ServerEciesSe
 import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.context.AeadSecrets;
 import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
 import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import com.wultra.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
-import com.wultra.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
+import com.wultra.security.powerauth.http.validator.PowerAuthAuthorizationHttpHeaderValidator;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
@@ -114,7 +114,7 @@ public abstract class PowerAuthEncryptionProviderBase {
             throw new PowerAuthEncryptionException();
         }
 
-        // Resolve either signature or encryption HTTP header for encryption
+        // Resolve either authorization or encryption HTTP header for encryption
         final EncryptionContext encryptionContext = extractEncryptionContext(request, encryptionScope);
 
         // Construct encryption object from HTTP header
@@ -299,7 +299,7 @@ public abstract class PowerAuthEncryptionProviderBase {
     }
 
     /**
-     * Extract context required for encryption from either encryption or signature HTTP header.
+     * Extract context required for encryption from either encryption or authorization HTTP header.
      *
      * @param request HTTP servlet request.
      * @param encryptorScope Scope of encryption.
@@ -308,24 +308,24 @@ public abstract class PowerAuthEncryptionProviderBase {
      */
     private EncryptionContext extractEncryptionContext(HttpServletRequest request, EncryptionScope encryptorScope) throws PowerAuthEncryptionException {
         final String encryptionHttpHeader = request.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME);
-        final String signatureHttpHeader = request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME);
+        final String authorizationHttpHeader = request.getHeader(PowerAuthAuthorizationHttpHeader.HEADER_NAME);
 
         // Check that at least one PowerAuth HTTP header with parameters for ECIES is present
-        if (encryptionHttpHeader == null && signatureHttpHeader == null) {
-            logger.warn("Neither signature nor encryption HTTP header is present");
+        if (encryptionHttpHeader == null && authorizationHttpHeader == null) {
+            logger.warn("Neither authorization nor encryption HTTP header is present");
             throw new PowerAuthEncryptionException();
         }
 
-        // In case the PowerAuth signature HTTP header is present, use it for ECIES
-        if (signatureHttpHeader != null) {
-            // Parse signature HTTP header
-            final PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHttpHeader);
+        // In case the PowerAuth authorization HTTP header is present, use it for ECIES
+        if (authorizationHttpHeader != null) {
+            // Parse the authorization HTTP header
+            final PowerAuthAuthorizationHttpHeader header = new PowerAuthAuthorizationHttpHeader().fromValue(authorizationHttpHeader);
 
-            // Validate the signature HTTP header
+            // Validate the authorization HTTP header
             try {
-                PowerAuthSignatureHttpHeaderValidator.validate(header);
+                PowerAuthAuthorizationHttpHeaderValidator.validate(header);
             } catch (InvalidPowerAuthHttpHeaderException ex) {
-                logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
+                logger.warn("Authorization HTTP header validation failed, error: {}", ex.getMessage());
                 logger.debug(ex.getMessage(), ex);
                 throw new PowerAuthEncryptionException();
             }

@@ -23,7 +23,7 @@ import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.rest.api.model.request.TokenRemoveRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
@@ -79,11 +79,11 @@ public class TokenController {
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
     @PostMapping("create")
-    @PowerAuth(resourceId = "/pa/token/create", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+    @PowerAuth(resourceId = "/pa/token/create", authenticationCodeType = {
+            PowerAuthCodeType.POSSESSION,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE,
+            PowerAuthCodeType.POSSESSION_BIOMETRY,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     })
     public EciesEncryptedResponse createToken(@RequestBody EciesEncryptedRequest request,
                                               PowerAuthApiAuthentication auth)
@@ -108,11 +108,11 @@ public class TokenController {
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
     @PostMapping("remove")
-    @PowerAuth(resourceId = "/pa/token/remove", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+    @PowerAuth(resourceId = "/pa/token/remove", authenticationCodeType = {
+            PowerAuthCodeType.POSSESSION,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE,
+            PowerAuthCodeType.POSSESSION_BIOMETRY,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     })
     public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
                                                            PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {

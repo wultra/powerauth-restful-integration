@@ -55,7 +55,7 @@ public class PowerAuthTokenAuthenticationImpl extends AbstractAuthenticationToke
     private String timestamp;
 
     /**
-     * Signature version.
+     * Protocol version.
      */
     private String version;
 

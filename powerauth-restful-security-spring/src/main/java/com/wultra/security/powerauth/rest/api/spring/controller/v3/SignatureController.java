@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v3;
 
 import com.wultra.core.rest.model.base.response.Response;
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
@@ -55,11 +55,11 @@ public class SignatureController {
      * @throws PowerAuthAuthenticationException In case any error occurs, including signature validation errors.
      */
     @RequestMapping(value = "validate", method = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE})
-    @PowerAuth(resourceId = "/pa/signature/validate", signatureType = {
-            PowerAuthSignatureTypes.POSSESSION,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+    @PowerAuth(resourceId = "/pa/signature/validate", authenticationCodeType = {
+            PowerAuthCodeType.POSSESSION,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE,
+            PowerAuthCodeType.POSSESSION_BIOMETRY,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     })
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 

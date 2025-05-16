@@ -24,10 +24,10 @@ import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
 import com.wultra.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
-import com.wultra.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
+import com.wultra.security.powerauth.http.validator.PowerAuthAuthorizationHttpHeaderValidator;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUpgradeException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
@@ -112,23 +112,23 @@ public class UpgradeController {
     /**
      * Commit upgrade of activation to version 3.
      *
-     * @param signatureHeader PowerAuth signature HTTP header.
+     * @param authHeader PowerAuth authorization HTTP header.
      * @param httpServletRequest HTTP servlet request.
      * @return Response.
-     * @throws PowerAuthAuthenticationException In case request signature is invalid.
+     * @throws PowerAuthAuthenticationException In case request authentication is invalid.
      * @throws PowerAuthUpgradeException In case commit fails.
      */
     @PostMapping("commit")
-    public Response upgradeCommit(@RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME) String signatureHeader,
+    public Response upgradeCommit(@RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME) String authHeader,
                                   HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
 
-        // Parse the signature header
-        PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
+        // Parse the authorization header
+        PowerAuthAuthorizationHttpHeader header = new PowerAuthAuthorizationHttpHeader().fromValue(authHeader);
 
-        // Validate the signature header
+        // Validate the authorization header
         try {
-            PowerAuthSignatureHttpHeaderValidator.validate(header);
+            PowerAuthAuthorizationHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
@@ -137,6 +137,6 @@ public class UpgradeController {
 
         PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
 
-        return upgradeService.upgradeCommit(signatureHeader, httpServletRequest);
+        return upgradeService.upgradeCommit(authHeader, httpServletRequest);
     }
 }

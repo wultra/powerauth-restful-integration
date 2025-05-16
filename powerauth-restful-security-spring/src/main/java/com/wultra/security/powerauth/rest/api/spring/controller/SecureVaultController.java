@@ -21,13 +21,13 @@ package com.wultra.security.powerauth.rest.api.spring.controller;
 
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderException;
-import com.wultra.security.powerauth.http.validator.PowerAuthSignatureHttpHeaderValidator;
+import com.wultra.security.powerauth.http.validator.PowerAuthAuthorizationHttpHeaderValidator;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthSecureVaultException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.service.SecureVaultService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import org.slf4j.Logger;
@@ -71,7 +71,7 @@ public class SecureVaultController {
     /**
      * Request the vault unlock key.
      *
-     * @param signatureHeader PowerAuth HTTP signature header.
+     * @param authHeader PowerAuth authorization HTTP header.
      * @param request Request object encrypted by ECIES.
      * @param httpServletRequest HTTP servlet request.
      * @return Response object encrypted by ECIES.
@@ -80,7 +80,7 @@ public class SecureVaultController {
      */
     @PostMapping("unlock")
     public EciesEncryptedResponse unlockVault(
-            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, defaultValue = "unknown") String signatureHeader,
+            @RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME, defaultValue = "unknown") String authHeader,
             @RequestBody EciesEncryptedRequest request,
             HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
@@ -91,15 +91,15 @@ public class SecureVaultController {
         }
 
         // Parse the header
-        PowerAuthSignatureHttpHeader header = new PowerAuthSignatureHttpHeader().fromValue(signatureHeader);
+        PowerAuthAuthorizationHttpHeader header = new PowerAuthAuthorizationHttpHeader().fromValue(authHeader);
 
         // Validate the header
         try {
-            PowerAuthSignatureHttpHeaderValidator.validate(header);
+            PowerAuthAuthorizationHttpHeaderValidator.validate(header);
         } catch (InvalidPowerAuthHttpHeaderException ex) {
             logger.warn("Signature HTTP header validation failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
-            throw new PowerAuthSignatureInvalidException();
+            throw new PowerAuthCodeInvalidException();
         }
 
         PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
