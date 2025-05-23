@@ -43,6 +43,7 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorParameters;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import jakarta.annotation.Nonnull;
@@ -93,10 +94,11 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param version            Protocol version.
      * @param nonce              Nonce.
      * @param timestamp          Timestamp.
+     * @param allowedStates      Allowed activation states for obtaining encryptor in activation scope.
      * @return AEAD encryptor parameters.
      * @throws PowerAuthEncryptionException In case PowerAuth server call fails.
      */
-    public abstract @Nonnull PowerAuthEncryptorParameters getAeadEncryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String version, @Nonnull String nonce, @Nonnull Long timestamp) throws PowerAuthEncryptionException;
+    public abstract @Nonnull PowerAuthEncryptorParameters getAeadEncryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String version, @Nonnull String nonce, @Nonnull Long timestamp, @Nonnull ActivationStatus[] allowedStates) throws PowerAuthEncryptionException;
 
     /**
      * Decrypt HTTP request body and construct object with encryption data. Use the requestType parameter to specify
@@ -105,9 +107,10 @@ public abstract class PowerAuthEncryptionProviderBase {
      * @param request         HTTP request.
      * @param requestType     Class of request object.
      * @param encryptionScope Encryption scope.
+     * @param allowedStates   Allowed activation states for obtaining encryptor in activation scope.
      * @throws PowerAuthEncryptionException In case request decryption fails.
      */
-    public void decryptRequest(@Nonnull HttpServletRequest request, @Nonnull Type requestType, @Nonnull EncryptionScope encryptionScope) throws PowerAuthEncryptionException {
+    public void decryptRequest(@Nonnull HttpServletRequest request, @Nonnull Type requestType, @Nonnull EncryptionScope encryptionScope, @Nonnull ActivationStatus[] allowedStates) throws PowerAuthEncryptionException {
         // Only POST HTTP method is supported for encryption
         if (!"POST".equals(request.getMethod())) {
             logger.warn("Invalid HTTP method: {}", request.getMethod());
@@ -187,7 +190,8 @@ public abstract class PowerAuthEncryptionProviderBase {
                             temporaryKeyId,
                             version,
                             aeadRequest.getNonce(),
-                            aeadRequest.getTimestamp()
+                            aeadRequest.getTimestamp(),
+                            allowedStates
                     );
                     final byte[] secretKeyBytesAead = Base64.getDecoder().decode(encryptorParameters.secretKey());
                     final byte[] sharedInfo2BaseAead = Base64.getDecoder().decode(encryptorParameters.sharedInfo2());

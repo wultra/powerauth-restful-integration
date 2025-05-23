@@ -80,7 +80,8 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
 
     /**
      * Provider constructor.
-     * @param powerAuthClientV3 PowerAuth client.
+     * @param powerAuthClientV3 PowerAuth client (V3).
+     * @param powerAuthClientV4 PowerAuth client (V4).
      * @param activationStatusConverter Activation status converter.
      * @param httpCustomizationService HTTP customization service.
      */
@@ -153,7 +154,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             logger.debug("Error details", ex);
             return null;
         }
-        final ActivationStatus activationStatus = activationStatusConverter.convertFrom(response.getActivationStatus());
+        final ActivationStatus activationStatus = activationStatusConverter.convert(response.getActivationStatus());
         final AuthenticationContext authenticationContext = new AuthenticationContext();
         authenticationContext.setValid(response.isSignatureValid());
         authenticationContext.setRemainingAttempts(response.getRemainingAttempts() != null ? response.getRemainingAttempts().intValue() : null);
@@ -204,7 +205,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             logger.debug("Error details", ex);
             return null;
         }
-        final ActivationStatus activationStatus = activationStatusConverter.convertFrom(response.getActivationStatus());
+        final ActivationStatus activationStatus = activationStatusConverter.convert(response.getActivationStatus());
         final AuthenticationContext authenticationContext = new AuthenticationContext();
         authenticationContext.setValid(response.isAuthenticationValid());
         authenticationContext.setRemainingAttempts(response.getRemainingAttempts() != null ? response.getRemainingAttempts().intValue() : null);
@@ -239,7 +240,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                     httpCustomizationService.getHttpHeaders()
             );
 
-            final ActivationStatus activationStatus = activationStatusConverter.convertFrom(response.getActivationStatus());
+            final ActivationStatus activationStatus = activationStatusConverter.convert(response.getActivationStatus());
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isTokenValid());
             authenticationContext.setRemainingAttempts(null);
