@@ -111,7 +111,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
             if (powerAuthEncryptionAnnotation != null) {
                 final Type requestType = resolveGenericParameterTypeForEncryption(handlerMethod);
                 try {
-                    encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope());
+                    encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope(), powerAuthEncryptionAnnotation.allowedStates());
                     // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for Spring
                 } catch (PowerAuthEncryptionException ex) {
                     logger.warn("Decryption failed, error: {}", ex.getMessage());

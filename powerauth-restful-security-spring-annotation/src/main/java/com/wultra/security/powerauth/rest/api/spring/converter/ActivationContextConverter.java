@@ -53,7 +53,7 @@ public class ActivationContextConverter {
         final ActivationContext destination = new ActivationContext();
         destination.setActivationId(source.getActivationId());
         destination.setActivationName(source.getActivationName());
-        destination.setActivationStatus(activationStatusConverter.convertFrom(source.getActivationStatus()));
+        destination.setActivationStatus(activationStatusConverter.convert(source.getActivationStatus()));
         destination.setBlockedReason(source.getBlockedReason());
         destination.setApplicationId(source.getApplicationId());
         destination.setUserId(source.getUserId());
@@ -90,7 +90,7 @@ public class ActivationContextConverter {
         final ActivationContext destination = new ActivationContext();
         destination.setActivationId(source.getActivationId());
         destination.setActivationName(source.getActivationName());
-        destination.setActivationStatus(activationStatusConverter.convertFrom(source.getActivationStatus()));
+        destination.setActivationStatus(activationStatusConverter.convert(source.getActivationStatus()));
         destination.setBlockedReason(source.getBlockedReason());
         destination.setApplicationId(source.getApplicationId());
         destination.setUserId(source.getUserId());
