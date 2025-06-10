@@ -36,6 +36,8 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -66,13 +68,13 @@ public class OidcHandler {
     }
 
     /**
-     * Retrieve user ID from a token, using {@code authorization_code} flow. The token is verified first.
+     * Issue a token, using {@code authorization_code} flow. The token is verified first.
      *
      * @param request Parameter object.
-     * @return User ID.
+     * @return data retrieved from the token
      * @throws PowerAuthActivationException in case of error.
      */
-    public String retrieveUserId(final OidcActivationContext request) throws PowerAuthActivationException {
+    public TokenData issueToken(final OidcActivationContext request) throws PowerAuthActivationException {
         final OidcApplicationConfiguration oidcApplicationConfiguration = fetchOidcApplicationConfiguration(request);
         validate(request, oidcApplicationConfiguration);
 
@@ -86,10 +88,27 @@ public class OidcHandler {
                 .clientRegistration(clientRegistration)
                 .build();
 
-        final TokenResponse tokenResponse = fetchToken(tokenRequest);
+        final TokenResponse tokenResponse = issueToken(tokenRequest);
         final Jwt idToken = verifyAndDecode(tokenResponse, clientRegistration, request.getNonce());
 
-        return idToken.getSubject();
+        final Map<String, Object> filteredClaims = filterClaims(oidcApplicationConfiguration.getTokenClaimNames(), idToken.getClaims());
+
+        return TokenData.builder()
+                .userId(idToken.getSubject())
+                .claims(filteredClaims)
+                .build();
+    }
+
+    private static Map<String, Object> filterClaims(final List<String> names, final Map<String, Object> source) {
+        final Map<String, Object> target = new HashMap<>();
+        for (final String name : names) {
+            if (source.containsKey(name)) {
+                target.put(name, source.get(name));
+            } else {
+                logger.warn("action: createActivation, step: issueOidcToken, state: warning, missing claim: {}", name);
+            }
+        }
+        return Map.copyOf(target);
     }
 
     private static void validate(final OidcActivationContext context, final OidcApplicationConfiguration configuration) throws PowerAuthActivationException {
@@ -140,7 +159,7 @@ public class OidcHandler {
         }
     }
 
-    private TokenResponse fetchToken(final TokenRequest tokenRequest) throws PowerAuthActivationException {
+    private TokenResponse issueToken(final TokenRequest tokenRequest) throws PowerAuthActivationException {
         final String clientId = tokenRequest.getClientRegistration().getClientId();
         logger.debug("Fetching token, clientId: {}", clientId);
         try {
