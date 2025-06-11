@@ -105,7 +105,7 @@ public class OidcHandler {
             if (source.containsKey(name)) {
                 target.put(name, source.get(name));
             } else {
-                logger.warn("action: createActivation, step: issueOidcToken, state: warning, missing claim: {}", name);
+                logger.warn("action: issueOidcToken, state: warning, missing claim: {}", name);
             }
         }
         return Map.copyOf(target);
