@@ -84,7 +84,7 @@ class OidcHandlerTest {
         configuration.setIssuerUri("https://issuer.example.com");
         configuration.setJwkSetUri("https://jwks.example.com");
         configuration.setSignatureAlgorithm("RS256");
-        configuration.setTokenClaimNames(List.of("jti"));
+        configuration.setTokenClaimNames(List.of("jti", "n/a"));
         configuration.setPkceEnabled(false);
         configuration.setClientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC);
 
