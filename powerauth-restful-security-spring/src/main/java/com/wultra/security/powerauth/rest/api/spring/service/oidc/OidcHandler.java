@@ -36,11 +36,13 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.stereotype.Component;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
+
+import static java.util.function.Predicate.not;
 
 /**
  * Wrap OIDC (OpenID Connect) client calls, add other logic such as validation.
@@ -100,15 +102,13 @@ public class OidcHandler {
     }
 
     private static Map<String, Object> filterClaims(final List<String> names, final Map<String, Object> source) {
-        final Map<String, Object> target = new HashMap<>();
-        for (final String name : names) {
-            if (source.containsKey(name)) {
-                target.put(name, source.get(name));
-            } else {
-                logger.warn("action: issueOidcToken, state: warning, missing claim: {}", name);
-            }
-        }
-        return Map.copyOf(target);
+        names.stream()
+                .filter(not(source::containsKey))
+                .forEach(name -> logger.warn("action: issueOidcToken, state: warning, missing claim: {}", name));
+
+        return names.stream()
+                .filter(source::containsKey)
+                .collect(Collectors.toUnmodifiableMap(name -> name, source::get));
     }
 
     private static void validate(final OidcActivationContext context, final OidcApplicationConfiguration configuration) throws PowerAuthActivationException {
