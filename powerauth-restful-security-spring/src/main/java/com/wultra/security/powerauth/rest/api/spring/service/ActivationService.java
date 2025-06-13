@@ -44,6 +44,7 @@ import com.wultra.security.powerauth.rest.api.spring.provider.CustomActivationPr
 import com.wultra.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcHandler;
+import com.wultra.security.powerauth.rest.api.spring.service.oidc.TokenData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -467,7 +468,7 @@ public class ActivationService {
                 .applicationKey(eciesContext.getApplicationKey())
                 .build();
 
-        final String userId = oidcHandler.retrieveUserId(oAuthActivationContext);
+        final TokenData tokenData = oidcHandler.issueToken(oAuthActivationContext);
 
         // Create context for passing parameters between activation provider calls
         final Map<String, Object> context = new LinkedHashMap<>();
@@ -476,7 +477,7 @@ public class ActivationService {
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
 
         final CreateActivationRequest createRequest = new CreateActivationRequest();
-        createRequest.setUserId(userId);
+        createRequest.setUserId(tokenData.getUserId());
         createRequest.setGenerateRecoveryCodes(shouldGenerateRecoveryCodes(identity, customAttributes, context));
         createRequest.setApplicationKey(eciesContext.getApplicationKey());
         createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
@@ -486,6 +487,7 @@ public class ActivationService {
         createRequest.setNonce(activationData.getNonce());
         createRequest.setProtocolVersion(eciesContext.getVersion());
         createRequest.setTimestamp(activationData.getTimestamp());
+        createRequest.setAdditionalData(tokenData.getClaims());
 
         final CreateActivationResponse response = powerAuthClient.createActivation(
                 createRequest,
@@ -500,7 +502,7 @@ public class ActivationService {
 
         final UserInfoContext userInfoContext = UserInfoContext.builder()
                 .stage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
-                .userId(userId)
+                .userId(tokenData.getUserId())
                 .activationId(activationId)
                 .applicationId(applicationId)
                 .build();
