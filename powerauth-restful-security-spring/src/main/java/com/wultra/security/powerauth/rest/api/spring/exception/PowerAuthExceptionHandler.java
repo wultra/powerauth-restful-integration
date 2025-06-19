@@ -130,4 +130,28 @@ public class PowerAuthExceptionHandler {
         return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }
 
+    /**
+     * Handle PowerAuthPasswordException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthPasswordException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthPasswordException(PowerAuthPasswordException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+    }
+
+    /**
+     * Handle PowerAuthBiometryException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthBiometryException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthBiometryException(PowerAuthBiometryException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+    }
+
 }

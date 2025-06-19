@@ -27,8 +27,7 @@ import com.wultra.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
 import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -38,9 +37,8 @@ import org.springframework.stereotype.Service;
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 @Service("keyStoreServiceV4")
+@Slf4j
 public class KeyStoreService {
-
-    private static final Logger logger = LoggerFactory.getLogger(KeyStoreService.class);
 
     private final PowerAuthClient powerAuthClient;
     private final HttpCustomizationService httpCustomizationService;
