@@ -22,6 +22,8 @@ package io.getlime.security.powerauth.rest.api.spring.service.oidc;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * OIDC activation configuration.
  *
@@ -65,4 +67,8 @@ public class OidcApplicationConfiguration {
      */
     private boolean pkceEnabled;
 
+    /**
+     * Claim names, whose values are to be stored in activation additional data, by default {@code jti}.
+     */
+    private List<String> tokenClaimNames = List.of("jti");
 }
