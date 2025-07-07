@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v3;
 
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
@@ -28,11 +28,10 @@ import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenti
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthSecureVaultException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
-import com.wultra.security.powerauth.rest.api.spring.service.SecureVaultService;
+import com.wultra.security.powerauth.rest.api.spring.service.v3.SecureVaultService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -53,20 +52,11 @@ import jakarta.servlet.http.HttpServletRequest;
  */
 @RestController("secureVaultControllerV3")
 @RequestMapping("/pa/v3/vault")
+@AllArgsConstructor
+@Slf4j
 public class SecureVaultController {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecureVaultController.class);
-
     private SecureVaultService secureVaultServiceV3;
-
-    /**
-     * Set the secure vault service via setter injection.
-     * @param secureVaultServiceV3 Secure vault service.
-     */
-    @Autowired
-    public void setSecureVaultServiceV3(SecureVaultService secureVaultServiceV3) {
-        this.secureVaultServiceV3 = secureVaultServiceV3;
-    }
 
     /**
      * Request the vault unlock key.
@@ -102,7 +92,7 @@ public class SecureVaultController {
             throw new PowerAuthCodeInvalidException();
         }
 
-        PowerAuthVersionUtil.checkUnsupportedVersion(header.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV3(header.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(header.getVersion(), request);
 
         return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
