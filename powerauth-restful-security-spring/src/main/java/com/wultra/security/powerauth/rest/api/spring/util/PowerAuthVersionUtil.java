@@ -20,6 +20,7 @@
 package com.wultra.security.powerauth.rest.api.spring.util;
 
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
 
@@ -148,6 +149,20 @@ public final class PowerAuthVersionUtil {
      * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
      */
     public static void checkEncryptionParameters(String version, EciesEncryptedRequest request) throws PowerAuthInvalidRequestException {
+        checkMissingRequiredNonce(version, request.getNonce());
+        checkMissingRequiredTimestamp(version, request.getTimestamp());
+        checkMissingRequiredTemporaryKeyId(version, request.getTemporaryKeyId());
+    }
+
+    /**
+     * Checks if required encryption parameters are missing for the provided PowerAuth protocol version.
+     * Throws an exception if the required parameter is missing.
+     *
+     * @param version   Version string to be checked.
+     * @param request   Request to be verified.
+     * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
+     */
+    public static void checkEncryptionParameters(String version, AeadEncryptedRequest request) throws PowerAuthInvalidRequestException {
         checkMissingRequiredNonce(version, request.getNonce());
         checkMissingRequiredTimestamp(version, request.getTimestamp());
         checkMissingRequiredTemporaryKeyId(version, request.getTemporaryKeyId());
