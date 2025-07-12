@@ -17,22 +17,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.model.request;
+package com.wultra.security.powerauth.rest.api.model.response.v3;
 
 import lombok.Data;
 
 /**
- * Request object for vault unlock encrypted payload.
+ * Response object for vault unlock payload (V3).
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
 @Data
-public class VaultUnlockRequestPayload {
+public class VaultUnlockResponsePayload {
 
     /**
-     * Vault unlock reason.
+     * Encrypted vault encryption key.
      */
-    private String reason;
+    private String encryptedVaultEncryptionKey;
 
 }

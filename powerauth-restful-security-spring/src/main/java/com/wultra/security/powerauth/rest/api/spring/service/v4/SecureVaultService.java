@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,25 +17,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.service;
+package com.wultra.security.powerauth.rest.api.spring.service.v4;
 
-import com.wultra.security.powerauth.client.v3.PowerAuthClient;
-import com.wultra.security.powerauth.client.model.enumeration.v3.SignatureType;
-import com.wultra.security.powerauth.client.model.request.v3.VaultUnlockRequest;
-import com.wultra.security.powerauth.client.model.response.v3.VaultUnlockResponse;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
-import com.wultra.security.powerauth.http.PowerAuthHttpBody;
+import com.wultra.security.powerauth.client.model.enumeration.v4.AuthenticationCodeType;
+import com.wultra.security.powerauth.client.model.request.v4.VaultUnlockRequest;
+import com.wultra.security.powerauth.client.model.response.v4.VaultUnlockResponse;
+import com.wultra.security.powerauth.client.v4.PowerAuthClient;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.AeadEncryptedResponse;
 import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
-import com.wultra.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
+import com.wultra.security.powerauth.http.PowerAuthHttpBody;
+import com.wultra.security.powerauth.rest.api.spring.converter.AuthenticationCodeTypeConverter;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthSecureVaultException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeTypeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
+import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,20 +46,20 @@ import java.util.Base64;
  *
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- *     <li>3.0</li>
+ *     <li>4.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@Service("secureVaultServiceV3")
+@Service("secureVaultServiceV4")
+@Slf4j
 public class SecureVaultService {
-
-    private static final Logger logger = LoggerFactory.getLogger(SecureVaultService.class);
 
     private final PowerAuthClient powerAuthClient;
     private final PowerAuthAuthenticationProvider authenticationProvider;
     private final HttpCustomizationService httpCustomizationService;
+    private final AuthenticationCodeTypeConverter converter = new AuthenticationCodeTypeConverter();
 
     /**
      * Service constructor.
@@ -77,28 +77,25 @@ public class SecureVaultService {
     /**
      * Unlock secure vault.
      * @param header PowerAuth signature HTTP header.
-     * @param request ECIES encrypted vault unlock request.
+     * @param request AEAD encrypted vault unlock request.
      * @param httpServletRequest HTTP servlet request.
-     * @return ECIES encrypted vault unlock response.
+     * @return AEAD encrypted vault unlock response.
      * @throws PowerAuthSecureVaultException In case vault unlock request fails.
      * @throws PowerAuthAuthenticationException In case authentication fails.
      */
-    public EciesEncryptedResponse vaultUnlock(PowerAuthAuthorizationHttpHeader header,
-                                              EciesEncryptedRequest request,
-                                              HttpServletRequest httpServletRequest) throws PowerAuthSecureVaultException, PowerAuthAuthenticationException {
+    public AeadEncryptedResponse vaultUnlock(PowerAuthAuthorizationHttpHeader header,
+                                             AeadEncryptedRequest request,
+                                             HttpServletRequest httpServletRequest) throws PowerAuthSecureVaultException, PowerAuthAuthenticationException {
         try {
-            // TODO - update for crypto4
-            final SignatureTypeConverter converter = new SignatureTypeConverter();
-
             final String activationId = header.getActivationId();
             final String applicationKey = header.getApplicationKey();
             final String authCode = header.getAuthCode();
-            final SignatureType signatureType = converter.convertFrom(header.getAuthCodeType());
-            if (signatureType == null) {
-                logger.warn("Invalid signature type: {}", header.getAuthCodeType());
+            final AuthenticationCodeType authCodeType = converter.convertFrom(header.getAuthCodeType());
+            if (authCodeType == null) {
+                logger.warn("Invalid authentication code type: {}", header.getAuthCodeType());
                 throw new PowerAuthCodeTypeInvalidException();
             }
-            final String signatureVersion = header.getVersion();
+            final String authenticationVersion = header.getVersion();
             final String nonce = header.getNonce();
 
             // Prepare data for signature to allow signature verification on PowerAuth server
@@ -109,14 +106,12 @@ public class SecureVaultService {
             final VaultUnlockRequest unlockRequest = new VaultUnlockRequest();
             unlockRequest.setActivationId(activationId);
             unlockRequest.setApplicationKey(applicationKey);
-            unlockRequest.setSignature(authCode);
-            unlockRequest.setSignatureType(signatureType);
-            unlockRequest.setSignatureVersion(signatureVersion);
-            unlockRequest.setSignedData(data);
+            unlockRequest.setAuthenticationCode(authCode);
+            unlockRequest.setAuthenticationCodeType(authCodeType);
+            unlockRequest.setAuthenticationVersion(authenticationVersion);
+            unlockRequest.setRequestData(data);
             unlockRequest.setTemporaryKeyId(request.getTemporaryKeyId());
-            unlockRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             unlockRequest.setEncryptedData(request.getEncryptedData());
-            unlockRequest.setMac(request.getMac());
             unlockRequest.setNonce(request.getNonce());
             unlockRequest.setTimestamp(request.getTimestamp());
             final VaultUnlockResponse paResponse = powerAuthClient.unlockVault(
@@ -125,15 +120,13 @@ public class SecureVaultService {
                     httpCustomizationService.getHttpHeaders()
             );
 
-            if (!paResponse.isSignatureValid()) {
-                logger.debug("Signature validation failed");
+            if (!paResponse.isAuthenticationValid()) {
+                logger.debug("Authentication validation failed");
                 throw new PowerAuthCodeInvalidException();
             }
 
-            return new EciesEncryptedResponse(
+            return new AeadEncryptedResponse(
                     paResponse.getEncryptedData(),
-                    paResponse.getMac(),
-                    paResponse.getNonce(),
                     paResponse.getTimestamp());
         } catch (PowerAuthAuthenticationException ex) {
             throw ex;
@@ -143,4 +136,5 @@ public class SecureVaultService {
             throw new PowerAuthSecureVaultException();
         }
     }
+
 }

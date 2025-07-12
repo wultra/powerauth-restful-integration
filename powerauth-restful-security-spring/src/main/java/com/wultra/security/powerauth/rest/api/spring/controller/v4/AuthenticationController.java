@@ -61,7 +61,7 @@ public class AuthenticationController {
     public Response validateAuthentication(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
 
         return new Response();
     }

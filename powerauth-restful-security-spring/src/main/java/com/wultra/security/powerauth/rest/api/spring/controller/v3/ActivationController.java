@@ -149,7 +149,7 @@ public class ActivationController {
             logger.debug("Authentication code validation failed");
             throw new PowerAuthCodeInvalidException();
         }
-        PowerAuthVersionUtil.checkUnsupportedVersion(apiAuthentication.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV3(apiAuthentication.getVersion());
 
         ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
         return new ObjectResponse<>(response);
@@ -172,7 +172,7 @@ public class ActivationController {
     public ObjectResponse<ActivationDetailResponse> fetchActivationDetail(PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
 
         final ActivationDetailResponse activationDetail = activationServiceV3.getActivationDetail(auth.getActivationContext().getActivationId());
         return new ObjectResponse<>(activationDetail);
@@ -198,7 +198,7 @@ public class ActivationController {
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
 
         final ActivationDetailResponse activationDetail = activationServiceV3.renameActivation(auth.getActivationContext().getActivationId(), request);
         return new ObjectResponse<>(activationDetail);
