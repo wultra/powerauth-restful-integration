@@ -21,9 +21,11 @@ package com.wultra.security.powerauth.rest.api.spring.authentication.impl;
 
 import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthCodeAuthentication;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 
 import java.io.Serial;
+import java.util.List;
 
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
@@ -87,6 +89,12 @@ public class PowerAuthCodeAuthenticationImpl extends AbstractAuthenticationToken
      * some parts of the process still need to work with the old one.
      */
     private Integer forcedAuthenticationVersion;
+
+
+    /**
+     * List of activation statuses for which authentication is allowed.
+     */
+    private List<ActivationStatus> allowedStates;
 
     /**
      * Reference to the original HTTP header.
@@ -267,6 +275,24 @@ public class PowerAuthCodeAuthenticationImpl extends AbstractAuthenticationToken
     @Override
     public Integer getForcedAuthenticationVersion() {
         return forcedAuthenticationVersion;
+    }
+
+    /**
+     * Get activation states for which authentication is allowed.
+     * @return Allowed activation states.
+     */
+    @Override
+    public List<ActivationStatus> getAllowedStates() {
+        return allowedStates;
+    }
+
+    /**
+     * Set activation states for which authentication is allowed.
+     * @param allowedStates Allowed activation states.
+     */
+    @Override
+    public void setAllowedStates(List<ActivationStatus> allowedStates) {
+        this.allowedStates = allowedStates;
     }
 
     /**

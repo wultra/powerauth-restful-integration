@@ -60,6 +60,7 @@ public class BiometryController {
      * @param auth Automatically injected PowerAuth authentication object.
      * @return Encrypted response.
      * @throws PowerAuthAuthenticationException In case any error occurs, including authentication code validation errors.
+     * @throws PowerAuthBiometryException In case of biometry setup failure.
      */
     @PostMapping(value = "add")
     @PowerAuth(resourceId = "/pa/biometry/add", authenticationCodeType = PowerAuthCodeType.POSSESSION_KNOWLEDGE)
@@ -75,6 +76,7 @@ public class BiometryController {
      * @param auth Automatically injected PowerAuth authentication object.
      * @return Response.
      * @throws PowerAuthAuthenticationException In case any error occurs, including authentication code validation errors.
+     * @throws PowerAuthBiometryException In case of biometry removal failure.
      */
     @PostMapping(value = "remove")
     @PowerAuth(resourceId = "/pa/biometry/remove", authenticationCodeType = PowerAuthCodeType.POSSESSION)

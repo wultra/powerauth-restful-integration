@@ -20,6 +20,9 @@
 package com.wultra.security.powerauth.rest.api.spring.authentication;
 
 import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
+
+import java.util.List;
 
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
@@ -148,6 +151,18 @@ public interface PowerAuthCodeAuthentication extends PowerAuthAuthentication {
      * @param forcedAuthenticationVersion Forced authentication version.
      */
     void setForcedAuthenticationVersion(Integer forcedAuthenticationVersion);
+
+    /**
+     * Get activation states for which authentication is allowed.
+     * @return Allowed activation states.
+     */
+    List<ActivationStatus> getAllowedStates();
+
+    /**
+     * Set activation states for which authentication is allowed.
+     * @param allowedStates Allowed activation states.
+     */
+    void setAllowedStates(List<ActivationStatus> allowedStates);
 
     /**
      * Get parsed PowerAuth HTTP header.

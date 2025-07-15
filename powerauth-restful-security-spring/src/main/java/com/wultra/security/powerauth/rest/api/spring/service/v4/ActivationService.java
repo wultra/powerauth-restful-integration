@@ -22,6 +22,7 @@ package com.wultra.security.powerauth.rest.api.spring.service.v4;
 import com.wultra.security.powerauth.client.model.enumeration.ActivationStatus;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.model.request.*;
+import com.wultra.security.powerauth.client.model.request.v4.ConfirmActivationRequest;
 import com.wultra.security.powerauth.client.model.request.v4.CreateActivationRequest;
 import com.wultra.security.powerauth.client.model.request.v4.GetActivationStatusRequest;
 import com.wultra.security.powerauth.client.model.request.v4.PrepareActivationRequest;
@@ -473,7 +474,7 @@ public class ActivationService {
             response.setActivationName(paResponse.getActivationName());
             return response;
         } catch (Exception ex) {
-            logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());
+            logger.warn("PowerAuth activation activation detail failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
@@ -502,7 +503,31 @@ public class ActivationService {
             response.setActivationName(paResponse.getActivationName());
             return response;
         } catch (Exception ex) {
-            logger.warn("PowerAuth activation status check failed, error: {}", ex.getMessage());
+            logger.warn("PowerAuth activation rename failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthActivationException();
+        }
+    }
+
+    /**
+     * Confirm an activation.
+     *
+     * @param activationId Activation ID to be confirmed.
+     * @param enableBiometry Whether biometry is allowed during activation confirmation.
+     * @throws PowerAuthActivationException In case confirming activation fails.
+     */
+    public void confirmActivation(String activationId, boolean enableBiometry) throws PowerAuthActivationException {
+        try {
+            final ConfirmActivationRequest confirmRequest = new ConfirmActivationRequest();
+            confirmRequest.setActivationId(activationId);
+            confirmRequest.setEnableBiometry(enableBiometry);
+            powerAuthClient.confirmActivation(
+                    confirmRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
+        } catch (Exception ex) {
+            logger.warn("PowerAuth activation confirmation failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthActivationException();
         }
