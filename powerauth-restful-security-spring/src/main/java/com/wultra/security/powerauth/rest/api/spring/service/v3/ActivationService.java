@@ -58,6 +58,7 @@ import com.wultra.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcHandler;
+import com.wultra.security.powerauth.rest.api.spring.service.oidc.TokenData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -376,13 +377,13 @@ public class ActivationService {
                 .applicationKey(eciesContext.getApplicationKey())
                 .build();
 
-        final String userId = oidcHandler.retrieveUserId(oAuthActivationContext);
+        final TokenData tokenData = oidcHandler.issueToken(oAuthActivationContext);
 
         final EciesEncryptedRequest activationData = request.getActivationData();
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
 
         final CreateActivationRequest createRequest = new CreateActivationRequest();
-        createRequest.setUserId(userId);
+        createRequest.setUserId(tokenData.getUserId());
         createRequest.setApplicationKey(eciesContext.getApplicationKey());
         createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
         createRequest.setEphemeralPublicKey(activationData.getEphemeralPublicKey());
@@ -391,6 +392,7 @@ public class ActivationService {
         createRequest.setNonce(activationData.getNonce());
         createRequest.setProtocolVersion(eciesContext.getVersion());
         createRequest.setTimestamp(activationData.getTimestamp());
+        createRequest.setAdditionalData(tokenData.getClaims());
 
         final CreateActivationResponse response = powerAuthClient.createActivation(
                 createRequest,
@@ -405,7 +407,7 @@ public class ActivationService {
 
         final UserInfoContext userInfoContext = UserInfoContext.builder()
                 .stage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
-                .userId(userId)
+                .userId(tokenData.getUserId())
                 .activationId(activationId)
                 .applicationId(applicationId)
                 .build();

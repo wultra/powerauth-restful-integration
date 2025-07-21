@@ -33,6 +33,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.when;
 
@@ -70,20 +72,29 @@ class OidcApplicationConfigurationServiceTest {
         when(powerAuthClient.getApplicationConfig(configRequest))
                 .thenReturn(configResponse);
 
-        final OidcApplicationConfiguration result = tested.fetchOidcApplicationConfiguration(OidcConfigurationQuery.builder()
+        final OidcApplicationConfiguration result1 = tested.fetchOidcApplicationConfiguration(OidcConfigurationQuery.builder()
                 .applicationKey("AIsOlIghnLztV2np3SANnQ==")
                 .providerId("xyz999")
                 .build());
 
-        assertEquals("xyz999", result.getProviderId());
-        assertEquals("jabberwocky", result.getClientId());
-        assertEquals("https://redirect.example.com", result.getRedirectUri());
-        assertEquals("https://issuer.example.com", result.getIssuerUri());
-        assertEquals("openid", result.getScopes());
-        assertEquals("https://token.example.com", result.getTokenUri());
-        assertEquals("https://authorize.example.com", result.getAuthorizeUri());
-        assertEquals("ES256", result.getSignatureAlgorithm());
-        assertFalse(result.isPkceEnabled());
+        assertEquals("xyz999", result1.getProviderId());
+        assertEquals("jabberwocky", result1.getClientId());
+        assertEquals("https://redirect.example.com", result1.getRedirectUri());
+        assertEquals("https://issuer.example.com", result1.getIssuerUri());
+        assertEquals("openid", result1.getScopes());
+        assertEquals("https://token.example.com", result1.getTokenUri());
+        assertEquals("https://authorize.example.com", result1.getAuthorizeUri());
+        assertEquals("ES256", result1.getSignatureAlgorithm());
+        assertEquals(List.of("sid", "jti"), result1.getTokenClaimNames());
+        assertFalse(result1.isPkceEnabled());
+
+        final OidcApplicationConfiguration result2 = tested.fetchOidcApplicationConfiguration(OidcConfigurationQuery.builder()
+                .applicationKey("AIsOlIghnLztV2np3SANnQ==")
+                .providerId("abc123")
+                .build());
+
+        assertEquals("abc123", result2.getProviderId());
+        assertEquals(List.of("jti"), result2.getTokenClaimNames());
     }
 
     @Test
@@ -141,7 +152,8 @@ class OidcApplicationConfigurationServiceTest {
                            "issuerUri": "https://issuer.example.com",
                            "tokenUri": "https://token.example.com",
                            "userInfoUri": "https://...",
-                           "signatureAlgorithm": "ES256"
+                           "signatureAlgorithm": "ES256",
+                           "tokenClaimNames": ["sid", "jti"]
                          }
                        ]
                      }
