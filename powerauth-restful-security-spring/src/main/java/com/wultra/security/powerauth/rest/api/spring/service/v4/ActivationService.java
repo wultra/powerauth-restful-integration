@@ -55,6 +55,7 @@ import com.wultra.security.powerauth.rest.api.spring.provider.UserInfoProvider;
 import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcHandler;
+import com.wultra.security.powerauth.rest.api.spring.service.oidc.TokenData;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -364,13 +365,13 @@ public class ActivationService {
                 .applicationKey(encryptionContext.getApplicationKey())
                 .build();
 
-        final String userId = oidcHandler.retrieveUserId(oAuthActivationContext);
+        final TokenData tokenData = oidcHandler.issueToken(oAuthActivationContext);
 
         final AeadEncryptedRequest activationData = request.getActivationData();
         final Map<String, Object> customAttributes = Objects.requireNonNullElse(request.getCustomAttributes(), new HashMap<>());
 
         final CreateActivationRequest createRequest = new CreateActivationRequest();
-        createRequest.setUserId(userId);
+        createRequest.setUserId(tokenData.getUserId());
         createRequest.setApplicationKey(encryptionContext.getApplicationKey());
         createRequest.setTemporaryKeyId(activationData.getTemporaryKeyId());
         createRequest.setEncryptedData(activationData.getEncryptedData());
@@ -391,7 +392,7 @@ public class ActivationService {
 
         final UserInfoContext userInfoContext = UserInfoContext.builder()
                 .stage(UserInfoStage.ACTIVATION_PROCESS_CUSTOM)
-                .userId(userId)
+                .userId(tokenData.getUserId())
                 .activationId(activationId)
                 .applicationId(applicationId)
                 .build();
