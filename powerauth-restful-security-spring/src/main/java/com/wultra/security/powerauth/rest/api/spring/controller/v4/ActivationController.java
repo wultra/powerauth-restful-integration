@@ -19,9 +19,12 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.controller.v4;
 
+import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
+import com.wultra.core.rest.model.base.response.Response;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
+import com.wultra.security.powerauth.rest.api.model.request.ActivationConfirmRequest;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
 import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationLayer1Request;
@@ -176,7 +179,7 @@ public class ActivationController {
             PowerAuthCodeType.POSSESSION_BIOMETRY
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
-    public ObjectResponse<ActivationDetailResponse> renameApplication(
+    public ObjectResponse<ActivationDetailResponse> renameActivation(
             @RequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
 
@@ -186,5 +189,36 @@ public class ActivationController {
         final ActivationDetailResponse activationDetail = activationServiceV4.renameActivation(auth.getActivationContext().getActivationId(), request);
         return new ObjectResponse<>(activationDetail);
     }
+
+    /**
+     * Confirm an activation.
+     * @param request Confirm activation request.
+     * @param auth PowerAuth authentication.
+     * @return Response.
+     * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
+     * @throws PowerAuthInvalidRequestException In case request is invalid.
+     * @throws PowerAuthActivationException In case retrieving activation detail fails.
+     */
+    @PostMapping("confirm")
+    @PowerAuth(resourceId = "/pa/activation/confirm", authenticationCodeType = {
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE
+    }, allowedStates = {
+            ActivationStatus.ACTIVE,
+            ActivationStatus.PENDING_COMMIT // The activation may not be committed yet.
+    })
+    public Response confirmActivation(@RequestBody ObjectRequest<ActivationConfirmRequest> request, PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
+
+        if (request.getRequestObject() == null) {
+            logger.warn("Invalid request object in confirm activation");
+            throw new PowerAuthInvalidRequestException();
+        }
+
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
+        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+
+        activationServiceV4.confirmActivation(auth.getActivationContext().getActivationId(), request.getRequestObject().isEnableBiometry());
+        return new Response();
+    }
+
 
 }

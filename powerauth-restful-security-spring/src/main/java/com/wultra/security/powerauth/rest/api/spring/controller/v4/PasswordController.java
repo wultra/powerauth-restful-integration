@@ -59,6 +59,7 @@ public class PasswordController {
      * @param auth Automatically injected PowerAuth authentication object.
      * @return Encrypted response.
      * @throws PowerAuthAuthenticationException In case any error occurs, including authentication code validation errors.
+     * @throws PowerAuthPasswordException In case password change fails.
      */
     @PostMapping(value = "change")
     @PowerAuth(resourceId = "/pa/password/change", authenticationCodeType = PowerAuthCodeType.POSSESSION_KNOWLEDGE)

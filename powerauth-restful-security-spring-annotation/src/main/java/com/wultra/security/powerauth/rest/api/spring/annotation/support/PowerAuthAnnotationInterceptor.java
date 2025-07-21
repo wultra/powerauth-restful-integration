@@ -30,6 +30,7 @@ import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthHeaderMissingException;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
@@ -129,8 +130,9 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                         throw new PowerAuthHeaderMissingException();
                     }
                     final List<PowerAuthCodeType> authenticationCodeTypes = Arrays.asList(powerAuthAnnotation.authenticationCodeType());
+                    final List<ActivationStatus> allowedActivationStates = Arrays.asList(powerAuthAnnotation.allowedStates());
                     final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestAuthenticationWithActivationDetails(
-                            request, resourceId, header, authenticationCodeTypes
+                            request, resourceId, header, authenticationCodeTypes, allowedActivationStates
                     );
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {

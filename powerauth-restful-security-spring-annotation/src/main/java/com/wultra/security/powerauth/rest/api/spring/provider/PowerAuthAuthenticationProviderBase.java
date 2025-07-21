@@ -24,6 +24,7 @@ import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthRequestFilterException;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import jakarta.annotation.Nonnull;
@@ -33,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -54,11 +56,12 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedAuthenticationCodeTypes Allowed authentication code types.
+     * @param allowedStates Allowed states for authentication.
      * @param forcedAuthenticationVersion Forced authentication version during upgrade.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization, null value on failed authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
-    public abstract @Nullable PowerAuthApiAuthentication validateRequestAuthentication(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException;
+    public abstract @Nullable PowerAuthApiAuthentication validateRequestAuthentication(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nonnull List<ActivationStatus> allowedStates, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException;
 
     /**
      * Validate the authentication from the PowerAuth HTTP header against the provided HTTP method, request body and URI identifier.
@@ -70,11 +73,12 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedAuthenticationCodeTypes Allowed authentication code types.
+     * @param allowedStates Allowed states for authentication.
      * @param forcedAuthenticationVersion Forced authentication version during upgrade.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
-    public abstract @Nonnull PowerAuthApiAuthentication validateRequestAuthenticationWithActivationDetails(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException;
+    public abstract @Nonnull PowerAuthApiAuthentication validateRequestAuthenticationWithActivationDetails(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nonnull List<ActivationStatus> allowedStates, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException;
 
     /**
      * Validate the token digest from PowerAuth authentication header.
@@ -95,7 +99,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public abstract @Nonnull PowerAuthApiAuthentication validateTokenWithActivationDetails(@Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes) throws PowerAuthAuthenticationException;
 
     /**
-     * The same as {{@link #validateRequestAuthentication(String, byte[], String, String, List, Integer)} but uses default accepted authentication code type (2FA or 3FA) and does not specify forced authentication version.
+     * The same as {{@link #validateRequestAuthentication(String, byte[], String, String, List, List, Integer)} but uses default accepted authentication code type (2FA or 3FA) and does not specify forced authentication version.
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Request body
      * @param requestUriIdentifier Request URI identifier.
@@ -104,11 +108,12 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
     public @Nullable PowerAuthApiAuthentication validateRequestAuthentication(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader) throws PowerAuthAuthenticationException {
-        List<PowerAuthCodeType> defaultAllowedAuthenticationCodeTypes = new ArrayList<>();
+        final List<PowerAuthCodeType> defaultAllowedAuthenticationCodeTypes = new ArrayList<>();
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE);
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_BIOMETRY);
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY);
-        return this.validateRequestAuthentication(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedAuthenticationCodeTypes, null);
+        final List<ActivationStatus> defaultAllowedStates = Collections.singletonList(ActivationStatus.ACTIVE);
+        return this.validateRequestAuthentication(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedAuthenticationCodeTypes, defaultAllowedStates, null);
     }
 
     /**
@@ -117,14 +122,15 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedAuthenticationCodeTypes Allowed authentication code types.
+     * @param allowedStates Allowed states for authentication.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
-    public @Nullable PowerAuthApiAuthentication validateRequestAuthentication(@Nonnull HttpServletRequest servletRequest, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes) throws PowerAuthAuthenticationException {
+    public @Nullable PowerAuthApiAuthentication validateRequestAuthentication(@Nonnull HttpServletRequest servletRequest, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nonnull List<ActivationStatus> allowedStates) throws PowerAuthAuthenticationException {
         // Get HTTP method and body bytes
         String requestMethod = servletRequest.getMethod().toUpperCase();
         byte[] requestBodyBytes = extractRequestBodyBytes(servletRequest);
-        return this.validateRequestAuthentication(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, null);
+        return this.validateRequestAuthentication(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, allowedStates, null);
     }
 
     /**
@@ -133,14 +139,15 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedAuthenticationCodeTypes Allowed authentication code types.
+     * @param allowedStates Allowed states for authentication.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
-    public @Nonnull PowerAuthApiAuthentication validateRequestAuthenticationWithActivationDetails(@Nonnull HttpServletRequest servletRequest, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes) throws PowerAuthAuthenticationException {
+    public @Nonnull PowerAuthApiAuthentication validateRequestAuthenticationWithActivationDetails(@Nonnull HttpServletRequest servletRequest, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nonnull List<ActivationStatus> allowedStates) throws PowerAuthAuthenticationException {
         // Get HTTP method and body bytes
         String requestMethod = servletRequest.getMethod().toUpperCase();
         byte[] requestBodyBytes = extractRequestBodyBytes(servletRequest);
-        return this.validateRequestAuthenticationWithActivationDetails(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, null);
+        return this.validateRequestAuthenticationWithActivationDetails(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, allowedStates, null);
     }
 
     /**
@@ -149,19 +156,20 @@ public abstract class PowerAuthAuthenticationProviderBase {
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
      * @param allowedAuthenticationCodeTypes Allowed authentication code types.
+     * @param allowedStates Allowed states for authentication.
      * @param forcedAuthenticationVersion Forced authentication version during upgrade.
      * @return Instance of a PowerAuthApiAuthentication on successful authorization.
      * @throws PowerAuthAuthenticationException In case authorization fails, exception is raised.
      */
-    public @Nullable PowerAuthApiAuthentication validateRequestAuthentication(@Nonnull HttpServletRequest servletRequest, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException {
+    public @Nullable PowerAuthApiAuthentication validateRequestAuthentication(@Nonnull HttpServletRequest servletRequest, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nonnull List<ActivationStatus> allowedStates, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException {
         // Get HTTP method and body bytes
         String requestMethod = servletRequest.getMethod().toUpperCase();
         byte[] requestBodyBytes = extractRequestBodyBytes(servletRequest);
-        return this.validateRequestAuthentication(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, forcedAuthenticationVersion);
+        return this.validateRequestAuthentication(requestMethod, requestBodyBytes, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, allowedStates, forcedAuthenticationVersion);
     }
 
     /**
-     * The same as {{@link #validateRequestAuthentication(HttpServletRequest, String, String, List, Integer)} but uses default accepted authentication code type (2FA or 3FA) and does not specify forced authentication version.
+     * The same as {@link #validateRequestAuthentication(HttpServletRequest, String, String, List, List, Integer)} but uses default accepted authentication code type (2FA or 3FA) and does not specify forced authentication version.
      * @param servletRequest HTTPServletRequest with signed data.
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
@@ -173,7 +181,8 @@ public abstract class PowerAuthAuthenticationProviderBase {
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE);
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_BIOMETRY);
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY);
-        return this.validateRequestAuthentication(servletRequest, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedAuthenticationCodeTypes, null);
+        final List<ActivationStatus> defaultAllowedStates = Collections.singletonList(ActivationStatus.ACTIVE);
+        return this.validateRequestAuthentication(servletRequest, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedAuthenticationCodeTypes, defaultAllowedStates);
     }
 
     /**

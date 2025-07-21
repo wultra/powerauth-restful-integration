@@ -186,6 +186,10 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                 authentication.getNonce(),
                 authentication.getData()
         ));
+        verifyRequest.setAllowedStates(authentication.getAllowedStates().stream()
+                        .map(activationStatusConverter::convert)
+                        .toList()
+        );
 
         // In case forced authentication version is specified, use it in the request.
         // This occurs when verifying authentication code during upgrade before upgrade is committed.
@@ -336,9 +340,10 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             @Nonnull String requestUriIdentifier,
             @Nonnull String httpAuthorizationHeader,
             @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes,
+            @Nonnull List<ActivationStatus> allowedStates,
             @Nullable Integer forcedAuthenticationVersion
     ) throws PowerAuthAuthenticationException {
-        final PowerAuthApiAuthentication apiAuthentication = validateRequestAuthenticationWithActivationDetails(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, forcedAuthenticationVersion);
+        final PowerAuthApiAuthentication apiAuthentication = validateRequestAuthenticationWithActivationDetails(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, allowedAuthenticationCodeTypes, allowedStates, forcedAuthenticationVersion);
         if (!apiAuthentication.getAuthenticationContext().isValid()) {
             // Traditionally, failed authentication returns null value for PowerAuthApiAuthentication
             return null;
@@ -347,7 +352,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     }
 
     @Override
-    public @Nonnull PowerAuthApiAuthentication validateRequestAuthenticationWithActivationDetails(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException {
+    public @Nonnull PowerAuthApiAuthentication validateRequestAuthenticationWithActivationDetails(@Nonnull String httpMethod, @Nullable byte[] httpBody, @Nonnull String requestUriIdentifier, @Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes, @Nonnull List<ActivationStatus> allowedStates, @Nullable Integer forcedAuthenticationVersion) throws PowerAuthAuthenticationException {
         // Check for HTTP PowerAuth authorization header
         if (httpAuthorizationHeader.equals("undefined")) {
             logger.warn("Authorization HTTP header is missing");
@@ -406,6 +411,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
                 powerAuthAuthentication.setData(httpBody);
                 powerAuthAuthentication.setVersion(header.getVersion());
                 powerAuthAuthentication.setHttpHeader(header);
+                powerAuthAuthentication.setAllowedStates(allowedStates);
                 powerAuthAuthentication.setForcedAuthenticationVersion(forcedAuthenticationVersion);
 
                 // Call the authentication based on authentication code validation object

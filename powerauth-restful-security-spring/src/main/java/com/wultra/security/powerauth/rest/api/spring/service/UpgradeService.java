@@ -35,6 +35,7 @@ import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenti
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUpgradeException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -148,7 +149,8 @@ public class UpgradeService {
             // TODO - update for crypto4
             // Verify signature, force signature version during upgrade to version 3
             final List<PowerAuthCodeType> allowedSignatureTypes = Collections.singletonList(PowerAuthCodeType.POSSESSION);
-            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestAuthenticationWithActivationDetails("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
+            final List<ActivationStatus> allowedStates = Collections.singletonList(ActivationStatus.ACTIVE);
+            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestAuthenticationWithActivationDetails("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, allowedStates, 3);
 
             // In case signature verification fails, upgrade fails, too
             if (!authentication.getAuthenticationContext().isValid() || authentication.getActivationContext().getActivationId() == null) {
