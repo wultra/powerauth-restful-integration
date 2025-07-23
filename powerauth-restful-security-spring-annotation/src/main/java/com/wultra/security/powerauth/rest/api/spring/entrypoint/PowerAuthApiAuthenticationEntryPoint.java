@@ -42,7 +42,7 @@ public class PowerAuthApiAuthenticationEntryPoint implements AuthenticationEntry
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
-        ErrorResponse errorResponse = new ErrorResponse(Error.Code.ERROR_GENERIC, "POWER_AUTH_SIGNATURE_INVALID");
+        ErrorResponse errorResponse = new ErrorResponse(Error.Code.ERROR_GENERIC, "POWER_AUTH_CODE_INVALID");
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

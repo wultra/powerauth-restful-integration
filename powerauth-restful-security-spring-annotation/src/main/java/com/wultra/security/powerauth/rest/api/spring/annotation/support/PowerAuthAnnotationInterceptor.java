@@ -19,8 +19,8 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.annotation.support;
 
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.http.PowerAuthTokenHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
@@ -30,6 +30,7 @@ import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthHeaderMissingException;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthEncryptionProvider;
@@ -95,23 +96,23 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
         if (handler instanceof final HandlerMethod handlerMethod) {
 
             // Obtain annotations
-            PowerAuth powerAuthSignatureAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);
+            PowerAuth powerAuthAnnotation = handlerMethod.getMethodAnnotation(PowerAuth.class);
             PowerAuthToken powerAuthTokenAnnotation = handlerMethod.getMethodAnnotation(PowerAuthToken.class);
             PowerAuthEncryption powerAuthEncryptionAnnotation = handlerMethod.getMethodAnnotation(PowerAuthEncryption.class);
 
-            // Check that either signature or token annotation is active
-            if (powerAuthSignatureAnnotation != null && powerAuthTokenAnnotation != null) {
+            // Check that either authentication or token annotation is active
+            if (powerAuthAnnotation != null && powerAuthTokenAnnotation != null) {
                 logger.warn("You cannot use both @PowerAuth and @PowerAuthToken on same handler method. We are removing both.");
-                powerAuthSignatureAnnotation = null;
+                powerAuthAnnotation = null;
                 powerAuthTokenAnnotation = null;
             }
 
             // Resolve @PowerAuthEncryption annotation. The order of processing is important, PowerAuth expects
             // sign-then-encrypt sequence in case both authorization and encryption are used.
             if (powerAuthEncryptionAnnotation != null) {
-                final Type requestType = resolveGenericParameterTypeForEcies(handlerMethod);
+                final Type requestType = resolveGenericParameterTypeForEncryption(handlerMethod);
                 try {
-                    encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope());
+                    encryptionProvider.decryptRequest(request, requestType, powerAuthEncryptionAnnotation.scope(), powerAuthEncryptionAnnotation.allowedStates());
                     // Encryption object is saved in HTTP servlet request by encryption provider, so that it is available for Spring
                 } catch (PowerAuthEncryptionException ex) {
                     logger.warn("Decryption failed, error: {}", ex.getMessage());
@@ -120,21 +121,22 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
             }
 
             // Resolve @PowerAuth annotation
-            if (powerAuthSignatureAnnotation != null) {
+            if (powerAuthAnnotation != null) {
                 try {
-                    final String resourceId = expandResourceId(powerAuthSignatureAnnotation.resourceId(), request, handlerMethod);
-                    final String header = request.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME);
+                    final String resourceId = expandResourceId(powerAuthAnnotation.resourceId(), request, handlerMethod);
+                    final String header = request.getHeader(PowerAuthAuthorizationHttpHeader.HEADER_NAME);
                     if (header == null) {
-                        logger.warn("Signature HTTP header is missing");
+                        logger.warn("Authentication HTTP header is missing");
                         throw new PowerAuthHeaderMissingException();
                     }
-                    final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthSignatureAnnotation.signatureType());
-                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
-                            request, resourceId, header, signatureTypes
+                    final List<PowerAuthCodeType> authenticationCodeTypes = Arrays.asList(powerAuthAnnotation.authenticationCodeType());
+                    final List<ActivationStatus> allowedActivationStates = Arrays.asList(powerAuthAnnotation.allowedStates());
+                    final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestAuthenticationWithActivationDetails(
+                            request, resourceId, header, authenticationCodeTypes, allowedActivationStates
                     );
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
-                    logger.warn("Invalid request signature, authentication object was removed");
+                    logger.warn("Invalid request authentication, authentication object was removed");
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, null);
                 }
             }
@@ -147,9 +149,9 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
                         logger.warn("Token HTTP header is missing");
                         throw new PowerAuthHeaderMissingException();
                     }
-                    final List<PowerAuthSignatureTypes> signatureTypes = Arrays.asList(powerAuthTokenAnnotation.signatureType());
+                    final List<PowerAuthCodeType> authenticationCodeTypes = Arrays.asList(powerAuthTokenAnnotation.authenticationCodeType());
                     final PowerAuthApiAuthentication authentication = authenticationProvider.validateTokenWithActivationDetails(
-                            header, signatureTypes
+                            header, authenticationCodeTypes
                     );
                     request.setAttribute(PowerAuthRequestObjects.AUTHENTICATION_OBJECT, authentication);
                 } catch (PowerAuthAuthenticationException ex) {
@@ -170,7 +172,7 @@ public class PowerAuthAnnotationInterceptor implements AsyncHandlerInterceptor {
      * @param handlerMethod Handler method.
      * @return Resolved type of request object.
      */
-    private Type resolveGenericParameterTypeForEcies(HandlerMethod handlerMethod) {
+    private Type resolveGenericParameterTypeForEncryption(HandlerMethod handlerMethod) {
         for (MethodParameter parameter: handlerMethod.getMethodParameters()) {
             if (parameter.hasParameterAnnotation(EncryptedRequestBody.class)) {
                 return parameter.getGenericParameterType();

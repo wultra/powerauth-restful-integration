@@ -21,7 +21,6 @@ package com.wultra.security.powerauth.rest.api.spring.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
@@ -100,7 +99,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @param converterClass Selected HTTP message converter class.
      * @param serverHttpRequest HTTP request.
      * @param serverHttpResponse HTTP response.
-     * @return ECIES cryptogram.
+     * @return Cryptogram.
      */
     @Override
     public Object beforeBodyWrite(Object response, @NonNull MethodParameter methodParameter, @NonNull MediaType mediaType, @NonNull Class<? extends HttpMessageConverter<?>> converterClass, @NonNull ServerHttpRequest serverHttpRequest, @NonNull ServerHttpResponse serverHttpResponse) {
@@ -118,14 +117,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         // Convert response to JSON
         try {
             byte[] responseBytes = serializeResponseObject(response);
-            final EncryptedResponse encryptedResponse = encryption.getServerEncryptor().encryptResponse(responseBytes);
-            // Return encrypted response with type given by converter class
-            final EciesEncryptedResponse encryptedResponseObject = new EciesEncryptedResponse(
-                    encryptedResponse.getEncryptedData(),
-                    encryptedResponse.getMac(),
-                    encryptedResponse.getNonce(),
-                    encryptedResponse.getTimestamp()
-            );
+            final EncryptedResponse encryptedResponseObject = encryption.getServerEncryptor().encryptResponse(responseBytes);
             if (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)) {
                 // Object conversion is done automatically using MappingJackson2HttpMessageConverter
                 return encryptedResponseObject;
@@ -171,13 +163,13 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
      * @throws IOException In case serialization fails.
      */
     @SuppressWarnings("unchecked")
-    private byte[] convertEncryptedResponse(EciesEncryptedResponse encryptedResponse, MediaType mediaType) throws IOException {
+    private byte[] convertEncryptedResponse(EncryptedResponse encryptedResponse, MediaType mediaType) throws IOException {
         final List<HttpMessageConverter<?>> httpMessageConverters = requestMappingHandlerAdapter.getMessageConverters();
         // Find the first applicable HTTP message converter for conversion
         for (HttpMessageConverter<?> converter: httpMessageConverters) {
             if (converter.canWrite(encryptedResponse.getClass(), mediaType)) {
                 final BasicHttpOutputMessage httpOutputMessage = new BasicHttpOutputMessage();
-                ((HttpMessageConverter<EciesEncryptedResponse>) converter).write(encryptedResponse, mediaType, httpOutputMessage);
+                ((HttpMessageConverter<EncryptedResponse>) converter).write(encryptedResponse, mediaType, httpOutputMessage);
                 return httpOutputMessage.getBodyBytes();
             }
         }

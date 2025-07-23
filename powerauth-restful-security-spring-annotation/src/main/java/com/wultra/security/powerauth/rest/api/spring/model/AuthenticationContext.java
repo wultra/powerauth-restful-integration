@@ -19,7 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.model;
 
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 
 /**
  * Class representing PowerAuth authentication context.
@@ -30,7 +30,7 @@ public class AuthenticationContext {
 
     private boolean isValid;
     private Integer remainingAttempts;
-    private PowerAuthSignatureTypes signatureType;
+    private PowerAuthCodeType authenticationCodeType;
 
     /**
      * Get whether PowerAuth authentication succeeded.
@@ -42,42 +42,42 @@ public class AuthenticationContext {
 
     /**
      * Set whether PowerAuth authentication succeeded.
-     * @param signatureValid Whether PowerAuth authentication succeeded.
+     * @param authenticationValid Whether PowerAuth authentication succeeded.
      */
-    public void setValid(boolean signatureValid) {
-        this.isValid = signatureValid;
+    public void setValid(boolean authenticationValid) {
+        this.isValid = authenticationValid;
     }
 
     /**
-     * Get remaining attempts for signature verification before activation gets blocked.
-     * @return Remaining attempts for signature verification before activation gets blocked.
+     * Get remaining attempts for authentication code verification before activation gets blocked.
+     * @return Remaining attempts for authentication code verification before activation gets blocked.
      */
     public Integer getRemainingAttempts() {
         return remainingAttempts;
     }
 
     /**
-     * Set remaining attempts for signature verification before activation gets blocked.
-     * @param remainingAttempts Remaining attempts for signature verification before activation gets blocked.
+     * Set remaining attempts for authentication code verification before activation gets blocked.
+     * @param remainingAttempts Remaining attempts for authentication code verification before activation gets blocked.
      */
     public void setRemainingAttempts(Integer remainingAttempts) {
         this.remainingAttempts = remainingAttempts;
     }
 
     /**
-     * Get PowerAuth signature type.
-     * @return PowerAuth signature type.
+     * Get PowerAuth authentication code type.
+     * @return PowerAuth authentication code type.
      */
-    public PowerAuthSignatureTypes getSignatureType() {
-        return signatureType;
+    public PowerAuthCodeType getAuthenticationCodeType() {
+        return authenticationCodeType;
     }
 
     /**
-     * Set PowerAuth signature type.
-     * @param signatureType PowerAuth signature type.
+     * Set PowerAuth authentication code type.
+     * @param authenticationCodeType PowerAuth authentication code type.
      */
-    public void setSignatureType(PowerAuthSignatureTypes signatureType) {
-        this.signatureType = signatureType;
+    public void setAuthenticationCodeType(PowerAuthCodeType authenticationCodeType) {
+        this.authenticationCodeType = authenticationCodeType;
     }
 
 }

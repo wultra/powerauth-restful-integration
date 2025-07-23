@@ -19,8 +19,8 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.converter;
 
-import com.wultra.security.powerauth.client.model.enumeration.SignatureType;
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.client.model.enumeration.v3.SignatureType;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,12 +60,12 @@ public class SignatureTypeConverter {
     }
 
     /**
-     * Convert {@link SignatureType} from {@link PowerAuthSignatureTypes}.
-     * @param powerAuthSignatureTypes Signature type from crypto representation.
+     * Convert {@link SignatureType} from {@link PowerAuthCodeType}.
+     * @param PowerAuthCodeType Signature type from crypto representation.
      * @return Signature type.
      */
-    public SignatureType convertFrom(PowerAuthSignatureTypes powerAuthSignatureTypes) {
-        return switch (powerAuthSignatureTypes) {
+    public SignatureType convertFrom(PowerAuthCodeType PowerAuthCodeType) {
+        return switch (PowerAuthCodeType) {
             case POSSESSION -> SignatureType.POSSESSION;
             case KNOWLEDGE -> SignatureType.KNOWLEDGE;
             case BIOMETRY -> SignatureType.BIOMETRY;

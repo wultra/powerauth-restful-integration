@@ -20,7 +20,6 @@
 package com.wultra.security.powerauth.rest.api.spring.exception;
 
 import com.wultra.core.rest.model.base.response.ErrorResponse;
-import com.wultra.security.powerauth.rest.api.model.exception.RecoveryErrorResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
@@ -69,19 +68,6 @@ public class PowerAuthExceptionHandler {
     public @ResponseBody ErrorResponse handleActivationException(PowerAuthActivationException ex) {
         logger.warn(ex.getMessage(), ex);
         return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
-    }
-
-
-    /**
-     * Handle PowerAuthRecoveryException exceptions.
-     * @param ex Exception instance.
-     * @return Error response.
-     */
-    @ExceptionHandler(value = PowerAuthRecoveryException.class)
-    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
-    public @ResponseBody RecoveryErrorResponse handleRecoveryException(PowerAuthRecoveryException ex) {
-        logger.warn(ex.getMessage(), ex);
-        return new RecoveryErrorResponse(ex.getErrorCode(), ex.getDefaultError(), ex.getCurrentRecoveryPukIndex());
     }
 
     /**
@@ -140,6 +126,30 @@ public class PowerAuthExceptionHandler {
     @ExceptionHandler(value = PowerAuthTemporaryKeyException.class)
     @ResponseStatus(value = HttpStatus.BAD_REQUEST)
     public @ResponseBody ErrorResponse handlePowerAuthTemporaryKeyException(PowerAuthTemporaryKeyException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+    }
+
+    /**
+     * Handle PowerAuthPasswordException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthPasswordException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthPasswordException(PowerAuthPasswordException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+    }
+
+    /**
+     * Handle PowerAuthBiometryException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthBiometryException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthBiometryException(PowerAuthBiometryException ex) {
         logger.warn(ex.getMessage(), ex);
         return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }

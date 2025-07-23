@@ -35,7 +35,7 @@ public class ActivationStatusConverter {
      * @param activationStatus Activation status from PowerAuth client model.
      * @return Activation status from Restful integration model.
      */
-    public ActivationStatus convertFrom(com.wultra.security.powerauth.client.model.enumeration.ActivationStatus activationStatus) {
+    public ActivationStatus convert(com.wultra.security.powerauth.client.model.enumeration.ActivationStatus activationStatus) {
         if (activationStatus == null) {
             return null;
         }
@@ -46,6 +46,25 @@ public class ActivationStatusConverter {
             case ACTIVE -> ActivationStatus.ACTIVE;
             case BLOCKED -> ActivationStatus.BLOCKED;
             case REMOVED -> ActivationStatus.REMOVED;
+        };
+    }
+
+    /**
+     * Convert {@link com.wultra.security.powerauth.client.model.enumeration.ActivationStatus} from an {@link ActivationStatus} value.
+     * @param activationStatus Activation status from Restful integration model.
+     * @return Activation status from PowerAuth client model.
+     */
+    public com.wultra.security.powerauth.client.model.enumeration.ActivationStatus convert(ActivationStatus activationStatus) {
+        if (activationStatus == null) {
+            return null;
+        }
+
+        return switch (activationStatus) {
+            case CREATED -> com.wultra.security.powerauth.client.model.enumeration.ActivationStatus.CREATED;
+            case PENDING_COMMIT -> com.wultra.security.powerauth.client.model.enumeration.ActivationStatus.PENDING_COMMIT;
+            case ACTIVE -> com.wultra.security.powerauth.client.model.enumeration.ActivationStatus.ACTIVE;
+            case BLOCKED -> com.wultra.security.powerauth.client.model.enumeration.ActivationStatus.BLOCKED;
+            case REMOVED -> com.wultra.security.powerauth.client.model.enumeration.ActivationStatus.REMOVED;
         };
     }
 

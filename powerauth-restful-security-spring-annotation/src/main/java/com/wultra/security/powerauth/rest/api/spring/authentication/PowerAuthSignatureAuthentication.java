@@ -23,7 +23,7 @@ import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
 
 /**
  * PowerAuth authentication object used between PowerAuth Client and intermediate server
- * application (such as mobile banking API).
+ * application (such as mobile banking API). Used in version 3 of the protocol.
  *
  * @author Petr Dvorak, petr@wultra.com
  *

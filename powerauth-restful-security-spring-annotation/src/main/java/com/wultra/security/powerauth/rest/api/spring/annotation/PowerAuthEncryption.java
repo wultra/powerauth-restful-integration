@@ -21,6 +21,7 @@ package com.wultra.security.powerauth.rest.api.spring.annotation;
 
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptorScope;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -42,4 +43,13 @@ public @interface PowerAuthEncryption {
      * @return Encryption scope.
      */
     EncryptionScope scope() default EncryptionScope.ACTIVATION_SCOPE;
+
+    /**
+     * Allowed states for obtaining encryptor in {@link EncryptionScope#ACTIVATION_SCOPE}.
+     * This option allows configuring additional states for use cases when encryption in activation scope
+     * should work in other states than just ACTIVE.
+     * @return Allowed activation states.
+     */
+    ActivationStatus[] allowedStates() default { ActivationStatus.ACTIVE };
+
 }

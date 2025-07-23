@@ -19,22 +19,23 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.service;
 
-import com.wultra.security.powerauth.client.PowerAuthClient;
+import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.request.CommitUpgradeRequest;
-import com.wultra.security.powerauth.client.model.request.StartUpgradeRequest;
+import com.wultra.security.powerauth.client.model.request.v3.StartUpgradeRequest;
 import com.wultra.security.powerauth.client.model.response.CommitUpgradeResponse;
-import com.wultra.security.powerauth.client.model.response.StartUpgradeResponse;
+import com.wultra.security.powerauth.client.model.response.v3.StartUpgradeResponse;
 import com.wultra.core.rest.model.base.response.Response;
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUpgradeException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
@@ -145,19 +146,21 @@ public class UpgradeService {
                 throw new PowerAuthInvalidRequestException();
             }
 
+            // TODO - update for crypto4
             // Verify signature, force signature version during upgrade to version 3
-            final List<PowerAuthSignatureTypes> allowedSignatureTypes = Collections.singletonList(PowerAuthSignatureTypes.POSSESSION);
-            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestSignatureWithActivationDetails("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, 3);
+            final List<PowerAuthCodeType> allowedSignatureTypes = Collections.singletonList(PowerAuthCodeType.POSSESSION);
+            final List<ActivationStatus> allowedStates = Collections.singletonList(ActivationStatus.ACTIVE);
+            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestAuthenticationWithActivationDetails("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, allowedStates, 3);
 
             // In case signature verification fails, upgrade fails, too
             if (!authentication.getAuthenticationContext().isValid() || authentication.getActivationContext().getActivationId() == null) {
                 logger.debug("Signature validation failed");
-                throw new PowerAuthSignatureInvalidException();
+                throw new PowerAuthCodeInvalidException();
             }
 
             // Get signature HTTP headers
             final String activationId = authentication.getActivationContext().getActivationId();
-            final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
+            final PowerAuthAuthorizationHttpHeader httpHeader = (PowerAuthAuthorizationHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
 
             // Commit upgrade on PowerAuth server

@@ -160,13 +160,13 @@ public class WebApplicationConfig implements WebMvcConfigurer {
 }
 ```
 
-`PowerAuthWebArgumentResolver` bean is responsible for auto-injecting PowerAuth authentication objects into the controller handler methods (see example in [Verify Signatures Chapter](#verify-signatures)). You need to add it to argument resolver list.
+`PowerAuthWebArgumentResolver` bean is responsible for auto-injecting PowerAuth authentication objects into the controller handler methods (see example in [Verify Authentication Codes Chapter](#verify-authentication-codes)). You need to add it to argument resolver list.
 
 `PowerAuthEncryptionArgumentResolver` bean is responsible for auto-injecting PowerAuth encryption objects into the controller handler methods (see example in [Use End-to-End Encryption Chapter](#use-end-to-end-encryption)). You need to add it to argument resolver list.
 
-`PowerAuthInterceptor` bean is responsible for the `@PowerAuth` annotation handling (see example in [Verify Signatures Chapter](#verify-signatures)). You need to add it to the interceptor registry.
+`PowerAuthInterceptor` bean is responsible for the `@PowerAuth` annotation handling (see example in [Verify Authentication Codes Chapter](#verify-authentication-codes)). You need to add it to the interceptor registry.
 
-Finally, the `FilterRegistrationBean` (with the `PowerAuthRequestFilter` filter) is a technical component that passes the HTTP request body as an attribute of `HttpServletRequest`, so that it can be used for signature validation.
+Finally, the `FilterRegistrationBean` (with the `PowerAuthRequestFilter` filter) is a technical component that passes the HTTP request body as an attribute of `HttpServletRequest`, so that it can be used for authentication code validation.
 
 ### Register a PowerAuth Application Configuration
 
@@ -218,9 +218,9 @@ public class SecurityConfig {
 }
 ```
 
-### Verify Signatures
+### Verify Authentication Codes
 
-This sample `@Controller` implementation illustrates how to use `@PowerAuth` annotation to verify that the request signature matches what is expected - in this case, to establish an authenticated session. In case the authentication is not successful, the `PowerAuthApiAuthentication` object is `null`. You may check for the `null` value and raise `PowerAuthAuthenticationException` that is handled alongside other application exceptions via default `@ControllerAdvice`.
+This sample `@Controller` implementation illustrates how to use `@PowerAuth` annotation to verify that the request authentication matches what is expected - in this case, to establish an authenticated session. In case the authentication is not successful, the `PowerAuthApiAuthentication` object is `null`. You may check for the `null` value and raise `PowerAuthAuthenticationException` that is handled alongside other application exceptions via default `@ControllerAdvice`.
 
 <!-- begin box info -->
 Note: Controllers that establish a session must not be on a context that is protected by Spring Security (for example `/secured/`, in our example), otherwise context could never be reached and session will never be established.
@@ -236,7 +236,7 @@ public class AuthenticationController {
     public MyApiResponse login(PowerAuthApiAuthentication auth) {
         if (auth == null) {
             // handle authentication failure
-            throw new PowerAuthSignatureInvalidException();
+            throw new PowerAuthCodeInvalidException();
         }
         // use userId if needed ...
         final String userId = auth.getUserId();
@@ -271,7 +271,7 @@ public class AuthenticationController {
         
         if (auth == null) {
             // handle authentication failure
-            throw new PowerAuthSignatureInvalidException();
+            throw new PowerAuthCodeInvalidException();
         }
         
         // use userId for business logic ...
@@ -287,7 +287,7 @@ public class AuthenticationController {
 }
 ```
 
-In case you need a more low-level access to the signature verification, you can verify the signature manually using the `PowerAuthAuthenticationProvider` like this:
+In case you need a more low-level access to the authentication code verification, you can verify the authentication code manually using the `PowerAuthAuthenticationProvider` like this:
 
 ```java
 @RestController
@@ -299,18 +299,18 @@ public class AuthenticationController {
 
     @PostMapping("login")
     public ObjectResponse<String> login(
-            @RequestHeader(value = PowerAuthSignatureHttpHeader.HEADER_NAME, required = true) String signatureHeader,
+            @RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME, required = true) String authHeader,
             HttpServletRequest servletRequest) throws Exception {
 
-        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignature(
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication(
             "POST",
             "Any data".getBytes(StandardCharsets.UTF_8),
             "/session/login",
-            signatureHeader
+            authHeader
         );
 
         if (apiAuthentication == null || apiAuthentication.getUserId() == null) {
-            throw new PowerAuthSignatureInvalidException();
+            throw new PowerAuthCodeInvalidException();
         }
         SecurityContextHolder.getContext().setAuthentication((Authentication) apiAuthentication);
         return new ObjectResponse<String>("OK", "User " + userId);
@@ -319,21 +319,21 @@ public class AuthenticationController {
 }
 ```
 
-In case you want to process the failed signature verification results and obtain additional information about the activation, you can use the `authenticationProvider.validateRequestSignatureWithActivationDetails()` method:
+In case you want to process the failed authentication code verification results and obtain additional information about the activation, you can use the `authenticationProvider.validateRequestAuthenticationWithActivationDetails()` method:
 
 ```java
-        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestSignatureWithActivationDetails(
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthenticationWithActivationDetails(
             "POST",
             "Any data".getBytes(StandardCharsets.UTF_8),
             "/session/login",
-            signatureHeader
+            authenticationHeader
         );
 
         final AuthenticationContext auth = apiAuthentication.getAuthenticationContext();
         final PowerAuthActivation activation = apiAuthentication.getActivationContext();
         
         if (!auth.isValid() || auth.getUserId() == null) {
-            throw new PowerAuthSignatureInvalidException();
+            throw new PowerAuthAuthenticationInvalidException();
         }
         
         Integer remainingAttempts = auth.getRemainingAttempts();
@@ -434,9 +434,9 @@ The method argument annotated by the `@EncryptedRequestBody` annotation is set w
 
 The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
 
-### Signed and Encrypted Requests
+### Authenticated and Encrypted Requests
 
-You can also sign the data before encryption and perform signature verification of decrypted data using following pattern:
+You can also sign the data before encryption and perform authentication code verification of decrypted data using following pattern:
 
 ```java
 @RestController
@@ -451,7 +451,7 @@ public class EncryptedDataExchangeController {
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
         if (auth == null || auth.getUserId() == null) {
-            throw new PowerAuthSignatureInvalidException();
+            throw new PowerAuthCodeInvalidException();
         }
 
         if (encryptionContext == null) {
@@ -459,13 +459,13 @@ public class EncryptedDataExchangeController {
         }
 
         // Return a slightly different String containing original data in response
-        return new DataExchangeResponse("Server successfully decrypted data and verified signature, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
+        return new DataExchangeResponse("Server successfully decrypted and authenticated data, request data: " + (request == null ? "''" : request.getData()) + ", user ID: " + auth.getUserId());
     }
 
 }
 ```
 
-The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `activation` scope. The signature received in PowerAuth HTTP signature header is verified.
+The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `activation` scope. The authentication code received in PowerAuth HTTP authentication header is verified.
 
 The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
 

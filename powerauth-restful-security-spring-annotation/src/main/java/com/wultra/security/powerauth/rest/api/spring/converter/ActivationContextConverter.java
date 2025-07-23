@@ -19,7 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.converter;
 
-import com.wultra.security.powerauth.client.model.response.GetActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.spring.model.ActivationContext;
 import org.springframework.stereotype.Component;
 
@@ -45,16 +44,53 @@ public class ActivationContextConverter {
     }
 
     /**
-     * Convert new activation context from activation status response.
+     * Convert new activation context from activation status response (V3).
      *
      * @param source Activation status response.
      * @return Activation context.
      */
-    public ActivationContext fromActivationDetailResponse(GetActivationStatusResponse source) {
+    public ActivationContext fromActivationDetailResponse(com.wultra.security.powerauth.client.model.response.v3.GetActivationStatusResponse source) {
         final ActivationContext destination = new ActivationContext();
         destination.setActivationId(source.getActivationId());
         destination.setActivationName(source.getActivationName());
-        destination.setActivationStatus(activationStatusConverter.convertFrom(source.getActivationStatus()));
+        destination.setActivationStatus(activationStatusConverter.convert(source.getActivationStatus()));
+        destination.setBlockedReason(source.getBlockedReason());
+        destination.setApplicationId(source.getApplicationId());
+        destination.setUserId(source.getUserId());
+        destination.setVersion(source.getVersion());
+        destination.setPlatform(source.getPlatform());
+        destination.setDeviceInfo(source.getDeviceInfo());
+        destination.setExtras(source.getExtras());
+        final List<String> activationFlags = source.getActivationFlags();
+        if (activationFlags != null) {
+            destination.getActivationFlags().addAll(activationFlags);
+        }
+        final Date timestampCreated = source.getTimestampCreated();
+        if (timestampCreated != null) {
+            destination.setTimestampCreated(timestampCreated.toInstant());
+        }
+        final Date timestampLastUsed = source.getTimestampLastUsed();
+        if (timestampLastUsed != null) {
+            destination.setTimestampLastUsed(timestampLastUsed.toInstant());
+        }
+        final Date timestampLastChange = source.getTimestampLastChange();
+        if (timestampLastChange != null) {
+            destination.setTimestampLastChange(timestampLastChange.toInstant());
+        }
+        return destination;
+    }
+
+    /**
+     * Convert new activation context from activation status response (V4).
+     *
+     * @param source Activation status response.
+     * @return Activation context.
+     */
+    public ActivationContext fromActivationDetailResponse(com.wultra.security.powerauth.client.model.response.v4.GetActivationStatusResponse source) {
+        final ActivationContext destination = new ActivationContext();
+        destination.setActivationId(source.getActivationId());
+        destination.setActivationName(source.getActivationName());
+        destination.setActivationStatus(activationStatusConverter.convert(source.getActivationStatus()));
         destination.setBlockedReason(source.getBlockedReason());
         destination.setApplicationId(source.getApplicationId());
         destination.setUserId(source.getUserId());

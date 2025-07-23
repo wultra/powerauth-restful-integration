@@ -20,7 +20,7 @@
 package com.wultra.security.powerauth.rest.api.spring.util;
 
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -43,14 +43,14 @@ public final class PowerAuthAuthenticationUtil {
      * Check if the authentication represents a valid user.
      *
      * @param auth Authentication object
-     * @throws PowerAuthSignatureInvalidException Exception in case the authentication do not represent the user.
+     * @throws PowerAuthCodeInvalidException Exception in case the authentication do not represent the user.
      */
-    public static void checkAuthentication(PowerAuthApiAuthentication auth) throws PowerAuthSignatureInvalidException {
+    public static void checkAuthentication(PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException {
         if (auth == null
                 || auth.getActivationContext() == null
                 || auth.getActivationContext().getActivationId() == null) {
-            logger.debug("Signature validation failed");
-            throw new PowerAuthSignatureInvalidException();
+            logger.debug("Authentication code validation failed");
+            throw new PowerAuthCodeInvalidException();
         }
     }
 

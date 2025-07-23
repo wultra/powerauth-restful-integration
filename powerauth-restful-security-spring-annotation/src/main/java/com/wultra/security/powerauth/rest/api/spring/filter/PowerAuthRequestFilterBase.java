@@ -21,7 +21,7 @@ package com.wultra.security.powerauth.rest.api.spring.filter;
 
 import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import com.wultra.security.powerauth.http.PowerAuthRequestCanonizationUtils;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 
@@ -49,7 +49,7 @@ public class PowerAuthRequestFilterBase {
     public static ResettableStreamHttpServletRequest filterRequest(HttpServletRequest httpRequest) throws IOException {
         final ResettableStreamHttpServletRequest resettableRequest = new ResettableStreamHttpServletRequest(httpRequest);
 
-        if (httpRequest.getHeader(PowerAuthSignatureHttpHeader.HEADER_NAME) == null && httpRequest.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME) == null) {
+        if (httpRequest.getHeader(PowerAuthAuthorizationHttpHeader.HEADER_NAME) == null && httpRequest.getHeader(PowerAuthEncryptionHttpHeader.HEADER_NAME) == null) {
             // PowerAuth HTTP headers are not present, store empty request body in request attribute
             resettableRequest.setAttribute(
                     PowerAuthRequestObjects.REQUEST_BODY,
@@ -68,13 +68,13 @@ public class PowerAuthRequestFilterBase {
                 queryString = URLDecoder.decode(queryString, StandardCharsets.UTF_8);
 
                 // Get the canonized form
-                final String signatureBaseStringData = PowerAuthRequestCanonizationUtils.canonizeGetParameters(queryString);
+                final String authenticationBaseStringData = PowerAuthRequestCanonizationUtils.canonizeGetParameters(queryString);
 
-                // Pass the signature base string as the request attribute
-                if (signatureBaseStringData != null) {
+                // Pass the authentication base string as the request attribute
+                if (authenticationBaseStringData != null) {
                     resettableRequest.setAttribute(
                             PowerAuthRequestObjects.REQUEST_BODY,
-                            new PowerAuthRequestBody(signatureBaseStringData.getBytes(StandardCharsets.UTF_8))
+                            new PowerAuthRequestBody(authenticationBaseStringData.getBytes(StandardCharsets.UTF_8))
                     );
                 } else {
                     // Store empty request body in request attribute
@@ -93,7 +93,7 @@ public class PowerAuthRequestFilterBase {
 
         } else { // ... handle POST, PUT, DELETE, ... method
 
-            // Get the request body and pass it as the signature base string as the request attribute
+            // Get the request body and pass it as the authentication base string as the request attribute
             final byte[] body = resettableRequest.getRequestBody();
             if (body != null) {
                 resettableRequest.setAttribute(

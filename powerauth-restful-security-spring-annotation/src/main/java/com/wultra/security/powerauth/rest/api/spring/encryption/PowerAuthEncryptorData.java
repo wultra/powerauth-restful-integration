@@ -22,6 +22,7 @@ package com.wultra.security.powerauth.rest.api.spring.encryption;
 
 import com.wultra.security.powerauth.crypto.lib.encryptor.ServerEncryptor;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptorId;
 import lombok.Getter;
 import lombok.Setter;
@@ -34,13 +35,13 @@ import lombok.Setter;
 @Setter
 public class PowerAuthEncryptorData {
     /**
-     * ECIES encryption context.
+     * Encryption context.
      */
     private final EncryptionContext context;
     /**
      * {@link ServerEncryptor} implementation.
      */
-    private ServerEncryptor serverEncryptor;
+    private ServerEncryptor<EncryptedRequest, EncryptedResponse> serverEncryptor;
     /**
      * Encrypted request data.
      */
@@ -55,9 +56,9 @@ public class PowerAuthEncryptorData {
     private Object requestObject;
 
     /**
-     * Initialize encryption object from either encryption or signature HTTP header.
+     * Initialize encryption object from either encryption or authentication HTTP header.
      *
-     * @param context PowerAuth encryption context derived from either encryption or signature HTTP header.
+     * @param context PowerAuth encryption context derived from either encryption or authentication HTTP header.
      */
     public PowerAuthEncryptorData(EncryptionContext context) {
         this.context = context;

@@ -19,11 +19,14 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.util;
 
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Utility class to assist with PowerAuth version checks and related functionalities.
@@ -46,9 +49,22 @@ public final class PowerAuthVersionUtil {
     }
 
     /**
-     * Set containing all the supported versions of PowerAuth.
+     * Set containing supported versions of PowerAuth protocol V3.
      */
-    private static final Set<String> SUPPORTED_VERSIONS = Set.of("3.0", "3.1", "3.2", "3.3");
+    private static final Set<String> SUPPORTED_VERSIONS_V3 = Set.of("3.0", "3.1", "3.2", "3.3");
+
+    /**
+     * Set containing supported versions of PowerAuth protocol V4.
+     */
+    private static final Set<String> SUPPORTED_VERSIONS_V4 = Set.of("4.0");
+
+    /**
+     * Set containing all the supported versions of PowerAuth protocol.
+     */
+    private static final Set<String> SUPPORTED_VERSIONS = Stream.concat(
+            SUPPORTED_VERSIONS_V3.stream(),
+            SUPPORTED_VERSIONS_V4.stream()
+    ).collect(Collectors.toUnmodifiableSet());
 
     /**
      * Check if the provided version string is "3.0".
@@ -95,6 +111,34 @@ public final class PowerAuthVersionUtil {
     }
 
     /**
+     * Checks if the provided PowerAuth protocol version is unsupported for V3.
+     * Throws an exception if the version is unsupported.
+     *
+     * @param version Version string to be checked.
+     * @throws PowerAuthInvalidRequestException If the provided version is unsupported.
+     */
+    public static void checkUnsupportedVersionV3(String version) throws PowerAuthInvalidRequestException {
+        if (isUnsupportedVersionV3(version)) {
+            logger.warn("Version 3 endpoint does not support PowerAuth protocol version {}", version);
+            throw new PowerAuthInvalidRequestException("Version 3 endpoint does not support PowerAuth protocol version " + version);
+        }
+    }
+
+    /**
+     * Checks if the provided PowerAuth protocol version is unsupported for V4.
+     * Throws an exception if the version is unsupported.
+     *
+     * @param version Version string to be checked.
+     * @throws PowerAuthInvalidRequestException If the provided version is unsupported.
+     */
+    public static void checkUnsupportedVersionV4(String version) throws PowerAuthInvalidRequestException {
+        if (isUnsupportedVersionV4(version)) {
+            logger.warn("Version 4 endpoint does not support PowerAuth protocol version {}", version);
+            throw new PowerAuthInvalidRequestException("Version 4 endpoint does not support PowerAuth protocol version " + version);
+        }
+    }
+
+    /**
      * Checks if nonce is missing for the provided PowerAuth protocol version.
      * Throws an exception if nonce is required and missing.
      *
@@ -104,8 +148,8 @@ public final class PowerAuthVersionUtil {
      */
     public static void checkMissingRequiredNonce(String version, String nonce) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredNonce(version, nonce)) {
-            logger.warn("Missing nonce in ECIES request data");
-            throw new PowerAuthInvalidRequestException("Missing nonce in ECIES request data");
+            logger.warn("Missing nonce in encrypted request data");
+            throw new PowerAuthInvalidRequestException("Missing nonce in encrypted request data");
         }
     }
 
@@ -119,8 +163,8 @@ public final class PowerAuthVersionUtil {
      */
     public static void checkMissingRequiredTimestamp(String version, Long timestamp) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredTimestamp(version, timestamp)) {
-            logger.warn("Missing timestamp in ECIES request data for version {}", version);
-            throw new PowerAuthInvalidRequestException("Missing timestamp in ECIES request data for version " + version);
+            logger.warn("Missing timestamp in encrypted request data for version {}", version);
+            throw new PowerAuthInvalidRequestException("Missing timestamp in encrypted request data for version " + version);
         }
     }
 
@@ -134,20 +178,34 @@ public final class PowerAuthVersionUtil {
      */
     public static void checkMissingRequiredTemporaryKeyId(String version, String temporaryKeyId) throws PowerAuthInvalidRequestException {
         if (isMissingRequiredTemporaryKeyId(version, temporaryKeyId)) {
-            logger.warn("Missing temporary key ID in ECIES request data for version {}", version);
-            throw new PowerAuthInvalidRequestException("Missing temporary kdy ID in ECIES request data for version " + version);
+            logger.warn("Missing temporary key ID in encrypted request data for version {}", version);
+            throw new PowerAuthInvalidRequestException("Missing temporary kdy ID in encrypted request data for version " + version);
         }
     }
 
     /**
-     * Checks if required ECIES parameters are missing for the provided PowerAuth protocol version.
+     * Checks if required ECIES encryption parameters are missing for the provided PowerAuth protocol version.
      * Throws an exception if the required parameter is missing.
      *
      * @param version   Version string to be checked.
      * @param request   Request to be verified.
      * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
      */
-    public static void checkEciesParameters(String version, EciesEncryptedRequest request) throws PowerAuthInvalidRequestException {
+    public static void checkEncryptionParameters(String version, EciesEncryptedRequest request) throws PowerAuthInvalidRequestException {
+        checkMissingRequiredNonce(version, request.getNonce());
+        checkMissingRequiredTimestamp(version, request.getTimestamp());
+        checkMissingRequiredTemporaryKeyId(version, request.getTemporaryKeyId());
+    }
+
+    /**
+     * Checks if required AEAD encryption parameters are missing for the provided PowerAuth protocol version.
+     * Throws an exception if the required parameter is missing.
+     *
+     * @param version   Version string to be checked.
+     * @param request   Request to be verified.
+     * @throws PowerAuthInvalidRequestException If timestamp is required and missing.
+     */
+    public static void checkEncryptionParameters(String version, AeadEncryptedRequest request) throws PowerAuthInvalidRequestException {
         checkMissingRequiredNonce(version, request.getNonce());
         checkMissingRequiredTimestamp(version, request.getTimestamp());
         checkMissingRequiredTemporaryKeyId(version, request.getTemporaryKeyId());
@@ -162,6 +220,27 @@ public final class PowerAuthVersionUtil {
     private static boolean isUnsupportedVersion(String version) {
         return !SUPPORTED_VERSIONS.contains(version);
     }
+
+    /**
+     * Checks if the provided PowerAuth protocol version is unsupported for V3.
+     *
+     * @param version Version string to be checked.
+     * @return true if the version is unsupported, false otherwise.
+     */
+    private static boolean isUnsupportedVersionV3(String version) {
+        return !SUPPORTED_VERSIONS_V3.contains(version);
+    }
+
+    /**
+     * Checks if the provided PowerAuth protocol version is unsupported for V4.
+     *
+     * @param version Version string to be checked.
+     * @return true if the version is unsupported, false otherwise.
+     */
+    private static boolean isUnsupportedVersionV4(String version) {
+        return !SUPPORTED_VERSIONS_V4.contains(version);
+    }
+
 
     /**
      * Checks if nonce is missing for the provided PowerAuth protocol version.

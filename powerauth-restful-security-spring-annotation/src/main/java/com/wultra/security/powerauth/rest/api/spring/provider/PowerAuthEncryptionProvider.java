@@ -19,18 +19,24 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.provider;
 
-import com.wultra.security.powerauth.client.PowerAuthClient;
-import com.wultra.security.powerauth.client.model.request.GetEciesDecryptorRequest;
-import com.wultra.security.powerauth.client.model.response.GetEciesDecryptorResponse;
+import com.wultra.security.powerauth.client.model.request.v3.GetEciesDecryptorRequest;
+import com.wultra.security.powerauth.client.model.request.v4.ExtractEncryptorRequest;
+import com.wultra.security.powerauth.client.model.response.v3.GetEciesDecryptorResponse;
+import com.wultra.security.powerauth.client.model.response.v4.ExtractEncryptorResponse;
+import com.wultra.security.powerauth.rest.api.spring.converter.ActivationStatusConverter;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorParameters;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import jakarta.annotation.Nonnull;
 import jakarta.annotation.Nullable;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Implementation of PowerAuth encryption provider.
@@ -39,26 +45,18 @@ import org.springframework.stereotype.Component;
  *
  */
 @Component
+@AllArgsConstructor
 public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase  {
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProvider.class);
 
-    private final PowerAuthClient powerAuthClient;
+    private final com.wultra.security.powerauth.client.v3.PowerAuthClient powerAuthClientV3;
+    private final com.wultra.security.powerauth.client.v4.PowerAuthClient powerAuthClientV4;
     private final HttpCustomizationService httpCustomizationService;
-
-    /**
-     * Provide constructor.
-     * @param powerAuthClient PowerAuth client.
-     * @param httpCustomizationService HTTP customization service.
-     */
-    @Autowired
-    public PowerAuthEncryptionProvider(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
-        this.powerAuthClient = powerAuthClient;
-        this.httpCustomizationService = httpCustomizationService;
-    }
+    private final ActivationStatusConverter activationStatusConverter;
 
     @Override
-    public @Nonnull PowerAuthEncryptorParameters getEciesDecryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
+    public @Nonnull PowerAuthEncryptorParameters getEciesEncryptorParameters(@Nullable String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String ephemeralPublicKey, @Nonnull String version, String nonce, Long timestamp) throws PowerAuthEncryptionException {
         try {
             final GetEciesDecryptorRequest eciesDecryptorRequest = new GetEciesDecryptorRequest();
             eciesDecryptorRequest.setActivationId(activationId);
@@ -68,7 +66,7 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
             eciesDecryptorRequest.setProtocolVersion(version);
             eciesDecryptorRequest.setNonce(nonce);
             eciesDecryptorRequest.setTimestamp(timestamp);
-            final GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClient.getEciesDecryptor(
+            final GetEciesDecryptorResponse eciesDecryptorResponse = powerAuthClientV3.getEciesDecryptor(
                     eciesDecryptorRequest,
                     httpCustomizationService.getQueryParams(),
                     httpCustomizationService.getHttpHeaders()
@@ -82,4 +80,31 @@ public class PowerAuthEncryptionProvider extends PowerAuthEncryptionProviderBase
         }
     }
 
+    @Override
+    public @Nonnull PowerAuthEncryptorParameters getAeadEncryptorParameters(String activationId, @Nonnull String applicationKey, @Nonnull String temporaryKeyId, @Nonnull String version, @Nonnull String nonce, @Nonnull Long timestamp, @Nonnull ActivationStatus[] allowedStates) throws PowerAuthEncryptionException {
+        try {
+            final List<com.wultra.security.powerauth.client.model.enumeration.ActivationStatus> convertedStates = Stream.of(allowedStates)
+                    .map(activationStatusConverter::convert)
+                    .toList();
+            final ExtractEncryptorRequest encryptorRequest = new ExtractEncryptorRequest();
+            encryptorRequest.setActivationId(activationId);
+            encryptorRequest.setApplicationKey(applicationKey);
+            encryptorRequest.setTemporaryKeyId(temporaryKeyId);
+            encryptorRequest.setProtocolVersion(version);
+            encryptorRequest.setNonce(nonce);
+            encryptorRequest.setTimestamp(timestamp);
+            encryptorRequest.setAllowedStates(convertedStates);
+            final ExtractEncryptorResponse encryptorResponse = powerAuthClientV4.extractEncryptor(
+                    encryptorRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
+
+            return new PowerAuthEncryptorParameters(encryptorResponse.getSecretKey(), encryptorResponse.getSharedInfo2());
+        } catch (Exception ex) {
+            logger.warn("Extract encryptor call failed, error: {}", ex.getMessage());
+            logger.debug(ex.getMessage(), ex);
+            throw new PowerAuthEncryptionException();
+        }
+    }
 }

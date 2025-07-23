@@ -41,7 +41,7 @@ class PowerAuthVersionUtilTest {
      */
     @Test
     void testUnsupportedVersion() {
-        assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkUnsupportedVersion("4.0"));
+        assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkUnsupportedVersion("4.1"));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkUnsupportedVersion("3.1"));
     }
 
@@ -53,6 +53,9 @@ class PowerAuthVersionUtilTest {
         assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkMissingRequiredNonce("3.1", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredNonce("3.0", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredNonce("3.1", "testNonce"));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredNonce("3.2", "testNonce"));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredNonce("3.3", "testNonce"));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredNonce("4.0", "testNonce"));
     }
 
     /**
@@ -63,6 +66,8 @@ class PowerAuthVersionUtilTest {
         assertThrows(PowerAuthInvalidRequestException.class, () -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.2", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.1", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.2", 1630234567890L));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("3.3", 1630234567890L));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTimestamp("4.0", 1630234567890L));
     }
 
     @Test
@@ -71,5 +76,6 @@ class PowerAuthVersionUtilTest {
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("3.1", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("3.2", null));
         assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("3.3", UUID.randomUUID().toString()));
+        assertDoesNotThrow(() -> PowerAuthVersionUtil.checkMissingRequiredTemporaryKeyId("4.0", UUID.randomUUID().toString()));
     }
 }

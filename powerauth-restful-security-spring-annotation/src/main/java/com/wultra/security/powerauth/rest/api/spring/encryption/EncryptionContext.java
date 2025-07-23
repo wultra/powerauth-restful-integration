@@ -46,7 +46,7 @@ public class EncryptionContext {
     private final String version;
 
     /**
-     * PowerAuth HTTP header used for deriving ECIES encryption context.
+     * PowerAuth HTTP header used for deriving encryption context.
      */
     private final PowerAuthHttpHeader httpHeader;
     /**

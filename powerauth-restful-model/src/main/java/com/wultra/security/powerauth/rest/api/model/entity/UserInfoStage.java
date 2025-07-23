@@ -38,11 +38,6 @@ public enum UserInfoStage {
     ACTIVATION_PROCESS_CUSTOM,
 
     /**
-     * The user info was requested from the activation process carried out via recovery codes.
-     */
-    ACTIVATION_PROCESS_RECOVERY,
-
-    /**
      * The user info was requested from the user info endpoint.
      */
     USER_INFO_ENDPOINT

@@ -19,7 +19,8 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.annotation;
 
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -27,9 +28,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 /**
- * Annotation that enables simple integration with PowerAuth Signatures.
+ * Annotation that enables simple integration with PowerAuth authentication.
  *
  * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.METHOD)
@@ -44,14 +46,21 @@ public @interface PowerAuth {
     String resourceId();
 
     /**
-     * Types of supported signatures. By default, any at least 2FA signature type must be specified.
+     * Types of supported authentication code types. By default, any at least 2FA authentication code type must be specified.
      *
-     * @return Supported signature types.
+     * @return Supported authentication code types.
      */
-    PowerAuthSignatureTypes[] signatureType() default {
-            PowerAuthSignatureTypes.POSSESSION_BIOMETRY,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE,
-            PowerAuthSignatureTypes.POSSESSION_KNOWLEDGE_BIOMETRY
+    PowerAuthCodeType[] authenticationCodeType() default {
+            PowerAuthCodeType.POSSESSION_BIOMETRY,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE,
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     };
+
+    /**
+     * Allowed states for verifying authentication. This option allows configuring additional states for use cases
+     * when verification is required in other states than ACTIVE.
+     * @return Allowed activation states.
+     */
+    ActivationStatus[] allowedStates() default { ActivationStatus.ACTIVE };
 
 }

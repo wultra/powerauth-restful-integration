@@ -19,21 +19,21 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.service;
 
-import com.wultra.security.powerauth.client.PowerAuthClient;
-import com.wultra.security.powerauth.client.model.enumeration.SignatureType;
-import com.wultra.security.powerauth.client.model.request.CreateTokenRequest;
+import com.wultra.security.powerauth.client.v3.PowerAuthClient;
+import com.wultra.security.powerauth.client.model.enumeration.v3.SignatureType;
+import com.wultra.security.powerauth.client.model.request.v3.CreateTokenRequest;
 import com.wultra.security.powerauth.client.model.request.RemoveTokenRequest;
-import com.wultra.security.powerauth.client.model.response.CreateTokenResponse;
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthSignatureTypes;
-import com.wultra.security.powerauth.http.PowerAuthSignatureHttpHeader;
-import com.wultra.security.powerauth.rest.api.model.request.EciesEncryptedRequest;
+import com.wultra.security.powerauth.client.model.response.v3.CreateTokenResponse;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
+import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
+import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.rest.api.model.request.TokenRemoveRequest;
-import com.wultra.security.powerauth.rest.api.model.response.EciesEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.converter.SignatureTypeConverter;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthSignatureTypeInvalidException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeTypeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthTokenErrorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,20 +81,21 @@ public class TokenService {
                                               PowerAuthApiAuthentication authentication)
             throws PowerAuthAuthenticationException {
         try {
+            // TODO - update for crypto4
             // Fetch activation ID and signature type
-            final PowerAuthSignatureTypes signatureFactors = authentication.getAuthenticationContext().getSignatureType();
+            final PowerAuthCodeType signatureFactors = authentication.getAuthenticationContext().getAuthenticationCodeType();
 
             // Prepare a signature type converter
             final SignatureTypeConverter converter = new SignatureTypeConverter();
             final SignatureType signatureType = converter.convertFrom(signatureFactors);
             if (signatureType == null) {
                 logger.warn("Invalid signature type: {}", signatureFactors);
-                throw new PowerAuthSignatureTypeInvalidException();
+                throw new PowerAuthCodeTypeInvalidException();
             }
 
             // Get ECIES headers
             final String activationId = authentication.getActivationContext().getActivationId();
-            final PowerAuthSignatureHttpHeader httpHeader = (PowerAuthSignatureHttpHeader) authentication.getHttpHeader();
+            final PowerAuthAuthorizationHttpHeader httpHeader = (PowerAuthAuthorizationHttpHeader) authentication.getHttpHeader();
             final String applicationKey = httpHeader.getApplicationKey();
 
             // Create a token

@@ -29,7 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Class representing PowerAuth activation detail in context of signature verification.
+ * Class representing PowerAuth activation detail in context of authentication.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
