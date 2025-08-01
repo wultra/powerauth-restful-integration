@@ -26,7 +26,6 @@ import com.wultra.security.powerauth.client.model.enumeration.v3.SignatureType;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
 import com.wultra.security.powerauth.client.model.request.ValidateTokenRequest;
 import com.wultra.security.powerauth.client.model.request.v3.VerifySignatureRequest;
-import com.wultra.security.powerauth.client.model.response.v3.ValidateTokenResponse;
 import com.wultra.security.powerauth.client.model.response.v3.VerifySignatureResponse;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.http.PowerAuthHttpBody;
@@ -102,16 +101,20 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
      */
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         // Handle signature based authentications (V3)
-        if (authentication instanceof PowerAuthSignatureAuthenticationImpl) {
-            return authenticateSignatureRequest((PowerAuthSignatureAuthenticationImpl) authentication);
+        if (authentication instanceof PowerAuthSignatureAuthenticationImpl signatureAuthentication) {
+            return authenticateSignatureRequest(signatureAuthentication);
         }
         // Handle authentication code based authentications (V4)
-        if (authentication instanceof PowerAuthCodeAuthenticationImpl) {
-            return authenticateCodeRequest((PowerAuthCodeAuthenticationImpl) authentication);
+        if (authentication instanceof PowerAuthCodeAuthenticationImpl codeAuthentication) {
+            return authenticateCodeRequest(codeAuthentication);
         }
         // Handle basic token-based authentications
-        else if (authentication instanceof PowerAuthTokenAuthenticationImpl) {
-            return authenticateTokenRequest((PowerAuthTokenAuthenticationImpl) authentication);
+        else if (authentication instanceof PowerAuthTokenAuthenticationImpl tokenAuthentication) {
+            return switch (tokenAuthentication.getVersion()) {
+                case "3.0", "3.1", "3.2", "3.3" -> authenticateTokenRequestV3(tokenAuthentication);
+                case "4.0" -> authenticateTokenRequestV4(tokenAuthentication);
+                default -> null;
+            };
         }
         // Return null in case unknown authentication type is provided
         return null;
@@ -224,12 +227,12 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
     }
 
     /**
-     * Validate basic token-based authentication.
+     * Validate basic token-based authentication (V3).
      *
      * @param authentication Token based authentication object.
      * @return API authentication object in case of successful authentication, null otherwise.
      */
-    private PowerAuthApiAuthenticationImpl authenticateTokenRequest(PowerAuthTokenAuthenticationImpl authentication) {
+    private PowerAuthApiAuthenticationImpl authenticateTokenRequestV3(PowerAuthTokenAuthenticationImpl authentication) {
         try {
             final ValidateTokenRequest validateRequest = new ValidateTokenRequest();
             validateRequest.setTokenId(authentication.getTokenId());
@@ -238,7 +241,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             validateRequest.setTimestamp(Long.parseLong(authentication.getTimestamp()));
             validateRequest.setProtocolVersion(authentication.getVersion());
 
-            final ValidateTokenResponse response = powerAuthClientV3.validateToken(
+            final com.wultra.security.powerauth.client.model.response.v3.ValidateTokenResponse response = powerAuthClientV3.validateToken(
                     validateRequest,
                     httpCustomizationService.getQueryParams(),
                     httpCustomizationService.getHttpHeaders()
@@ -248,8 +251,51 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
             final AuthenticationContext authenticationContext = new AuthenticationContext();
             authenticationContext.setValid(response.isTokenValid());
             authenticationContext.setRemainingAttempts(null);
-            // TODO - update for crypto4
             authenticationContext.setAuthenticationCodeType(response.getSignatureType() != null ? PowerAuthCodeType.getEnumFromString(response.getSignatureType().name()) : null);
+            final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
+                    activationStatus, response.getBlockedReason(),
+                    response.getActivationFlags(), authenticationContext, authentication.getVersion());
+            return copyAuthenticationAttributes(response.getActivationId(), response.getUserId(),
+                    response.getApplicationId(), response.getApplicationRoles(), response.getActivationFlags(),
+                    authenticationContext, authentication.getVersion(), authentication.getHttpHeader(),
+                    activationContext);
+        } catch (NumberFormatException ex) {
+            logger.warn("Invalid timestamp format, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
+            return null;
+        } catch (Exception ex) {
+            logger.warn("Token validation failed, error: {}", ex.getMessage());
+            logger.debug("Error details", ex);
+            return null;
+        }
+    }
+
+    /**
+     * Validate basic token-based authentication (V4).
+     *
+     * @param authentication Token based authentication object.
+     * @return API authentication object in case of successful authentication, null otherwise.
+     */
+    private PowerAuthApiAuthenticationImpl authenticateTokenRequestV4(PowerAuthTokenAuthenticationImpl authentication) {
+        try {
+            final ValidateTokenRequest validateRequest = new ValidateTokenRequest();
+            validateRequest.setTokenId(authentication.getTokenId());
+            validateRequest.setTokenDigest(authentication.getTokenDigest());
+            validateRequest.setNonce(authentication.getNonce());
+            validateRequest.setTimestamp(Long.parseLong(authentication.getTimestamp()));
+            validateRequest.setProtocolVersion(authentication.getVersion());
+
+            final com.wultra.security.powerauth.client.model.response.v4.ValidateTokenResponse response = powerAuthClientV4.validateToken(
+                    validateRequest,
+                    httpCustomizationService.getQueryParams(),
+                    httpCustomizationService.getHttpHeaders()
+            );
+
+            final ActivationStatus activationStatus = activationStatusConverter.convert(response.getActivationStatus());
+            final AuthenticationContext authenticationContext = new AuthenticationContext();
+            authenticationContext.setValid(response.isTokenValid());
+            authenticationContext.setRemainingAttempts(null);
+            authenticationContext.setAuthenticationCodeType(response.getAuthenticationCodeType() != null ? PowerAuthCodeType.getEnumFromString(response.getAuthenticationCodeType().name()) : null);
             final PowerAuthActivation activationContext = copyActivationAttributes(response.getActivationId(), response.getUserId(),
                     activationStatus, response.getBlockedReason(),
                     response.getActivationFlags(), authenticationContext, authentication.getVersion());
