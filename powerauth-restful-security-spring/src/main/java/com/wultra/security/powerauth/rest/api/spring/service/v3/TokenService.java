@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.service;
+package com.wultra.security.powerauth.rest.api.spring.service.v3;
 
 import com.wultra.security.powerauth.client.v3.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.enumeration.v3.SignatureType;
@@ -35,9 +35,9 @@ import com.wultra.security.powerauth.rest.api.spring.converter.SignatureTypeConv
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeTypeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthTokenErrorException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 /**
@@ -46,28 +46,20 @@ import org.springframework.stereotype.Service;
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
+ *     <li>3.1</li>
+ *     <li>3.2</li>
+ *     <li>3.3</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 @Service("tokenServiceV3")
+@Slf4j
+@AllArgsConstructor
 public class TokenService {
-
-    private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     private final PowerAuthClient powerAuthClient;
     private final HttpCustomizationService httpCustomizationService;
-
-    /**
-     * Service constructor.
-     * @param powerAuthClient PowerAuth client.
-     * @param httpCustomizationService HTTP customization service.
-     */
-    @Autowired
-    public TokenService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
-        this.powerAuthClient = powerAuthClient;
-        this.httpCustomizationService = httpCustomizationService;
-    }
 
     /**
      * Create token.
@@ -81,7 +73,6 @@ public class TokenService {
                                               PowerAuthApiAuthentication authentication)
             throws PowerAuthAuthenticationException {
         try {
-            // TODO - update for crypto4
             // Fetch activation ID and signature type
             final PowerAuthCodeType signatureFactors = authentication.getAuthenticationContext().getAuthenticationCodeType();
 
