@@ -66,7 +66,7 @@ public class BiometryController {
     @PowerAuth(resourceId = "/pa/biometry/add", authenticationCodeType = PowerAuthCodeType.POSSESSION_KNOWLEDGE)
     public AeadEncryptedResponse addBiometry(@RequestBody AeadEncryptedRequest request, PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthBiometryException {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
         return biometryService.addBiometry(request, auth);
     }
@@ -82,7 +82,7 @@ public class BiometryController {
     @PowerAuth(resourceId = "/pa/biometry/remove", authenticationCodeType = PowerAuthCodeType.POSSESSION)
     public Response removeBiometry(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthBiometryException {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         return biometryService.removeBiometry(auth.getActivationContext().getActivationId());
     }
 

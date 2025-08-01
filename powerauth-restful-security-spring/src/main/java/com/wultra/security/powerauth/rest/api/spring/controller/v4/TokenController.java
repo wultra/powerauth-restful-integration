@@ -2,7 +2,7 @@
  * PowerAuth integration libraries for RESTful API applications, examples and
  * related software components
  *
- * Copyright (C) 2018 Wultra s.r.o.
+ * Copyright (C) 2025 Wultra s.r.o.
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published
@@ -17,25 +17,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v4;
 
 import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.AeadEncryptedResponse;
 import com.wultra.security.powerauth.rest.api.model.request.TokenRemoveRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TokenRemoveResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import com.wultra.security.powerauth.rest.api.spring.service.v3.TokenService;
+import com.wultra.security.powerauth.rest.api.spring.service.v4.TokenService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,30 +45,18 @@ import org.springframework.web.bind.annotation.RestController;
  *
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- *     <li>3.0</li>
- *     <li>3.1</li>
- *     <li>3.2</li>
- *     <li>3.3</li>
+ *     <li>4.0</li>
  * </ul>
  *
- * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController("tokenControllerV3")
-@RequestMapping("/pa/v3/token")
+@RestController("tokenControllerV4")
+@RequestMapping("/pa/v4/token")
+@Slf4j
+@AllArgsConstructor
 public class TokenController {
 
-    private static final Logger logger = LoggerFactory.getLogger(TokenController.class);
-
-    private TokenService tokenServiceV3;
-
-    /**
-     * Set the token verification service via setter injection.
-     * @param tokenServiceV3 Token verification service.
-     */
-    @Autowired
-    public void setTokenServiceV3(TokenService tokenServiceV3) {
-        this.tokenServiceV3 = tokenServiceV3;
-    }
+    private TokenService tokenServiceV4;
 
     /**
      * Create token.
@@ -85,8 +72,8 @@ public class TokenController {
             PowerAuthCodeType.POSSESSION_BIOMETRY,
             PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public EciesEncryptedResponse createToken(@RequestBody EciesEncryptedRequest request,
-                                              PowerAuthApiAuthentication auth)
+    public AeadEncryptedResponse createToken(@RequestBody AeadEncryptedRequest request,
+                                             PowerAuthApiAuthentication auth)
             throws PowerAuthAuthenticationException {
         if (request == null) {
             logger.warn("Invalid request object in create token");
@@ -94,10 +81,10 @@ public class TokenController {
         }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
 
-        return tokenServiceV3.createToken(request, auth);
+        return tokenServiceV4.createToken(request, auth);
     }
 
     /**
@@ -122,9 +109,9 @@ public class TokenController {
         }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
 
-        TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), auth);
+        TokenRemoveResponse response = tokenServiceV4.removeToken(request.getRequestObject(), auth);
         return new ObjectResponse<>(response);
     }
 
