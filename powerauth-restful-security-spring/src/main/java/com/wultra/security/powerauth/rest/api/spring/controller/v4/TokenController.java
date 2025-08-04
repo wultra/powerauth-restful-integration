@@ -60,9 +60,9 @@ public class TokenController {
 
     /**
      * Create token.
-     * @param request ECIES encrypted create token request.
+     * @param request AEAD encrypted create token request.
      * @param auth PowerAuth API authentication object.
-     * @return ECIES encrypted create token response.
+     * @return AEAD encrypted create token response.
      * @throws PowerAuthAuthenticationException In case authentication fails or request is invalid.
      */
     @PostMapping("create")
