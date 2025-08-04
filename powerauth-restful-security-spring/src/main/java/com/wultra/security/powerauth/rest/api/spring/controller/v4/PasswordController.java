@@ -65,7 +65,7 @@ public class PasswordController {
     @PowerAuth(resourceId = "/pa/password/change", authenticationCodeType = PowerAuthCodeType.POSSESSION_KNOWLEDGE)
     public AeadEncryptedResponse changePassword(@RequestBody AeadEncryptedRequest request, PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthPasswordException {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
         return passwordService.changePassword(request, auth);
     }

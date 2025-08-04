@@ -214,7 +214,7 @@ public class ActivationController {
         }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
-        PowerAuthVersionUtil.checkUnsupportedVersion(auth.getVersion());
+        PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
 
         activationServiceV4.confirmActivation(auth.getActivationContext().getActivationId(), request.getRequestObject().isEnableBiometry());
         return new Response();
