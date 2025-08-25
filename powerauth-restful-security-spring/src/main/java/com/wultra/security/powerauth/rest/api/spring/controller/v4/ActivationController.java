@@ -102,7 +102,7 @@ public class ActivationController {
      * @throws PowerAuthEncryptionException In case encryption fails.
      */
     @PostMapping("status")
-    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE, allowedStates = { ActivationStatus.ACTIVE, ActivationStatus.PENDING_COMMIT, ActivationStatus.BLOCKED })
+    @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE, allowedStates = { ActivationStatus.ACTIVE, ActivationStatus.PENDING_COMMIT, ActivationStatus.BLOCKED, ActivationStatus.REMOVED })
     public ActivationStatusResponse getActivationStatus(@EncryptedRequestBody ActivationStatusRequest request, EncryptionContext encryptionContext)
             throws PowerAuthActivationException, PowerAuthEncryptionException {
         if (request == null) {
