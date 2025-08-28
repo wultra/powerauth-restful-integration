@@ -89,11 +89,12 @@ public class BiometryService {
         try {
             final RemoveBiometryRequest removeBiometryRequest = new RemoveBiometryRequest();
             removeBiometryRequest.setActivationId(activationId);
-            return powerAuthClient.removeBiometry(
+            powerAuthClient.removeBiometry(
                     removeBiometryRequest,
                     httpCustomizationService.getQueryParams(),
                     httpCustomizationService.getHttpHeaders()
             );
+            return new Response();
         } catch (PowerAuthClientException ex) {
             logger.warn("PowerAuth biometry remove failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
