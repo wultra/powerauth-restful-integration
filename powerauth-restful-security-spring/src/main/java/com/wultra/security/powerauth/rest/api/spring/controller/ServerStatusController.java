@@ -31,19 +31,21 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 
 /**
- * Controller that provides a user information.
+ * Controller that provides user information.
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
  *     <li>3.1</li>
  *     <li>3.2</li>
  *     <li>3.3</li>
+ *     <li>4.0</li>
  * </ul>
  *
  * @author Petr Dvorak, petr@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 @RestController
-@RequestMapping("pa/v3")
+@RequestMapping({"pa/v3", "pa/v4"})
 @Slf4j
 public class ServerStatusController {
 
