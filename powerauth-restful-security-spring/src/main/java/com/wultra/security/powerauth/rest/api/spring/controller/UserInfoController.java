@@ -43,12 +43,13 @@ import java.util.Map;
  *     <li>3.1</li>
  *     <li>3.2</li>
  *     <li>3.3</li>
+ *     <li>4.0</li>
  * </ul>
  *
  * @author Petr Dvorak, petr@wultra.com
  */
 @RestController
-@RequestMapping("/pa/v3/user")
+@RequestMapping({"/pa/v3/user", "/pa/v4/user"})
 @Slf4j
 public class UserInfoController {
 
@@ -67,7 +68,7 @@ public class UserInfoController {
      * Fetch user info.
      *
      * @param request Request with user info service.
-     * @param encryptionContext PowerAuth ECIES encryption context.
+     * @param encryptionContext PowerAuth encryption context.
      * @return Encrypted user info claims.
      * @throws PowerAuthUserInfoException In case there is an error while fetching claims.
      * @throws PowerAuthEncryptionException In case of failed encryption.
