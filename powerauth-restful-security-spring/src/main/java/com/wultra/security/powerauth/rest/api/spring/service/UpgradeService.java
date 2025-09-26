@@ -123,7 +123,6 @@ public class UpgradeService {
             if (upgradeResponse.isConfirmed()) {
                 return new Response();
             } else {
-                logger.debug("Upgrade confirmation failed");
                 throw new PowerAuthUpgradeException();
             }
         } catch (Exception ex) {
