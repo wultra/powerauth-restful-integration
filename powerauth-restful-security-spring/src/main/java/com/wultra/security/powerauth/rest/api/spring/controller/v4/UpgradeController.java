@@ -62,6 +62,7 @@ public class UpgradeController {
      *
      * @param request AEAD encrypted request.
      * @param authorizationHeader Authorization HTTP header.
+     * @param encryptionHeader Encryption HTTP header.
      * @return AEAD encrypted response.
      * @throws PowerAuthUpgradeException In case upgrade fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
