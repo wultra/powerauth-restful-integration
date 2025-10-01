@@ -85,13 +85,6 @@ public class PowerAuthCodeAuthenticationImpl extends AbstractAuthenticationToken
     private String version;
 
     /**
-     * Forced authentication version. Used during scheme upgrade, when the element already uses new authentication code type but
-     * some parts of the process still need to work with the old one.
-     */
-    private Integer forcedAuthenticationVersion;
-
-
-    /**
      * List of activation statuses for which authentication is allowed.
      */
     private List<ActivationStatus> allowedStates;
@@ -269,15 +262,6 @@ public class PowerAuthCodeAuthenticationImpl extends AbstractAuthenticationToken
     }
 
     /**
-     * Get forced authentication version which is used during upgrade.
-     * @return Forced authentication version.
-     */
-    @Override
-    public Integer getForcedAuthenticationVersion() {
-        return forcedAuthenticationVersion;
-    }
-
-    /**
      * Get activation states for which authentication is allowed.
      * @return Allowed activation states.
      */
@@ -293,15 +277,6 @@ public class PowerAuthCodeAuthenticationImpl extends AbstractAuthenticationToken
     @Override
     public void setAllowedStates(List<ActivationStatus> allowedStates) {
         this.allowedStates = allowedStates;
-    }
-
-    /**
-     * Set forced authentication version which is used during upgrade.
-     * @param forcedAuthenticationVersion Forced authentication version.
-     */
-    @Override
-    public void setForcedAuthenticationVersion(Integer forcedAuthenticationVersion) {
-        this.forcedAuthenticationVersion = forcedAuthenticationVersion;
     }
 
     /**

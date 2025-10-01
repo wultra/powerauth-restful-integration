@@ -141,18 +141,6 @@ public interface PowerAuthCodeAuthentication extends PowerAuthAuthentication {
     void setVersion(String version);
 
     /**
-     * Get forced authentication version which is used during upgrade.
-     * @return Forced authentication version
-     */
-    Integer getForcedAuthenticationVersion();
-
-    /**
-     * Set forced authentication version which is used during upgrade.
-     * @param forcedAuthenticationVersion Forced authentication version.
-     */
-    void setForcedAuthenticationVersion(Integer forcedAuthenticationVersion);
-
-    /**
      * Get activation states for which authentication is allowed.
      * @return Allowed activation states.
      */

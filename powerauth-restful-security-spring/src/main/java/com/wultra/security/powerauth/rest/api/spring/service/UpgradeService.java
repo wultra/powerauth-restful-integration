@@ -19,91 +19,65 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.service;
 
-import com.wultra.security.powerauth.client.v3.PowerAuthClient;
-import com.wultra.security.powerauth.client.model.request.CommitUpgradeRequest;
-import com.wultra.security.powerauth.client.model.request.v3.StartUpgradeRequest;
-import com.wultra.security.powerauth.client.model.response.CommitUpgradeResponse;
-import com.wultra.security.powerauth.client.model.response.v3.StartUpgradeResponse;
 import com.wultra.core.rest.model.base.response.Response;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
-import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedResponse;
-import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
-import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
+import com.wultra.security.powerauth.client.model.request.v4.ConfirmUpgradeRequest;
+import com.wultra.security.powerauth.client.model.request.v4.StartUpgradeRequest;
+import com.wultra.security.powerauth.client.model.response.v4.ConfirmUpgradeResponse;
+import com.wultra.security.powerauth.client.model.response.v4.StartUpgradeResponse;
+import com.wultra.security.powerauth.client.v4.PowerAuthClient;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.response.AeadEncryptedResponse;
 import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
-import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
-import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
+import com.wultra.security.powerauth.http.PowerAuthEncryptionHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUpgradeException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
-import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
-import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
-import jakarta.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * Service implementing upgrade functionality.
  *
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- *     <li>3.0</li>
+ *     <li>4.0</li>
  * </ul>
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  *
  */
-@Service("upgradeServiceV3")
+@Service
+@AllArgsConstructor
+@Slf4j
 public class UpgradeService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UpgradeService.class);
-
     private final PowerAuthClient powerAuthClient;
-    private final PowerAuthAuthenticationProvider authenticationProvider;
     private final HttpCustomizationService httpCustomizationService;
 
     /**
-     * Service constructor.
-     * @param powerAuthClient PowerAuth client.
-     * @param authenticationProvider Authentication provider.
-     * @param httpCustomizationService HTTP customization service.
-     */
-    @Autowired
-    public UpgradeService(PowerAuthClient powerAuthClient, PowerAuthAuthenticationProvider authenticationProvider, HttpCustomizationService httpCustomizationService) {
-        this.powerAuthClient = powerAuthClient;
-        this.authenticationProvider = authenticationProvider;
-        this.httpCustomizationService = httpCustomizationService;
-    }
-
-    /**
-     * Start upgrade of activation to version 3.
-     * @param request ECIES encrypted upgrade start request.
-     * @param header PowerAuth encryption HTTP header.
-     * @return ECIES encrypted upgrade activation response.
+     * Start upgrade of activation to version 4.
+     * @param request AEAD encrypted upgrade start request.
+     * @param authHeader PowerAuth authentication HTTP header.
+     * @param encHeader PowerAuth encryption HTTP header.
+     * @return AEAD encrypted upgrade activation response.
      * @throws PowerAuthUpgradeException In case upgrade start fails.
      */
-    public EciesEncryptedResponse upgradeStart(EciesEncryptedRequest request, PowerAuthEncryptionHttpHeader header)
+    public AeadEncryptedResponse upgradeStart(AeadEncryptedRequest request, PowerAuthAuthorizationHttpHeader authHeader, PowerAuthEncryptionHttpHeader encHeader)
             throws PowerAuthUpgradeException {
 
         try {
-            // Get ECIES headers
-            final String activationId = header.getActivationId();
-            final String applicationKey = header.getApplicationKey();
+            // Extract values from headers, activation ID is from authentication, the rest from encryption
+            final String activationId = authHeader.getActivationId();
+            final String applicationKey = encHeader.getApplicationKey();
+            final String version = encHeader.getVersion();
 
             // Start upgrade on PowerAuth server
             final StartUpgradeRequest upgradeRequest = new StartUpgradeRequest();
             upgradeRequest.setActivationId(activationId);
             upgradeRequest.setApplicationKey(applicationKey);
             upgradeRequest.setTemporaryKeyId(request.getTemporaryKeyId());
-            upgradeRequest.setEphemeralPublicKey(request.getEphemeralPublicKey());
             upgradeRequest.setEncryptedData(request.getEncryptedData());
-            upgradeRequest.setMac(request.getMac());
             upgradeRequest.setNonce(request.getNonce());
-            upgradeRequest.setProtocolVersion(header.getVersion());
+            upgradeRequest.setProtocolVersion(version);
             upgradeRequest.setTimestamp(request.getTimestamp());
             final StartUpgradeResponse upgradeResponse = powerAuthClient.startUpgrade(
                     upgradeRequest,
@@ -112,10 +86,8 @@ public class UpgradeService {
             );
 
             // Prepare a response
-            final EciesEncryptedResponse response = new EciesEncryptedResponse();
-            response.setMac(upgradeResponse.getMac());
+            final AeadEncryptedResponse response = new AeadEncryptedResponse();
             response.setEncryptedData(upgradeResponse.getEncryptedData());
-            response.setNonce(upgradeResponse.getNonce());
             response.setTimestamp(upgradeResponse.getTimestamp());
             return response;
         } catch (Exception ex) {
@@ -126,65 +98,38 @@ public class UpgradeService {
     }
 
     /**
-     * Commit upgrade of activation to version 3.
-     * @param signatureHeader PowerAuth signature HTTP header.
-     * @param httpServletRequest HTTP servlet request.
-     * @return Commit upgrade response.
-     * @throws PowerAuthAuthenticationException in case authentication fails.
-     * @throws PowerAuthUpgradeException In case upgrade commit fails.
+     * Confirm upgrade of activation to version 4.
+     * @param header PowerAuth authorization HTTP header.
+     * @return Confirm upgrade response.
+     * @throws PowerAuthUpgradeException In case upgrade confirmation fails.
      */
-    public Response upgradeCommit(String signatureHeader,
-                                  HttpServletRequest httpServletRequest)
-            throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
+    public Response upgradeConfirm(PowerAuthAuthorizationHttpHeader header) throws PowerAuthUpgradeException {
 
         try {
-            // Extract request body
-            final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-            if (requestBodyBytes == null || requestBodyBytes.length == 0) {
-                // Expected request body is {}, do not accept empty body
-                logger.warn("Empty request body");
-                throw new PowerAuthInvalidRequestException();
-            }
+            // Get HTTP headers
+            final String activationId = header.getActivationId();
+            final String applicationKey = header.getApplicationKey();
 
-            // TODO - update for crypto4
-            // Verify signature, force signature version during upgrade to version 3
-            final List<PowerAuthCodeType> allowedSignatureTypes = Collections.singletonList(PowerAuthCodeType.POSSESSION);
-            final List<ActivationStatus> allowedStates = Collections.singletonList(ActivationStatus.ACTIVE);
-            final PowerAuthApiAuthentication authentication = authenticationProvider.validateRequestAuthenticationWithActivationDetails("POST", requestBodyBytes, "/pa/upgrade/commit", signatureHeader, allowedSignatureTypes, allowedStates, 3);
-
-            // In case signature verification fails, upgrade fails, too
-            if (!authentication.getAuthenticationContext().isValid() || authentication.getActivationContext().getActivationId() == null) {
-                logger.debug("Signature validation failed");
-                throw new PowerAuthCodeInvalidException();
-            }
-
-            // Get signature HTTP headers
-            final String activationId = authentication.getActivationContext().getActivationId();
-            final PowerAuthAuthorizationHttpHeader httpHeader = (PowerAuthAuthorizationHttpHeader) authentication.getHttpHeader();
-            final String applicationKey = httpHeader.getApplicationKey();
-
-            // Commit upgrade on PowerAuth server
-            final CommitUpgradeRequest commitRequest = new CommitUpgradeRequest();
-            commitRequest.setActivationId(activationId);
-            commitRequest.setApplicationKey(applicationKey);
-            final CommitUpgradeResponse upgradeResponse = powerAuthClient.commitUpgrade(
-                    commitRequest,
+            // Confirm upgrade on PowerAuth server
+            final ConfirmUpgradeRequest request = new ConfirmUpgradeRequest();
+            request.setActivationId(activationId);
+            request.setApplicationKey(applicationKey);
+            final ConfirmUpgradeResponse upgradeResponse = powerAuthClient.confirmUpgrade(
+                    request,
                     httpCustomizationService.getQueryParams(),
                     httpCustomizationService.getHttpHeaders()
             );
 
-            if (upgradeResponse.isCommitted()) {
+            if (upgradeResponse.isConfirmed()) {
                 return new Response();
             } else {
-                logger.debug("Upgrade commit failed");
                 throw new PowerAuthUpgradeException();
             }
-        } catch (PowerAuthAuthenticationException ex) {
-            throw ex;
         } catch (Exception ex) {
-            logger.warn("PowerAuth upgrade commit failed, error: {}", ex.getMessage());
+            logger.warn("PowerAuth upgrade confirmation failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthUpgradeException();
         }
     }
+
 }
