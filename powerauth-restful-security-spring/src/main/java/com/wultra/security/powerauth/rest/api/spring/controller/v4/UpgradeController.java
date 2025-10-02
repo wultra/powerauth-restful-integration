@@ -30,10 +30,12 @@ import com.wultra.security.powerauth.http.validator.InvalidPowerAuthHttpHeaderEx
 import com.wultra.security.powerauth.http.validator.PowerAuthAuthorizationHttpHeaderValidator;
 import com.wultra.security.powerauth.http.validator.PowerAuthEncryptionHttpHeaderValidator;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
+import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUpgradeException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.service.UpgradeService;
+import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -63,6 +65,7 @@ public class UpgradeController {
      * @param request AEAD encrypted request.
      * @param authorizationHeader Authorization HTTP header.
      * @param encryptionHeader Encryption HTTP header.
+     * @param auth PowerAuth API authentication object.
      * @return AEAD encrypted response.
      * @throws PowerAuthUpgradeException In case upgrade fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
@@ -73,13 +76,16 @@ public class UpgradeController {
     })
     public AeadEncryptedResponse upgradeStart(@RequestBody AeadEncryptedRequest request,
                                               @RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME, defaultValue = "unknown") String authorizationHeader,
-                                              @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader)
-            throws PowerAuthUpgradeException, PowerAuthInvalidRequestException {
+                                              @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader,
+                                              PowerAuthApiAuthentication auth)
+            throws PowerAuthUpgradeException, PowerAuthAuthenticationException {
 
         if (request == null) {
             logger.warn("Invalid request object in upgrade start");
             throw new PowerAuthUpgradeException();
         }
+
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
 
         // Parse the authorization header
         final PowerAuthAuthorizationHttpHeader authHeader = new PowerAuthAuthorizationHttpHeader().fromValue(authorizationHeader);
@@ -117,6 +123,7 @@ public class UpgradeController {
      * Confirm upgrade of activation to version 4.
      *
      * @param authorizationHeader PowerAuth authorization HTTP header.
+     * @param auth PowerAuth API authentication object.
      * @return Response.
      * @throws PowerAuthAuthenticationException In case request authentication is invalid.
      * @throws PowerAuthUpgradeException In case confirmation fails.
@@ -125,7 +132,10 @@ public class UpgradeController {
     @PowerAuth(resourceId = "/pa/upgrade/confirm", authenticationCodeType = {
             PowerAuthCodeType.POSSESSION
     })
-    public Response upgradeConfirm(@RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME, defaultValue = "unknown") String authorizationHeader) throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
+    public Response upgradeConfirm(@RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME, defaultValue = "unknown") String authorizationHeader,
+                                   PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
+
+        PowerAuthAuthenticationUtil.checkAuthentication(auth);
 
         // Parse the authorization header
         final PowerAuthAuthorizationHttpHeader header = new PowerAuthAuthorizationHttpHeader().fromValue(authorizationHeader);
