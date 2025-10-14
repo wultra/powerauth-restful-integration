@@ -203,6 +203,8 @@
                             <rules>
                                 <bannedDependencies>
                                     <excludes>
+                                        <exclude>jakarta.servlet:jakarta.servlet-api:*:*:compile</exclude>
+                                        <exclude>org.apache.tomcat.embed:*:*:*:compile</exclude>
                                         <exclude>com.google.guava:guava*:*:*:compile</exclude>
                                     </excludes>
                                 </bannedDependencies>
