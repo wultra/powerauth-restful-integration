@@ -59,6 +59,7 @@ import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationSe
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcActivationContext;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.OidcHandler;
 import com.wultra.security.powerauth.rest.api.spring.service.oidc.TokenData;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -82,6 +83,7 @@ import java.util.*;
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 @Service("activationServiceV3")
+@AllArgsConstructor
 @Slf4j
 public class ActivationService {
 
@@ -95,27 +97,6 @@ public class ActivationService {
     private PowerAuthApplicationConfiguration applicationConfiguration;
     private CustomActivationProvider activationProvider;
     private UserInfoProvider userInfoProvider;
-
-
-    /**
-     * Service constructor.
-     * @param powerAuthClient PowerAuth client.
-     * @param httpCustomizationService HTTP customization service.
-     * @param activationContextConverter Activation context converter.
-     * @param oidcHandler OIDC handler.
-     */
-    @Autowired
-    public ActivationService(
-            PowerAuthClient powerAuthClient,
-            HttpCustomizationService httpCustomizationService,
-            ActivationContextConverter activationContextConverter,
-            OidcHandler oidcHandler) {
-
-        this.powerAuthClient = powerAuthClient;
-        this.httpCustomizationService = httpCustomizationService;
-        this.activationContextConverter = activationContextConverter;
-        this.oidcHandler = oidcHandler;
-    }
 
     /**
      * Set application configuration class via setter injection.

@@ -17,10 +17,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v3;
 
 import com.wultra.core.rest.model.base.response.ObjectResponse;
-import com.wultra.security.powerauth.rest.api.model.response.ServerStatusResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v3.ServerStatusResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
@@ -31,21 +31,20 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Date;
 
 /**
- * Controller that provides user information.
+ * Controller that provides server status information.
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
  *     <li>3.0</li>
  *     <li>3.1</li>
  *     <li>3.2</li>
  *     <li>3.3</li>
- *     <li>4.0</li>
  * </ul>
  *
  * @author Petr Dvorak, petr@wultra.com
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController
-@RequestMapping({"pa/v3", "pa/v4"})
+@RestController("serverStatusControllerV3")
+@RequestMapping("pa/v3")
 @Slf4j
 public class ServerStatusController {
 

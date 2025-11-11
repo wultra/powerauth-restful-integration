@@ -54,8 +54,8 @@ import org.springframework.stereotype.Service;
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 @Service("tokenServiceV3")
-@Slf4j
 @AllArgsConstructor
+@Slf4j
 public class TokenService {
 
     private final PowerAuthClient powerAuthClient;

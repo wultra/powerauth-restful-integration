@@ -154,4 +154,16 @@ public class PowerAuthExceptionHandler {
         return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
     }
 
+    /**
+     * Handle PowerAuthUserStatusException exceptions.
+     * @param ex Exception instance.
+     * @return Error response.
+     */
+    @ExceptionHandler(value = PowerAuthStatusException.class)
+    @ResponseStatus(value = HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handlePowerAuthStatusException(PowerAuthStatusException ex) {
+        logger.warn(ex.getMessage(), ex);
+        return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+    }
+
 }

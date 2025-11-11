@@ -35,8 +35,8 @@ import com.wultra.security.powerauth.rest.api.spring.exception.authentication.Po
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Base64;
@@ -53,6 +53,7 @@ import java.util.Base64;
  *
  */
 @Service("secureVaultServiceV4")
+@AllArgsConstructor
 @Slf4j
 public class SecureVaultService {
 
@@ -60,19 +61,6 @@ public class SecureVaultService {
     private final PowerAuthAuthenticationProvider authenticationProvider;
     private final HttpCustomizationService httpCustomizationService;
     private final AuthenticationCodeTypeConverter converter = new AuthenticationCodeTypeConverter();
-
-    /**
-     * Service constructor.
-     * @param powerAuthClient PowerAuth client.
-     * @param authenticationProvider Authentication provider.
-     * @param httpCustomizationService HTTP customization service.
-     */
-    @Autowired
-    public SecureVaultService(PowerAuthClient powerAuthClient, PowerAuthAuthenticationProvider authenticationProvider, HttpCustomizationService httpCustomizationService) {
-        this.powerAuthClient = powerAuthClient;
-        this.authenticationProvider = authenticationProvider;
-        this.httpCustomizationService = httpCustomizationService;
-    }
 
     /**
      * Unlock secure vault.
