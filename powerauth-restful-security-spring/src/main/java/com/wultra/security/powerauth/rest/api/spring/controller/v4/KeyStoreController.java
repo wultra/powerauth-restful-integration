@@ -25,10 +25,9 @@ import com.wultra.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
 import com.wultra.security.powerauth.rest.api.spring.service.v4.KeyStoreService;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -46,21 +45,13 @@ import org.springframework.web.bind.annotation.RestController;
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 @RestController("keyStoreControllerV4")
+@AllArgsConstructor
 @RequestMapping(value = "/pa/v4/keystore")
 public class KeyStoreController {
 
     private static final Logger logger = LoggerFactory.getLogger(KeyStoreController.class);
 
     private final KeyStoreService service;
-
-    /**
-     * Default autowiring constructor.
-     * @param service Keystore service.
-     */
-    @Autowired
-    public KeyStoreController(@Qualifier("keyStoreServiceV4") KeyStoreService service) {
-        this.service = service;
-    }
 
     /**
      * Create a new temporary key.

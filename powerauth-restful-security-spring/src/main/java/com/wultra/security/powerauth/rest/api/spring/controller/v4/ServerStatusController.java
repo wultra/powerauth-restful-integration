@@ -52,6 +52,7 @@ public class ServerStatusController {
 
     /**
      * Obtain server status.
+     * @param request Server status request.
      * @return Server status.
      * @throws PowerAuthStatusException In case application query fails.
      */

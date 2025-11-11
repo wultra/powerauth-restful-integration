@@ -27,7 +27,6 @@ import com.wultra.security.powerauth.client.v4.PowerAuthClient;
 import com.wultra.security.powerauth.rest.api.model.request.v4.ServerStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.response.v4.ServerStatusResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthStatusException;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
@@ -48,12 +47,20 @@ import java.util.List;
  *
  */
 @Service("serverStatusServiceV4")
-@AllArgsConstructor
 @Slf4j
 public class ServerStatusService {
 
     private final PowerAuthClient powerAuthClient;
     private BuildProperties buildProperties;
+
+    /**
+     * Service constructor.
+     * @param powerAuthClient PowerAuth client.
+     */
+    @Autowired
+    public ServerStatusService(PowerAuthClient powerAuthClient) {
+        this.powerAuthClient = powerAuthClient;
+    }
 
     /**
      * Set build properties.
