@@ -27,9 +27,9 @@ import com.wultra.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
 import com.wultra.security.powerauth.rest.api.spring.service.HttpCustomizationService;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /**
@@ -38,23 +38,13 @@ import org.springframework.stereotype.Service;
  * @author Petr Dvorak, petr@wultra.com
  */
 @Service("keyStoreServiceV3")
+@AllArgsConstructor
 public class KeyStoreService {
 
     private static final Logger logger = LoggerFactory.getLogger(KeyStoreService.class);
 
     private final PowerAuthClient powerAuthClient;
     private final HttpCustomizationService httpCustomizationService;
-
-    /**
-     * Default autowiring constructor.
-     * @param powerAuthClient PowerAuth Client
-     * @param httpCustomizationService Customization service.
-     */
-    @Autowired
-    public KeyStoreService(PowerAuthClient powerAuthClient, HttpCustomizationService httpCustomizationService) {
-        this.powerAuthClient = powerAuthClient;
-        this.httpCustomizationService = httpCustomizationService;
-    }
 
     /**
      * Fetch a temporary public key with provided parameters.

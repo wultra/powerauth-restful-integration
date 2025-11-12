@@ -96,7 +96,6 @@ public class ActivationService {
     private CustomActivationProvider activationProvider;
     private UserInfoProvider userInfoProvider;
 
-
     /**
      * Service constructor.
      * @param powerAuthClient PowerAuth client.

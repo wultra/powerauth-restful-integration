@@ -17,68 +17,48 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package com.wultra.security.powerauth.rest.api.spring.controller;
+package com.wultra.security.powerauth.rest.api.spring.controller.v4;
 
+import com.wultra.core.rest.model.base.request.ObjectRequest;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
-import com.wultra.security.powerauth.rest.api.model.response.ServerStatusResponse;
+import com.wultra.security.powerauth.rest.api.model.request.v4.ServerStatusRequest;
+import com.wultra.security.powerauth.rest.api.model.response.v4.ServerStatusResponse;
+import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthStatusException;
+import com.wultra.security.powerauth.rest.api.spring.service.v4.ServerStatusService;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.info.BuildProperties;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Date;
-
 /**
- * Controller that provides user information.
+ * Controller that provides application status information.
  * <p><b>PowerAuth protocol versions:</b>
  * <ul>
- *     <li>3.0</li>
- *     <li>3.1</li>
- *     <li>3.2</li>
- *     <li>3.3</li>
  *     <li>4.0</li>
  * </ul>
  *
  * @author Petr Dvorak, petr@wultra.com
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@RestController
-@RequestMapping({"pa/v3", "pa/v4"})
+@RestController("serverStatusControllerV4")
+@RequestMapping("pa/v4")
+@AllArgsConstructor
 @Slf4j
 public class ServerStatusController {
 
-    private BuildProperties buildProperties;
-
-    /**
-     * Set build properties.
-     * @param buildProperties Build properties.
-     */
-    @Autowired(required = false)
-    public void setBuildProperties(BuildProperties buildProperties) {
-        this.buildProperties = buildProperties;
-    }
+    private final ServerStatusService serverStatusService;
 
     /**
      * Obtain server status.
+     * @param request Server status request.
      * @return Server status.
+     * @throws PowerAuthStatusException In case application query fails.
      */
     @PostMapping("status")
-    public ObjectResponse<ServerStatusResponse> getServerStatus() {
-        final long serverTime = new Date().getTime();
-        final String version;
-        final String name;
-        if (buildProperties != null) {
-            version = buildProperties.getVersion();
-            name = buildProperties.getName();
-        } else {
-            name = "UNKNOWN";
-            version = "UNKNOWN";
-        }
-        final ServerStatusResponse.Application application = new ServerStatusResponse.Application(name, version);
-        final ServerStatusResponse response = new ServerStatusResponse(serverTime, application);
-        return new ObjectResponse<>(response);
+    public ObjectResponse<ServerStatusResponse> getServerStatus(@RequestBody ObjectRequest<ServerStatusRequest> request) throws PowerAuthStatusException {
+        return new ObjectResponse<>(serverStatusService.getServerStatus(request.getRequestObject()));
     }
 
 }
