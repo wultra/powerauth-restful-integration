@@ -21,6 +21,8 @@ package com.wultra.security.powerauth.rest.api.model.request.v4;
 
 import lombok.Data;
 
+import java.util.List;
+
 /**
  * Shared secret request.
  *
@@ -30,7 +32,6 @@ import lombok.Data;
 public class SharedSecretRequest {
 
     private String algorithm;
-    private String ecdhe;
-    private String mlkem;
+    private List<String> encapsulationKeys;
 
 }
