@@ -31,6 +31,7 @@ import java.util.List;
 @Data
 public class SharedSecretResponse {
 
+    private byte[] salt;
     private List<String> encapsulatedKeys;
 
 }
