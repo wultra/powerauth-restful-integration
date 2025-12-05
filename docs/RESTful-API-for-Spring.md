@@ -402,9 +402,9 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `application` scope.
+The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an AEAD encryptor initialized in `application` scope.
 
-The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
+The response data is automatically encrypted using the previously created an AEAD encryptor which was used for decrypting the request data.
 
 ### Encryption in Activation Scope
 
@@ -430,9 +430,9 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `activation` scope.
+The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an AEAD encryptor initialized in `activation` scope.
 
-The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
+The response data is automatically encrypted using the previously created an AEAD encryptor which was used for decrypting the request data.
 
 ### Authenticated and Encrypted Requests
 
@@ -465,9 +465,9 @@ public class EncryptedDataExchangeController {
 }
 ```
 
-The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an ECIES decryptor initialized in `activation` scope. The authentication code received in PowerAuth HTTP authentication header is verified.
+The method argument annotated by the `@EncryptedRequestBody` annotation is set with decrypted request data. The data is decrypted using an AEAD encryptor initialized in `activation` scope. The authentication code received in PowerAuth HTTP authentication header is verified.
 
-The response data is automatically encrypted using the previously created an ECIES decryptor which was used for decrypting the request data.
+The response data is automatically encrypted using the previously created an AEAD encryptor which was used for decrypting the request data.
 
 <!-- begin box info -->
 Note: You can use `String` or `byte[]` data types instead of using request/response objects for encryption of raw data.
