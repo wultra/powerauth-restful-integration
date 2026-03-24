@@ -37,6 +37,7 @@ import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthToken;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import com.wultra.security.powerauth.rest.api.spring.config.ServiceConfiguration;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
@@ -53,6 +54,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
@@ -74,6 +78,7 @@ public class ActivationController {
 
     private PowerAuthAuthenticationProvider authenticationProvider;
     private ActivationService activationServiceV4;
+    private ServiceConfiguration serviceConfiguration;
 
     /**
      * Create activation.
@@ -129,15 +134,26 @@ public class ActivationController {
             @RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME) String authHeader,
             HttpServletRequest httpServletRequest)
             throws PowerAuthActivationException, PowerAuthAuthenticationException {
-        byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-        PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication("POST", requestBodyBytes, "/pa/activation/remove", authHeader);
+        final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
+        final List<PowerAuthCodeType> allowedAuthCodeTypes = new ArrayList<>(
+                List.of(
+                        PowerAuthCodeType.POSSESSION_KNOWLEDGE,
+                        PowerAuthCodeType.POSSESSION_BIOMETRY
+                )
+        );
+        if (serviceConfiguration.isAllowRemoveActivation1fa()) {
+            allowedAuthCodeTypes.add(PowerAuthCodeType.POSSESSION);
+        }
+        final List<ActivationStatus> defaultAllowedStates = List.of(ActivationStatus.ACTIVE);
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication("POST",
+                requestBodyBytes, "/pa/activation/remove", authHeader, allowedAuthCodeTypes, defaultAllowedStates);
         if (apiAuthentication == null || apiAuthentication.getActivationContext().getActivationId() == null) {
             logger.debug("Authentication code validation failed");
             throw new PowerAuthCodeInvalidException();
         }
         PowerAuthVersionUtil.checkUnsupportedVersionV4(apiAuthentication.getVersion());
 
-        ActivationRemoveResponse response = activationServiceV4.removeActivation(apiAuthentication);
+        final ActivationRemoveResponse response = activationServiceV4.removeActivation(apiAuthentication);
         return new ObjectResponse<>(response);
     }
 
