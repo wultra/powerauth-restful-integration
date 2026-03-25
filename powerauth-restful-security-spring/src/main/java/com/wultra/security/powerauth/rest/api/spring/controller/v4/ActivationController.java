@@ -91,8 +91,9 @@ public class ActivationController {
             logger.warn("Invalid request in activation create");
             throw new PowerAuthActivationException();
         }
+        final ActivationLayer1Response response = activationServiceV4.createActivation(request, context);
         logger.info("action: createActivation, state: succeeded");
-        return activationServiceV4.createActivation(request, context);
+        return response;
     }
 
     /**
