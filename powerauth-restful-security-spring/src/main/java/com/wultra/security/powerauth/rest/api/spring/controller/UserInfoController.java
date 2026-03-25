@@ -75,15 +75,17 @@ public class UserInfoController {
      */
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     @PostMapping("info")
-    public Map<String, Object> claims(@EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
+    public Map<String, Object> fetchUserInfo(@EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
+        logger.info("action: fetchUserInfo, state: initiated, activationId: {}",
+                encryptionContext != null ? encryptionContext.getActivationId() : null);
         if (encryptionContext == null) {
             logger.error("Encryption failed");
             throw new PowerAuthEncryptionException("Encryption failed");
         }
 
-        return userInfoService.fetchUserClaimsByActivationId(
-                encryptionContext.getActivationId()
-        );
+        final Map<String, Object> response = userInfoService.fetchUserClaimsByActivationId(encryptionContext.getActivationId());
+        logger.info("action: fetchUserInfo, state: succeeded");
+        return response;
     }
 
 }

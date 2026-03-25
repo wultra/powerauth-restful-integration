@@ -88,11 +88,13 @@ public class ActivationController {
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
     public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
                                                      EncryptionContext context) throws PowerAuthActivationException {
+        logger.info("action: createActivation, state: initiated");
         if (request == null || context == null) {
-            logger.warn("Invalid request in activation create");
             throw new PowerAuthActivationException();
         }
-        return activationServiceV3.createActivation(request, context);
+        final ActivationLayer1Response response = activationServiceV3.createActivation(request, context);
+        logger.info("action: createActivation, state: succeeded");
+        return response;
     }
 
     /**
@@ -104,11 +106,14 @@ public class ActivationController {
     @PostMapping("status")
     public ObjectResponse<ActivationStatusResponse> getActivationStatus(@RequestBody ObjectRequest<ActivationStatusRequest> request)
             throws PowerAuthActivationException {
+        logger.info("action: getActivationStatus, state: initiated, activationId: {}",
+                request.getRequestObject() != null ? request.getRequestObject().getActivationId() : null);
         if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
             logger.warn("Invalid request object in activation status");
             throw new PowerAuthActivationException();
         }
-        ActivationStatusResponse response = activationServiceV3.getActivationStatus(request.getRequestObject());
+        final ActivationStatusResponse response = activationServiceV3.getActivationStatus(request.getRequestObject());
+        logger.info("action: getActivationStatus, state: succeeded");
         return new ObjectResponse<>(response);
     }
 
@@ -125,15 +130,18 @@ public class ActivationController {
             @RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME) String authHeader,
             HttpServletRequest httpServletRequest)
             throws PowerAuthActivationException, PowerAuthAuthenticationException {
-        byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-        PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication("POST", requestBodyBytes, "/pa/activation/remove", authHeader);
+        logger.info("action: removeActivation, state: initiated");
+        final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication("POST", requestBodyBytes, "/pa/activation/remove", authHeader);
         if (apiAuthentication == null || apiAuthentication.getActivationContext().getActivationId() == null) {
             logger.debug("Authentication code validation failed");
             throw new PowerAuthCodeInvalidException();
         }
+        logger.info("action: removeActivation, state: processing, activationId: {}", apiAuthentication.getActivationContext().getActivationId());
         PowerAuthVersionUtil.checkUnsupportedVersionV3(apiAuthentication.getVersion());
 
-        ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
+        final ActivationRemoveResponse response = activationServiceV3.removeActivation(apiAuthentication);
+        logger.info("action: removeActivation, state: succeeded");
         return new ObjectResponse<>(response);
     }
 
@@ -152,11 +160,13 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> fetchActivationDetail(PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
-
+        logger.info("action: fetchActivationDetail, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
 
         final ActivationDetailResponse activationDetail = activationServiceV3.getActivationDetail(auth.getActivationContext().getActivationId());
+        logger.info("action: fetchActivationDetail, state: succeeded");
         return new ObjectResponse<>(activationDetail);
     }
 
@@ -175,14 +185,17 @@ public class ActivationController {
             PowerAuthCodeType.POSSESSION_BIOMETRY
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
-    public ObjectResponse<ActivationDetailResponse> renameApplication(
+    public ObjectResponse<ActivationDetailResponse> renameActivation(
             @RequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
+        logger.info("action: renameActivation, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
 
         final ActivationDetailResponse activationDetail = activationServiceV3.renameActivation(auth.getActivationContext().getActivationId(), request);
+        logger.info("action: renameActivation, state: succeeded");
         return new ObjectResponse<>(activationDetail);
     }
 

@@ -78,6 +78,8 @@ public class TokenController {
     public EciesEncryptedResponse createToken(@RequestBody EciesEncryptedRequest request,
                                               PowerAuthApiAuthentication auth)
             throws PowerAuthAuthenticationException {
+        logger.info("action: createToken, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         if (request == null) {
             logger.warn("Invalid request object in create token");
             throw new PowerAuthInvalidRequestException();
@@ -87,7 +89,9 @@ public class TokenController {
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
 
-        return tokenServiceV3.createToken(request, auth);
+        final EciesEncryptedResponse response = tokenServiceV3.createToken(request, auth);
+        logger.info("action: createToken, state: succeeded");
+        return response;
     }
 
     /**
@@ -106,6 +110,8 @@ public class TokenController {
     })
     public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
                                                            PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
+        logger.info("action: removeToken, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in remove token");
             throw new PowerAuthInvalidRequestException();
@@ -114,8 +120,9 @@ public class TokenController {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
 
-        TokenRemoveResponse response = tokenServiceV3.removeToken(request.getRequestObject(), auth);
-        return new ObjectResponse<>(response);
+        final ObjectResponse<TokenRemoveResponse> response = new ObjectResponse<>(tokenServiceV3.removeToken(request.getRequestObject(), auth));
+        logger.info("action: removeToken, state: succeeded");
+        return response;
     }
 
 }

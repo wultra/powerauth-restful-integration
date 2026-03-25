@@ -79,6 +79,8 @@ public class UpgradeController {
                                               @RequestHeader(value = PowerAuthEncryptionHttpHeader.HEADER_NAME, defaultValue = "unknown") String encryptionHeader,
                                               PowerAuthApiAuthentication auth)
             throws PowerAuthUpgradeException, PowerAuthAuthenticationException {
+        logger.info("action: upgradeStart, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
 
         if (request == null) {
             logger.warn("Invalid request object in upgrade start");
@@ -116,7 +118,9 @@ public class UpgradeController {
         PowerAuthVersionUtil.checkUnsupportedVersionV4(encHeader.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(encHeader.getVersion(), request);
 
-        return upgradeService.upgradeStart(request, authHeader, encHeader);
+        final AeadEncryptedResponse response = upgradeService.upgradeStart(request, authHeader, encHeader);
+        logger.info("action: upgradeStart, state: succeeded");
+        return response;
     }
 
     /**
@@ -134,7 +138,8 @@ public class UpgradeController {
     })
     public Response upgradeConfirm(@RequestHeader(value = PowerAuthAuthorizationHttpHeader.HEADER_NAME, defaultValue = "unknown") String authorizationHeader,
                                    PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthUpgradeException {
-
+        logger.info("action: upgradeConfirm, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
 
         // Parse the authorization header
@@ -151,6 +156,8 @@ public class UpgradeController {
 
         PowerAuthVersionUtil.checkUnsupportedVersionV4(header.getVersion());
 
-        return upgradeService.upgradeConfirm(header);
+        final Response response = upgradeService.upgradeConfirm(header);
+        logger.info("action: upgradeConfirm, state: succeeded");
+        return response;
     }
 }

@@ -58,7 +58,10 @@ public class ServerStatusController {
      */
     @PostMapping("status")
     public ObjectResponse<ServerStatusResponse> getServerStatus(@RequestBody ObjectRequest<ServerStatusRequest> request) throws PowerAuthStatusException {
-        return new ObjectResponse<>(serverStatusService.getServerStatus(request.getRequestObject()));
+        logger.info("action: getServerStatus, state: initiated");
+        final ObjectResponse<ServerStatusResponse> response = new ObjectResponse<>(serverStatusService.getServerStatus(request.getRequestObject()));
+        logger.info("action: getServerStatus, state: succeeded");
+        return response;
     }
 
 }

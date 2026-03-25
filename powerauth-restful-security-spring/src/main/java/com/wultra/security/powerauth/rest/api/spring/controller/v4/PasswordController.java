@@ -30,6 +30,7 @@ import com.wultra.security.powerauth.rest.api.spring.service.v4.PasswordService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -49,6 +50,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("passwordControllerV4")
 @RequestMapping("/pa/v4/password")
 @AllArgsConstructor
+@Slf4j
 public class PasswordController {
 
     private final PasswordService passwordService;
@@ -64,10 +66,14 @@ public class PasswordController {
     @PostMapping(value = "change")
     @PowerAuth(resourceId = "/pa/password/change", authenticationCodeType = PowerAuthCodeType.POSSESSION_KNOWLEDGE)
     public AeadEncryptedResponse changePassword(@RequestBody AeadEncryptedRequest request, PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthPasswordException {
+        logger.info("action: changePassword, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
-        return passwordService.changePassword(request, auth);
+        final AeadEncryptedResponse response = passwordService.changePassword(request, auth);
+        logger.info("action: changePassword, state: succeeded");
+        return response;
     }
 
 }

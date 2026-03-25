@@ -58,6 +58,7 @@ public class KeyStoreController {
      */
     @PostMapping("create")
     public ObjectResponse<TemporaryKeyResponse> fetchTemporaryKey(@RequestBody ObjectRequest<TemporaryKeyRequest> request) throws PowerAuthTemporaryKeyException {
+        logger.info("action: fetchTemporaryKey, state: initiated");
         if (request == null) {
             logger.warn("Null request while fetching temporary key");
             throw new PowerAuthTemporaryKeyException();
@@ -71,7 +72,9 @@ public class KeyStoreController {
             logger.warn("Invalid request object with empty JWT while fetching temporary key");
             throw new PowerAuthTemporaryKeyException();
         }
-        return new ObjectResponse<>(service.fetchTemporaryKey(requestObject));
+        final ObjectResponse<TemporaryKeyResponse> response = new ObjectResponse<>(service.fetchTemporaryKey(requestObject));
+        logger.info("action: fetchTemporaryKey, state: succeeded");
+        return response;
     }
 
 }

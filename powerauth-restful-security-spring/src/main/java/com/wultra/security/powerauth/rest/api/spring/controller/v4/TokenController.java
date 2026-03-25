@@ -75,6 +75,8 @@ public class TokenController {
     public AeadEncryptedResponse createToken(@RequestBody AeadEncryptedRequest request,
                                              PowerAuthApiAuthentication auth)
             throws PowerAuthAuthenticationException {
+        logger.info("action: createToken, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         if (request == null) {
             logger.warn("Invalid request object in create token");
             throw new PowerAuthInvalidRequestException();
@@ -84,7 +86,9 @@ public class TokenController {
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
 
-        return tokenServiceV4.createToken(request, auth);
+        final AeadEncryptedResponse response = tokenServiceV4.createToken(request, auth);
+        logger.info("action: createToken, state: succeeded");
+        return response;
     }
 
     /**
@@ -103,6 +107,8 @@ public class TokenController {
     })
     public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
                                                            PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
+        logger.info("action: removeToken, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         if (request.getRequestObject() == null) {
             logger.warn("Invalid request object in remove token");
             throw new PowerAuthInvalidRequestException();
@@ -111,8 +117,9 @@ public class TokenController {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
 
-        TokenRemoveResponse response = tokenServiceV4.removeToken(request.getRequestObject(), auth);
-        return new ObjectResponse<>(response);
+        final ObjectResponse<TokenRemoveResponse> response = new ObjectResponse<>(tokenServiceV4.removeToken(request.getRequestObject(), auth));
+        logger.info("action: removeToken, state: succeeded");
+        return response;
     }
 
 }

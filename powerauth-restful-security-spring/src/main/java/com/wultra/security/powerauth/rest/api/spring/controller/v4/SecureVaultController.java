@@ -70,6 +70,7 @@ public class SecureVaultController {
             @RequestBody AeadEncryptedRequest request,
             HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
+        logger.info("action: unlockVault, state: initiated");
 
         if (request == null) {
             logger.warn("Invalid request object in vault unlock");
@@ -91,7 +92,9 @@ public class SecureVaultController {
         PowerAuthVersionUtil.checkUnsupportedVersionV4(header.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(header.getVersion(), request);
 
-        return secureVaultServiceV4.vaultUnlock(header, request, httpServletRequest);
+        final AeadEncryptedResponse response = secureVaultServiceV4.vaultUnlock(header, request, httpServletRequest);
+        logger.info("action: unlockVault, state: succeeded");
+        return response;
     }
 
 }
