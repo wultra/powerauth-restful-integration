@@ -19,7 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request.v4;
 
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -30,7 +30,7 @@ import lombok.Data;
 @Data
 public class DevicePublicKeys {
 
-    @NotEmpty
+    @NotBlank
     private String ecdsa;
     private String mldsa;
 
