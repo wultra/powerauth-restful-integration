@@ -472,3 +472,9 @@ The response data is automatically encrypted using the previously created an AEA
 <!-- begin box info -->
 Note: You can use `String` or `byte[]` data types instead of using request/response objects for encryption of raw data.
 <!-- end -->
+
+### Service Configuration
+
+The following configuration properties can be configured to control service behavior: 
+
+`activation.remove.allow1fa` - whether 1-factor authentication code type is allowed for the endpoint `/pa/v4/activation/remove` (default: false).
