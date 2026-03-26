@@ -75,8 +75,9 @@ public class KeyStoreController {
             logger.warn("Invalid request object with empty JWT while fetching temporary key");
             throw new PowerAuthTemporaryKeyException();
         }
+        final ObjectResponse<TemporaryKeyResponse> response = new ObjectResponse<>(service.fetchTemporaryKey(requestObject));
         logger.info("action: fetchTemporaryKey, state: succeeded");
-        return new ObjectResponse<>(service.fetchTemporaryKey(requestObject));
+        return response;
     }
 
 }
