@@ -72,8 +72,9 @@ public class BiometryController {
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
+        final AeadEncryptedResponse response = biometryService.addBiometry(request, auth);
         logger.info("action: addBiometry, state: succeeded");
-        return biometryService.addBiometry(request, auth);
+        return response;
     }
 
     /**
@@ -90,8 +91,9 @@ public class BiometryController {
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
+        final Response response = biometryService.removeBiometry(auth.getActivationContext().getActivationId());
         logger.info("action: removeBiometry, state: succeeded");
-        return biometryService.removeBiometry(auth.getActivationContext().getActivationId());
+        return response;
     }
 
 }
