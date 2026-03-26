@@ -127,7 +127,7 @@ public class ActivationController {
             throw new PowerAuthEncryptionException();
         }
         final ActivationStatusResponse response = activationServiceV4.getActivationStatus(encryptionContext.getActivationId());
-        logger.info("action: getActivationStatus, state: succeeded");
+        logger.info("action: getActivationStatus, state: succeeded, activationStatus: {}", response.getActivationStatus());
         return response;
     }
 
