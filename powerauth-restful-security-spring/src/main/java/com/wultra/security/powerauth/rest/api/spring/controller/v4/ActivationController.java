@@ -87,10 +87,10 @@ public class ActivationController {
      */
     @PostMapping("create")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
-    public ActivationLayer1Response createActivation(@Valid @EncryptedRequestBody ActivationLayer1Request request,
+    public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
                                                      EncryptionContext context) throws PowerAuthActivationException {
         logger.info("action: createActivation, state: initiated");
-        if (context == null) {
+        if (request == null || context == null) {
             logger.warn("Invalid request in activation create");
             throw new PowerAuthActivationException();
         }
@@ -109,10 +109,14 @@ public class ActivationController {
      */
     @PostMapping("status")
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE, allowedStates = { ActivationStatus.ACTIVE, ActivationStatus.PENDING_COMMIT, ActivationStatus.BLOCKED, ActivationStatus.REMOVED })
-    public ActivationStatusResponse getActivationStatus(@Valid @EncryptedRequestBody ActivationStatusRequest request, EncryptionContext encryptionContext)
+    public ActivationStatusResponse getActivationStatus(@EncryptedRequestBody ActivationStatusRequest request, EncryptionContext encryptionContext)
             throws PowerAuthActivationException, PowerAuthEncryptionException {
         logger.info("action: getActivationStatus, state: initiated, activationId: {}",
                 encryptionContext != null ? encryptionContext.getActivationId() : null);
+        if (request == null) {
+            logger.warn("Invalid request object in activation status");
+            throw new PowerAuthActivationException();
+        }
         if (encryptionContext == null) {
             logger.warn("Invalid encryption context in activation status");
             throw new PowerAuthEncryptionException();

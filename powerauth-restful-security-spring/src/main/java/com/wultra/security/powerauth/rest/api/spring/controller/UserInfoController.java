@@ -52,7 +52,6 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping({"/pa/v3/user", "/pa/v4/user"})
-@Validated
 @Slf4j
 public class UserInfoController {
 
@@ -78,7 +77,7 @@ public class UserInfoController {
      */
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     @PostMapping("info")
-    public Map<String, Object> fetchUserInfo(@Valid @EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
+    public Map<String, Object> fetchUserInfo(@EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
         logger.info("action: fetchUserInfo, state: initiated, activationId: {}",
                 encryptionContext != null ? encryptionContext.getActivationId() : null);
         if (encryptionContext == null) {
