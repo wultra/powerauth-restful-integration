@@ -20,14 +20,18 @@
 package com.wultra.security.powerauth.rest.api.spring.exception;
 
 import com.wultra.core.rest.model.base.response.ErrorResponse;
+import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+
+import java.util.stream.Collectors;
 
 /**
  * Implementation of a PA2.0 Standard RESTful API exception handler.
@@ -164,6 +168,39 @@ public class PowerAuthExceptionHandler {
     public @ResponseBody ErrorResponse handlePowerAuthStatusException(PowerAuthStatusException ex) {
         logger.warn(ex.getMessage(), ex);
         return new ErrorResponse(ex.getDefaultCode(), ex.getDefaultError());
+    }
+
+    /**
+     * Handle method argument validation errors.
+     * @param ex Exception instance
+     * @return Error response
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handleValidationException(MethodArgumentNotValidException ex) {
+        logger.warn("Request body validation failed", ex);
+        String details = ex.getBindingResult()
+                .getFieldErrors()
+                .stream()
+                .map(e -> e.getField() + ": " + e.getDefaultMessage())
+                .collect(Collectors.joining(", "));
+        return new ErrorResponse("ERR_VALIDATION", details);
+    }
+
+    /**
+     * Handle constraint violation validation errors.
+     * @param ex Exception instance
+     * @return Error response
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handleConstraintViolationException(ConstraintViolationException ex) {
+        logger.warn("Constraint violation", ex);
+        String details = ex.getConstraintViolations()
+                .stream()
+                .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining(", "));
+        return new ErrorResponse("ERR_VALIDATION", details);
     }
 
 }

@@ -19,6 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request.v4;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -33,6 +34,7 @@ public class VaultUnlockRequestPayload {
     /**
      * Identifier of key to unlock.
      */
+    @NotBlank
     private String keyIdentifier;
 
     /**

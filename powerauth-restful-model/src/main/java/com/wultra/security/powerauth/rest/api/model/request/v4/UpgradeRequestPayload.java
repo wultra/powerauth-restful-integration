@@ -19,6 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request.v4;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,7 +33,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpgradeRequestPayload {
 
+    @NotNull
     private SharedSecretRequest sharedSecretRequest;
+    @NotNull
     private DevicePublicKeys devicePublicKeys;
     private boolean enableBiometry;
 

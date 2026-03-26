@@ -21,6 +21,7 @@ package com.wultra.security.powerauth.rest.api.model.request.v3;
 
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.v3.EciesEncryptedRequest;
 import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 import java.util.Map;
@@ -37,11 +38,13 @@ public class ActivationLayer1Request {
     /**
      * Activation type.
      */
+    @NotNull
     private ActivationType type;
 
     /**
      * Identity attributes.
      */
+    @NotNull
     private Map<String, String> identityAttributes;
 
     /**
@@ -52,5 +55,6 @@ public class ActivationLayer1Request {
     /**
      * Encrypted activation data.
      */
+    @NotNull
     private EciesEncryptedRequest activationData;
 }

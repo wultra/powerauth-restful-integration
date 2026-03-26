@@ -33,8 +33,10 @@ import com.wultra.security.powerauth.rest.api.spring.exception.authentication.Po
 import com.wultra.security.powerauth.rest.api.spring.service.v3.TokenService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -55,8 +57,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController("tokenControllerV3")
 @RequestMapping("/pa/v3/token")
-@Slf4j
 @AllArgsConstructor
+@Validated
+@Slf4j
 public class TokenController {
 
     private TokenService tokenServiceV3;
@@ -108,14 +111,10 @@ public class TokenController {
             PowerAuthCodeType.POSSESSION_BIOMETRY,
             PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
+    public ObjectResponse<TokenRemoveResponse> removeToken(@Valid @RequestBody ObjectRequest<TokenRemoveRequest> request,
                                                            PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
         logger.info("action: removeToken, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
-        if (request.getRequestObject() == null) {
-            logger.warn("Invalid request object in remove token");
-            throw new PowerAuthInvalidRequestException();
-        }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());

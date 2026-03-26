@@ -19,6 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -32,6 +33,7 @@ public class TokenRemoveRequest {
     /**
      * Token ID of the token to be removed.
      */
+    @NotBlank
     private String tokenId;
 
 }

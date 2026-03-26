@@ -45,9 +45,10 @@ import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthentic
 import com.wultra.security.powerauth.rest.api.spring.service.v3.ActivationService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
@@ -68,11 +69,11 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  */
 @RestController("activationControllerV3")
-@AllArgsConstructor
 @RequestMapping("/pa/v3/activation")
+@AllArgsConstructor
+@Validated
+@Slf4j
 public class ActivationController {
-
-    private static final Logger logger = LoggerFactory.getLogger(ActivationController.class);
 
     private PowerAuthAuthenticationProvider authenticationProvider;
     private ActivationService activationServiceV3;
@@ -86,10 +87,11 @@ public class ActivationController {
      */
     @PostMapping("create")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
-    public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
+    public ActivationLayer1Response createActivation(@Valid @EncryptedRequestBody ActivationLayer1Request request,
                                                      EncryptionContext context) throws PowerAuthActivationException {
         logger.info("action: createActivation, state: initiated");
-        if (request == null || context == null) {
+        if (context == null) {
+            logger.warn("Encryption context is missing");
             throw new PowerAuthActivationException();
         }
         final ActivationLayer1Response response = activationServiceV3.createActivation(request, context);
@@ -104,14 +106,9 @@ public class ActivationController {
      * @throws PowerAuthActivationException In case request fails.
      */
     @PostMapping("status")
-    public ObjectResponse<ActivationStatusResponse> getActivationStatus(@RequestBody ObjectRequest<ActivationStatusRequest> request)
+    public ObjectResponse<ActivationStatusResponse> getActivationStatus(@Valid @RequestBody ObjectRequest<ActivationStatusRequest> request)
             throws PowerAuthActivationException {
-        logger.info("action: getActivationStatus, state: initiated, activationId: {}",
-                request.getRequestObject() != null ? request.getRequestObject().getActivationId() : null);
-        if (request.getRequestObject() == null || request.getRequestObject().getActivationId() == null) {
-            logger.warn("Invalid request object in activation status");
-            throw new PowerAuthActivationException();
-        }
+        logger.info("action: getActivationStatus, state: initiated, activationId: {}", request.getRequestObject().getActivationId());
         final ActivationStatusResponse response = activationServiceV3.getActivationStatus(request.getRequestObject());
         logger.info("action: getActivationStatus, state: succeeded");
         return new ObjectResponse<>(response);
@@ -186,7 +183,7 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @RequestBody ActivationRenameRequest request,
+            @Valid @RequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);

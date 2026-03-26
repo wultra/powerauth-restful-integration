@@ -25,10 +25,10 @@ import com.wultra.security.powerauth.rest.api.model.request.TemporaryKeyRequest;
 import com.wultra.security.powerauth.rest.api.model.response.TemporaryKeyResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthTemporaryKeyException;
 import com.wultra.security.powerauth.rest.api.spring.service.v3.KeyStoreService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -42,11 +42,11 @@ import org.springframework.web.bind.annotation.*;
  * @author Petr Dvorak, petr@wultra.com
  */
 @RestController("keyStoreControllerV3")
-@AllArgsConstructor
 @RequestMapping(value = "/pa/v3/keystore")
+@AllArgsConstructor
+@Validated
+@Slf4j
 public class KeyStoreController {
-
-    private static final Logger logger = LoggerFactory.getLogger(KeyStoreController.class);
 
     private final KeyStoreService service;
 
@@ -57,21 +57,9 @@ public class KeyStoreController {
      * @throws PowerAuthTemporaryKeyException In case temporary key cannot be returned.
      */
     @PostMapping("create")
-    public ObjectResponse<TemporaryKeyResponse> fetchTemporaryKey(@RequestBody ObjectRequest<TemporaryKeyRequest> request) throws PowerAuthTemporaryKeyException {
+    public ObjectResponse<TemporaryKeyResponse> fetchTemporaryKey(@Valid @RequestBody ObjectRequest<TemporaryKeyRequest> request) throws PowerAuthTemporaryKeyException {
         logger.info("action: fetchTemporaryKey, state: initiated");
-        if (request == null) {
-            logger.warn("Null request while fetching temporary key");
-            throw new PowerAuthTemporaryKeyException();
-        }
         final TemporaryKeyRequest requestObject = request.getRequestObject();
-        if (requestObject == null) {
-            logger.warn("Null request object while fetching temporary key");
-            throw new PowerAuthTemporaryKeyException();
-        }
-        if (!StringUtils.hasLength(requestObject.getJwt())) {
-            logger.warn("Invalid request object with empty JWT while fetching temporary key");
-            throw new PowerAuthTemporaryKeyException();
-        }
         final ObjectResponse<TemporaryKeyResponse> response = new ObjectResponse<>(service.fetchTemporaryKey(requestObject));
         logger.info("action: fetchTemporaryKey, state: succeeded");
         return response;
