@@ -75,13 +75,14 @@ public class SecureVaultController {
             HttpServletRequest httpServletRequest)
             throws PowerAuthAuthenticationException, PowerAuthSecureVaultException {
 
+        logger.info("action: unlockVault, state: initiated");
         if (request == null) {
             logger.warn("Invalid request object in vault unlock");
             throw new PowerAuthInvalidRequestException();
         }
 
         // Parse the header
-        PowerAuthAuthorizationHttpHeader header = new PowerAuthAuthorizationHttpHeader().fromValue(authHeader);
+        final PowerAuthAuthorizationHttpHeader header = new PowerAuthAuthorizationHttpHeader().fromValue(authHeader);
 
         // Validate the header
         try {
@@ -95,7 +96,9 @@ public class SecureVaultController {
         PowerAuthVersionUtil.checkUnsupportedVersionV3(header.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(header.getVersion(), request);
 
-        return secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
+        final EciesEncryptedResponse response = secureVaultServiceV3.vaultUnlock(header, request, httpServletRequest);
+        logger.info("action: unlockVault, state: succeeded");
+        return response;
     }
 
 }

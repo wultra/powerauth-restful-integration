@@ -19,6 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request.v3;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import lombok.ToString;
 
@@ -34,6 +35,7 @@ public class ActivationStatusRequest {
     /**
      * Activation ID.
      */
+    @NotNull
     private String activationId;
 
     /**

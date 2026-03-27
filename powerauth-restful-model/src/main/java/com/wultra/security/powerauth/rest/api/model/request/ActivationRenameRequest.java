@@ -19,6 +19,7 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request;
 
+import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
 
 /**
@@ -29,6 +30,7 @@ import lombok.Data;
 @Data
 public class ActivationRenameRequest {
 
+    @NotBlank
     private String activationName;
 
 }

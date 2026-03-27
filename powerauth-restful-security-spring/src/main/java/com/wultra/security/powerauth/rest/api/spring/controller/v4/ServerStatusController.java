@@ -25,8 +25,10 @@ import com.wultra.security.powerauth.rest.api.model.request.v4.ServerStatusReque
 import com.wultra.security.powerauth.rest.api.model.response.v4.ServerStatusResponse;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthStatusException;
 import com.wultra.security.powerauth.rest.api.spring.service.v4.ServerStatusService;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -45,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("serverStatusControllerV4")
 @RequestMapping("pa/v4")
 @AllArgsConstructor
+@Validated
 @Slf4j
 public class ServerStatusController {
 
@@ -57,8 +60,11 @@ public class ServerStatusController {
      * @throws PowerAuthStatusException In case application query fails.
      */
     @PostMapping("status")
-    public ObjectResponse<ServerStatusResponse> getServerStatus(@RequestBody ObjectRequest<ServerStatusRequest> request) throws PowerAuthStatusException {
-        return new ObjectResponse<>(serverStatusService.getServerStatus(request.getRequestObject()));
+    public ObjectResponse<ServerStatusResponse> getServerStatus(@Valid @RequestBody ObjectRequest<ServerStatusRequest> request) throws PowerAuthStatusException {
+        logger.info("action: getServerStatus, state: initiated");
+        final ObjectResponse<ServerStatusResponse> response = new ObjectResponse<>(serverStatusService.getServerStatus(request.getRequestObject()));
+        logger.info("action: getServerStatus, state: succeeded");
+        return response;
     }
 
 }

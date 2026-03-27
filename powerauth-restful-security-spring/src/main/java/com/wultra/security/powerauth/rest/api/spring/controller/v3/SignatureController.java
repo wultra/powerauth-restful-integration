@@ -26,6 +26,7 @@ import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,6 +47,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController("signatureControllerV3")
 @RequestMapping("/pa/v3/signature")
+@Slf4j
 public class SignatureController {
 
     /**
@@ -62,10 +64,13 @@ public class SignatureController {
             PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     })
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
+        logger.info("action: validateSignature, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
 
+        logger.info("action: validateSignature, state: succeeded");
         return new Response();
     }
 

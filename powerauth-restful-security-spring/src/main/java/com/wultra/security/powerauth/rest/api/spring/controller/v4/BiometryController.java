@@ -31,6 +31,7 @@ import com.wultra.security.powerauth.rest.api.spring.service.v4.BiometryService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -50,6 +51,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController("biometryControllerV4")
 @RequestMapping("/pa/v4/biometry")
 @AllArgsConstructor
+@Slf4j
 public class BiometryController {
 
     private final BiometryService biometryService;
@@ -65,10 +67,14 @@ public class BiometryController {
     @PostMapping(value = "add")
     @PowerAuth(resourceId = "/pa/biometry/add", authenticationCodeType = PowerAuthCodeType.POSSESSION_KNOWLEDGE)
     public AeadEncryptedResponse addBiometry(@RequestBody AeadEncryptedRequest request, PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthBiometryException {
+        logger.info("action: addBiometry, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
-        return biometryService.addBiometry(request, auth);
+        final AeadEncryptedResponse response = biometryService.addBiometry(request, auth);
+        logger.info("action: addBiometry, state: succeeded");
+        return response;
     }
 
     /**
@@ -81,9 +87,13 @@ public class BiometryController {
     @PostMapping(value = "remove")
     @PowerAuth(resourceId = "/pa/biometry/remove", authenticationCodeType = PowerAuthCodeType.POSSESSION)
     public Response removeBiometry(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthBiometryException {
+        logger.info("action: removeBiometry, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
-        return biometryService.removeBiometry(auth.getActivationContext().getActivationId());
+        final Response response = biometryService.removeBiometry(auth.getActivationContext().getActivationId());
+        logger.info("action: removeBiometry, state: succeeded");
+        return response;
     }
 
 }

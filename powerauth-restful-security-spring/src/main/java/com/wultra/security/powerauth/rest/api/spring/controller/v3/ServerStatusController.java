@@ -65,6 +65,7 @@ public class ServerStatusController {
      */
     @PostMapping("status")
     public ObjectResponse<ServerStatusResponse> getServerStatus() {
+        logger.info("action: getServerStatus, state: initiated");
         final long serverTime = new Date().getTime();
         final String version;
         final String name;
@@ -77,6 +78,7 @@ public class ServerStatusController {
         }
         final ServerStatusResponse.Application application = new ServerStatusResponse.Application(name, version);
         final ServerStatusResponse response = new ServerStatusResponse(serverTime, application);
+        logger.info("action: getServerStatus, state: succeeded");
         return new ObjectResponse<>(response);
     }
 

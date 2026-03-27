@@ -19,6 +19,8 @@
  */
 package com.wultra.security.powerauth.rest.api.model.request.v4;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
 import lombok.Data;
 
 import java.util.List;
@@ -31,7 +33,9 @@ import java.util.List;
 @Data
 public class SharedSecretRequest {
 
+    @NotBlank
     private String algorithm;
+    @NotEmpty
     private List<String> encapsulationKeys;
 
 }

@@ -33,8 +33,10 @@ import com.wultra.security.powerauth.rest.api.spring.exception.authentication.Po
 import com.wultra.security.powerauth.rest.api.spring.service.v4.TokenService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -52,8 +54,9 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController("tokenControllerV4")
 @RequestMapping("/pa/v4/token")
-@Slf4j
 @AllArgsConstructor
+@Validated
+@Slf4j
 public class TokenController {
 
     private TokenService tokenServiceV4;
@@ -75,6 +78,8 @@ public class TokenController {
     public AeadEncryptedResponse createToken(@RequestBody AeadEncryptedRequest request,
                                              PowerAuthApiAuthentication auth)
             throws PowerAuthAuthenticationException {
+        logger.info("action: createToken, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
         if (request == null) {
             logger.warn("Invalid request object in create token");
             throw new PowerAuthInvalidRequestException();
@@ -84,7 +89,9 @@ public class TokenController {
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
         PowerAuthVersionUtil.checkEncryptionParameters(auth.getVersion(), request);
 
-        return tokenServiceV4.createToken(request, auth);
+        final AeadEncryptedResponse response = tokenServiceV4.createToken(request, auth);
+        logger.info("action: createToken, state: succeeded");
+        return response;
     }
 
     /**
@@ -101,18 +108,17 @@ public class TokenController {
             PowerAuthCodeType.POSSESSION_BIOMETRY,
             PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
     })
-    public ObjectResponse<TokenRemoveResponse> removeToken(@RequestBody ObjectRequest<TokenRemoveRequest> request,
+    public ObjectResponse<TokenRemoveResponse> removeToken(@Valid @RequestBody ObjectRequest<TokenRemoveRequest> request,
                                                            PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
-        if (request.getRequestObject() == null) {
-            logger.warn("Invalid request object in remove token");
-            throw new PowerAuthInvalidRequestException();
-        }
+        logger.info("action: removeToken, state: initiated, activationId: {}",
+                auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
 
-        TokenRemoveResponse response = tokenServiceV4.removeToken(request.getRequestObject(), auth);
-        return new ObjectResponse<>(response);
+        final ObjectResponse<TokenRemoveResponse> response = new ObjectResponse<>(tokenServiceV4.removeToken(request.getRequestObject(), auth));
+        logger.info("action: removeToken, state: succeeded");
+        return response;
     }
 
 }
