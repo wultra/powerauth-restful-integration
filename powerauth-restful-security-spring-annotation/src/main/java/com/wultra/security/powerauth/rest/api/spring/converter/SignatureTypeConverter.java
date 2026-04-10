@@ -61,14 +61,12 @@ public class SignatureTypeConverter {
 
     /**
      * Convert {@link SignatureType} from {@link PowerAuthCodeType}.
-     * @param PowerAuthCodeType Signature type from crypto representation.
+     * @param powerAuthCodeType Signature type from crypto representation.
      * @return Signature type.
      */
-    public SignatureType convertFrom(PowerAuthCodeType PowerAuthCodeType) {
-        return switch (PowerAuthCodeType) {
+    public SignatureType convertFrom(PowerAuthCodeType powerAuthCodeType) {
+        return switch (powerAuthCodeType) {
             case POSSESSION -> SignatureType.POSSESSION;
-            case KNOWLEDGE -> SignatureType.KNOWLEDGE;
-            case BIOMETRY -> SignatureType.BIOMETRY;
             case POSSESSION_KNOWLEDGE -> SignatureType.POSSESSION_KNOWLEDGE;
             case POSSESSION_BIOMETRY -> SignatureType.POSSESSION_BIOMETRY;
             default -> null;

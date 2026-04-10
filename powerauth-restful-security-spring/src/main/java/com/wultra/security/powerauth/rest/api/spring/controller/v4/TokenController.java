@@ -72,8 +72,7 @@ public class TokenController {
     @PowerAuth(resourceId = "/pa/token/create", authenticationCodeType = {
             PowerAuthCodeType.POSSESSION,
             PowerAuthCodeType.POSSESSION_KNOWLEDGE,
-            PowerAuthCodeType.POSSESSION_BIOMETRY,
-            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
+            PowerAuthCodeType.POSSESSION_BIOMETRY
     })
     public AeadEncryptedResponse createToken(@RequestBody AeadEncryptedRequest request,
                                              PowerAuthApiAuthentication auth)
@@ -105,8 +104,7 @@ public class TokenController {
     @PowerAuth(resourceId = "/pa/token/remove", authenticationCodeType = {
             PowerAuthCodeType.POSSESSION,
             PowerAuthCodeType.POSSESSION_KNOWLEDGE,
-            PowerAuthCodeType.POSSESSION_BIOMETRY,
-            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
+            PowerAuthCodeType.POSSESSION_BIOMETRY
     })
     public ObjectResponse<TokenRemoveResponse> removeToken(@Valid @RequestBody ObjectRequest<TokenRemoveRequest> request,
                                                            PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {

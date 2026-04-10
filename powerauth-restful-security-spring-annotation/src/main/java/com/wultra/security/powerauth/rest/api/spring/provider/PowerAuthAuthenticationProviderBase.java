@@ -97,7 +97,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
     public abstract @Nonnull PowerAuthApiAuthentication validateTokenWithActivationDetails(@Nonnull String httpAuthorizationHeader, @Nonnull List<PowerAuthCodeType> allowedAuthenticationCodeTypes) throws PowerAuthAuthenticationException;
 
     /**
-     * The same as {{@link #validateRequestAuthentication(String, byte[], String, String, List, List)} but uses default accepted authentication code type (2FA or 3FA) and does not specify forced authentication version.
+     * The same as {{@link #validateRequestAuthentication(String, byte[], String, String, List, List)} but uses default accepted authentication code types (any 2FA) and does not specify forced authentication version.
      * @param httpMethod HTTP method (GET, POST, ...)
      * @param httpBody Request body
      * @param requestUriIdentifier Request URI identifier.
@@ -109,7 +109,6 @@ public abstract class PowerAuthAuthenticationProviderBase {
         final List<PowerAuthCodeType> defaultAllowedAuthenticationCodeTypes = new ArrayList<>();
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE);
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_BIOMETRY);
-        defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY);
         final List<ActivationStatus> defaultAllowedStates = Collections.singletonList(ActivationStatus.ACTIVE);
         return this.validateRequestAuthentication(httpMethod, httpBody, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedAuthenticationCodeTypes, defaultAllowedStates);
     }
@@ -149,7 +148,7 @@ public abstract class PowerAuthAuthenticationProviderBase {
     }
 
     /**
-     * The same as {@link #validateRequestAuthentication(HttpServletRequest, String, String, List, List)} but uses default accepted authentication code type (2FA or 3FA) and does not specify forced authentication version.
+     * The same as {@link #validateRequestAuthentication(HttpServletRequest, String, String, List, List)} but uses default accepted authentication code types (any 2FA) and does not specify forced authentication version.
      * @param servletRequest HTTPServletRequest with signed data.
      * @param requestUriIdentifier Request URI identifier.
      * @param httpAuthorizationHeader PowerAuth HTTP authorization header.
@@ -160,7 +159,6 @@ public abstract class PowerAuthAuthenticationProviderBase {
         List<PowerAuthCodeType> defaultAllowedAuthenticationCodeTypes = new ArrayList<>();
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE);
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_BIOMETRY);
-        defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY);
         final List<ActivationStatus> defaultAllowedStates = Collections.singletonList(ActivationStatus.ACTIVE);
         return this.validateRequestAuthentication(servletRequest, requestUriIdentifier, httpAuthorizationHeader, defaultAllowedAuthenticationCodeTypes, defaultAllowedStates);
     }
@@ -175,7 +173,6 @@ public abstract class PowerAuthAuthenticationProviderBase {
         List<PowerAuthCodeType> defaultAllowedAuthenticationCodeTypes = new ArrayList<>();
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE);
         defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_BIOMETRY);
-        defaultAllowedAuthenticationCodeTypes.add(PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY);
         return this.validateToken(tokenHeader, defaultAllowedAuthenticationCodeTypes);
     }
 
