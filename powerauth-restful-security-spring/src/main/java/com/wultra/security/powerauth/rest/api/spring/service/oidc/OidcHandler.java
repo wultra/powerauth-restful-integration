@@ -141,7 +141,11 @@ public class OidcHandler {
         }
     }
 
-    private static ClientAuthenticationMethod convert(final com.wultra.security.powerauth.rest.api.spring.service.oidc.ClientAuthenticationMethod source) {
+    static ClientAuthenticationMethod convert(final com.wultra.security.powerauth.rest.api.spring.service.oidc.ClientAuthenticationMethod source) {
+        if (source == null) {
+            return ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
+        }
+
         return switch(source) {
             case CLIENT_SECRET_POST -> ClientAuthenticationMethod.CLIENT_SECRET_POST;
             case CLIENT_SECRET_BASIC -> ClientAuthenticationMethod.CLIENT_SECRET_BASIC;
