@@ -133,4 +133,16 @@ class OidcHandlerTest {
         assertEquals(1, result.getClaims().size());
         assertEquals("value1", result.getClaims().get("jti"));
     }
+
+    @Test
+    void testConvert() {
+        final var result = OidcHandler.convert(com.wultra.security.powerauth.rest.api.spring.service.oidc.ClientAuthenticationMethod.CLIENT_SECRET_POST);
+        assertEquals(org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_POST, result);
+    }
+
+    @Test
+    void testConvert_null() {
+        final var result = OidcHandler.convert(null);
+        assertEquals(org.springframework.security.oauth2.core.ClientAuthenticationMethod.CLIENT_SECRET_BASIC, result);
+    }
 }
