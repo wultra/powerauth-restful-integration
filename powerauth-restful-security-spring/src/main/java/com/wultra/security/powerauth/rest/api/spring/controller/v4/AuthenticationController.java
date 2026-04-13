@@ -57,8 +57,7 @@ public class AuthenticationController {
     @PowerAuth(resourceId = "/pa/auth/validate", authenticationCodeType = {
             PowerAuthCodeType.POSSESSION,
             PowerAuthCodeType.POSSESSION_KNOWLEDGE,
-            PowerAuthCodeType.POSSESSION_BIOMETRY,
-            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
+            PowerAuthCodeType.POSSESSION_BIOMETRY
     })
     public Response validateAuthentication(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
         logger.info("action: validateAuthentication, state: initiated, activationId: {}",

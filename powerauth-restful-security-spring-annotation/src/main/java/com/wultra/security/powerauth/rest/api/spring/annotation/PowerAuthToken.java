@@ -36,14 +36,13 @@ import java.lang.annotation.Target;
 public @interface PowerAuthToken {
 
     /**
-     * Types of supported authentication code types. By default, any at least 2FA authentication type must be specified.
+     * Types of supported authentication code types. By default, any 2FA authentication type must be specified.
      *
      * @return Supported authentication code types.
      */
     PowerAuthCodeType[] authenticationCodeType() default {
             PowerAuthCodeType.POSSESSION_BIOMETRY,
-            PowerAuthCodeType.POSSESSION_KNOWLEDGE,
-            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
+            PowerAuthCodeType.POSSESSION_KNOWLEDGE
     };
 
 }

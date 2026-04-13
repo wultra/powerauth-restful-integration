@@ -61,14 +61,12 @@ public class AuthenticationCodeTypeConverter {
 
     /**
      * Convert {@link AuthenticationCodeType} from {@link PowerAuthCodeType}.
-     * @param PowerAuthCodeType Authentication code type from crypto representation.
+     * @param powerAuthCodeType Authentication code type from crypto representation.
      * @return Authentication code type.
      */
-    public AuthenticationCodeType convertFrom(PowerAuthCodeType PowerAuthCodeType) {
-        return switch (PowerAuthCodeType) {
+    public AuthenticationCodeType convertFrom(PowerAuthCodeType powerAuthCodeType) {
+        return switch (powerAuthCodeType) {
             case POSSESSION -> AuthenticationCodeType.POSSESSION;
-            case KNOWLEDGE -> AuthenticationCodeType.KNOWLEDGE;
-            case BIOMETRY -> AuthenticationCodeType.BIOMETRY;
             case POSSESSION_KNOWLEDGE -> AuthenticationCodeType.POSSESSION_KNOWLEDGE;
             case POSSESSION_BIOMETRY -> AuthenticationCodeType.POSSESSION_BIOMETRY;
             default -> null;

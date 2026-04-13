@@ -60,8 +60,7 @@ public class SignatureController {
     @PowerAuth(resourceId = "/pa/signature/validate", authenticationCodeType = {
             PowerAuthCodeType.POSSESSION,
             PowerAuthCodeType.POSSESSION_KNOWLEDGE,
-            PowerAuthCodeType.POSSESSION_BIOMETRY,
-            PowerAuthCodeType.POSSESSION_KNOWLEDGE_BIOMETRY
+            PowerAuthCodeType.POSSESSION_BIOMETRY
     })
     public Response validateSignature(PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException {
         logger.info("action: validateSignature, state: initiated, activationId: {}",

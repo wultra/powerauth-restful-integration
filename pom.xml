@@ -89,7 +89,7 @@
 
         <wultra-core.version>2.1.0</wultra-core.version>
         <powerauth.version>2.0.1</powerauth.version>
-        <powerauth-crypto.version>2.0.1</powerauth-crypto.version>
+        <powerauth-crypto.version>2.1.0-SNAPSHOT</powerauth-crypto.version>
     </properties>
 
     <dependencyManagement>
