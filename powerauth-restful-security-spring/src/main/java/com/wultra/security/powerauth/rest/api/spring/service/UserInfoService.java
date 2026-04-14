@@ -77,7 +77,7 @@ public class UserInfoService {
             }
 
             // Fetch activation details
-            final GetActivationStatusResponse activationStatusResponse = powerAuthClient.getActivationDetail(activationId);
+            final GetActivationStatusResponse activationStatusResponse = powerAuthClient.getActivationStatusWithoutBlob(activationId);
             final String userId = activationStatusResponse.getUserId();
             final String applicationId = activationStatusResponse.getApplicationId();
             final ActivationStatus activationStatus = activationStatusResponse.getActivationStatus();
