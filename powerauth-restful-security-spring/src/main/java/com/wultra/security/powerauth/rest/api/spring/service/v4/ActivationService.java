@@ -464,6 +464,7 @@ public class ActivationService {
         try {
             final GetActivationStatusRequest statusRequest = new GetActivationStatusRequest();
             statusRequest.setActivationId(activationId);
+            statusRequest.setIncludeStatusBlob(false);
             final GetActivationStatusResponse paResponse = powerAuthClient.getActivationStatus(
                     statusRequest,
                     httpCustomizationService.getQueryParams(),
