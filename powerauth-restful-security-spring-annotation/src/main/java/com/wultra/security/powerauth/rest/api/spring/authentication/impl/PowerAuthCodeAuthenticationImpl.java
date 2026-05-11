@@ -23,6 +23,7 @@ import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthCodeAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.io.Serial;
 import java.util.List;
@@ -98,7 +99,7 @@ public class PowerAuthCodeAuthenticationImpl extends AbstractAuthenticationToken
      * Default constructor.
      */
     public PowerAuthCodeAuthenticationImpl() {
-        super(null);
+        super(AuthorityUtils.NO_AUTHORITIES);
     }
 
     // Authentication Token Related methods

@@ -26,6 +26,7 @@ import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApi
 import com.wultra.security.powerauth.rest.api.spring.model.AuthenticationContext;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.io.Serial;
@@ -101,7 +102,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      * Default constructor
      */
     public PowerAuthApiAuthenticationImpl() {
-        super(null);
+        super(AuthorityUtils.NO_AUTHORITIES);
     }
 
     /**
@@ -115,7 +116,7 @@ public class PowerAuthApiAuthenticationImpl extends AbstractAuthenticationToken 
      */
     public PowerAuthApiAuthenticationImpl(String activationId, String userId, String applicationId, List<String> applicationRoles,
                                           List<String> activationFlags, AuthenticationContext authenticationContext) {
-        super(null);
+        super(AuthorityUtils.NO_AUTHORITIES);
         // Deprecated field, updated for compatibility reason
         this.activationId = activationId;
         this.userId = userId;
