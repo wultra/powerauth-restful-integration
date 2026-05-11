@@ -28,6 +28,7 @@ import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailRes
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthToken;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
+import com.wultra.security.powerauth.rest.api.spring.config.ServiceConfiguration;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
@@ -41,6 +42,7 @@ import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveRes
 import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
+import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import com.wultra.security.powerauth.rest.api.spring.service.v3.ActivationService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
@@ -52,6 +54,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Controller implementing activation related end-points from the PowerAuth
@@ -77,6 +82,7 @@ public class ActivationController {
 
     private PowerAuthAuthenticationProvider authenticationProvider;
     private ActivationService activationServiceV3;
+    private ServiceConfiguration serviceConfiguration;
 
     /**
      * Create activation.
@@ -128,7 +134,18 @@ public class ActivationController {
             throws PowerAuthActivationException, PowerAuthAuthenticationException {
         logger.info("action: removeActivation, state: initiated");
         final byte[] requestBodyBytes = authenticationProvider.extractRequestBodyBytes(httpServletRequest);
-        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication("POST", requestBodyBytes, "/pa/activation/remove", authHeader);
+        final List<PowerAuthCodeType> allowedAuthCodeTypes = new ArrayList<>(
+                List.of(
+                        PowerAuthCodeType.POSSESSION_KNOWLEDGE,
+                        PowerAuthCodeType.POSSESSION_BIOMETRY
+                )
+        );
+        if (serviceConfiguration.isAllowRemoveActivation1fa()) {
+            allowedAuthCodeTypes.add(PowerAuthCodeType.POSSESSION);
+        }
+        final List<ActivationStatus> defaultAllowedStates = List.of(ActivationStatus.ACTIVE);
+        final PowerAuthApiAuthentication apiAuthentication = authenticationProvider.validateRequestAuthentication("POST",
+                requestBodyBytes, "/pa/activation/remove", authHeader, allowedAuthCodeTypes, defaultAllowedStates);
         if (apiAuthentication == null || apiAuthentication.getActivationContext().getActivationId() == null) {
             logger.debug("Authentication code validation failed");
             throw new PowerAuthCodeInvalidException();
