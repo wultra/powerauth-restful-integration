@@ -119,7 +119,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
             byte[] responseBytes = serializeResponseObject(response);
             final EncryptedResponse encryptedResponseObject = encryption.getServerEncryptor().encryptResponse(responseBytes);
             if (converterClass.isAssignableFrom(JacksonJsonHttpMessageConverter.class)) {
-                // Object conversion is done automatically using MappingJackson2HttpMessageConverter
+                // Object conversion is done automatically using JacksonJsonHttpMessageConverter
                 return encryptedResponseObject;
             } else if (converterClass.isAssignableFrom(StringHttpMessageConverter.class)) {
                 // Conversion to byte[] is done using first applicable configured HTTP message converter, corresponding String is returned
