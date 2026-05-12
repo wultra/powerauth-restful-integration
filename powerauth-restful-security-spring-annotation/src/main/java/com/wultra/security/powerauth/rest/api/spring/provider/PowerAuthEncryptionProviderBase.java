@@ -19,10 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.provider;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.wultra.security.powerauth.crypto.lib.encryptor.EncryptorFactory;
 import com.wultra.security.powerauth.crypto.lib.encryptor.ServerEncryptor;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedRequest;
@@ -51,6 +47,10 @@ import jakarta.annotation.Nullable;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -254,7 +254,7 @@ public abstract class PowerAuthEncryptionProviderBase {
         final T request;
         try {
             request = objectMapper.readValue(requestBodyBytes, type);
-        } catch (IOException ex) {
+        } catch (JacksonException ex) {
             logger.warn("Request deserialization failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
             throw new PowerAuthEncryptionException();
@@ -290,9 +290,9 @@ public abstract class PowerAuthEncryptionProviderBase {
      *
      * @param responseObject Response object.
      * @return Response data as byte[].
-     * @throws JsonProcessingException In case JSON serialization fails.
+     * @throws JacksonException In case JSON serialization fails.
      */
-    private byte[] serializeResponseData(Object responseObject) throws JsonProcessingException {
+    private byte[] serializeResponseData(Object responseObject) throws JacksonException {
         if (responseObject.getClass().equals(byte[].class)) {
             // Raw data without serialization into JSON
             return (byte[]) responseObject;

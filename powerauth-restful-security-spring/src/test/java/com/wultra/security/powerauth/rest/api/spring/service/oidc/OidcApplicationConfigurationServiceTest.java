@@ -19,8 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.service.oidc;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wultra.security.powerauth.client.v4.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.request.GetApplicationConfigRequest;
 import com.wultra.security.powerauth.client.model.request.LookupApplicationByAppKeyRequest;
@@ -32,6 +30,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.List;
 
@@ -123,7 +123,7 @@ class OidcApplicationConfigurationServiceTest {
         assertEquals("Fetching application configuration failed, application ID: application-1, provider ID: non-existing", e.getMessage());
     }
 
-    private GetApplicationConfigResponse createResponse() throws JsonProcessingException {
+    private GetApplicationConfigResponse createResponse() throws JacksonException {
         final String json = """
                 {
                    "applicationId": "application-1",
