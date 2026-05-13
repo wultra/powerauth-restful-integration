@@ -34,7 +34,7 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-import tools.jackson.databind.DatabindException;
+import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -75,7 +75,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                     final TypeFactory typeFactory = objectMapper.getTypeFactory();
                     final JavaType requestJavaType = typeFactory.constructType(requestType);
                     return objectMapper.readValue(encryptorData.getDecryptedRequest(), requestJavaType);
-                } catch (DatabindException ex) {
+                } catch (JacksonException ex) {
                     logger.warn("Invalid request, error: {}", ex.getMessage());
                     logger.debug("Error details", ex);
                     return null;
