@@ -44,6 +44,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
     private static final Logger logger = LoggerFactory.getLogger(EncryptionResponseBodyAdvice.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 

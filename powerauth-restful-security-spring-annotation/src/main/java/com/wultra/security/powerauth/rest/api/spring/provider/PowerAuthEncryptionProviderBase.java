@@ -50,6 +50,7 @@ import org.slf4j.LoggerFactory;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 
 import java.io.IOException;
@@ -67,7 +68,7 @@ public abstract class PowerAuthEncryptionProviderBase {
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionProviderBase.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
     private final EncryptorFactory encryptorFactory = new EncryptorFactory();
 
     /**

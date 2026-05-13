@@ -37,6 +37,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 import tools.jackson.databind.DatabindException;
 import tools.jackson.databind.JavaType;
 import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.databind.type.TypeFactory;
 
 import java.lang.reflect.Type;
@@ -51,7 +52,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionArgumentResolver.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
