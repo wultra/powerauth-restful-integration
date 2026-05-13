@@ -56,7 +56,7 @@ class OidcTokenClient {
      */
     TokenResponse fetchTokenResponse(final TokenRequest tokenRequest) throws RestClientException {
         final MultiValueMap<String, String> headers = new LinkedMultiValueMap<>();
-        headers.set("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+        headers.set(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
 
         final org.springframework.security.oauth2.core.ClientAuthenticationMethod clientAuthenticationMethod = tokenRequest.getClientRegistration().getClientAuthenticationMethod();
         logger.debug("Using ClientAuthenticationMethod: {}", clientAuthenticationMethod);
