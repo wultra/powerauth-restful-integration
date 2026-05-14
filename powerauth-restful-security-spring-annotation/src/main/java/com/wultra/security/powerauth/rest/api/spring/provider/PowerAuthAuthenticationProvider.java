@@ -331,7 +331,7 @@ public class PowerAuthAuthenticationProvider extends PowerAuthAuthenticationProv
         apiAuthentication.setApplicationRoles(applicationRoles);
         apiAuthentication.setActivationFlags(activationFlags);
         apiAuthentication.setAuthenticationContext(authenticationContext);
-        apiAuthentication.setAuthenticated(true);
+        apiAuthentication.setAuthenticated(authenticationContext.isValid());
         apiAuthentication.setVersion(version);
         apiAuthentication.setHttpHeader(httpHeader);
         apiAuthentication.setActivationContext(activationContext);
