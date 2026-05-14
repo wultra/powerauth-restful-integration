@@ -19,7 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.entrypoint;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wultra.core.rest.model.base.entity.Error;
 import com.wultra.core.rest.model.base.response.ErrorResponse;
 import org.springframework.security.core.AuthenticationException;
@@ -28,6 +27,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+
 import java.io.IOException;
 
 /**
@@ -39,6 +41,8 @@ import java.io.IOException;
 @Service
 public class PowerAuthApiAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
+
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
@@ -46,7 +50,7 @@ public class PowerAuthApiAuthenticationEntryPoint implements AuthenticationEntry
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.getOutputStream().println(new ObjectMapper().writeValueAsString(errorResponse));
+        response.getOutputStream().println(objectMapper.writeValueAsString(errorResponse));
         response.getOutputStream().flush();
     }
 

@@ -19,8 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.service.oidc;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wultra.security.powerauth.client.v4.PowerAuthClient;
 import com.wultra.security.powerauth.client.model.entity.ApplicationConfigurationItem;
 import com.wultra.security.powerauth.client.model.error.PowerAuthClientException;
@@ -32,6 +30,8 @@ import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthApplicat
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.util.List;
 import java.util.Objects;
@@ -50,7 +50,7 @@ public class OidcApplicationConfigurationService {
 
     private final PowerAuthClient powerAuthClient;
 
-    private final ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     /**
      * Provide OIDC application configuration.

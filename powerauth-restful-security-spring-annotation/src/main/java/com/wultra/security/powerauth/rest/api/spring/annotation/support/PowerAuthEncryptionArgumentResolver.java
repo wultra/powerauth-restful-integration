@@ -19,9 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.annotation.support;
 
-import com.fasterxml.jackson.databind.JavaType;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
@@ -37,8 +34,12 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.JavaType;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.databind.type.TypeFactory;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 
 /**
@@ -51,7 +52,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
 
     private static final Logger logger = LoggerFactory.getLogger(PowerAuthEncryptionArgumentResolver.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     @Override
     public boolean supportsParameter(@NonNull MethodParameter parameter) {
@@ -74,7 +75,7 @@ public class PowerAuthEncryptionArgumentResolver implements HandlerMethodArgumen
                     final TypeFactory typeFactory = objectMapper.getTypeFactory();
                     final JavaType requestJavaType = typeFactory.constructType(requestType);
                     return objectMapper.readValue(encryptorData.getDecryptedRequest(), requestJavaType);
-                } catch (IOException ex) {
+                } catch (JacksonException ex) {
                     logger.warn("Invalid request, error: {}", ex.getMessage());
                     logger.debug("Error details", ex);
                     return null;

@@ -19,7 +19,6 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wultra.security.powerauth.crypto.lib.encryptor.model.EncryptedResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
@@ -36,7 +35,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.StringHttpMessageConverter;
-import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
+import org.springframework.http.converter.json.JacksonJsonHttpMessageConverter;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
 import org.springframework.http.server.ServletServerHttpRequest;
@@ -44,6 +43,8 @@ import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerAdapter;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,7 +62,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
 
     private static final Logger logger = LoggerFactory.getLogger(EncryptionResponseBodyAdvice.class);
 
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     private RequestMappingHandlerAdapter requestMappingHandlerAdapter;
 
@@ -85,7 +86,7 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
     @Override
     public boolean supports(@NonNull MethodParameter methodParameter, @NonNull Class<? extends HttpMessageConverter<?>> converterClass) {
         return methodParameter.hasMethodAnnotation(PowerAuthEncryption.class) &&
-                (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)
+                (converterClass.isAssignableFrom(JacksonJsonHttpMessageConverter.class)
                         || converterClass.isAssignableFrom(StringHttpMessageConverter.class)
                         || converterClass.isAssignableFrom(ByteArrayHttpMessageConverter.class));
     }
@@ -118,8 +119,8 @@ public class EncryptionResponseBodyAdvice implements ResponseBodyAdvice<Object> 
         try {
             byte[] responseBytes = serializeResponseObject(response);
             final EncryptedResponse encryptedResponseObject = encryption.getServerEncryptor().encryptResponse(responseBytes);
-            if (converterClass.isAssignableFrom(MappingJackson2HttpMessageConverter.class)) {
-                // Object conversion is done automatically using MappingJackson2HttpMessageConverter
+            if (converterClass.isAssignableFrom(JacksonJsonHttpMessageConverter.class)) {
+                // Object conversion is done automatically using JacksonJsonHttpMessageConverter
                 return encryptedResponseObject;
             } else if (converterClass.isAssignableFrom(StringHttpMessageConverter.class)) {
                 // Conversion to byte[] is done using first applicable configured HTTP message converter, corresponding String is returned

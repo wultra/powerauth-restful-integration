@@ -22,6 +22,7 @@ package com.wultra.security.powerauth.rest.api.spring.authentication.impl;
 import com.wultra.security.powerauth.http.PowerAuthHttpHeader;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthSignatureAuthentication;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
 
 import java.io.Serial;
 
@@ -97,7 +98,7 @@ public class PowerAuthSignatureAuthenticationImpl extends AbstractAuthentication
      * Default constructor.
      */
     public PowerAuthSignatureAuthenticationImpl() {
-        super(null);
+        super(AuthorityUtils.NO_AUTHORITIES);
     }
 
     // Authentication Token Related methods
