@@ -51,7 +51,7 @@ public class OidcApplicationConfigurationService {
 
     private final PowerAuthClient powerAuthClient;
 
-    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
+    private final ObjectMapper objectMapper = JsonMapper.builder().disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES).build();
 
     /**
      * Provide OIDC application configuration.
@@ -91,7 +91,7 @@ public class OidcApplicationConfigurationService {
 
     private OidcApplicationConfiguration convert(Object value) {
         try {
-            return OBJECT_MAPPER.convertValue(value, OidcApplicationConfiguration.class);
+            return objectMapper.convertValue(value, OidcApplicationConfiguration.class);
         } catch (IllegalArgumentException e) {
             logger.warn("Unable to convert {}", value, e);
             return null;
