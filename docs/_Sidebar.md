@@ -6,6 +6,7 @@
 
 - [Introduction](./Introduction.md)
 - [RESTful API (Spring)](./RESTful-API-for-Spring.md)
+- [Error Codes](./Error-Codes.md)
 
 **Implementation Tutorials**
 
