@@ -30,10 +30,10 @@ The PowerAuth RESTful Integration library returns a uniform JSON error response 
 | `code`                | `message`                            | Exception class                  | Typical cause                                                                          |
 |-----------------------|--------------------------------------|----------------------------------|----------------------------------------------------------------------------------------|
 | `ERR_ACTIVATION`      | `POWER_AUTH_ACTIVATION_INVALID`      | `PowerAuthActivationException`   | Failure during activation.                                                             |
-| `ERR_ENCRYPTION`      | `POWER_AUTH_ENCRYPTION_FAILED`       | `PowerAuthEncryptionException`   | ECIES end-to-end encryption error.                                                     |
+| `ERR_ENCRYPTION`      | `POWER_AUTH_ENCRYPTION_FAILED`       | `PowerAuthEncryptionException`   | End-to-end encryption error.                                                           |
 | `ERR_SECURE_VAULT`    | `POWER_AUTH_SECURE_VAULT_INVALID`    | `PowerAuthSecureVaultException`  | Secure vault unlock failed.                                                            |
 | `ERR_UPGRADE`         | `POWER_AUTH_UPGRADE_FAILED`          | `PowerAuthUpgradeException`      | Protocol upgrade failed.                                                               |
-| `ERR_TEMPORARY_KEY`   | `POWER_AUTH_TEMPORARY_KEY_FAILURE`   | `PowerAuthTemporaryKeyException` | Issuing or validating a temporary ECIES key failed.                                    |
+| `ERR_TEMPORARY_KEY`   | `POWER_AUTH_TEMPORARY_KEY_FAILURE`   | `PowerAuthTemporaryKeyException` | Issuing or validating a temporary encryption key failed.                               |
 | `ERR_PASSWORD_CHANGE` | `POWER_AUTH_PASSWORD_CHANGE_FAILURE` | `PowerAuthPasswordException`     | Knowledge-factor change failed.                                                        |
 | `ERR_BIOMETRY`        | `POWER_AUTH_BIOMETRY_FAILURE`        | `PowerAuthBiometryException`     | Biometric factor enrollment / removal failed.                                          |
 | `ERR_USER_INFO`       | `POWER_AUTH_USER_INFO_ERROR`         | `PowerAuthUserInfoException`     | The `UserInfoProvider` failed or the user-info endpoint could not assemble the claims. |
