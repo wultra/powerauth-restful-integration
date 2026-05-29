@@ -38,6 +38,11 @@ public class ActivationStatusResponse {
     private String activationStatus;
 
     /**
+     * Timestamp of block expiration, null if temporary block is not in effect.
+     */
+    private Long timestampBlockExpire;
+
+    /**
      * Custom associated object.
      */
     private Map<String, Object> customObject;
