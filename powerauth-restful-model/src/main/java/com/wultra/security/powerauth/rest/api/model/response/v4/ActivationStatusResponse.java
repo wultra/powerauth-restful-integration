@@ -38,7 +38,7 @@ public class ActivationStatusResponse {
     private String activationStatus;
 
     /**
-     * Timestamp of block expiration, null if temporary block is not in effect.
+     * Timestamp of block expiration in milliseconds since Unix epoch, null if temporary block is not in effect.
      */
     private Long timestampBlockExpire;
 
