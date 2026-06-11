@@ -441,6 +441,9 @@ public class ActivationService {
             );
             final ActivationStatusResponse response = new ActivationStatusResponse();
             response.setActivationStatus(paResponse.getStatusBlob());
+
+            final Date timestampBlockExpireDate = paResponse.getTimestampBlockExpire();
+            response.setTimestampBlockExpire(timestampBlockExpireDate != null ? timestampBlockExpireDate.getTime() : null);
             if (applicationConfiguration != null) {
                 final ActivationContext activationContext = activationContextConverter.fromActivationDetailResponse(paResponse);
                 response.setCustomObject(applicationConfiguration.statusServiceCustomObject(activationContext));
