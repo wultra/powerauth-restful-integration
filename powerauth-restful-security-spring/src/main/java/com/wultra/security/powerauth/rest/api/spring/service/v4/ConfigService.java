@@ -77,7 +77,7 @@ public class ConfigService {
         } catch (PowerAuthClientException ex) {
             logger.warn("PowerAuth application configuration fetch failed, error: {}", ex.getMessage());
             logger.debug(ex.getMessage(), ex);
-            throw new PowerAuthConfigException();
+            throw new PowerAuthConfigException(ex);
         }
     }
 
