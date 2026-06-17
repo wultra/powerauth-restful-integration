@@ -19,12 +19,17 @@
  */
 package com.wultra.security.powerauth.rest.api.spring.exception;
 
+import java.io.Serial;
+
 /**
  * Exception raised in case fetching the secure configuration fails.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
 public class PowerAuthConfigException extends Exception {
+
+    @Serial
+    private static final long serialVersionUID = 3574858277367637316L;
 
     private static final String DEFAULT_CODE = "ERR_CONFIG";
     private static final String DEFAULT_ERROR = "POWER_AUTH_CONFIG_FAILURE";
@@ -34,6 +39,32 @@ public class PowerAuthConfigException extends Exception {
      */
     public PowerAuthConfigException() {
         super(DEFAULT_ERROR);
+    }
+
+    /**
+     * Constructor with a custom error message.
+     * @param message Error message.
+     */
+    public PowerAuthConfigException(String message) {
+        super(message);
+    }
+
+    /**
+     * Constructor with a cause.
+     * @param cause Error cause.
+     */
+    public PowerAuthConfigException(Throwable cause) {
+        super(cause);
+    }
+
+    /**
+     * Constructor with a message and a cause.
+     *
+     * @param message Error message.
+     * @param cause Error cause.
+     */
+    public PowerAuthConfigException(final String message, final Throwable cause) {
+        super(message, cause);
     }
 
     /**
