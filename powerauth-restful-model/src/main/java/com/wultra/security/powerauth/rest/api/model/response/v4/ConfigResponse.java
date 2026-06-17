@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Response object for the secure configuration endpoints (V4).
  *
- *  @author Roman Strobl, roman.strobl@wultra.com
+ * @author Roman Strobl, roman.strobl@wultra.com
  */
 @Data
 public class ConfigResponse {
