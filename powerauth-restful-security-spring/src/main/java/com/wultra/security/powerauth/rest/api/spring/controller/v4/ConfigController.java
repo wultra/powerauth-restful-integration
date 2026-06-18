@@ -66,7 +66,6 @@ public class ConfigController {
     public ConfigResponse fetchApplicationConfig(EncryptionContext encryptionContext) throws PowerAuthConfigException, PowerAuthEncryptionException, PowerAuthInvalidRequestException {
         logger.info("action: fetchApplicationConfig, state: initiated");
         if (encryptionContext == null) {
-            logger.warn("Encryption failed");
             throw new PowerAuthEncryptionException("Encryption failed");
         }
         PowerAuthVersionUtil.checkUnsupportedVersionV4(encryptionContext.getVersion());
@@ -90,7 +89,6 @@ public class ConfigController {
     public ConfigResponse fetchActivationConfig(EncryptionContext encryptionContext) throws PowerAuthConfigException, PowerAuthEncryptionException, PowerAuthInvalidRequestException {
         logger.info("action: fetchActivationConfig, state: initiated, activationId: {}", encryptionContext != null ? encryptionContext.getActivationId() : null);
         if (encryptionContext == null) {
-            logger.warn("Encryption failed");
             throw new PowerAuthEncryptionException("Encryption failed");
         }
         PowerAuthVersionUtil.checkUnsupportedVersionV4(encryptionContext.getVersion());

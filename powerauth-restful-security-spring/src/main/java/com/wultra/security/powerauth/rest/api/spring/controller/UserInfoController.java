@@ -79,7 +79,6 @@ public class UserInfoController {
         logger.info("action: fetchUserInfo, state: initiated, activationId: {}",
                 encryptionContext != null ? encryptionContext.getActivationId() : null);
         if (encryptionContext == null) {
-            logger.warn("Encryption failed");
             throw new PowerAuthEncryptionException("Encryption failed");
         }
 
