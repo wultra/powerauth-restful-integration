@@ -20,7 +20,7 @@
 package com.wultra.security.powerauth.rest.api.model.entity;
 
 /**
- * Scope a configuration item.
+ * Scope of a configuration item.
  *
  * @author Roman Strobl, roman.strobl@wultra.com
  */
