@@ -200,9 +200,9 @@ Renames an activation. Signature-authenticated, response encrypted.
 
 **Request** `ActivationRenameRequest`:
 
-| Field            | Type     | Required | Description                 |
-|------------------|----------|----------|-----------------------------|
-| `activationName` | `String` | ✓        | New name for the activation |. |
+| Field            | Type     | Required | Description                  |
+|------------------|----------|----------|------------------------------|
+| `activationName` | `String` | ✓        | New name for the activation. |
 
 **Response** `ObjectResponse<ActivationDetailResponse>` (encrypted):
 
@@ -620,7 +620,7 @@ Starts the upgrade of an activation from protocol v3 to v4. Requires both `X-Pow
 
 | Field   | Type     | Required | Description                                                       |
 |---------|----------|----------|-------------------------------------------------------------------|
-| `ecdsa` | `String` | ✓        | Base64-encoded device ECDSA public key                            |.       |
+| `ecdsa` | `String` | ✓        | Base64-encoded device ECDSA public key.                           |
 | `mldsa` | `String` |          | Base64-encoded device ML-DSA public key (optional, post-quantum). |
 
 **Response payload** `UpgradeResponsePayload` (inside `AeadEncryptedResponse`):
