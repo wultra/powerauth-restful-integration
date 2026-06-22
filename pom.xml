@@ -86,7 +86,7 @@
         <maven-source-plugin.version>3.4.0</maven-source-plugin.version>
         <spring-boot.version>4.0.6</spring-boot.version>
         <commons-text.version>1.15.0</commons-text.version>
-        <central.publishing.plugin.version>0.10.0</central.publishing.plugin.version>
+        <central.publishing.plugin.version>0.11.0</central.publishing.plugin.version>
 
         <wultra-core.version>2.2.0-SNAPSHOT</wultra-core.version>
         <powerauth.version>2.2.0-SNAPSHOT</powerauth.version>
