@@ -60,6 +60,9 @@ Returns application status information. Extended to accept an optional applicati
 ## Key Store (Temporary Keys)
 
 ### `POST /pa/v3/keystore/create`
+
+The same applies to version v3 as to version v4.
+
 ### `POST /pa/v4/keystore/create`
 
 Fetches a temporary encryption key encoded as a signed JWT. v3 uses ECIES; v4 uses AEAD.
@@ -672,6 +675,9 @@ Confirms the upgrade of an activation from protocol v3 to v4.
 ## User Info
 
 ### `POST /pa/v3/user/info`
+
+The same applies to version v3 as to version v4.
+
 ### `POST /pa/v4/user/info`
 
 Returns OIDC-style user info claims for the authenticated activation owner. Both request and response are AEAD-encrypted in `ACTIVATION_SCOPE`. Served by the `UserInfoProvider` SPI.
