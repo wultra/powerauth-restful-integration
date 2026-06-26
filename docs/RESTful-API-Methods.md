@@ -38,9 +38,9 @@ Returns application status information. Extended to accept an optional applicati
 
 **Request** `ObjectRequest<ServerStatusRequest>`:
 
-| Field            | Type     | Description                                                  |
-|------------------|----------|--------------------------------------------------------------| 
-| `applicationKey` | `String` | _(optional)_ Application key to filter supported algorithms. |
+| Field            | Type     | Required | Description                                     |
+|------------------|----------|----------|-------------------------------------------------|
+| `applicationKey` | `String` |          | Application key to filter supported algorithms. |
 
 **Response** `ObjectResponse<ServerStatusResponse>`:
 
@@ -99,7 +99,7 @@ Creates a new activation. The outer body is ECIES-encrypted in `APPLICATION_SCOP
 
 | Field                | Type                    | Required | Description                                                           |
 |----------------------|-------------------------|----------|-----------------------------------------------------------------------|
-| `type`               | `ActivationType`        | ✓        | Activation type: `CODE`, `CUSTOM`, or `RECOVERY`.                     |
+| `type`               | `ActivationType`        | ✓        | Activation type: `CODE`, `DIRECT` (or deprecated alias `CUSTOM`).     |
 | `identityAttributes` | `Map<String, String>`   | ✓        | Activation-type-specific identity attributes (e.g. `code`, `otp`).    |
 | `customAttributes`   | `Map<String, Object>`   |          | Optional custom attributes passed to `CustomActivationProvider`.      |
 | `activationData`     | `EciesEncryptedRequest` | ✓        | ECIES-encrypted layer 2 payload — see `ActivationLayer2Request (v3)`. |
@@ -230,7 +230,7 @@ Creates a new activation. The outer body is AEAD-encrypted in `APPLICATION_SCOPE
 
 | Field                | Type                   | Required | Description                                                          |
 |----------------------|------------------------|----------|----------------------------------------------------------------------|
-| `type`               | `ActivationType`       | ✓        | Activation type: `CODE`, `CUSTOM`, or `RECOVERY`.                    |
+| `type`               | `ActivationType`       | ✓        | Activation type: `CODE`, `DIRECT` (or deprecated alias `CUSTOM`).    |
 | `identityAttributes` | `Map<String, String>`  | ✓        | Activation-type-specific identity attributes.                        |
 | `customAttributes`   | `Map<String, Object>`  |          | Optional custom attributes passed to `CustomActivationProvider`.     |
 | `activationData`     | `AeadEncryptedRequest` | ✓        | AEAD-encrypted layer 2 payload — see `ActivationLayer2Request (v4)`. |
@@ -495,9 +495,9 @@ Unlocks the secure vault. The HTTP body is an `EciesEncryptedRequest`; the decry
 
 **Request payload** `VaultUnlockRequestPayload` (inside `EciesEncryptedRequest`):
 
-| Field    | Type     | Description                                          |
-|----------|----------|------------------------------------------------------| 
-| `reason` | `String` | _(optional)_ Human-readable reason for vault unlock. |
+| Field    | Type     | Required | Description                             |
+|----------|----------|----------|-----------------------------------------|
+| `reason` | `String` |          | Human-readable reason for vault unlock. |
 
 **Response payload** `VaultUnlockResponsePayload` (inside `EciesEncryptedResponse`):
 
@@ -524,7 +524,7 @@ Unlocks the secure vault. The HTTP body is an `AeadEncryptedRequest`; the decryp
 | Field           | Type     | Required | Description                                          |
 |-----------------|----------|----------|------------------------------------------------------|
 | `keyIdentifier` | `String` | ✓        | Identifier of the key to unlock.                     |
-| `reason`        | `String` |          | _(optional)_ Human-readable reason for vault unlock. |
+| `reason`        | `String` |          | Human-readable reason for vault unlock.              |
 
 **Response payload** `VaultUnlockResponsePayload` (inside `AeadEncryptedResponse`):
 
@@ -752,14 +752,14 @@ The `activationData` field in `ActivationLayer1Request` / `ActivationLayer1Respo
 
 ### `ActivationLayer2Request` (v3, inside `EciesEncryptedRequest`)
 
-| Field             | Type     | Description                                                               |
-|-------------------|----------|---------------------------------------------------------------------------| 
-| `devicePublicKey` | `String` | Base64-encoded device public key.                                         |
-| `activationOtp`   | `String` | _(optional)_ Additional activation OTP for extra-factor activation types. |
-| `activationName`  | `String` | _(optional)_ Human-readable name for the activation.                      |
-| `extras`          | `String` | _(optional)_ Arbitrary extra data stored with the activation.             |
-| `platform`        | `String` | _(optional)_ User device platform (e.g. `ios`, `android`).                |
-| `deviceInfo`      | `String` | _(optional)_ Human-readable device model / OS information.                |
+| Field             | Type     | Required | Description                                                  |
+|-------------------|----------|----------|--------------------------------------------------------------|
+| `devicePublicKey` | `String` | ✓        | Base64-encoded device public key.                            |
+| `activationOtp`   | `String` |          | Additional activation OTP for extra-factor activation types. |
+| `activationName`  | `String` |          | Human-readable name for the activation.                      |
+| `extras`          | `String` |          | Arbitrary extra data stored with the activation.             |
+| `platform`        | `String` |          | User device platform (e.g. `ios`, `android`).                |
+| `deviceInfo`      | `String` |          | Human-readable device model / OS information.                |
 
 ### `ActivationLayer2Response` (v3, inside `EciesEncryptedResponse`)
 
@@ -777,11 +777,11 @@ The `activationData` field in `ActivationLayer1Request` / `ActivationLayer1Respo
 |-----------------------|-----------------------|----------|---------------------------------------------------------------|
 | `sharedSecretRequest` | `SharedSecretRequest` |          | KEM shared-secret request — see `SharedSecretRequest` above.  |
 | `devicePublicKeys`    | `DevicePublicKeys`    |          | Device public keys — see `DevicePublicKeys` above.            |
-| `activationOtp`       | `String`              |          | _(optional)_ Additional activation OTP.                       |
-| `activationName`      | `String`              |          | _(optional)_ Human-readable name for the activation.          |
-| `extras`              | `String`              |          | _(optional)_ Arbitrary extra data stored with the activation. |
-| `platform`            | `String`              |          | _(optional)_ User device platform (e.g. `ios`, `android`).    |
-| `deviceInfo`          | `String`              |          | _(optional)_ Human-readable device model / OS information.    |
+| `activationOtp`       | `String`              |          | Additional activation OTP.                                    |
+| `activationName`      | `String`              |          | Human-readable name for the activation.                       |
+| `extras`              | `String`              |          | Arbitrary extra data stored with the activation.              |
+| `platform`            | `String`              |          | User device platform (e.g. `ios`, `android`).                 |
+| `deviceInfo`          | `String`              |          | Human-readable device model / OS information.                 |
 
 ### `ActivationLayer2Response` (v4, inside `AeadEncryptedResponse`)
 
