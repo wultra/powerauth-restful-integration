@@ -20,7 +20,6 @@
 package com.wultra.security.powerauth.rest.api.model.response.v4;
 
 import com.wultra.security.powerauth.rest.api.model.entity.ConfigItem;
-import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,15 +27,14 @@ import java.util.List;
 /**
  * Response object for the secure configuration endpoints (V4).
  *
+ * @param config Configuration items.
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Data
-public class ConfigResponse {
+public record ConfigResponse(List<ConfigItem> config) {
 
-    /**
-     * Configuration items.
-     */
-    private List<ConfigItem> config = new ArrayList<>();
+    public ConfigResponse {
+        config = config == null ? new ArrayList<>() : config;
+    }
 
 }
 

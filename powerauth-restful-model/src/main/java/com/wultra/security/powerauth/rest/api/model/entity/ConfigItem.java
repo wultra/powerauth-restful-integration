@@ -19,32 +19,25 @@
  */
 package com.wultra.security.powerauth.rest.api.model.entity;
 
-import lombok.Data;
-import lombok.ToString;
-
 /**
  * Entity representing a single configuration item delivered to a mobile SDK caller.
  *
+ * @param key Configuration item key.
+ * @param value Configuration item value: a String value or a nested object.
+ * @param scope Scope the item was delivered under, either {@code APPLICATION} or {@code ACTIVATION}.
  * @author Roman Strobl, roman.strobl@wultra.com
  */
-@Data
-public class ConfigItem {
+public record ConfigItem(String key, Object value, ConfigScope scope) {
 
     /**
-     * Configuration item key.
+     * The configuration value is intentionally excluded as it may carry sensitive data.
+     *
+     * @return String representation without the configuration value.
      */
-    private String key;
-
-    /**
-     * Configuration item value; a scalar or a nested object.
-     */
-    @ToString.Exclude
-    private Object value;
-
-    /**
-     * Scope the item was delivered under, either {@code APPLICATION} or {@code ACTIVATION}.
-     */
-    private ConfigScope scope;
+    @Override
+    public String toString() {
+        return "ConfigItem{key='" + key + "', scope=" + scope + '}';
+    }
 
 }
 

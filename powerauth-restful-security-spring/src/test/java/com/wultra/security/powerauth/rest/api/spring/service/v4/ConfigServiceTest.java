@@ -83,11 +83,11 @@ class ConfigServiceTest {
         assertEquals(APPLICATION_ID, captor.getValue().getApplicationId());
         assertNull(captor.getValue().getActivationId());
 
-        assertEquals(1, response.getConfig().size());
-        final ConfigItem item = response.getConfig().get(0);
-        assertEquals("base_url", item.getKey());
-        assertEquals("https://example.com", item.getValue());
-        assertEquals(com.wultra.security.powerauth.rest.api.model.entity.ConfigScope.APPLICATION, item.getScope());
+        assertEquals(1, response.config().size());
+        final ConfigItem item = response.config().get(0);
+        assertEquals("base_url", item.key());
+        assertEquals("https://example.com", item.value());
+        assertEquals(com.wultra.security.powerauth.rest.api.model.entity.ConfigScope.APPLICATION, item.scope());
     }
 
     @Test
@@ -110,7 +110,7 @@ class ConfigServiceTest {
         assertEquals(List.of(
                         com.wultra.security.powerauth.rest.api.model.entity.ConfigScope.APPLICATION,
                         com.wultra.security.powerauth.rest.api.model.entity.ConfigScope.ACTIVATION),
-                response.getConfig().stream().map(ConfigItem::getScope).toList());
+                response.config().stream().map(ConfigItem::scope).toList());
     }
 
     @Test
@@ -120,8 +120,8 @@ class ConfigServiceTest {
 
         final ConfigResponse response = tested.fetchApplicationConfig(context(EncryptionScope.APPLICATION_SCOPE, null));
 
-        assertNotNull(response.getConfig());
-        assertTrue(response.getConfig().isEmpty());
+        assertNotNull(response.config());
+        assertTrue(response.config().isEmpty());
     }
 
     @Test

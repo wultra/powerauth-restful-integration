@@ -36,6 +36,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Service implementing the secure configuration delivery to mobile SDK callers.
  *
@@ -122,17 +125,13 @@ public class ConfigService {
     }
 
     private static ConfigResponse convert(FetchConfigResponse fetchResponse) {
-        final ConfigResponse response = new ConfigResponse();
+        final List<ConfigItem> items = new ArrayList<>();
         if (fetchResponse.getConfigs() != null) {
             for (ConfigStoreItem storeItem : fetchResponse.getConfigs()) {
-                final ConfigItem item = new ConfigItem();
-                item.setKey(storeItem.getKey());
-                item.setValue(storeItem.getValue());
-                item.setScope(convertScope(storeItem.getScope()));
-                response.getConfig().add(item);
+                items.add(new ConfigItem(storeItem.getKey(), storeItem.getValue(), convertScope(storeItem.getScope())));
             }
         }
-        return response;
+        return new ConfigResponse(items);
     }
 
     private static ConfigScope convertScope(com.wultra.security.powerauth.client.model.enumeration.ConfigScope scope) {
