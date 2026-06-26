@@ -36,6 +36,7 @@ The PowerAuth RESTful Integration library returns a uniform JSON error response 
 | `ERR_TEMPORARY_KEY`   | `POWER_AUTH_TEMPORARY_KEY_FAILURE`   | `PowerAuthTemporaryKeyException` | Issuing or validating a temporary encryption key failed.                               |
 | `ERR_PASSWORD_CHANGE` | `POWER_AUTH_PASSWORD_CHANGE_FAILURE` | `PowerAuthPasswordException`     | Knowledge-factor change failed.                                                        |
 | `ERR_BIOMETRY`        | `POWER_AUTH_BIOMETRY_FAILURE`        | `PowerAuthBiometryException`     | Biometric factor enrollment / removal failed.                                          |
+| `ERR_CONFIG`          | `POWER_AUTH_CONFIG_FAILURE`          | `PowerAuthConfigException`       | The request to fetch secure configuration from the server failed.                      |
 | `ERR_USER_INFO`       | `POWER_AUTH_USER_INFO_ERROR`         | `PowerAuthUserInfoException`     | The `UserInfoProvider` failed or the user-info endpoint could not assemble the claims. |
 | `ERR_STATUS`          | `POWER_AUTH_STATUS_ERROR`            | `PowerAuthStatusException`       | Server status / activation status query failed.                                        |
 
