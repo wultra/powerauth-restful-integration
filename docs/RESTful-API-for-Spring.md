@@ -477,4 +477,4 @@ Note: You can use `String` or `byte[]` data types instead of using request/respo
 
 The following configuration properties can be configured to control service behavior: 
 
-`activation.remove.allow1fa` - whether 1-factor authentication code type is allowed for the endpoint `/pa/v4/activation/remove` (default: false).
+`activation.remove.allow1fa` - whether 1-factor authentication code type is allowed for endpoints `/pa/v4/activation/remove` and `/pa/v3/activation/remove` (default: false).
