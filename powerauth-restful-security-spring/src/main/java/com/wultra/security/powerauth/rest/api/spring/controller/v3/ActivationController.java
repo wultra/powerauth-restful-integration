@@ -199,7 +199,7 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @Valid @RequestBody ActivationRenameRequest request,
+            @EncryptedRequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
