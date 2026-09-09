@@ -202,7 +202,7 @@ public class ActivationController {
      * @param auth PowerAuth authentication.
      * @return Activation detail response.
      * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
-     * @throws PowerAuthInvalidRequestException In case request is invalid or the activation name is blank.
+     * @throws PowerAuthInvalidRequestException In case request is invalid.
      * @throws PowerAuthActivationException In case retrieving activation detail fails.
      */
     @PostMapping("rename")
@@ -212,13 +212,14 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @EncryptedRequestBody ActivationRenameRequest request,
+            @Valid @EncryptedRequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
-        if (request == null || request.getActivationName() == null || request.getActivationName().isBlank()) {
-            logger.warn("Invalid request object in rename activation");
-            throw new PowerAuthInvalidRequestException("Invalid request: activation name must not be blank");
+
+        if (request == null) {
+            logger.warn("Invalid request object in activation rename");
+            throw new PowerAuthInvalidRequestException();
         }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);

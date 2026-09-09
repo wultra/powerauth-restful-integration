@@ -22,27 +22,42 @@ package com.wultra.security.powerauth.rest.api.spring.controller.v3;
 import com.wultra.core.rest.model.base.response.ObjectResponse;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
+import com.wultra.security.powerauth.rest.api.spring.annotation.support.PowerAuthEncryptionArgumentResolver;
+import com.wultra.security.powerauth.rest.api.spring.annotation.support.PowerAuthWebArgumentResolver;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthActivation;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.config.ServiceConfiguration;
+import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContext;
+import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
+import com.wultra.security.powerauth.rest.api.spring.encryption.PowerAuthEncryptorData;
+import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthExceptionHandler;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
+import com.wultra.security.powerauth.rest.api.spring.model.PowerAuthRequestObjects;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import com.wultra.security.powerauth.rest.api.spring.service.v3.ActivationService;
+import org.hibernate.validator.messageinterpolation.ParameterMessageInterpolator;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
+import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
+
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
  * Test for {@link ActivationController}.
@@ -72,20 +87,52 @@ class ActivationControllerTest {
     @InjectMocks
     private ActivationController tested;
 
+    private MockMvc mockMvc;
+
+    @BeforeEach
+    void setUp() {
+        final LocalValidatorFactoryBean validator = new LocalValidatorFactoryBean();
+        validator.setMessageInterpolator(new ParameterMessageInterpolator());
+        validator.afterPropertiesSet();
+        // Reproduce the production @Validated controller behaviour, where method-level
+        // validation is applied by an AOP proxy created by MethodValidationPostProcessor.
+        final MethodValidationPostProcessor postProcessor = new MethodValidationPostProcessor();
+        postProcessor.setValidator(validator);
+        postProcessor.afterPropertiesSet();
+        final ActivationController proxied = (ActivationController) postProcessor.postProcessAfterInitialization(tested, "activationControllerV3");
+        mockMvc = MockMvcBuilders.standaloneSetup(proxied)
+                .setCustomArgumentResolvers(new PowerAuthEncryptionArgumentResolver(), new PowerAuthWebArgumentResolver())
+                .setControllerAdvice(new PowerAuthExceptionHandler())
+                .setValidator(validator)
+                .build();
+    }
+
     @Test
-    void renameActivation_rejectsNullRequest() {
-        assertThrows(PowerAuthInvalidRequestException.class, () -> tested.renameActivation(null, auth));
+    void renameActivation_rejectsBlankActivationName() throws Exception {
+        mockMvc.perform(post("/pa/v3/activation/rename")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .requestAttr(PowerAuthRequestObjects.ENCRYPTION_OBJECT, encryptorData("{\"activationName\":\"\"}")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_VALIDATION"));
         verifyNoInteractions(activationService);
     }
 
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"", "   "})
-    void renameActivation_rejectsBlankActivationName(final String activationName) {
-        final ActivationRenameRequest request = new ActivationRenameRequest();
-        request.setActivationName(activationName);
+    @Test
+    void renameActivation_rejectsMissingActivationName() throws Exception {
+        mockMvc.perform(post("/pa/v3/activation/rename")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .requestAttr(PowerAuthRequestObjects.ENCRYPTION_OBJECT, encryptorData("{}")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_VALIDATION"));
+        verifyNoInteractions(activationService);
+    }
 
-        assertThrows(PowerAuthInvalidRequestException.class, () -> tested.renameActivation(request, auth));
+    @Test
+    void renameActivation_rejectsNullRequest() throws Exception {
+        mockMvc.perform(post("/pa/v3/activation/rename")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_AUTHENTICATION"));
         verifyNoInteractions(activationService);
     }
 
@@ -114,6 +161,13 @@ class ActivationControllerTest {
 
         assertThrows(PowerAuthCodeInvalidException.class, () -> tested.renameActivation(request, null));
         verifyNoInteractions(activationService);
+    }
+
+    private static PowerAuthEncryptorData encryptorData(final String decryptedJson) {
+        final EncryptionContext context = new EncryptionContext("appKey", ACTIVATION_ID, "3.3", null, EncryptionScope.ACTIVATION_SCOPE);
+        final PowerAuthEncryptorData data = new PowerAuthEncryptorData(context);
+        data.setDecryptedRequest(decryptedJson.getBytes(StandardCharsets.UTF_8));
+        return data;
     }
 
 }
