@@ -197,12 +197,12 @@ public class ActivationController {
     }
 
     /**
-     * Remove activation.
-     * @param request Remove activation request.
+     * Rename activation.
+     * @param request Rename activation request.
      * @param auth PowerAuth authentication.
      * @return Activation detail response.
      * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
-     * @throws PowerAuthInvalidRequestException In case request is invalid.
+     * @throws PowerAuthInvalidRequestException In case request is invalid or the activation name is blank.
      * @throws PowerAuthActivationException In case retrieving activation detail fails.
      */
     @PostMapping("rename")
@@ -216,6 +216,10 @@ public class ActivationController {
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
+        if (request == null || request.getActivationName() == null || request.getActivationName().isBlank()) {
+            logger.warn("Invalid request object in rename activation");
+            throw new PowerAuthInvalidRequestException("Invalid request: activation name must not be blank");
+        }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
