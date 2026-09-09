@@ -92,7 +92,7 @@ public class ActivationController {
      */
     @PostMapping("create")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
-    public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
+    public ActivationLayer1Response createActivation(@Valid @EncryptedRequestBody ActivationLayer1Request request,
                                                      EncryptionContext context) throws PowerAuthActivationException {
         logger.info("action: createActivation, state: initiated");
         if (request == null || context == null) {
@@ -114,7 +114,7 @@ public class ActivationController {
      */
     @PostMapping("status")
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE, allowedStates = { ActivationStatus.ACTIVE, ActivationStatus.PENDING_COMMIT, ActivationStatus.BLOCKED, ActivationStatus.REMOVED })
-    public ActivationStatusResponse getActivationStatus(@EncryptedRequestBody ActivationStatusRequest request, EncryptionContext encryptionContext)
+    public ActivationStatusResponse getActivationStatus(@Valid @EncryptedRequestBody ActivationStatusRequest request, EncryptionContext encryptionContext)
             throws PowerAuthActivationException, PowerAuthEncryptionException {
         logger.info("action: getActivationStatus, state: initiated, activationId: {}",
                 encryptionContext != null ? encryptionContext.getActivationId() : null);
@@ -212,10 +212,15 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @EncryptedRequestBody ActivationRenameRequest request,
+            @Valid @EncryptedRequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
+
+        if (request == null) {
+            logger.warn("Invalid request object in activation rename");
+            throw new PowerAuthInvalidRequestException();
+        }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());

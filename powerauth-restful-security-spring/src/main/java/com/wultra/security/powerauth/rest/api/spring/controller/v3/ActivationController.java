@@ -93,7 +93,7 @@ public class ActivationController {
      */
     @PostMapping("create")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
-    public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
+    public ActivationLayer1Response createActivation(@Valid @EncryptedRequestBody ActivationLayer1Request request,
                                                      EncryptionContext context) throws PowerAuthActivationException {
         if (request == null || context == null) {
             logger.warn("Invalid request in activation create");
@@ -199,10 +199,15 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @EncryptedRequestBody ActivationRenameRequest request,
+            @Valid @EncryptedRequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
+
+        if (request == null) {
+            logger.warn("Invalid request object in activation rename");
+            throw new PowerAuthInvalidRequestException();
+        }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());

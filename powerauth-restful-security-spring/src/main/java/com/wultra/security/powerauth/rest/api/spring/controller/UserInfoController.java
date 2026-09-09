@@ -27,6 +27,7 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
 import com.wultra.security.powerauth.rest.api.spring.service.UserInfoService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -75,7 +76,7 @@ public class UserInfoController {
      */
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     @PostMapping("info")
-    public Map<String, Object> fetchUserInfo(@EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
+    public Map<String, Object> fetchUserInfo(@Valid @EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
         logger.info("action: fetchUserInfo, state: initiated, activationId: {}",
                 encryptionContext != null ? encryptionContext.getActivationId() : null);
         if (encryptionContext == null) {

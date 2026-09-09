@@ -389,7 +389,7 @@ public class EncryptedDataExchangeController {
 
     @PostMapping("application")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
-    public DataExchangeResponse exchangeInApplicationScope(@EncryptedRequestBody DataExchangeRequest request,
+    public DataExchangeResponse exchangeInApplicationScope(@Valid @EncryptedRequestBody DataExchangeRequest request,
                                                            EncryptionContext encryptionContext) throws PowerAuthEncryptionException {
 
         if (encryptionContext == null) {
@@ -417,7 +417,7 @@ public class EncryptedDataExchangeController {
 
     @PostMapping("activation")
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
-    public DataExchangeResponse exchangeInActivationScope(@EncryptedRequestBody DataExchangeRequest request,
+    public DataExchangeResponse exchangeInActivationScope(@Valid @EncryptedRequestBody DataExchangeRequest request,
                                                           EncryptionContext encryptionContext) throws PowerAuthEncryptionException {
 
         if (encryptionContext == null) {
@@ -446,7 +446,7 @@ public class EncryptedDataExchangeController {
     @PostMapping("signed")
     @PowerAuth(resourceId = "/exchange/signed")
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
-    public DataExchangeResponse exchangeSignedAndEncryptedData(@EncryptedRequestBody DataExchangeRequest request,
+    public DataExchangeResponse exchangeSignedAndEncryptedData(@Valid @EncryptedRequestBody DataExchangeRequest request,
                                                                 EncryptionContext encryptionContext,
                                                                 PowerAuthApiAuthentication auth) throws PowerAuthAuthenticationException, PowerAuthEncryptionException {
 
