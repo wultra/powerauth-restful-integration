@@ -203,7 +203,7 @@ public class ActivationController {
      * @return Activation detail response.
      * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
-     * @throws PowerAuthActivationException In case retrieving activation detail fails.
+     * @throws PowerAuthActivationException In case renaming activation fails.
      */
     @PostMapping("rename")
     @PowerAuth(resourceId = "/pa/activation/rename", authenticationCodeType = {

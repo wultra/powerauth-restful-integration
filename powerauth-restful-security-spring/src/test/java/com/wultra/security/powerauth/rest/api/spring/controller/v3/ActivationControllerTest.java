@@ -128,6 +128,16 @@ class ActivationControllerTest {
     }
 
     @Test
+    void renameActivation_rejectsWhitespaceOnlyActivationName() throws Exception {
+        mockMvc.perform(post("/pa/v3/activation/rename")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .requestAttr(PowerAuthRequestObjects.ENCRYPTION_OBJECT, encryptorData("{\"activationName\":\"   \"}")))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_VALIDATION"));
+        verifyNoInteractions(activationService);
+    }
+
+    @Test
     void renameActivation_rejectsNullRequest() throws Exception {
         mockMvc.perform(post("/pa/v3/activation/rename")
                         .contentType(MediaType.APPLICATION_JSON))
