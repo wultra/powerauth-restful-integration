@@ -40,7 +40,6 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContex
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
-import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
@@ -48,7 +47,6 @@ import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthentic
 import com.wultra.security.powerauth.rest.api.spring.service.v3.ActivationService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
-import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -193,7 +191,6 @@ public class ActivationController {
      * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
      * @throws PowerAuthActivationException In case retrieving activation detail fails.
-     * @throws PowerAuthEncryptionException In case of failed encryption.
      */
     @PostMapping("rename")
     @PowerAuth(resourceId = "/pa/activation/rename", authenticationCodeType = {
@@ -203,14 +200,9 @@ public class ActivationController {
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
             @NotNull @Valid @EncryptedRequestBody ActivationRenameRequest request,
-            @Parameter(hidden = true) EncryptionContext encryptionContext,
-            PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException, PowerAuthEncryptionException {
+            PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
-
-        if (encryptionContext == null) {
-            throw new PowerAuthEncryptionException("Encryption failed");
-        }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
