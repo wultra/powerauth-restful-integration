@@ -184,13 +184,13 @@ public class ActivationController {
     }
 
     /**
-     * Remove activation.
-     * @param request Remove activation request.
+     * Rename activation.
+     * @param request Rename activation request.
      * @param auth PowerAuth authentication.
      * @return Activation detail response.
      * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
-     * @throws PowerAuthActivationException In case retrieving activation detail fails.
+     * @throws PowerAuthActivationException In case renaming activation fails.
      */
     @PostMapping("rename")
     @PowerAuth(resourceId = "/pa/activation/rename", authenticationCodeType = {
@@ -199,10 +199,15 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @EncryptedRequestBody ActivationRenameRequest request,
+            @Valid @EncryptedRequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
+
+        if (request == null) {
+            logger.warn("Invalid request object in activation rename");
+            throw new PowerAuthInvalidRequestException();
+        }
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV3(auth.getVersion());
