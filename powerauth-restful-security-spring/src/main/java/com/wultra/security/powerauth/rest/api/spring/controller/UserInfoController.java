@@ -26,9 +26,12 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContex
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthEncryptionException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthUserInfoException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
 import com.wultra.security.powerauth.rest.api.spring.service.UserInfoService;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,6 +53,7 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping({"/pa/v3/user", "/pa/v4/user"})
+@Validated
 @Slf4j
 public class UserInfoController {
 
@@ -72,12 +76,17 @@ public class UserInfoController {
      * @return Encrypted user info claims.
      * @throws PowerAuthUserInfoException In case there is an error while fetching claims.
      * @throws PowerAuthEncryptionException In case of failed encryption.
+     * @throws PowerAuthInvalidRequestException In case the request is invalid.
      */
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     @PostMapping("info")
-    public Map<String, Object> fetchUserInfo(@EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException {
+    public Map<String, Object> fetchUserInfo(@Valid @EncryptedRequestBody UserInfoRequest request, EncryptionContext encryptionContext) throws PowerAuthUserInfoException, PowerAuthEncryptionException, PowerAuthInvalidRequestException {
         logger.info("action: fetchUserInfo, state: initiated, activationId: {}",
                 encryptionContext != null ? encryptionContext.getActivationId() : null);
+        if (request == null) {
+            logger.warn("Invalid request object in fetch user info");
+            throw new PowerAuthInvalidRequestException();
+        }
         if (encryptionContext == null) {
             throw new PowerAuthEncryptionException("Encryption failed");
         }

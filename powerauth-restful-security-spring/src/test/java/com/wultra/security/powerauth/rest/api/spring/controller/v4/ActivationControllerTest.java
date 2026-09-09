@@ -20,8 +20,14 @@
 package com.wultra.security.powerauth.rest.api.spring.controller.v4;
 
 import com.wultra.core.rest.model.base.response.ObjectResponse;
+import com.wultra.security.powerauth.rest.api.model.entity.ActivationType;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
+import com.wultra.security.powerauth.crypto.lib.v4.encryptor.model.request.AeadEncryptedRequest;
+import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationLayer1Request;
+import com.wultra.security.powerauth.rest.api.model.request.v4.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationLayer1Response;
+import com.wultra.security.powerauth.rest.api.model.response.v4.ActivationStatusResponse;
 import com.wultra.security.powerauth.rest.api.spring.annotation.support.PowerAuthEncryptionArgumentResolver;
 import com.wultra.security.powerauth.rest.api.spring.annotation.support.PowerAuthWebArgumentResolver;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthActivation;
@@ -49,6 +55,7 @@ import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 import org.springframework.validation.beanvalidation.MethodValidationPostProcessor;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -173,8 +180,100 @@ class ActivationControllerTest {
         verifyNoInteractions(activationService);
     }
 
-    private static PowerAuthEncryptorData encryptorData(final String decryptedJson) {
+    @Test
+    void createActivation_rejectsNullType() throws Exception {
+        mockMvc.perform(post("/pa/v4/activation/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .requestAttr(PowerAuthRequestObjects.ENCRYPTION_OBJECT, encryptorData("{\"identityAttributes\":{},\"activationData\":{}}", EncryptionScope.APPLICATION_SCOPE)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_VALIDATION"));
+        verifyNoInteractions(activationService);
+    }
+
+    @Test
+    void createActivation_rejectsNullIdentityAttributes() throws Exception {
+        mockMvc.perform(post("/pa/v4/activation/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .requestAttr(PowerAuthRequestObjects.ENCRYPTION_OBJECT, encryptorData("{\"type\":\"CODE\",\"activationData\":{}}", EncryptionScope.APPLICATION_SCOPE)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_VALIDATION"));
+        verifyNoInteractions(activationService);
+    }
+
+    @Test
+    void createActivation_rejectsNullActivationData() throws Exception {
+        mockMvc.perform(post("/pa/v4/activation/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .requestAttr(PowerAuthRequestObjects.ENCRYPTION_OBJECT, encryptorData("{\"type\":\"CODE\",\"identityAttributes\":{}}", EncryptionScope.APPLICATION_SCOPE)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_VALIDATION"));
+        verifyNoInteractions(activationService);
+    }
+
+    @Test
+    void createActivation_rejectsAllNullFields() throws Exception {
+        mockMvc.perform(post("/pa/v4/activation/create")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .requestAttr(PowerAuthRequestObjects.ENCRYPTION_OBJECT, encryptorData("{}", EncryptionScope.APPLICATION_SCOPE)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_VALIDATION"));
+        verifyNoInteractions(activationService);
+    }
+
+    @Test
+    void createActivation_rejectsNullRequest() throws Exception {
+        mockMvc.perform(post("/pa/v4/activation/create")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_ACTIVATION"));
+        verifyNoInteractions(activationService);
+    }
+
+    @Test
+    void createActivation_validRequestInvokesService() throws Exception {
+        final ActivationLayer1Request request = new ActivationLayer1Request();
+        request.setType(ActivationType.CODE);
+        request.setIdentityAttributes(Map.of("code", "12345"));
+        request.setActivationData(new AeadEncryptedRequest());
+        final EncryptionContext context = new EncryptionContext("appKey", null, "4.0", null, EncryptionScope.APPLICATION_SCOPE);
+        final ActivationLayer1Response expected = new ActivationLayer1Response();
+        when(activationService.createActivation(request, context)).thenReturn(expected);
+
+        final ActivationLayer1Response response = tested.createActivation(request, context);
+
+        assertEquals(expected, response);
+        verify(activationService).createActivation(request, context);
+    }
+
+    @Test
+    void getActivationStatus_rejectsNullRequest() throws Exception {
+        mockMvc.perform(post("/pa/v4/activation/status")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.responseObject.code").value("ERR_ACTIVATION"));
+        verifyNoInteractions(activationService);
+    }
+
+    @Test
+    void getActivationStatus_validRequestInvokesService() throws Exception {
+        final ActivationStatusRequest request = new ActivationStatusRequest();
         final EncryptionContext context = new EncryptionContext("appKey", ACTIVATION_ID, "4.0", null, EncryptionScope.ACTIVATION_SCOPE);
+        final ActivationStatusResponse expected = new ActivationStatusResponse();
+        when(activationService.getActivationStatus(ACTIVATION_ID)).thenReturn(expected);
+
+        final ActivationStatusResponse response = tested.getActivationStatus(request, context);
+
+        assertEquals(expected, response);
+        verify(activationService).getActivationStatus(ACTIVATION_ID);
+    }
+
+    private static PowerAuthEncryptorData encryptorData(final String decryptedJson) {
+        return encryptorData(decryptedJson, EncryptionScope.ACTIVATION_SCOPE);
+    }
+
+    private static PowerAuthEncryptorData encryptorData(final String decryptedJson, final EncryptionScope scope) {
+        final String activationId = scope == EncryptionScope.APPLICATION_SCOPE ? null : ACTIVATION_ID;
+        final EncryptionContext context = new EncryptionContext("appKey", activationId, "4.0", null, scope);
         final PowerAuthEncryptorData data = new PowerAuthEncryptorData(context);
         data.setDecryptedRequest(decryptedJson.getBytes(StandardCharsets.UTF_8));
         return data;

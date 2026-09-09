@@ -93,7 +93,7 @@ public class ActivationController {
      */
     @PostMapping("create")
     @PowerAuthEncryption(scope = EncryptionScope.APPLICATION_SCOPE)
-    public ActivationLayer1Response createActivation(@EncryptedRequestBody ActivationLayer1Request request,
+    public ActivationLayer1Response createActivation(@Valid @EncryptedRequestBody ActivationLayer1Request request,
                                                      EncryptionContext context) throws PowerAuthActivationException {
         if (request == null || context == null) {
             logger.warn("Invalid request in activation create");
