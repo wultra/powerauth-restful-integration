@@ -233,7 +233,7 @@ class ActivationControllerTest {
         request.setType(ActivationType.CODE);
         request.setIdentityAttributes(Map.of("code", "12345"));
         request.setActivationData(new EciesEncryptedRequest());
-        final EncryptionContext context = new EncryptionContext("appKey", ACTIVATION_ID, "3.3", null, EncryptionScope.APPLICATION_SCOPE);
+        final EncryptionContext context = new EncryptionContext("appKey", null, "3.3", null, EncryptionScope.APPLICATION_SCOPE);
         final ActivationLayer1Response expected = new ActivationLayer1Response();
         when(activationService.createActivation(request, context)).thenReturn(expected);
 

@@ -235,7 +235,7 @@ class ActivationControllerTest {
         request.setType(ActivationType.CODE);
         request.setIdentityAttributes(Map.of("code", "12345"));
         request.setActivationData(new AeadEncryptedRequest());
-        final EncryptionContext context = new EncryptionContext("appKey", ACTIVATION_ID, "4.0", null, EncryptionScope.APPLICATION_SCOPE);
+        final EncryptionContext context = new EncryptionContext("appKey", null, "4.0", null, EncryptionScope.APPLICATION_SCOPE);
         final ActivationLayer1Response expected = new ActivationLayer1Response();
         when(activationService.createActivation(request, context)).thenReturn(expected);
 
