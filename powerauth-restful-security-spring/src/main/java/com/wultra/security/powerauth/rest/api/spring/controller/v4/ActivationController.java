@@ -50,6 +50,7 @@ import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthentic
 import com.wultra.security.powerauth.rest.api.spring.service.v4.ActivationService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -205,6 +206,7 @@ public class ActivationController {
      * @throws PowerAuthCodeInvalidException In case the authentication code validation fails.
      * @throws PowerAuthInvalidRequestException In case request is invalid.
      * @throws PowerAuthActivationException In case retrieving activation detail fails.
+     * @throws PowerAuthEncryptionException In case of failed encryption.
      */
     @PostMapping("rename")
     @PowerAuth(resourceId = "/pa/activation/rename", authenticationCodeType = {
@@ -214,12 +216,17 @@ public class ActivationController {
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
             @NotNull @Valid @EncryptedRequestBody ActivationRenameRequest request,
-            PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
+            @Parameter(hidden = true) EncryptionContext encryptionContext,
+            PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException, PowerAuthEncryptionException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
 
         PowerAuthAuthenticationUtil.checkAuthentication(auth);
         PowerAuthVersionUtil.checkUnsupportedVersionV4(auth.getVersion());
+
+        if (encryptionContext == null) {
+            throw new PowerAuthEncryptionException("Encryption failed");
+        }
 
         final ActivationDetailResponse activationDetail = activationServiceV4.renameActivation(auth.getActivationContext().getActivationId(), request);
         logger.info("action: renameActivation, state: succeeded");
