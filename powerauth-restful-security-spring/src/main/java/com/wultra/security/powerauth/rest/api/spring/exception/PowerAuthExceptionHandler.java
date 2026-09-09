@@ -25,11 +25,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.util.stream.Collectors;
 
@@ -211,6 +213,28 @@ public class PowerAuthExceptionHandler {
         String details = ex.getConstraintViolations()
                 .stream()
                 .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining(", "));
+        return new ErrorResponse("ERR_VALIDATION", details);
+    }
+
+    /**
+     * Exception handler for invalid request exception.
+     * <p>
+     * Handles for example {@code @NotNull @EncryptedRequestBody @Valid ObjectRequest<T>}.
+     *
+     * @param e Exception.
+     * @return Response with error details.
+     */
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handleInvalidRequestException(final HandlerMethodValidationException e) {
+        logger.warn("Validation error occurred in method {}: {}", e.getMethod().getName(), e.getParameterValidationResults(), e);
+        final String details = e.getParameterValidationResults()
+                .stream()
+                .flatMap(result -> result.getResolvableErrors().stream())
+                .map(error -> error instanceof FieldError fieldError
+                        ? fieldError.getField() + ": " + fieldError.getDefaultMessage()
+                        : error.getDefaultMessage())
                 .collect(Collectors.joining(", "));
         return new ErrorResponse("ERR_VALIDATION", details);
     }

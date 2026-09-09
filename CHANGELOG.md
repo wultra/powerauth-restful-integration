@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Add request encryption annotation for activation rename endpoint and handle validation exception [(#735)](https://github.com/wultra/powerauth-restful-integration/issues/735)
+
 ## [2.2.0] - 2026-07-20
 
 ### Added
