@@ -385,6 +385,7 @@ You can encrypt data in `application` scope (non-personalized) using following p
 ```java
 @RestController
 @RequestMapping("/exchange")
+@Validated
 public class EncryptedDataExchangeController {
 
     @PostMapping("application")
@@ -413,6 +414,7 @@ You can encrypt data in `activation` scope (personalized) using following patter
 ```java
 @RestController
 @RequestMapping("/exchange")
+@Validated
 public class EncryptedDataExchangeController {
 
     @PostMapping("activation")
@@ -441,6 +443,7 @@ You can also sign the data before encryption and perform authentication code ver
 ```java
 @RestController
 @RequestMapping("/exchange")
+@Validated
 public class EncryptedDataExchangeController {
 
     @PostMapping("signed")

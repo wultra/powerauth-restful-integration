@@ -7,13 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-
-### Changed
-
-- Add encrypted request validation to all endpoints that use it [(#737)](https://github.com/wultra/powerauth-restful-integration/issues/737)
-
 ### Fixed
 
+- Gracefully validate encrypted request bodies on all `@EncryptedRequestBody` endpoints; invalid fields now return HTTP 400 `ERR_VALIDATION` (behavioural change on activation rename, previously 401 for invalid field input) [(#737)](https://github.com/wultra/powerauth-restful-integration/issues/737)
 - Missing request encryption annotation for activation rename endpoint [(#735)](https://github.com/wultra/powerauth-restful-integration/issues/735)
 - Reject blank activation name in activation rename [(#739)](https://github.com/wultra/powerauth-restful-integration/issues/739)
 

@@ -23,6 +23,7 @@ import com.wultra.core.rest.model.base.response.ErrorResponse;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.MessageSourceResolvable;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.method.annotation.HandlerMethodValidationException;
 
 import java.util.stream.Collectors;
 
@@ -211,6 +213,22 @@ public class PowerAuthExceptionHandler {
         String details = ex.getConstraintViolations()
                 .stream()
                 .map(v -> v.getPropertyPath() + ": " + v.getMessage())
+                .collect(Collectors.joining(", "));
+        return new ErrorResponse("ERR_VALIDATION", details);
+    }
+
+    /**
+     * Handle handler method validation errors.
+     * @param ex Exception instance
+     * @return Error response
+     */
+    @ExceptionHandler(HandlerMethodValidationException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public @ResponseBody ErrorResponse handleHandlerMethodValidationException(HandlerMethodValidationException ex) {
+        logger.warn("Handler method validation failed", ex);
+        String details = ex.getAllErrors()
+                .stream()
+                .map(MessageSourceResolvable::getDefaultMessage)
                 .collect(Collectors.joining(", "));
         return new ErrorResponse("ERR_VALIDATION", details);
     }
