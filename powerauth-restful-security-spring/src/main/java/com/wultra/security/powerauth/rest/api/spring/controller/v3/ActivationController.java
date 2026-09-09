@@ -24,15 +24,8 @@ import com.wultra.core.rest.model.base.response.ObjectResponse;
 import com.wultra.security.powerauth.crypto.lib.enums.PowerAuthCodeType;
 import com.wultra.security.powerauth.http.PowerAuthAuthorizationHttpHeader;
 import com.wultra.security.powerauth.rest.api.model.request.ActivationRenameRequest;
-import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
-import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
 import com.wultra.security.powerauth.rest.api.model.response.ActivationDetailResponse;
-import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
-import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
-import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
-import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuth;
-import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthToken;
 import com.wultra.security.powerauth.rest.api.spring.authentication.PowerAuthApiAuthentication;
 import com.wultra.security.powerauth.rest.api.spring.config.ServiceConfiguration;
@@ -40,20 +33,27 @@ import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionContex
 import com.wultra.security.powerauth.rest.api.spring.encryption.EncryptionScope;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthActivationException;
 import com.wultra.security.powerauth.rest.api.spring.exception.PowerAuthAuthenticationException;
-import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
 import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthInvalidRequestException;
+import com.wultra.security.powerauth.rest.api.spring.exception.authentication.PowerAuthCodeInvalidException;
+import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationLayer1Request;
+import com.wultra.security.powerauth.rest.api.model.request.v3.ActivationStatusRequest;
+import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationLayer1Response;
+import com.wultra.security.powerauth.rest.api.model.response.ActivationRemoveResponse;
+import com.wultra.security.powerauth.rest.api.model.response.v3.ActivationStatusResponse;
+import com.wultra.security.powerauth.rest.api.spring.annotation.EncryptedRequestBody;
+import com.wultra.security.powerauth.rest.api.spring.annotation.PowerAuthEncryption;
 import com.wultra.security.powerauth.rest.api.spring.model.ActivationStatus;
 import com.wultra.security.powerauth.rest.api.spring.provider.PowerAuthAuthenticationProvider;
 import com.wultra.security.powerauth.rest.api.spring.service.v3.ActivationService;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticationUtil;
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -199,7 +199,7 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @NotNull @Valid @EncryptedRequestBody ActivationRenameRequest request,
+            @EncryptedRequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);

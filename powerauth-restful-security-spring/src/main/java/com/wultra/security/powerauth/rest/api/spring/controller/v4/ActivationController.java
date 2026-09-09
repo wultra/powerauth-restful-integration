@@ -52,7 +52,6 @@ import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthAuthenticatio
 import com.wultra.security.powerauth.rest.api.spring.util.PowerAuthVersionUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
@@ -213,7 +212,7 @@ public class ActivationController {
     })
     @PowerAuthEncryption(scope = EncryptionScope.ACTIVATION_SCOPE)
     public ObjectResponse<ActivationDetailResponse> renameActivation(
-            @NotNull @Valid @EncryptedRequestBody ActivationRenameRequest request,
+            @EncryptedRequestBody ActivationRenameRequest request,
             PowerAuthApiAuthentication auth) throws PowerAuthCodeInvalidException, PowerAuthInvalidRequestException, PowerAuthActivationException {
         logger.info("action: renameActivation, state: initiated, activationId: {}",
                 auth != null && auth.getActivationContext() != null ? auth.getActivationContext().getActivationId() : null);
