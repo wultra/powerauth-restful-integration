@@ -10,11 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Missing request encryption annotation for activation rename endpoint [(#735)](https://github.com/wultra/powerauth-restful-integration/issues/735)
 - Add encrypted request validation to all endpoints that use it [(#737)](https://github.com/wultra/powerauth-restful-integration/issues/737)
 
 ### Fixed
 
+- Missing request encryption annotation for activation rename endpoint [(#735)](https://github.com/wultra/powerauth-restful-integration/issues/735)
 - Reject blank activation name in activation rename [(#739)](https://github.com/wultra/powerauth-restful-integration/issues/739)
 
 ## [2.2.0] - 2026-07-20
