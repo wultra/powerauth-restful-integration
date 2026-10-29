@@ -74,13 +74,13 @@ Fetches a temporary encryption key encoded as a signed JWT. v3 uses ECIES; v4 us
 
 | Field | Type     | Required | Description                                                    |
 |-------|----------|----------|----------------------------------------------------------------|
-| `jwt` | `String` | ✓        | JWT-encoded temporary key request (device public key + nonce). |
+| `jwt` | `String` | ✓        | JWT-encoded temporary key request. Claims: `applicationKey`, optional `activationId`, `challenge`; v4 additionally carries `sharedSecretRequest` (`algorithm`, `encapsulationKeys`). Signed with `HS256` in v3 and `HS384` in v4. |
 
 **Response** `ObjectResponse<TemporaryKeyResponse>`:
 
 | Field | Type     | Description                                                         |
 |-------|----------|---------------------------------------------------------------------|
-| `jwt` | `String` | JWT-encoded temporary key response (server public key + signature). |
+| `jwt` | `String` | JWT-encoded temporary key response (key ID, echoed claims, expiration, server time). v3 returns the server `publicKey` claim; v4 returns `sharedSecretResponse` (`salt`, `encapsulatedKeys`) instead. Signed with `ES256` in v3 and `ES384` in v4. |
 
 
 | Error Code          | When                              |
@@ -526,7 +526,7 @@ Unlocks the secure vault. The HTTP body is an `AeadEncryptedRequest`; the decryp
 
 | Field           | Type     | Required | Description                                          |
 |-----------------|----------|----------|------------------------------------------------------|
-| `keyIdentifier` | `String` | ✓        | Identifier of the key to unlock.                     |
+| `keyIdentifier` | `String` | ✓        | Identifier of the key to unlock: `KEK_DEVICE_PRIVATE`, `KDK_APP_VAULT_2FA` or `KDK_APP_VAULT_KNOWLEDGE`. |
 | `reason`        | `String` |          | Human-readable reason for vault unlock.              |
 
 **Response payload** `VaultUnlockResponsePayload` (inside `AeadEncryptedResponse`):
